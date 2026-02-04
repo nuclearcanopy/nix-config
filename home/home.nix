@@ -55,7 +55,6 @@
     ./programs/btop.nix
     ./programs/fastfetch/config.nix
     ./programs/vesktop.nix
-    ./programs/claude-code.nix
     ./programs/steam.nix
     ./programs/asunder.nix
   ];
