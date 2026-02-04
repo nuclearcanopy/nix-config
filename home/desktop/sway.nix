@@ -16,19 +16,19 @@
           mode = "2560x1440@120Hz";
           position = "0,0";
           scale = "1";
-          bg = "#0f0f0f solid_color";
+          bg = "#0a0a0a solid_color";
         };
         "HDMI-A-1" = {
           mode = "1920x1080@71.92Hz";
           position = "2560,380";
           scale = "1";
-          bg = "#0f0f0f solid_color";
+          bg = "#0a0a0a solid_color";
         };
         "HDMI-A-2" = {
           mode = "1920x1080@60Hz";
           position = "300,1440";
           scale = "1";
-          bg = "#0f0f0f solid_color";
+          bg = "#0a0a0a solid_color";
         };
       };
 
@@ -74,17 +74,17 @@
       colors = {
         focused = {
           border = "#484848";
-          background = "#0f0f0f";
+          background = "#0a0a0a";
           text = "#ffffff";
           indicator = "#f0f0f0";
           childBorder = "#f0f0f0";
         };
         unfocused = {
-          border = "#0f0f0f";
-          background = "#0f0f0f";
+          border = "#0a0a0a";
+          background = "#0a0a0a";
           text = "#888888";
-          indicator = "#0f0f0f";
-          childBorder = "#0f0f0f";
+          indicator = "#0a0a0a";
+          childBorder = "#0a0a0a";
         };
       };
 

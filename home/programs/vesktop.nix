@@ -42,7 +42,7 @@
       };
       ClientTheme = {
         enabled = true;
-        color = "121212";
+        color = "0a0a0a";
       };
     };
   };

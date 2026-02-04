@@ -63,7 +63,7 @@ require("lazy").setup({
             error = "#a04a4a",
           },
           tweak_background = {
-            normal = "#121212",
+            normal = "#0a0a0a",
           },
         })
         vim.cmd("colorscheme lackluster")

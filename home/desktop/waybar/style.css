@@ -10,7 +10,7 @@
 window#waybar {
   all: unset;
   color: #cccccc;
-  background-color: #121212;
+  background-color: #0a0a0a;
   border: none;
 }
 
@@ -199,7 +199,7 @@ window#waybar {
 tooltip {
   color: #cccccc;
   padding: 4px 8px;
-  background: #121212;
+  background: #0a0a0a;
   border: none;
 }
 
