@@ -29,12 +29,14 @@
           #"custom/vpn"
           "group/expand"
           "mpris"
+          "custom/cava"
         ];
         modules-center = [
           "clock"
           "sway/workspaces"
           "pulseaudio"
           "wireplumber"
+          "custom/updates"
         ];
         modules-right = [
           "custom/lact"
@@ -46,31 +48,31 @@
         # =========================
         # Modules
         # =========================
-
+        
         # --/ POWER & SESSION /---
         "custom/power" = {
-          format = "PWR";
+          format = "  ";
           on-click-middle = "systemctl suspend";
           tooltip = false;
         };
 
         "custom/reboot" = {
-          format = "RBT";
+          format = "  ";
           on-click-middle = "systemctl reboot";
           tooltip = false;
         };
 
         "custom/logout" = {
-          format = "OUT";
+          format = " 󰍃 ";
           on-click-middle = "loginctl terminate-user $USER";
           tooltip = false;
         };
-
+        
         #"network" = {
-        #  format-ethernet = "NET";
-        #  tooltip-format = "UP {bandwidthUpBytes} DOWN {bandwidthDownBytes}";
-        #  format-linked = "<span color='#FFA500'>NET</span>{ifname} (No IP)";
-        #  format-disconnected = "<span color='#FF4040'>NO NET</span>";
+        #  format-ethernet = " 󰀃 ";
+        #  tooltip-format = " 󰅧 {bandwidthUpBytes} 󰅢 {bandwidthDownBytes}";
+        #  format-linked = "<span color='#FFA500'> 󱘖 </span>{ifname} (No IP)";
+        #  format-disconnected = "<span color='#FF4040'>  </span>";
         #  interval = 1;
         #};
 
@@ -85,14 +87,14 @@
 
         # --/ CUSTOM TRAY /---
         "custom/expand" = {
-          format = ">";
+          format = " 󰍜 ";
           tooltip = false;
         };
 
         "group/expand" = {
           orientation = "horizontal";
           drawer = {
-            transition-duration = 300;
+            transition-duration = 600;
             transition-to-right = true;
             click-to-reveal = true;
           };
@@ -106,48 +108,68 @@
 
         # --/ MEDIA & VISUALIZER /---
         mpris = {
-          format = "[{status}] {dynamic}";
+          format = "{status_icon} {dynamic}";
           interval = 0;
           dynamic-len = 50;
-          dynamic-separator = " - ";
+          dynamic-separator = " ─ ";
           dynamic-order = [ "artist" ];
           status-icons = {
-            playing = ">";
-            paused = "||";
-            stopped = "[]";
+            playing = "";
+            paused = "󰏤";
+            stopped = "";
           };
 
           ignored-players = [ "firefox" ];
         };
 
+        "custom/cava" = {
+          exec = "${./scripts/cava.sh}";
+        };
+
         # --/ SYSTEM INFO /---
         clock = {
           interval = 60;
-          format = "{:%H:%M  %d.%m %a}";
+          format = "  {:%H:%M   %d.%m %a}";
           tooltip = true;
           tooltip-format = "{:L%Y.%m.%d, %A}";
         };
 
         "sway/workspaces" = {
-          format = "{name}";
+          format = "{icon}";
           persistent_workspaces = {
             "DP-1" = [ 1 2 3 4 5 ];
             "HDMI-A-1" = [ 1 2 3 4 5 ];
             "HDMI-A-2" = [ 1 2 3 4 5 ];
           };
+          format-icons = {
+            "1" = "I ";
+            "2" = "II ";
+            "3" = "III ";
+            "4" = "IV ";
+            "5" = "V ";
+          };
         };
 
         pulseaudio = {
-          format = "VOL {volume}%";
-          format-muted = "<span color='#B96B6B'>VOL MUTE</span>";
+          format = " {volume}% {icon} ";
+          format-muted = "<span color='#B96B6B'>00%  </span>";
+          format-icons = {
+            headphone = " ";
+            hands-free = " ";
+            headset = " ";
+            phone = " ";
+            portable = " ";
+            car = " ";
+            default = [ " " " " " " ];
+          };
           on-click = "pactl -- set-sink-mute @DEFAULT_SINK@ toggle";
           on-click-middle = "pavucontrol";
         };
 
         wireplumber = {
           node-type = "Audio/Source";
-          format = "MIC";
-          format-muted = "<span color='#B96B6B'>MIC MUTE</span>";
+          format = "";
+          format-muted = "󰍮";
           on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
           tooltip-format = "{node_name}";
         };
@@ -156,13 +178,13 @@
         "custom/lact" = {
           exec = "lact cli profile get";
           interval = 30;
-          format = "GPU:{}";
+          format = "  {} ";
           on-click = "${./scripts/lact.sh}";
           signal = 8;
         };
 
         memory = {
-          format = "MEM {used:0.1f}G";
+          format = " 󰍛 {used:0.1f}G ";
           tooltip = false;
         };
 
@@ -172,7 +194,7 @@
         };
         "temperature#cpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon1/temp1_input";
-          format = "CPU {temperatureC}°";
+          format = "  {temperatureC}° ";
           tooltip = false;
         };
         cpu = {
@@ -186,7 +208,7 @@
         };
         "temperature#gpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon5/temp2_input";
-          format = "GPU {temperatureC}°";
+          format = "󰢮 {temperatureC}° ";
           tooltip = false;
         };
         "custom/gpu" = {
@@ -198,7 +220,7 @@
         };
 
         "custom/refresh" = {
-          format = "R";
+          format = " ";
           on-click = "pkill waybar && waybar &";
           tooltip = false;
         };
