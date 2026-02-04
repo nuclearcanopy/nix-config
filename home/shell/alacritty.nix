@@ -4,7 +4,7 @@
     enable = true;
 
     settings = {
-      terminal.shell.program = "${pkgs.fish}/bin/fish";
+      # terminal.shell.program = "${pkgs.fish}/bin/fish";
 
       font = {
         normal.family = "JetBrainsMonoNerdFont";

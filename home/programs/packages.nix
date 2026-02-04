@@ -6,9 +6,6 @@
     librewolf
     freetube
 
-    # dev
-    claude-code
-
     # creative
     obs-studio
     audacity
