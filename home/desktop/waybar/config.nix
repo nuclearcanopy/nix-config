@@ -5,7 +5,7 @@
     enable = true;
 
     systemd.enable = true;
-    systemd.target = "hyprland-session.target";
+    systemd.target = "sway-session.target";
 
     # Import the external CSS file
     style = builtins.readFile ./style.css;
@@ -33,7 +33,7 @@
         ];
         modules-center = [
           "clock"
-          "hyprland/workspaces"
+          "sway/workspaces"
           "pulseaudio"
           "wireplumber"
           "custom/updates"
@@ -134,18 +134,15 @@
           tooltip-format = "{:L%Y.%m.%d, %A}";
         };
 
-        "hyprland/workspaces" = {
+        "sway/workspaces" = {
           format = "{icon}";
-          icon-size = 32;
-          spacing = 16;
-          persistent-workspaces = { "*" = [ 1 2 3 4 5 ]; };
+          persistent_workspaces = { "*" = [ 1 2 3 4 5 ]; };
           format-icons = {
             "1" = "I ";
             "2" = "II ";
             "3" = "III ";
             "4" = "IV ";
             "5" = "V ";
-            sort-by-number = true;
           };
         };
 

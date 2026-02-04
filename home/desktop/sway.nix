@@ -54,7 +54,11 @@
 
       window = {
         border = 4;
+        titlebar = false;
       };
+
+      # Disable default bar (using Waybar instead)
+      bars = [];
 
       # --/ COLORS /-- (borders)
       colors = {
@@ -163,9 +167,10 @@
         modifier = "Mod4";
       };
 
-      # Focus follows mouse
+      # Focus follows mouse & mouse warps to focused window
       focus = {
         followMouse = true;
+        mouseWarping = "container";
       };
     };
   };
