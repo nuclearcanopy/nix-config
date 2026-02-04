@@ -41,7 +41,6 @@
     ./desktop/hyprpaper.nix
     ./desktop/waybar/config.nix
     ./desktop/mako.nix
-    ./desktop/wofi/config.nix
     ./desktop/theme.nix
 
     # shell

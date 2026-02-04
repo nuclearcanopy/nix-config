@@ -7,7 +7,7 @@
     config = {
       # --/ VARIABLES /--
       terminal = "alacritty";
-      menu = "wofi --show drun --normal-window";
+      menu = "j4-dmenu-desktop --dmenu=bemenu";
       modifier = "Mod4";  # Super key
 
       # --/ MONITORS /--
@@ -101,8 +101,8 @@
         alt = "Mod1";  # Alt
       in {
         # Launcher
-        "Control+Return" = "exec wofi --show drun --normal-window";
-        "Control+BackSpace" = "exec wofi --show run --normal-window";
+        "Control+Return" = "exec j4-dmenu-desktop --dmenu=bemenu";
+        "Control+BackSpace" = "exec bemenu-run";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 

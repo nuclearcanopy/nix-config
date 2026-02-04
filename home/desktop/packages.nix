@@ -2,6 +2,10 @@
 
 {
   home.packages = with pkgs; [
+    # launcher
+    bemenu
+    j4-dmenu-desktop
+
     # audio
     pavucontrol
     cava
