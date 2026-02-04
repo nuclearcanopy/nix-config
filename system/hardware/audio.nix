@@ -42,9 +42,9 @@
       "92-low-latency" = {
         "context.properties" = {
           "default.clock.rate" = 48000;
-          "default.clock.quantum" = 512;
-          "default.clock.min-quantum" = 512;
-          "default.clock.max-quantum" = 2048;
+          "default.clock.quantum" = 2048;
+          "default.clock.min-quantum" = 1024;
+          "default.clock.max-quantum" = 8192;
           "default.clock.allowed-rates" = [ 44100 48000 ];
         };
       };
@@ -54,7 +54,7 @@
       # pulse settings for no suspend
       "92-pulse-no-suspend" = {
         "pulse.properties" = {
-          "pulse.min.quantum" = "512/48000";
+          "pulse.min.quantum" = "1024/48000";
         };
         "stream.properties" = {
           "resample.quality" = 10;
