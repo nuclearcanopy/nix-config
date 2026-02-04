@@ -7,7 +7,7 @@
     config = {
       # --/ VARIABLES /--
       terminal = "alacritty";
-      menu = "j4-dmenu-desktop --dmenu=bemenu";
+      menu = "j4-dmenu-desktop --dmenu='bemenu -i -l 20 --scrollbar autohide --counter always'";
       modifier = "Mod4";  # Super key
 
       # --/ MONITORS /--
@@ -101,8 +101,8 @@
         alt = "Mod1";  # Alt
       in {
         # Launcher
-        "Control+Return" = "exec j4-dmenu-desktop --dmenu=bemenu";
-        "Control+BackSpace" = "exec bemenu-run";
+        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -l 20 --scrollbar autohide --counter always'";
+        "Control+BackSpace" = "exec bemenu-run -i -l 20 --scrollbar autohide --counter always";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
