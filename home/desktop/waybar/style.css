@@ -20,8 +20,7 @@ window#waybar {
 .modules-right {
   padding: 2px;
   margin: 0px;
-  border: 1px solid #222222;
-  background: #121212;
+  background: transparent;
 }
 
 .modules-center {
@@ -48,8 +47,7 @@ window#waybar {
 #mpris {
   margin: 2px;
   padding: 2px 6px;
-  border: 1px solid #222222;
-  background: #121212;
+  background: transparent;
 }
 
 /* Shared hover style */
@@ -65,7 +63,6 @@ window#waybar {
 #custom-gpu:hover,
 #custom-refresh:hover {
   color: #ffffff;
-  background: #1a1a1a;
 }
 
 /* =========================
@@ -83,8 +80,7 @@ window#waybar {
   font-weight: bold;
   padding: 0px;
   margin: 2px 6px;
-  border: 1px solid #222222;
-  background: #0f0f0f;
+  background: transparent;
 }
 
 #workspaces button {
@@ -92,21 +88,14 @@ window#waybar {
   padding: 2px 8px;
   color: #666666;
   background: transparent;
-  border-right: 1px solid #222222;
-}
-
-#workspaces button:last-child {
-  border-right: none;
 }
 
 #workspaces button:hover {
   color: #aaaaaa;
-  background: #1a1a1a;
 }
 
 #workspaces button.active {
   color: #dddddd;
-  background: #222222;
 }
 
 #workspaces button.empty {
@@ -118,12 +107,12 @@ window#waybar {
    ========================= */
 #network {
   padding: 2px 6px;
-  background: #0f0f0f;
+  background: transparent;
 }
 
 #custom-vpn {
   padding: 2px 6px;
-  background: #0f0f0f;
+  background: transparent;
 }
 
 /* =========================
@@ -149,7 +138,7 @@ window#waybar {
    ========================= */
 #custom-lact {
   padding: 2px 6px;
-  background: #0f0f0f;
+  background: transparent;
 }
 
 #memory {
@@ -190,8 +179,7 @@ window#waybar {
 #tray {
   padding: 2px 8px;
   margin: 2px;
-  border: 1px solid #222222;
-  background: #0c0c0c;
+  background: transparent;
 }
 
 #tray menu *,
@@ -205,7 +193,6 @@ window#waybar {
 tooltip {
   color: #cccccc;
   padding: 4px 8px;
-  border: 1px solid #222222;
   background: #121212;
 }
 

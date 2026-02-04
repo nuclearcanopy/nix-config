@@ -35,12 +35,11 @@
 
       # --/ GENERAL LAYOUT /--
       general = {
-        gaps_in = 8;
-        gaps_out = 14;
+        gaps_in = 0;
+        gaps_out = 0;
         border_size = 4;
 
-        "col.active_border" =
-          "rgba(f0f0f070) rgba(12121200) rgba(12121200) rgba(f0f0f070) 90deg";
+        "col.active_border" = "rgba(404040ff)";
         "col.inactive_border" = "rgba(121212aa)";
 
         resize_on_border = true;

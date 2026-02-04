@@ -55,8 +55,8 @@
 
       # --/ GENERAL LAYOUT /--
       gaps = {
-        inner = 8;
-        outer = 14;
+        inner = 0;
+        outer = 0;
       };
 
       window = {

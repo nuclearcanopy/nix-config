@@ -129,11 +129,20 @@
         };
 
         "sway/workspaces" = {
-          format = "{name}";
-          persistent_workspaces = {
-            "DP-1" = [ 1 2 3 4 5 ];
-            "HDMI-A-1" = [ 1 2 3 4 5 ];
-            "HDMI-A-2" = [ 1 2 3 4 5 ];
+          format = "{name}: {windows}";
+          format-window-separator = " ";
+          window-rewrite-default = "";
+          window-rewrite = {
+            "title<.*youtube.*>" = "";
+            "class<firefox>" = "";
+            "class<librewolf>" = "";
+            "class<Alacritty>" = "";
+            "class<thunar>" = "";
+            "class<discord>" = "";
+            "class<steam>" = "";
+          };
+          persistent-workspaces = {
+            "*" = [ 1 2 3 4 5 ];
           };
         };
 
