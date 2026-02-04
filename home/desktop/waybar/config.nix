@@ -88,7 +88,7 @@
         "group/expand" = {
           orientation = "horizontal";
           drawer = {
-            transition-duration = 300;
+            transition-duration = 0;
             transition-to-right = true;
             click-to-reveal = true;
           };

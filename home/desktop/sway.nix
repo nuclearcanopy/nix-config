@@ -7,7 +7,7 @@
     config = {
       # variables
       terminal = "alacritty";
-      menu = "j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"'";
+      menu = "j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0c0c0c\" --tf \"#cccccc\" --fb \"#0c0c0c\" --ff \"#cccccc\" --nb \"#0c0c0c\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#0c0c0c\" --sf \"#ffffff\" --scb \"#0c0c0c\" --scf \"#888888\"'";
       modifier = "Mod4";  # super
 
       # monitors
@@ -16,19 +16,19 @@
           mode = "2560x1440@120Hz";
           position = "0,0";
           scale = "1";
-          bg = "#0a0a0a solid_color";
+          bg = "#0c0c0c solid_color";
         };
         "HDMI-A-1" = {
           mode = "1920x1080@71.92Hz";
           position = "2560,380";
           scale = "1";
-          bg = "#0a0a0a solid_color";
+          bg = "#0c0c0c solid_color";
         };
         "HDMI-A-2" = {
           mode = "1920x1080@60Hz";
           position = "300,1440";
           scale = "1";
-          bg = "#0a0a0a solid_color";
+          bg = "#0c0c0c solid_color";
         };
       };
 
@@ -74,17 +74,17 @@
       colors = {
         focused = {
           border = "#484848";
-          background = "#0a0a0a";
+          background = "#0c0c0c";
           text = "#ffffff";
           indicator = "#f0f0f0";
           childBorder = "#f0f0f0";
         };
         unfocused = {
-          border = "#0a0a0a";
-          background = "#0a0a0a";
+          border = "#0c0c0c";
+          background = "#0c0c0c";
           text = "#888888";
-          indicator = "#0a0a0a";
-          childBorder = "#0a0a0a";
+          indicator = "#0c0c0c";
+          childBorder = "#0c0c0c";
         };
       };
 
@@ -101,8 +101,8 @@
         alt = "Mod1";  # alt
       in {
         # launcher
-        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"'";
-        "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"";
+        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0c0c0c\" --tf \"#cccccc\" --fb \"#0c0c0c\" --ff \"#cccccc\" --nb \"#0c0c0c\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#0c0c0c\" --sf \"#ffffff\" --scb \"#0c0c0c\" --scf \"#888888\"'";
+        "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0c0c0c\" --tf \"#cccccc\" --fb \"#0c0c0c\" --ff \"#cccccc\" --nb \"#0c0c0c\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#0c0c0c\" --sf \"#ffffff\" --scb \"#0c0c0c\" --scf \"#888888\"";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
