@@ -1,10 +1,10 @@
 { pkgs, ... }:
 
 {
-  # lact control
+  # lact
   services.lact.enable = true;
 
-  # lact config
+  # config
   systemd.services.lactd = {
     path = [ pkgs.coreutils ];
 
@@ -15,7 +15,7 @@
     '';
 
     serviceConfig = {
-      # security hardening
+      # hardening
       ReadWritePaths = [ "/etc/lact" ];
       ProtectHome = true;
       ProtectKernelModules = true;
@@ -33,10 +33,10 @@
       SystemCallArchitectures = "native";
       RestrictAddressFamilies = [ "AF_UNIX" "AF_NETLINK" ];
 
-      # capability restrictions 
+      # capabilities
       #CapabilityBoundingSet = [
-      #  "CAP_DAC_OVERRIDE"  # read/write GPU sysfs
-      #  "CAP_SYS_RAWIO"     # raw GPU I/O access
+      #  "CAP_DAC_OVERRIDE"  # gpu sysfs
+      #  "CAP_SYS_RAWIO"     # gpu io
       #];
       AmbientCapabilities = [
         "CAP_DAC_OVERRIDE"

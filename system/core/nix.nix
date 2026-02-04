@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  # disable docs
+  # no docs
   documentation.enable = false;
 
   nix = {
@@ -9,20 +9,20 @@
       # flakes
       experimental-features = [ "nix-command" "flakes" ];
 
-      # wheel only
+      # wheel
       allowed-users = [ "@wheel" ];
 
-      # auto-optimize
+      # optimize
       auto-optimise-store = true;
     };
 
-    # garbage collection
+    # gc
     gc = {
       automatic = true;
       options = "--delete-older-than 10d";
     };
 
-    # store optimization
+    # optimize
     optimise.automatic = true;
   };
 }

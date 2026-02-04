@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  # nas mount
+  # nas
   fileSystems."/mnt/nas" = {
     device = "//192.168.0.123/nuclearcanopy";
     fsType = "cifs";

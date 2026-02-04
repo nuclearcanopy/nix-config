@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  # cpu schedulers
+  # schedulers
   services = {
     # sched_ext
     scx = {
@@ -9,7 +9,7 @@
       scheduler = "scx_lavd";
     };
 
-    # process priority
+    # priority
     ananicy = {
       enable = true;
       rulesProvider = pkgs.ananicy-rules-cachyos;

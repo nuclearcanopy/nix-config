@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  # connectivity checks
+  # connectivity
   networking.networkmanager.settings = {
     connectivity = {
       enabled = false;
@@ -9,10 +9,10 @@
     };
   };
 
-  # location services
+  # location
   services.geoclue2.enable = false;
 
-  # gnome telemetry
+  # gnome
   services.gnome.gnome-keyring.enable = false;
   services.gnome.tinysparql.enable = false;
   services.gnome.localsearch.enable = false;

@@ -6,26 +6,26 @@
 
     settings = {
 
-      # --/ MONITORS /--
+      # monitors
       monitor = [
         "DP-1,2560x1440@120,0x0,1"
         "HDMI-A-1,1920x1080@71.92,2560x380,1"
         "HDMI-A-2,1920x1080@60,300x1440,1"
       ];
 
-      # --/ PROGRAMS / VARS /--
+      # programs
       "$terminal" = "alacritty";
       "$fileManager" = "thunar";
       "$mainMod" = "SUPER";
       "$secMod"  = "ALT";
 
-      # --/ ENVIRONMENT /--
+      # environment
       env = [
         "XCURSOR_SIZE,24"
         "HYPRCURSOR_SIZE,24"
       ];
 
-      # --/ AUTOSTART /--
+      # autostart
       exec-once = [
         "protonvpn-app"
         "dbus-update-activation-environment --systemd --all"
@@ -33,7 +33,7 @@
         "hyprpaper"
       ];
 
-      # --/ GENERAL LAYOUT /--
+      # general
       general = {
         gaps_in = 0;
         gaps_out = 0;
@@ -61,7 +61,7 @@
         disable_hyprland_logo = true;
       };
 
-      # --/ DECORATION /--
+      # decoration
       decoration = {
         rounding = 15;
         rounding_power = 2;
@@ -93,7 +93,7 @@
         };
       };
 
-      # --/ ANIMATIONS /--
+      # animations
       animations = {
         enabled = "yes, please :)";
 
@@ -116,7 +116,7 @@
         ];
       };
 
-      # --/ INPUT /--
+      # input
       input = {
         kb_layout = "us";
         follow_mouse = 1;
@@ -133,7 +133,7 @@
         };
       };
 
-      # --/ KEYBINDS /--
+      # keybinds
       bind = [
         # launcher
         "CTRL,RETURN,exec,wofi --show drun --normal-window"
@@ -147,19 +147,19 @@
         "$mainMod,G,exec,librewolf -P llm"
         "CTRL,Y,exec,freetube"
 
-        # lact (gpu) profiles
+        # gpu profiles
         "$mainMod,Z,exec,lact cli profile set LOW && pkill -RTMIN+8 waybar"
         "$mainMod,X,exec,lact cli profile set MID && pkill -RTMIN+8 waybar"
         "$mainMod,C,exec,lact cli profile set MAX && pkill -RTMIN+8 waybar"
 
-        # window actions
+        # windows
         "$secMod,C,killactive"
         "$secMod,V,togglefloating"
         "$secMod,F,fullscreen,0"
         "$mainMod,J,togglesplit"
         "$mainMod,M,exit"
 
-        # waybar actions
+        # waybar
         "$mainMod $secMod,1,exec,pactl -- set-sink-mute 0 toggle"
         "$mainMod $secMod,2,exec,pactl set-source-mute @DEFAULT_SOURCE@ toggle"
 
@@ -182,22 +182,32 @@
         "$mainMod,0,workspace,10"
 
         "$mainMod CTRL,1,movetoworkspace,1"
+        "$mainMod CTRL,1,workspace,1"
         "$mainMod CTRL,2,movetoworkspace,2"
+        "$mainMod CTRL,2,workspace,2"
         "$mainMod CTRL,3,movetoworkspace,3"
+        "$mainMod CTRL,3,workspace,3"
         "$mainMod CTRL,4,movetoworkspace,4"
+        "$mainMod CTRL,4,workspace,4"
         "$mainMod CTRL,5,movetoworkspace,5"
+        "$mainMod CTRL,5,workspace,5"
         "$mainMod CTRL,6,movetoworkspace,6"
+        "$mainMod CTRL,6,workspace,6"
         "$mainMod CTRL,7,movetoworkspace,7"
+        "$mainMod CTRL,7,workspace,7"
         "$mainMod CTRL,8,movetoworkspace,8"
+        "$mainMod CTRL,8,workspace,8"
         "$mainMod CTRL,9,movetoworkspace,9"
+        "$mainMod CTRL,9,workspace,9"
         "$mainMod CTRL,0,movetoworkspace,10"
+        "$mainMod CTRL,0,workspace,10"
 
-        # workspace scroll
+        # scroll
         "$mainMod,mouse_down,workspace,e+1"
         "$mainMod,mouse_up,workspace,e-1"
       ];
 
-      # basic defaults
+      # defaults
       bindm = [
         "$mainMod,mouse:272,movewindow"
         "$mainMod,mouse:273,resizewindow"

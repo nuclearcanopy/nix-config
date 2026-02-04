@@ -45,7 +45,7 @@
   environment.variables = {
     EDITOR = "nvim";
 
-    # disable telemetry
+    # telemetry
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
     POWERSHELL_TELEMETRY_OPTOUT = "1";
     AZURE_CORE_COLLECT_TELEMETRY = "0";

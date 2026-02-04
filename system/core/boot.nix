@@ -15,7 +15,7 @@
 
     kernelPackages = pkgs.linuxPackages_zen;
 
-    kernelParams = [ 
+    kernelParams = [
       # security
       "pti=on"
       "vsyscall=none"

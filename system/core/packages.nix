@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 
 {
-  # unfree allowlist
+  # unfree
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "steam"
     "steam-unwrapped"
@@ -29,10 +29,10 @@
     rsync
     usbutils
 
-    # network storage
+    # storage
     cifs-utils
 
-    # system management
+    # management
     systemd-manager-tui
 
     # hardware

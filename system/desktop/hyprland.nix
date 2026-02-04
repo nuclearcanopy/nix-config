@@ -8,7 +8,7 @@
     xwayland.enable = true;
   };
 
-  environment.sessionVariables.NIXOS_OZONE_WL = "1"; # supposedly hints to electron apps to use wayland native
+  environment.sessionVariables.NIXOS_OZONE_WL = "1"; # electron wayland
 
   xdg.portal = {
     enable = true;

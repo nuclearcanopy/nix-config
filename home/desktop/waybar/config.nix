@@ -7,7 +7,7 @@
     systemd.enable = true;
     systemd.target = "sway-session.target";
 
-    # Import the external CSS file
+    # css import
     style = builtins.readFile ./style.css;
 
     settings = {
@@ -20,7 +20,7 @@
         height = 39;
         spacing = 0;
 
-        # Layout
+        # layout
         modules-left = [
           "custom/power"
           "custom/reboot"
@@ -43,11 +43,7 @@
           "group/gpuheader"
         ];
 
-        # =========================
-        # Modules
-        # =========================
-
-        # --/ POWER & SESSION /---
+        # power session
         "custom/power" = {
           format = "PWR";
           on-click-middle = "systemctl suspend";
@@ -83,7 +79,7 @@
         #  on-click = "mullvad-gui";
         #};
 
-        # --/ CUSTOM TRAY /---
+        # tray
         "custom/expand" = {
           format = ">";
           tooltip = false;
@@ -104,7 +100,7 @@
           spacing = 6;
         };
 
-        # --/ MEDIA & VISUALIZER /---
+        # media
         mpris = {
           format = "[{status}] {dynamic}";
           interval = 0;
@@ -120,7 +116,7 @@
           ignored-players = [ "firefox" ];
         };
 
-        # --/ SYSTEM INFO /---
+        # system
         clock = {
           interval = 60;
           format = "{:%H:%M  %d.%m %a}";
@@ -161,7 +157,7 @@
           tooltip-format = "{node_name}";
         };
 
-        # --/ HARDWARE  /---
+        # hardware
         "custom/lact" = {
           exec = "lact cli profile get";
           interval = 30;

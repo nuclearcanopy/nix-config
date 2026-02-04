@@ -1,10 +1,10 @@
 { pkgs, ... }:
 
 {
-  # realtime audio
+  # realtime
   security.rtkit.enable = true;
 
-  # usb audio power
+  # usb power
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", TEST=="power/control", ATTR{power/control}="on"
   '';
@@ -21,7 +21,7 @@
     jack.enable = true;
 
     wireplumber.extraConfig = {
-      # disable suspend globally
+      # no suspend
       "51-disable-suspension" = {
         "monitor.alsa.rules" = [{
           matches = [
@@ -38,7 +38,7 @@
     };
 
     extraConfig.pipewire = {
-      # optimized low-latency settings
+      # low latency
       "92-low-latency" = {
         "context.properties" = {
           "default.clock.rate" = 48000;
@@ -51,7 +51,7 @@
     };
 
     extraConfig.pipewire-pulse = {
-      # pulse settings for no suspend
+      # pulse
       "92-pulse-no-suspend" = {
         "pulse.properties" = {
           "pulse.min.quantum" = "1024/48000";

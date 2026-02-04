@@ -2,7 +2,7 @@
 
 {
   
-  # --/ DISCORD SETTINGS /---
+  # discord
   programs.vesktop = {
     enable = true;
 

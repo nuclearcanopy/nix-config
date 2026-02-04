@@ -4,7 +4,7 @@
   programs.zsh = {
     enable = true;
 
-    # --/ "PLUGINS" + HIST /---
+    # plugins
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     autosuggestion.enable = true;
@@ -15,7 +15,7 @@
       path = "${config.home.homeDirectory}/.zsh_history";
     };
   
-    # --/ ALIASES /---
+    # aliases
     shellAliases = {
       snvim = "sudo -E nvim";
       nvfx = "nvim .";
@@ -24,7 +24,7 @@
     };
 
     initContent = ''
-      # --/ PROMPT /---
+      # prompt
       precmd() { echo }
 
       setopt prompt_subst
@@ -37,15 +37,14 @@
       LIGHTGRAY="140;140;140"
       WHITE="180;180;180"
 
-      # The Pill Prompt - Using %~ directly for the path
       PROMPT=" $(fg_custom $C1)"
-      PROMPT+="$(fg_custom $LIGHTGRAY)$(bg_custom $C1) " # NixOS Icon (Added space for breathing room)
+      PROMPT+="$(fg_custom $LIGHTGRAY)$(bg_custom $C1) "
       PROMPT+="$(fg_custom $C1)$(bg_custom $C3)"
-      PROMPT+="$(fg_custom $WHITE)$(bg_custom $C3) %~ "    # %~ is the native Zsh path code
+      PROMPT+="$(fg_custom $WHITE)$(bg_custom $C3) %~ "
       PROMPT+="$(fg_custom $C3)$(bg_custom $C1)"
       PROMPT+="$(fg_custom $C1)%k%k%f "
 
-      # --/ FUNCTIONS /---
+      # functions
       nix-commit() {
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo " Changes"
@@ -83,7 +82,7 @@
         fi
       }
 
-      # --/ STARTUP /---
+      # startup
       [[ $- == *i* ]] && fastfetch
       
       typeset -A ZSH_HIGHLIGHT_STYLES

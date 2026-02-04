@@ -2,13 +2,13 @@
 
 {
   hardware = {
-    # cpu microcode
+    # microcode
     cpu = {
       intel.updateMicrocode = false;
       amd.updateMicrocode = true;
     };
 
-    # gpu overdrive
+    # overdrive
     amdgpu.overdrive.enable = true;
 
     # graphics
@@ -16,7 +16,7 @@
       enable = true;
       enable32Bit = true;
 
-      # unstable mesa
+      # mesa
       package = unstable.mesa;
       package32 = unstable.pkgsi686Linux.mesa;
 

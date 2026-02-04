@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  # librewolf backup
+  # backup
   systemd.user.services.librewolf-backup = {
     description = "Backup LibreWolf profiles";
 

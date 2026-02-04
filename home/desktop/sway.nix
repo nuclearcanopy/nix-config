@@ -5,12 +5,12 @@
     enable = true;
 
     config = {
-      # --/ VARIABLES /--
+      # variables
       terminal = "alacritty";
       menu = "j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"'";
-      modifier = "Mod4";  # Super key
+      modifier = "Mod4";  # super
 
-      # --/ MONITORS /--
+      # monitors
       output = {
         "DP-1" = {
           mode = "2560x1440@120Hz";
@@ -32,14 +32,14 @@
         };
       };
 
-      # Initial workspace assignments
+      # ws assign
       workspaceOutputAssign = [
         { workspace = "1"; output = "DP-1"; }
         { workspace = "2"; output = "HDMI-A-1"; }
         { workspace = "3"; output = "HDMI-A-2"; }
       ];
 
-      # --/ INPUT /--
+      # input
       input = {
         "*" = {
           xkb_layout = "us";
@@ -56,7 +56,7 @@
         };
       };
 
-      # --/ GENERAL LAYOUT /--
+      # general
       gaps = {
         inner = 0;
         outer = 0;
@@ -67,10 +67,10 @@
         titlebar = false;
       };
 
-      # Disable default bar (using Waybar instead)
+      # no bar
       bars = [];
 
-      # --/ COLORS /-- (borders)
+      # colors
       colors = {
         focused = {
           border = "#484848";
@@ -88,53 +88,53 @@
         };
       };
 
-      # --/ AUTOSTART /--
+      # autostart
       startup = [
         { command = "protonvpn-app"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
       ];
 
-      # --/ KEYBINDS /--
+      # keybinds
       keybindings = let
-        mod = "Mod4";  # Super
-        alt = "Mod1";  # Alt
+        mod = "Mod4";  # super
+        alt = "Mod1";  # alt
       in {
-        # Launcher
+        # launcher
         "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"'";
         "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#ffffff\" --scb \"#0a0a0a\" --scf \"#888888\"";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
-        # Apps
+        # apps
         "${mod}+q" = "exec alacritty";
         "${mod}+Tab" = "exec librewolf";
         "${mod}+g" = "exec librewolf -P llm";
         "Control+y" = "exec freetube";
 
-        # LACT (GPU) profiles
+        # gpu profiles
         "${mod}+z" = "exec lact cli profile set LOW && pkill -RTMIN+8 waybar";
         "${mod}+x" = "exec lact cli profile set MID && pkill -RTMIN+8 waybar";
         "${mod}+c" = "exec lact cli profile set MAX && pkill -RTMIN+8 waybar";
 
-        # Window actions
+        # windows
         "${alt}+c" = "kill";
         "${alt}+v" = "floating toggle";
         "${alt}+f" = "fullscreen toggle";
         "${mod}+j" = "layout toggle split";
         "${mod}+m" = "exit";
 
-        # Waybar actions
+        # waybar
         "${mod}+${alt}+1" = "exec pactl -- set-sink-mute 0 toggle";
         "${mod}+${alt}+2" = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle";
 
-        # Focus
+        # focus
         "${mod}+a" = "focus left";
         "${mod}+d" = "focus right";
         "${mod}+w" = "focus up";
         "${mod}+s" = "focus down";
 
-        # Workspaces
+        # workspaces
         "${mod}+1" = "workspace number 1";
         "${mod}+2" = "workspace number 2";
         "${mod}+3" = "workspace number 3";
@@ -146,7 +146,7 @@
         "${mod}+9" = "workspace number 9";
         "${mod}+0" = "workspace number 10";
 
-        # Move to workspace
+        # move
         "${mod}+Control+1" = "move container to workspace number 1";
         "${mod}+Control+2" = "move container to workspace number 2";
         "${mod}+Control+3" = "move container to workspace number 3";
@@ -158,7 +158,7 @@
         "${mod}+Control+9" = "move container to workspace number 9";
         "${mod}+Control+0" = "move container to workspace number 10";
 
-        # Media keys
+        # media
         "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
         "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
         "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
@@ -172,12 +172,12 @@
         "XF86AudioPrev" = "exec playerctl previous";
       };
 
-      # Floating modifier for mouse
+      # floating
       floating = {
         modifier = "Mod4";
       };
 
-      # Focus follows mouse & mouse warps to focused window
+      # mouse
       focus = {
         followMouse = true;
         mouseWarping = "container";
