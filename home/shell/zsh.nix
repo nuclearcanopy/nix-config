@@ -37,8 +37,7 @@
       LIGHTGRAY="140;140;140"
       WHITE="180;180;180"
  
-      PROMPT+="$(fg_custom $LIGHTGRAY)$(bg_custom $C1) "
-      PROMPT+="$(fg_custom $C1)$(bg_custom $C3)"
+      PROMPT="$(fg_custom $C1)$(bg_custom $C3)"
       PROMPT+="$(fg_custom $WHITE)$(bg_custom $C3) %~ "
       PROMPT+="$(fg_custom $C3)$(bg_custom $C1)"
       PROMPT+="$(fg_custom $C1)%k%k%f "
