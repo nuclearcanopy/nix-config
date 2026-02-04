@@ -11,7 +11,7 @@
         size = 16;
       };
 
-      window.opacity = 0.6;
+      window.opacity = 1.0;
 
       cursor.style.shape = "Beam";
 

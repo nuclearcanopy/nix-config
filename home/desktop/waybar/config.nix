@@ -25,18 +25,18 @@
           "custom/power"
           "custom/reboot"
           "custom/logout"
+          "clock"
           #"network"
           #"custom/vpn"
           "group/expand"
           "mpris"
         ];
         modules-center = [
-          "clock"
           "sway/workspaces"
-          "pulseaudio"
-          "wireplumber"
         ];
         modules-right = [
+          "pulseaudio"
+          "wireplumber"
           "custom/lact"
           "memory"
           "group/cpuheader"
