@@ -60,7 +60,7 @@
       };
 
       window = {
-        border = 4;
+        border = 0;
         titlebar = false;
       };
 
@@ -70,7 +70,7 @@
       # --/ COLORS /-- (borders)
       colors = {
         focused = {
-          border = "#f0f0f0";
+          border = "#484848";
           background = "#121212";
           text = "#ffffff";
           indicator = "#f0f0f0";
