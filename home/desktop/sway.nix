@@ -7,7 +7,7 @@
     config = {
       # --/ VARIABLES /--
       terminal = "alacritty";
-      menu = "j4-dmenu-desktop --dmenu='bemenu -i -c -l 20 --scrollbar autohide --counter always'";
+      menu = "j4-dmenu-desktop --dmenu='bemenu -i -c -l 20 -W 0.25 -B 1 --scrollbar autohide --counter always --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#888888\" --ab \"#0a0a0a\" --af \"#666666\"'";
       modifier = "Mod4";  # Super key
 
       # --/ MONITORS /--
@@ -101,8 +101,8 @@
         alt = "Mod1";  # Alt
       in {
         # Launcher
-        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 20 --scrollbar autohide --counter always'";
-        "Control+BackSpace" = "exec bemenu-run -i -c -l 20 --scrollbar autohide --counter always";
+        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 20 -W 0.25 -B 1 --scrollbar autohide --counter always --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#888888\" --ab \"#0a0a0a\" --af \"#666666\"'";
+        "Control+BackSpace" = "exec bemenu-run -i -c -l 20 -W 0.25 -B 1 --scrollbar autohide --counter always --fn \"monospace 16\" --tb \"#0a0a0a\" --tf \"#cccccc\" --fb \"#0a0a0a\" --ff \"#cccccc\" --nb \"#0a0a0a\" --nf \"#888888\" --hb \"#0a0a0a\" --hf \"#ffffff\" --sb \"#0a0a0a\" --sf \"#888888\" --ab \"#0a0a0a\" --af \"#666666\"";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
