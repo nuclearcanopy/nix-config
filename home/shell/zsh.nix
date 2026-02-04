@@ -40,8 +40,7 @@
  
       PROMPT=" $(fg_custom $INVIZ)$(bg_custom $C3)"
       PROMPT+="$(fg_custom $WHITE)$(bg_custom $C3) %~ "
-      PROMPT+="$(fg_custom $C3)$(bg_custom $C1)"
-      PROMPT+="$(fg_custom $C1)%k%k%f "
+      PROMPT+="$(fg_custom $C3)%k%k%f "
 
       # functions
       nix-commit() {
