@@ -1,0 +1,102 @@
+version: 5
+daemon:
+  log_level: info
+  admin_group: wheel
+  disable_clocks_cleanup: false
+apply_settings_timer: 5
+gpus:
+  1002:744C-1DA2:471E-0000:0a:00.0:
+    fan_control_enabled: true
+    fan_control_settings:
+      mode: curve
+      static_speed: 0.5
+      temperature_key: edge
+      interval_ms: 500
+      curve:
+        30: 0.2
+        40: 0.2
+        60: 0.2
+        84: 0.5
+        90: 1.0
+      spindown_delay_ms: 5000
+      change_threshold: 2
+    pmfw_options:
+      zero_rpm: true
+      zero_rpm_threshold: 60
+    performance_level: auto
+    max_core_clock: 3075
+    voltage_offset: -60
+profiles:
+  LOW:
+    gpus:
+      1002:744C-1DA2:471E-0000:0a:00.0:
+        fan_control_enabled: true
+        fan_control_settings:
+          mode: curve
+          static_speed: 0.5
+          temperature_key: edge
+          interval_ms: 500
+          curve:
+            30: 0.2
+            40: 0.2
+            60: 0.2
+            84: 0.5
+            90: 1.0
+          spindown_delay_ms: 5000
+          change_threshold: 2
+        pmfw_options:
+          zero_rpm: true
+          zero_rpm_threshold: 60
+        performance_level: manual
+        max_core_clock: 3075
+        voltage_offset: -60
+        power_profile_mode_index: 2
+  MID:
+    gpus:
+      1002:744C-1DA2:471E-0000:0a:00.0:
+        fan_control_enabled: true
+        fan_control_settings:
+          mode: curve
+          static_speed: 0.5
+          temperature_key: edge
+          interval_ms: 500
+          curve:
+            30: 0.2
+            40: 0.2
+            60: 0.2
+            84: 0.5
+            90: 1.0
+          spindown_delay_ms: 5000
+          change_threshold: 2
+        pmfw_options:
+          zero_rpm: true
+          zero_rpm_threshold: 60
+        performance_level: auto
+        max_core_clock: 3075
+        voltage_offset: -60
+  MAX:
+    gpus:
+      1002:744C-1DA2:471E-0000:0a:00.0:
+        fan_control_enabled: true
+        fan_control_settings:
+          mode: curve
+          static_speed: 0.5
+          temperature_key: edge
+          interval_ms: 500
+          curve:
+            30: 0.2
+            40: 0.2
+            60: 0.2
+            84: 0.5
+            90: 1.0
+          spindown_delay_ms: 5000
+          change_threshold: 2
+        pmfw_options:
+          zero_rpm: true
+          zero_rpm_threshold: 60
+        performance_level: manual
+        max_core_clock: 3075
+        voltage_offset: -60
+        power_profile_mode_index: 1
+current_profile: MAX
+auto_switch_profiles: false
