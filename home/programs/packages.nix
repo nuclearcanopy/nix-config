@@ -23,6 +23,6 @@
     picard    # tagger
     asunder   # ripper
     feishin   # player
-    subtui
+    ferrosonic
   ];
 }
