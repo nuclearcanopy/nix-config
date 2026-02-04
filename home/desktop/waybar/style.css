@@ -169,11 +169,6 @@ window#waybar {
   padding: 2px 6px;
 }
 
-/* Rotate arrow when tray is open */
-#expand.revealed #custom-expand {
-  transform: rotate(180deg);
-}
-
 #custom-power,
 #custom-reboot,
 #custom-logout {
