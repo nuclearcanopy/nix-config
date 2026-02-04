@@ -38,7 +38,6 @@
     ./desktop/packages.nix
     ./desktop/hyprland.nix
     ./desktop/sway.nix
-    ./desktop/hyprpaper.nix
     ./desktop/waybar/config.nix
     ./desktop/mako.nix
     ./desktop/theme.nix

@@ -93,6 +93,7 @@
         { command = "protonvpn-app"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
+        { command = "waybar"; }
       ];
 
       # keybinds
