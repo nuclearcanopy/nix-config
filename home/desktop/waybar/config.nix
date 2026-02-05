@@ -16,7 +16,7 @@
         fixed-center = true;
         layer = "top";
         output = [ "DP-1" "HDMI-A-1" ];
-        position = "bottom";
+        position = "top";
         height = 39;
         spacing = 0;
 
