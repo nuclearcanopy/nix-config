@@ -6,7 +6,7 @@ fg_custom() { echo "%{\e[38;2;${1}m%}"; }
 bg_custom() { echo "%{\e[48;2;${1}m%}"; }
 
 INVIZ="12;12;12"
-C3="20;20;20"
+C3="21;21;21"
 WHITE="180;180;180"
 
 PROMPT=" $(fg_custom $INVIZ)$(bg_custom $C3)"
