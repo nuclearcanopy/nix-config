@@ -113,7 +113,7 @@
         "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#060606\" --tf \"#cccccc\" --fb \"#060606\" --ff \"#cccccc\" --nb \"#060606\" --nf \"#888888\" --ab \"#060606\" --af \"#888888\" --hb \"#0d0d0d\" --hf \"#ffffff\" --sb \"#060606\" --sf \"#ffffff\" --scb \"#060606\" --scf \"#888888\"'";
         "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#060606\" --tf \"#cccccc\" --fb \"#060606\" --ff \"#cccccc\" --nb \"#060606\" --nf \"#888888\" --ab \"#060606\" --af \"#888888\" --hb \"#0d0d0d\" --hf \"#ffffff\" --sb \"#060606\" --sf \"#ffffff\" --scb \"#060606\" --scf \"#888888\"";
 
-        "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
+        "Print" = "exec wayshot -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
         # apps
