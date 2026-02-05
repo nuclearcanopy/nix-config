@@ -161,7 +161,7 @@
         "custom/lact" = {
           exec = "lact cli profile get";
           interval = 30;
-          format = "{}";
+          format = "GPU {}";
           on-click = "${./scripts/lact.sh}";
           signal = 8;
         };
@@ -191,7 +191,7 @@
         };
         "temperature#gpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon5/temp2_input";
-          format = "GPU {temperatureC}°";
+          format = "{temperatureC}°";
           tooltip = false;
         };
         "custom/gpu" = {
