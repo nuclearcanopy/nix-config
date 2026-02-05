@@ -112,7 +112,7 @@
         # system
         clock = {
           interval = 60;
-          format = "{%d.%m %a %H:%M}";
+          format = "{:%d.%m %a %H:%M}";
           tooltip = true;
           tooltip-format = "{:L%Y.%m.%d, %A}";
         };
