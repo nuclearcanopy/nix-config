@@ -75,16 +75,16 @@
         focused = {
           border = "#060606";
           background = "#0c0c0c";
-          text = "#ffffff";
-          indicator = "#f0f0f0";
-          childBorder = "#f0f0f0";
+          text = "#f0f0f0";
+          indicator = "#060606";
+          childBorder = "#060606";
         };
         unfocused = {
           border = "#060606";
           background = "#0c0c0c";
           text = "#888888";
-          indicator = "#0c0c0c";
-          childBorder = "#0c0c0c";
+          indicator = "#060606";
+          childBorder = "#060606";
         };
       };
 
