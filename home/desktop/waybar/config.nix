@@ -14,9 +14,9 @@
       mainBar = {
         reload_style_on_change = true;
         fixed-center = true;
-        layer = "bottom";
+        layer = "top";
         output = [ "DP-1" "HDMI-A-1" ];
-        position = "top";
+        position = "bottom";
         height = 39;
         spacing = 0;
 
