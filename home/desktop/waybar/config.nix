@@ -22,8 +22,6 @@
 
         # layout
         modules-left = [
-          "custom/power"
-          "custom/reboot"
           "clock"
           "pulseaudio"
           "wireplumber"
@@ -36,11 +34,12 @@
           "sway/workspaces"
         ];
         modules-right = [
-
           "memory"
           "group/cpuheader"
           "custom/lact"
           "group/gpuheader"
+          "custom/power"
+          "custom/reboot"
         ];
 
         # power session
