@@ -17,17 +17,17 @@
 
       colors = {
         primary = {
-          background = "#0c0c0c";
+          background = "#121212";
           foreground = "#d0d0d0";
         };
 
         cursor = {
-          text = "#0c0c0c";
+          text = "#121212";
           cursor = "#d0d0d0";
         };
 
         selection = {
-          text = "#0c0c0c";
+          text = "#121212";
           background = "#c0dfdd";
         };
         
