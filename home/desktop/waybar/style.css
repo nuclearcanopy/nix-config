@@ -158,7 +158,12 @@ window#waybar {
 }
 
 #gpuheader {
-  margin-right: 0px -10px 0px 0px;
+  margin: 0px -10px 0px 0px;
+}
+
+#cpu,
+#custom-gpu {
+  padding: 0px 4px;
 }
 
 /* =========================
