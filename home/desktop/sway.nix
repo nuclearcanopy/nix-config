@@ -102,8 +102,8 @@
         alt = "Mod1";  # alt
       in {
         # launcher
-        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0c0c0c\" --tf \"#cccccc\" --fb \"#0c0c0c\" --ff \"#cccccc\" --nb \"#0c0c0c\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#0c0c0c\" --sf \"#ffffff\" --scb \"#0c0c0c\" --scf \"#888888\"'";
-        "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#0c0c0c\" --tf \"#cccccc\" --fb \"#0c0c0c\" --ff \"#cccccc\" --nb \"#0c0c0c\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#0c0c0c\" --sf \"#ffffff\" --scb \"#0c0c0c\" --scf \"#888888\"";
+        "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#060606\" --tf \"#cccccc\" --fb \"#060606\" --ff \"#cccccc\" --nb \"#060606\" --nf \"#888888\" --hb \"#0c0c0c\" --hf \"#ffffff\" --sb \"#060606\" --sf \"#ffffff\" --scb \"#060606\" --scf \"#888888\"'";
+        "Control+BackSpace" = "exec bemenu-run -i -c -l 5 -W 0.20 -B 0 -p \"\" --fn \"monospace 16\" --tb \"#060606\" --tf \"#cccccc\" --fb \"#060606\" --ff \"#cccccc\" --nb \"#060606\" --nf \"#888888\" --hb \"#060606\" --hf \"#ffffff\" --sb \"#060606\" --sf \"#ffffff\" --scb \"#060606\" --scf \"#888888\"";
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
