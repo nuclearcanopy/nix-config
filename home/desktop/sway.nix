@@ -17,19 +17,19 @@
           mode = "2560x1440@120Hz";
           position = "0,0";
           scale = "1";
-          bg = "#0c0c0c solid_color";
+          bg = "#060606 solid_color";
         };
         "HDMI-A-1" = {
           mode = "1920x1080@71.92Hz";
           position = "2560,380";
           scale = "1";
-          bg = "#0c0c0c solid_color";
+          bg = "#060606 solid_color";
         };
         "HDMI-A-2" = {
           mode = "1920x1080@60Hz";
           position = "300,1440";
           scale = "1";
-          bg = "#0c0c0c solid_color";
+          bg = "#060606 solid_color";
         };
       };
 
