@@ -52,7 +52,6 @@
     ./programs/packages.nix
     ./programs/neovim/config.nix
     ./programs/btop.nix
-    ./programs/fastfetch/config.nix
     ./programs/vesktop.nix
     ./programs/steam.nix
     ./programs/asunder.nix

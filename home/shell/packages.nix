@@ -2,11 +2,7 @@
 
 {
   home.packages = with pkgs; [
-    # fun
-    cowsay
-
     # utilities
-    tree
     trash-cli
     xdg-utils
 
