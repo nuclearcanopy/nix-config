@@ -5,7 +5,6 @@
     # browsers
     librewolf
     freetube
-    pfetch
 
     # creative
     obs-studio
