@@ -37,10 +37,10 @@
         modules-right = [
           "pulseaudio"
           "wireplumber"
-          "custom/lact"
           "memory"
           "group/cpuheader"
           "group/gpuheader"
+          "custom/lact"
         ];
 
         # power session
@@ -161,7 +161,7 @@
         "custom/lact" = {
           exec = "lact cli profile get";
           interval = 30;
-          format = "GPU:{}";
+          format = "{}";
           on-click = "${./scripts/lact.sh}";
           signal = 8;
         };
