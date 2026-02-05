@@ -57,5 +57,8 @@
     ./programs/vesktop.nix
     ./programs/steam.nix
     ./programs/asunder.nix
+
+    # development
+    ./dev/rust.nix
   ];
 }
