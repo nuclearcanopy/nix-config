@@ -5,10 +5,10 @@
     enable = true;
 
     settings = {
-      background-color = "#141414";
+      background-color = "#131313";
       border-color = "#1d1d1d";
       default-timeout = 7500;
-      padding = "10";
+      padding = "20";
     };
   };
 }
