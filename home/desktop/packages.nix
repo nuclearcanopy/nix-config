@@ -8,8 +8,6 @@
 
     # audio
     pavucontrol
-    cava
-    bc  # for cava
 
     # media
     mpv

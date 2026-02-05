@@ -1,10 +1,12 @@
-{ ... }:
+{ unstable, ... }:
 
 {
   
   # discord
   programs.vesktop = {
     enable = true;
+
+    package = unstable.vesktop;
 
     settings = {
       discordBranch = "stable";
