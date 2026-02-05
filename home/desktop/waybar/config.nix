@@ -167,7 +167,7 @@
         };
 
         memory = {
-          format = "MEM {used:0.1f}G";
+          format = "MEM {used:0.1f}G ";
           tooltip = false;
         };
 
