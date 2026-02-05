@@ -17,7 +17,7 @@
   environment.systemPackages = with pkgs; [
     # vpn
     wireguard-tools
-    unstable.protonvpn-gui
+    protonvpn-gui
 
     # gaming
     bottles
