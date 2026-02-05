@@ -14,7 +14,7 @@
     playerctl
 
     # screenshot
-    wayshot
+    grim
     slurp
     hyprpicker
     wl-clipboard
