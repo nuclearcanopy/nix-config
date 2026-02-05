@@ -91,7 +91,7 @@ window#waybar {
 #workspaces button {
   all: unset;
   padding: 2px 8px;
-  color: #666666;
+  color: #dddddd;
   background: transparent;
   border: none;
 }
