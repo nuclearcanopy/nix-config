@@ -63,7 +63,7 @@
       };
 
       window = {
-        border = 0;
+        border = 2;
         titlebar = false;
       };
 
@@ -73,14 +73,14 @@
       # colors
       colors = {
         focused = {
-          border = "#484848";
+          border = "#060606";
           background = "#0c0c0c";
           text = "#ffffff";
           indicator = "#f0f0f0";
           childBorder = "#f0f0f0";
         };
         unfocused = {
-          border = "#0c0c0c";
+          border = "#060606";
           background = "#0c0c0c";
           text = "#888888";
           indicator = "#0c0c0c";
