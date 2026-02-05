@@ -87,6 +87,13 @@
           indicator = "#060606";
           childBorder = "#060606";
         };
+        focusedInactive = {
+          border = "#060606";
+          background = "#0c0c0c";
+          text = "#888888";
+          indicator = "#060606";
+          childBorder = "#060606";
+        };
       };
 
       # autostart
