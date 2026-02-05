@@ -48,6 +48,7 @@ window#waybar {
 #clock:hover,
 #network:hover,
 #memory:hover,
+#wireplumber:hover,
 #temperature:hover,
 #custom-power:hover,
 #custom-reboot:hover,
@@ -56,7 +57,7 @@ window#waybar {
 #pulseaudio:hover,
 #custom-gpu:hover,
 #custom-refresh:hover {
-  color: #ffffff;
+  color: #b0b0b0;
 }
 
 #clock {
