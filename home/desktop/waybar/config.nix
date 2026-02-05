@@ -24,8 +24,9 @@
         modules-left = [
           "custom/power"
           "custom/reboot"
-          "custom/logout"
           "clock"
+          "pulseaudio"
+          "wireplumber"
           #"network"
           #"custom/vpn"
           "group/expand"
@@ -35,8 +36,7 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "pulseaudio"
-          "wireplumber"
+
           "memory"
           "group/cpuheader"
           "custom/lact"
@@ -53,12 +53,6 @@
         "custom/reboot" = {
           format = "RBT";
           on-click-middle = "systemctl reboot";
-          tooltip = false;
-        };
-
-        "custom/logout" = {
-          format = "OUT";
-          on-click-middle = "loginctl terminate-user $USER";
           tooltip = false;
         };
 
