@@ -168,6 +168,13 @@
         "${mod}+Control+9" = "move container to workspace number 9";
         "${mod}+Control+0" = "move container to workspace number 10";
 
+        "${mod}+Shift+a" = "move left";
+        "${mod}+Shift+d" = "move right";
+        "${mod}+Shift+w" = "move up";
+        "${mod}+Shift+s" = "move down";
+
+        "${mod}+t" = "split toggle";  # toggle between h/v
+
         # media
         "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
         "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
