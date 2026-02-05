@@ -3,9 +3,12 @@
 {
   services.mako = {
     enable = true;
-    backgroundColor = "#121212";
-    borderColor = "#1f1f1f";
-    defaultTimeout = 7500;
-    padding = "10";
+
+    settings = {
+      background-color = "#141414";
+      border-color = "#1d1d1d";
+      default-timeout = 7500;
+      padding = "10";
+    };
   };
 }
