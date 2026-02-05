@@ -8,7 +8,6 @@
     ./core/packages.nix
 
     # Desktop environment
-    ./desktop/hyprland.nix
     ./desktop/sway.nix
     ./desktop/fonts.nix
     ./desktop/xdg.nix

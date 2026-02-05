@@ -36,7 +36,6 @@
   imports = [
     # desktop
     ./desktop/packages.nix
-    ./desktop/hyprland.nix
     ./desktop/sway.nix
     ./desktop/waybar/config.nix
     ./desktop/mako.nix
