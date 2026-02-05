@@ -83,7 +83,7 @@
         unfocused = {
           border = "#060606";
           background = "#0c0c0c";
-          text = "#888888";
+          text = "#060606";
           indicator = "#060606";
           childBorder = "#060606";
         };
