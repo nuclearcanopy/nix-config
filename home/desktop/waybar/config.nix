@@ -39,8 +39,8 @@
           "wireplumber"
           "memory"
           "group/cpuheader"
-          "group/gpuheader"
           "custom/lact"
+          "group/gpuheader"
         ];
 
         # power session
