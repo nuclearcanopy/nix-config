@@ -2,8 +2,8 @@ precmd() { echo }
 
 setopt prompt_subst
 
-fg_custom() { echo "%{\e[38;2;''${1}m%}"; }
-bg_custom() { echo "%{\e[48;2;''${1}m%}"; }
+fg_custom() { echo "%{\e[38;2;${1}m%}"; }
+bg_custom() { echo "%{\e[48;2;${1}m%}"; }
 
 INVIZ="12;12;12"
 C3="28;28;28"
