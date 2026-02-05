@@ -38,8 +38,8 @@
           "group/cpuheader"
           "custom/lact"
           "group/gpuheader"
-          "custom/power"
           "custom/reboot"
+          "custom/power"
         ];
 
         # power session
@@ -112,7 +112,7 @@
         # system
         clock = {
           interval = 60;
-          format = "{:%H:%M  %d.%m %a}";
+          format = "{%d.%m %a :%H:%M}";
           tooltip = true;
           tooltip-format = "{:L%Y.%m.%d, %A}";
         };
