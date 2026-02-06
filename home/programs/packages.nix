@@ -6,6 +6,8 @@
     librewolf
     freetube
 
+    hexchat
+
     # creative
     obs-studio
     audacity
@@ -21,7 +23,6 @@
 
     # music
     easyeffects
-    lidarr    # downloader
     picard    # tagger
     asunder   # ripper
     feishin   # player
