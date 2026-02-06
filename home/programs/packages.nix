@@ -21,6 +21,7 @@
 
     # music
     easyeffects
+    lidarr    # downloader
     picard    # tagger
     asunder   # ripper
     feishin   # player
