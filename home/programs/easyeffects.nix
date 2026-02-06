@@ -5,7 +5,7 @@
 
   xdg.configFile."easyeffects/db/bassEnhancerrc".text = ''
     [soe][BassEnhancer#0]
-    amount=4.5
+    amount=5.00
     harmonics=8
     scope=150
   '';
