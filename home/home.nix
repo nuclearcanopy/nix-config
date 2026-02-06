@@ -55,6 +55,7 @@
     ./programs/vesktop.nix
     ./programs/steam.nix
     ./programs/asunder.nix
+    ./programs/easyeffects.nix
 
     # development
     ./dev/rust.nix
