@@ -7,8 +7,8 @@
     force = true;
     text = ''
       [soe][BassEnhancer#0]
-      amount=5.00
-      harmonics=8
+      amount=2.50
+      harmonics=8.5
       scope=150
     '';
   };
