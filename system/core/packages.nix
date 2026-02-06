@@ -31,6 +31,7 @@
 
     # storage
     cifs-utils
+    sshfs
 
     # management
     systemd-manager-tui
