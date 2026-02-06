@@ -44,7 +44,7 @@
 
         # power session
         "custom/power" = {
-          format = "PWR";
+          format = "PWR ";
           on-click-middle = "systemctl suspend";
           tooltip = false;
         };
