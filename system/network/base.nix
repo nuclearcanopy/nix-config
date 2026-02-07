@@ -1,17 +1,13 @@
 { ... }:
 
 {
-  # hostname
+  services.resolved.enable = true;
+  
   networking = {
     hostName = "kuraokami";
 
-  # network manager
     networkmanager.enable = true;
 
-  # dns
-    services.resolved.enable = true;
-
-  # firewall
     firewall = {
       enable = true;
       checkReversePath = false; 
