@@ -8,11 +8,11 @@
   networking.networkmanager.enable = true;
 
   # dns
-  services.resolved.enable = true;
+  # services.resolved.enable = true;
 
   # firewall
   networking.firewall = {
     enable = true;
-    checkReversePath = false;  # wireguard
+    checkReversePath = false; 
   };
 }

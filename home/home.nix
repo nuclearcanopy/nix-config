@@ -58,6 +58,6 @@
     ./programs/easyeffects.nix
 
     # development
-    ./dev/rust.nix
+    ./dev/packages.nix
   ];
 }
