@@ -2,17 +2,23 @@
 
 {
   # hostname
-  networking.hostName = "kuraokami";
+  networking = {
+    hostName = "kuraokami";
 
   # network manager
-  networking.networkmanager.enable = true;
+    networkmanager.enable = true;
 
   # dns
-  # services.resolved.enable = true;
+    services.resolved.enable = true;
 
   # firewall
-  networking.firewall = {
-    enable = true;
-    checkReversePath = false; 
+    firewall = {
+      enable = true;
+      checkReversePath = false; 
+
+      allowedUDPPorts = [
+        51820
+      ];
+    };
   };
 }
