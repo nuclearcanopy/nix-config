@@ -19,7 +19,7 @@
       arRPC = false;
 
       splashColor = "rgb(204, 204, 204)";
-      splashBackground = "rgb(0, 0, 0)";
+      splashBackground = "rgb(12, 12, 12)";
     };
   };
 
@@ -44,7 +44,7 @@
       };
       ClientTheme = {
         enabled = true;
-        color = "0a0a0a";
+        color = "0c0c0c";
       };
     };
   };
