@@ -7,5 +7,7 @@
     rust-analyzer
     clippy
     rustfmt
+
+    claudecode
   ];
 }

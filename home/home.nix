@@ -59,5 +59,6 @@
 
     # development
     ./dev/packages.nix
+    ./dev/claudecode.nix
   ];
 }
