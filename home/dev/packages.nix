@@ -8,6 +8,6 @@
     clippy
     rustfmt
 
-    claudecode
+    claude-code
   ];
 }
