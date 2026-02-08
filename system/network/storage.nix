@@ -7,8 +7,7 @@
     fsType = "cifs";
 
     options = [
-      "username=mihaita"
-      "password=REDACTED"  # todo: credentials file
+      "credentials=./credentials"
       "uid=nuclearcanopy"
       "gid=users"
       "iocharset=utf8"
