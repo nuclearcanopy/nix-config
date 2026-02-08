@@ -12,12 +12,12 @@
     };
   };
 
-  systemd.user.timers.librewolf-backup = {
-    wantedBy = [ "timers.target" ];
-
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
-    };
-  };
+  #systemd.user.timers.librewolf-backup = {
+  #  wantedBy = [ "timers.target" ];
+  #
+  #  timerConfig = {
+  #    OnCalendar = "daily";
+  #   Persistent = true;
+  #  };
+  #};
 }

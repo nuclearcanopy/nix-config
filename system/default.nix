@@ -6,6 +6,7 @@
     ./core/boot.nix
     ./core/nix.nix
     ./core/packages.nix
+    ./core/impermanence.nix
 
     # Desktop environment
     ./desktop/sway.nix
