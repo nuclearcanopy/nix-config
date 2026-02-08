@@ -23,6 +23,6 @@
     easyeffects          # eq
     picard               # tagger
     asunder              # ripper
-    unstbale.feishin     # player
+    unstable.feishin     # player
   ];
 }
