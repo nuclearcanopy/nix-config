@@ -4,8 +4,6 @@
   home.packages = with pkgs; [
     # browsers
     librewolf
-    freetube
-    yt-dlp
 
     # creative
     obs-studio
@@ -21,9 +19,9 @@
     qbittorrent
 
     # music
-    easyeffects
-    picard    # tagger
-    asunder   # ripper
-    feishin   # player
+    easyeffects # eq
+    picard      # tagger
+    asunder     # ripper
+    feishin     # player
   ];
 }
