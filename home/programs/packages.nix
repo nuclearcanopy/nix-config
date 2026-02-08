@@ -20,9 +20,9 @@
     qbittorrent
 
     # music
-    easyeffects # eq
-    picard      # tagger
-    asunder     # ripper
-    feishin     # player
+    easyeffects          # eq
+    picard               # tagger
+    asunder              # ripper
+    unstbale.feishin     # player
   ];
 }
