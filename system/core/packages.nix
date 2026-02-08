@@ -28,10 +28,10 @@
     git
     rsync
     usbutils
+    pciutils
 
     # storage
     cifs-utils
-    sshfs
 
     # management
     systemd-manager-tui
