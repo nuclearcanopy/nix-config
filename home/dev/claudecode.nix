@@ -1,6 +1,6 @@
 { ... }:
 {
-  environment.variables = {
+  home.sessionVariables = {
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
 
     DISABLE_TELEMETRY = "1";
