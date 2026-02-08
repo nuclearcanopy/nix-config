@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     # browsers
     librewolf
+    freetube
 
     # creative
     obs-studio
