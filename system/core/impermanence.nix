@@ -18,9 +18,7 @@
       "/var/lib/systemd"
       "/var/log"
       "/etc/ssh"
-      # add NetworkManager / bluetooth etc if you use them
       "/var/lib/NetworkManager"
-      "/var/lib/bluetooth"
     ];
 
     files = [
@@ -42,12 +40,15 @@
         ".local/share/keyrings"
 
         ".mozilla"
-	      ".librewolf"
+	".librewolf"
       
         ".config/Proton"
         ".config/vesktop"
 
         ".local/share/Steam"
+	".local/share/nvim"
+	".local/state/nvim"
+	".cache/nvim"
       ];
 
       files = [
