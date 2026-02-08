@@ -8,11 +8,11 @@
   systemd.services.lactd = {
     path = [ pkgs.coreutils ];
 
-    postStart = ''
-      mkdir -p /etc/lact
-      cp -f ${./lact/config.yaml} /etc/lact/config.yaml
-      chmod 644 /etc/lact/config.yaml
-    '';
+    #postStart = ''
+    #  mkdir -p /etc/lact
+    #  cp -f ${./lact/config.yaml} /etc/lact/config.yaml
+    #  chmod 644 /etc/lact/config.yaml
+    #'';
 
     serviceConfig = {
       # hardening
