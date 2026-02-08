@@ -5,8 +5,7 @@
     # browsers
     librewolf
     freetube
-
-    hexchat
+    yt-dlp
 
     # creative
     obs-studio
