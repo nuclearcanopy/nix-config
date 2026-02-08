@@ -4,9 +4,6 @@
   programs.waybar = {
     enable = true;
 
-    systemd.enable = true;
-    systemd.target = "sway-session.target";
-
     # css import
     style = builtins.readFile ./style.css;
 
