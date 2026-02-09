@@ -1,7 +1,7 @@
 { config, lib, username, ... }:
 
 {
-  home.persistence."/persist/home/${username}" = {
+  home.persistence."/persist" = {
     directories = [
       "nix-config"
 
@@ -31,7 +31,5 @@
     files = [
       ".gitconfig"
     ];
-
-    allowOther = true;
   };
 }

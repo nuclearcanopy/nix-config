@@ -40,7 +40,6 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.${username} = import ./home/home.nix;
-          home-manager.sharedModules = [ impermanence.nixosModules.home-manager.impermanence ];
         }
       ];
     };
