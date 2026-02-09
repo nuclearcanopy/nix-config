@@ -34,6 +34,9 @@
   };
 
   imports = [
+    # impermanence
+    ./impermanence.nix
+
     # desktop
     ./desktop/packages.nix
     ./desktop/sway.nix
