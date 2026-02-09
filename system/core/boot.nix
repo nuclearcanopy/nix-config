@@ -32,7 +32,10 @@
       "dccp" "sctp" "rds" "tipc"
       "uvcvideo"
       "btusb" "bluetooth"
+      "r8169"
     ];
+
+    kernelModules = [ "r8168" ];
 
     extraModprobeConfig = ''
       options snd_usb_audio use_vmalloc=1
