@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  nasSecrets = import ../../nas-secrets.nix;
+  nasSecrets = import /home/nuclearcanopy/nix-config/nas-secrets.nix;
 in
 {
   # nas
