@@ -11,7 +11,12 @@
   # programs
   programs = {
     zsh.enable = true;
-    steam.enable = true;
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+      localNetworkGameTransfers.openFirewall = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [
