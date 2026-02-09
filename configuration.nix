@@ -27,25 +27,21 @@
     users.root.hashedPassword = secrets.user.hashedPassword;
   };
 
-  # security
   security.sudo = {
     enable = true;
     wheelNeedsPassword = true;
     execWheelOnly = true;
   };
 
-  # zram
   zramSwap = {
     enable = true;
     algorithm = "zstd";
     memoryPercent = 50;
   };
 
-  # environment
   environment.variables = {
     EDITOR = "nvim";
 
-    # telemetry
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
     POWERSHELL_TELEMETRY_OPTOUT = "1";
     AZURE_CORE_COLLECT_TELEMETRY = "0";
