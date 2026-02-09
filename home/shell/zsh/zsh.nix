@@ -17,7 +17,7 @@
 
     # aliases
     shellAliases = {
-      snvim = "sudo -E nvim";
+      snvim = "sudo HOME=/root nvim";
       nvfx = "nvim .";
       nasmount = "sudo mount -t cifs //${secrets.nas.ip}/${secrets.nas.share} /mnt/nas -o username=${secrets.nas.username},iocharset=utf8,vers=3.1.1";
       sysd-ui = "systemd-manager-tui";
