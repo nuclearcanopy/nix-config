@@ -1,17 +1,20 @@
-{ ... }:
+{ secrets, username, config, ... }:
 
-let
-  nasSecrets = import /home/nuclearcanopy/nix-config/nas-secrets.nix;
-in
 {
+  # Create CIFS credentials file in /etc
+  environment.etc."nas-credentials".text = ''
+    username=${secrets.nas.username}
+    password=${secrets.nas.password}
+  '';
+
   # nas
   fileSystems."/mnt/nas" = {
-    device = "//${nasSecrets.nasIp}/${nasSecrets.nasShare}";
+    device = "//${secrets.nas.ip}/${secrets.nas.share}";
     fsType = "cifs";
 
     options = [
-      "credentials=./credentials"
-      "uid=nuclearcanopy"
+      "credentials=/etc/nas-credentials"
+      "uid=${username}"
       "gid=users"
       "iocharset=utf8"
       "vers=3.1.1"

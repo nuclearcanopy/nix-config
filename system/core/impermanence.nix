@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, username, ... }:
 
 {
   environment.persistence."/persist" = {
@@ -16,7 +16,7 @@
       "/etc/machine-id"
     ];
 
-    users.nuclearcanopy = {
+    users.${username} = {
       directories = [
         "nix-config"
 

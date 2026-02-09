@@ -15,16 +15,22 @@
 
   outputs = { self, nixpkgs, unstable, impermanence, home-manager, ... }:
   let
+    # === User Configuration ===
+    username = "nuclearcanopy";  # Change this to customize username throughout config
     system = "x86_64-linux";
 
     unstable-pkgs = import unstable {
       inherit system;
       config.allowUnfree = false;
     };
+
+    # Import secrets (gitignored, requires --impure flag)
+    # Must use absolute path because gitignored files don't get copied to nix store
+    secrets = import /home/${username}/nix-config/secrets.nix;
   in {
     nixosConfigurations.kuraokami = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { unstable = unstable-pkgs; };
+      specialArgs = { unstable = unstable-pkgs; inherit secrets username; };
 
       modules = [
 	impermanence.nixosModules.impermanence
@@ -32,10 +38,10 @@
 
         home-manager.nixosModules.home-manager
         {
-          home-manager.extraSpecialArgs = { unstable = unstable-pkgs; };
+          home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit secrets username; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.nuclearcanopy = import ./home/home.nix;
+          home-manager.users.${username} = import ./home/home.nix;
         }
       ];
     };

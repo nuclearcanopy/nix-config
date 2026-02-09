@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 {
   # backup
@@ -8,7 +8,7 @@
     serviceConfig = {
       Type = "oneshot";
       ExecStartPre = "${pkgs.bash}/bin/bash -c '[ -d /mnt/nas ] || exit 1'";
-      ExecStart = "${pkgs.rsync}/bin/rsync -av --delete /home/nuclearcanopy/.librewolf/ /mnt/nas/librewolf-backup/";
+      ExecStart = "${pkgs.rsync}/bin/rsync -av --delete /home/${username}/.librewolf/ /mnt/nas/librewolf-backup/";
     };
   };
 

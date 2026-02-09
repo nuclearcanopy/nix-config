@@ -1,4 +1,4 @@
-{ config, pkgs, unstable, ... }:
+{ config, pkgs, unstable, username, ... }:
 
 {
   programs.home-manager.enable = true;
@@ -11,8 +11,8 @@
 
   # home
   home = {
-    username = "nuclearcanopy";
-    homeDirectory = "/home/nuclearcanopy";
+    username = username;
+    homeDirectory = "/home/${username}";
     stateVersion = "25.11";
 
     # fonts only

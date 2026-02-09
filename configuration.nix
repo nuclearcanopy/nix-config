@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, username, ... }:
 
 {
   system.stateVersion = "25.11";
@@ -18,7 +18,7 @@
     defaultUserShell = pkgs.zsh;
     mutableUsers = true;
 
-    users.nuclearcanopy = {
+    users.${username} = {
       isNormalUser = true;
       extraGroups = [ "wheel" "networkmanager" "video" "input" ];
       hashedPassword = secrets.user.hashedPassword;

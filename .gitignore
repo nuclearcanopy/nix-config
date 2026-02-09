@@ -1,2 +1,2 @@
-# NAS credentials - keep these local only
-nas-secrets.nix
+# Secrets - keep these local only
+secrets.nix
