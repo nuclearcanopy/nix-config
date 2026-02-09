@@ -26,7 +26,6 @@
       ".steam"
       ".local/share/Steam"
       ".local/share/Signal"
-      ".local/share/nvim"
     ];
 
     files = [
