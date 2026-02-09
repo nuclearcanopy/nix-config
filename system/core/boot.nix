@@ -32,17 +32,12 @@
       "dccp" "sctp" "rds" "tipc"
       "uvcvideo"
       "btusb" "bluetooth"
-      "r8169" # this is unreliable and causes phy issues
     ];
-
-    kernelModules = [ "r8168" ];
-
-    extraModulePackages = [ pkgs.linuxPackages_zen.r8168 ];
 
     extraModprobeConfig = ''
       options snd_usb_audio use_vmalloc=1
-      # Fix RTL8111 network drops with r8168 driver
-      options r8168 aspm=0 use_dac=1
+      # Fix RTL8111 network drops and PHY issues with r8169 driver
+      options r8169 aspm=0 use_dac=1 eee_enable=0
     ''; 
 
     kernel.sysctl = {
