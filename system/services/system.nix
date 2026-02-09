@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # security
@@ -16,7 +16,7 @@
   # udev rules
   services.udev.extraRules = ''
     # Disable power management for RTL8111 ethernet (prevents random disconnects)
-    ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp4s0", RUN+="/run/current-system/sw/bin/sh -c 'echo off > /sys/class/net/enp4s0/device/power/control'"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="enp4s0", RUN+="${pkgs.bash}/bin/sh -c 'echo off > /sys/class/net/enp4s0/device/power/control'"
   '';
 
   # services
