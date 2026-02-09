@@ -4,43 +4,38 @@
   # lact
   services.lact.enable = true;
 
-  # config
+  # Declaratively manage LACT config
+  environment.etc."lact/config.yaml" = {
+    source = ./lact/config.yaml;
+    mode = "0644";
+  };
+
+  # Service configuration
   systemd.services.lactd = {
     path = [ pkgs.coreutils ];
 
-    #postStart = ''
-    #  mkdir -p /etc/lact
-    #  cp -f ${./lact/config.yaml} /etc/lact/config.yaml
-    #  chmod 644 /etc/lact/config.yaml
-    #'';
-
     serviceConfig = {
-      # hardening
+      # Allow LACT to write to its config directory
       ReadWritePaths = [ "/etc/lact" ];
+
+      # Basic hardening that doesn't interfere with LACT
       ProtectHome = true;
-      ProtectKernelModules = true;
       ProtectClock = true;
       ProtectHostname = true;
-      ProtectProc = "invisible";
-      ProcSubset = "pid";
       NoNewPrivileges = true;
       PrivateTmp = true;
-      RestrictNamespaces = true;
       RestrictRealtime = true;
       RestrictSUIDSGID = true;
       LockPersonality = true;
-      MemoryDenyWriteExecute = true;
       SystemCallArchitectures = "native";
+
+      # LACT needs access to GPU hardware
       RestrictAddressFamilies = [ "AF_UNIX" "AF_NETLINK" ];
 
-      # capabilities
-      #CapabilityBoundingSet = [
-      #  "CAP_DAC_OVERRIDE"  # gpu sysfs
-      #  "CAP_SYS_RAWIO"     # gpu io
-      #];
+      # Capabilities for GPU access
       AmbientCapabilities = [
-        "CAP_DAC_OVERRIDE"
-        "CAP_SYS_RAWIO"
+        "CAP_DAC_OVERRIDE"  # GPU sysfs access
+        "CAP_SYS_RAWIO"     # GPU I/O operations
       ];
     };
   };
