@@ -41,7 +41,7 @@ volume=-3
     };
 
 
-    "easyeffects/easyeffectsrc" = {
+    "easyeffects/db/easyeffectsrc" = {
       force = true;
       text = ''
 [EffectsPipelines]
@@ -88,9 +88,11 @@ balanceIn=0.08
       force = true;
       text = ''
 [Graph]
+backgroundColor=0,0,0
 borderColors=255,255,255
 colorScheme=automatic
-colorTheme=qtGreen
+colorTheme=userDefined
+seriesColors=255,255,255
       '';
     };
   };
