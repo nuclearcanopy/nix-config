@@ -21,6 +21,7 @@
     # Network configuration
     ./network/base.nix
     ./network/storage.nix
+    ./network/tuning.nix
 
     # System services
     ./services/system.nix

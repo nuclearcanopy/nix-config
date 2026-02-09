@@ -23,6 +23,7 @@
       ".config/FreeTube"
       ".config/Signal"
 
+      ".steam"
       ".local/share/Steam"
       ".local/share/nvim"
       ".local/state/nvim"
