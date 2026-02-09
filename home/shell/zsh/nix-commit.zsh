@@ -12,7 +12,7 @@ nix-commit() {
   
   
   if [ "$BUILD_SUCCESS" = true ]; then
-    GEN=$(nixos-rebuild list-generations --flake ~/nix-config/#kuraokami | grep True | awk '{print $1 " (" $2 " " $3 ")"}')
+    GEN=$(nixos-rebuild list-generations --flake ~/nix-config/#kuraokami --impure | grep True | awk '{print $1 " (" $2 " " $3 ")"}')
     GEN_NUM=$(nixos-rebuild list-generations --flake ~/nix-config/#kuraokami | grep True | awk '{print $1}')
       
     git -C ~/nix-config/ add .

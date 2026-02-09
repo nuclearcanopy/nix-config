@@ -31,6 +31,7 @@
 
         ".mozilla"
 	      ".librewolf"
+        ".claude"
 
         ".config/Proton"
         ".config/vesktop"
