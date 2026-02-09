@@ -1,9 +1,12 @@
 { ... }:
 
+let
+  nasSecrets = import ../../nas-secrets.nix;
+in
 {
   # nas
   fileSystems."/mnt/nas" = {
-    device = "//192.168.0.123/nuclearcanopy";
+    device = "//${nasSecrets.nasIp}/${nasSecrets.nasShare}";
     fsType = "cifs";
 
     options = [
