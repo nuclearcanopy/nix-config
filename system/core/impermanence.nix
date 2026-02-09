@@ -35,11 +35,11 @@
         ".config/Proton"
         ".config/vesktop"
         ".config/FreeTube"
+        ".config/Signal"
 
         ".local/share/Steam"
 	      ".local/share/nvim"
 	      ".local/state/nvim"
-	      # ".cache/nvim"
       ];
 
       files = [
