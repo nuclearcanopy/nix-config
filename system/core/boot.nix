@@ -37,7 +37,7 @@
     extraModprobeConfig = ''
       options snd_usb_audio use_vmalloc=1
       # Fix RTL8111 network drops and PHY issues with r8169 driver
-      options r8169 aspm=0 use_dac=1 eee_enable=0
+      # options r8169 aspm=0 use_dac=1 eee_enable=0
     ''; 
 
     kernel.sysctl = {
