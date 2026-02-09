@@ -1,15 +1,6 @@
 { config, lib, ... }:
 
 {
-  # Ensure /persist exists early and is available
-  #fileSystems."/persist" = {
-  #  device = config.fileSystems."/".device;
-  #  fsType = config.fileSystems."/".fsType;
-  # neededForBoot = true;
-  #  options = [ "bind" ];
-  #};
-
-  # Impermanence persistence rules
   environment.persistence."/persist" = {
     hideMounts = true;
 
@@ -25,7 +16,6 @@
       "/etc/machine-id"
     ];
 
-    # per-user state (replace username)
     users.nuclearcanopy = {
       directories = [
         "nix-config"
@@ -40,15 +30,16 @@
         ".local/share/keyrings"
 
         ".mozilla"
-	".librewolf"
-      
+	      ".librewolf"
+
         ".config/Proton"
         ".config/vesktop"
+        ".config/FreeTube"
 
         ".local/share/Steam"
-	".local/share/nvim"
-	".local/state/nvim"
-	".cache/nvim"
+	      ".local/share/nvim"
+	      ".local/state/nvim"
+	      # ".cache/nvim"
       ];
 
       files = [
@@ -57,6 +48,5 @@
     };
   };
 
-  # Recommended: keep /tmp ephemeral
   boot.tmp.useTmpfs = true;
 }

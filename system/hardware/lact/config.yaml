@@ -98,5 +98,5 @@ profiles:
         max_core_clock: 3075
         voltage_offset: -60
         power_profile_mode_index: 1
-current_profile: MAX
+current_profile: MID
 auto_switch_profiles: false

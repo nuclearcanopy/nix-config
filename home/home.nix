@@ -45,7 +45,6 @@
     ./shell/zsh/zsh.nix
     ./shell/packages.nix
     ./shell/environment.nix
-    ./shell/fish.nix
     ./shell/alacritty.nix
 
     # programs
