@@ -6,11 +6,29 @@
   networking = {
     hostName = "kuraokami";
 
-    networkmanager.enable = true;
+    networkmanager = {
+      enable = true;
+
+      # Ensure gigabit ethernet with auto-negotiation
+      ensureProfiles.profiles = {
+        "Wired connection 1" = {
+          connection = {
+            id = "Wired connection 1";
+            type = "ethernet";
+            interface-name = "enp4s0";
+          };
+          ethernet = {
+            auto-negotiate = true;
+          };
+          ipv4.method = "auto";
+          ipv6.method = "auto";
+        };
+      };
+    };
 
     firewall = {
       enable = true;
-      checkReversePath = false; 
+      checkReversePath = false;
 
       allowedUDPPorts = [
         51820

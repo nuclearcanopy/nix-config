@@ -36,6 +36,8 @@
 
     extraModprobeConfig = ''
       options snd_usb_audio use_vmalloc=1
+      # Fix RTL8111 network drops - disable ASPM and enable MSI
+      options r8169 aspm=0 use_dac=1
     ''; 
 
     kernel.sysctl = {
