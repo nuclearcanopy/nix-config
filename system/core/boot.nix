@@ -50,6 +50,17 @@
       "net.ipv6.conf.all.accept_redirects" = 0;
       "net.ipv6.conf.default.accept_redirects" = 0;
 
+      # VPN-friendly: prevent source address validation issues
+      "net.ipv4.conf.all.accept_source_route" = 0;
+      "net.ipv4.conf.default.accept_source_route" = 0;
+      "net.ipv6.conf.all.accept_source_route" = 0;
+      "net.ipv6.conf.default.accept_source_route" = 0;
+
+      # Improve VPN routing behavior
+      "net.ipv4.conf.all.log_martians" = 0;  # Don't log martians (VPN can trigger false positives)
+      "net.ipv4.conf.all.send_redirects" = 0;
+      "net.ipv4.conf.default.send_redirects" = 0;
+
       # filesystem
       "fs.protected_symlinks" = 1;
       "fs.protected_hardlinks" = 1;

@@ -43,5 +43,11 @@
     # Ensure IPv6 buffers match IPv4
     "net.ipv6.conf.all.forwarding" = 0;
     "net.ipv6.conf.default.forwarding" = 0;
+
+    # IPv6 privacy and VPN compatibility
+    "net.ipv6.conf.all.accept_ra" = 1;  # Accept Router Advertisements (needed for VPN IPv6)
+    "net.ipv6.conf.default.accept_ra" = 1;
+    "net.ipv6.conf.all.autoconf" = 1;  # Allow IPv6 autoconfiguration
+    "net.ipv6.conf.default.autoconf" = 1;
   };
 }

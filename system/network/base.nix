@@ -1,13 +1,37 @@
 { ... }:
 
 {
-  services.resolved.enable = true;
-  
+  # DNS resolution with VPN leak protection
+  services.resolved = {
+    enable = true;
+    # Disable DNS leak vectors
+    llmnr = "false";
+    extraConfig = ''
+      MulticastDNS=no
+      DNSSEC=no
+      DNSOverTLS=no
+      # Remove fallback DNS to prevent leaks when VPN is active
+      FallbackDNS=
+    '';
+  };
+
   networking = {
     hostName = "kuraokami";
 
     networkmanager = {
       enable = true;
+
+      # Prevent DNS leaks through NetworkManager
+      dns = "systemd-resolved";
+
+      # VPN-friendly connection settings
+      settings = {
+        connection = {
+          # Use higher metric for non-VPN connections so VPN routes take priority
+          ipv4.route-metric = 500;
+          ipv6.route-metric = 500;
+        };
+      };
 
       # Force gigabit ethernet (1000Mbps full duplex, no auto-negotiation)
       # Commented out - let NetworkManager auto-configure to debug speed cap
@@ -34,8 +58,13 @@
       enable = true;
       checkReversePath = false;
 
+      # ProtonVPN WireGuard ports (per official support)
       allowedUDPPorts = [
-        51820
+        88 443 500 1224 4500 51820
+      ];
+
+      allowedTCPPorts = [
+        443  # WireGuard TCP fallback
       ];
     };
   };
