@@ -24,25 +24,23 @@
       # Prevent DNS leaks through NetworkManager
      # dns = "systemd-resolved";
 
-      # Force gigabit ethernet (1000Mbps full duplex, no auto-negotiation)
-      # Commented out - let NetworkManager auto-configure to debug speed cap
-      # ensureProfiles.profiles = {
-      #   "Wired connection 1" = {
-      #     connection = {
-      #       id = "Wired connection 1";
-      #       type = "ethernet";
-      #       interface-name = "enp4s0";
-      #       autoconnect = true;
-      #     };
-      #     ethernet = {
-      #       speed = 1000;
-      #       duplex = "full";
-      #       auto-negotiate = false;
-      #     };
-      #     ipv4.method = "auto";
-      #     ipv6.method = "auto";
-      #   };
-      # };
+      # Force gigabit ethernet with auto-negotiation enabled
+      ensureProfiles.profiles = {
+        "Wired connection 1" = {
+          connection = {
+            id = "Wired connection 1";
+            type = "ethernet";
+            interface-name = "enp4s0";
+            autoconnect = true;
+          };
+          ethernet = {
+            # Enable auto-negotiate to properly negotiate 1000Mbps
+            auto-negotiate = true;
+          };
+          ipv4.method = "auto";
+          ipv6.method = "auto";
+        };
+      };
     };
 
     firewall = {

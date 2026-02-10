@@ -1,0 +1,25 @@
+## Network Speed Issue: Stuck at 100Mbps (FIXED)
+
+### Problem
+Interface enp4s0 negotiating at 100Mbps instead of 1000Mbps Gigabit.
+
+### Root Cause
+Previous NetworkManager profile config in base.nix had:
+- auto-negotiate = false (without explicit speed/duplex)
+- When commented out, the profile persisted with auto-negotiate disabled
+- Result: Interface defaulted to 100Mbps fallback mode
+
+### Fix Applied
+Updated system/network/base.nix (lines 27-43):
+- Re-enabled NetworkManager ensureProfiles
+- Set auto-negotiate = true
+- Removed explicit speed/duplex (let negotiation handle it)
+
+After rebuild, the interface will properly negotiate 1000Mbps with your router.
+
+### Rebuild Command
+```bash
+sudo nixos-rebuild switch --flake ~/.nix/#kuraokami --impure
+```
+
+Then verify: `ethtool enp4s0 | grep Speed` should show 1000Mb/s
