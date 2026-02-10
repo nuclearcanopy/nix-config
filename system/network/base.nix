@@ -24,15 +24,6 @@
       # Prevent DNS leaks through NetworkManager
       dns = "systemd-resolved";
 
-      # VPN-friendly connection settings
-      settings = {
-        connection = {
-          # Use higher metric for non-VPN connections so VPN routes take priority
-          ipv4.route-metric = 500;
-          ipv6.route-metric = 500;
-        };
-      };
-
       # Force gigabit ethernet (1000Mbps full duplex, no auto-negotiation)
       # Commented out - let NetworkManager auto-configure to debug speed cap
       # ensureProfiles.profiles = {
