@@ -9,17 +9,14 @@
     networkmanager = {
       enable = true;
 
-      # Ensure gigabit ethernet with forced 1000Mbps speed
+      # Declarative wired ethernet profile with auto-negotiation
       ensureProfiles.profiles = {
         "Wired connection 1" = {
           connection = {
             id = "Wired connection 1";
             type = "ethernet";
             interface-name = "enp4s0";
-          };
-          ethernet = {
-            speed = 1000;
-            duplex = "full";
+            autoconnect = true;
           };
           ipv4.method = "auto";
           ipv6.method = "auto";
