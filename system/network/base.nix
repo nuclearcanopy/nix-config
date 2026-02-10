@@ -18,7 +18,6 @@
             interface-name = "enp4s0";
           };
           ethernet = {
-            auto-negotiate = false;
             speed = 1000;
             duplex = "full";
           };
