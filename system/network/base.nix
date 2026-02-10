@@ -5,14 +5,14 @@
   services.resolved = {
     enable = true;
     # Disable DNS leak vectors
-    llmnr = "false";
-    extraConfig = ''
-      MulticastDNS=no
-      DNSSEC=no
-      DNSOverTLS=no
-      # Remove fallback DNS to prevent leaks when VPN is active
-      FallbackDNS=
-    '';
+    #llmnr = "false";
+    #extraConfig = ''
+    #  MulticastDNS=no
+    #  DNSSEC=no
+    #  DNSOverTLS=no
+    #  # Remove fallback DNS to prevent leaks when VPN is active
+    #  FallbackDNS=
+    #'';
   };
 
   networking = {
@@ -22,7 +22,7 @@
       enable = true;
 
       # Prevent DNS leaks through NetworkManager
-      dns = "systemd-resolved";
+     # dns = "systemd-resolved";
 
       # Force gigabit ethernet (1000Mbps full duplex, no auto-negotiation)
       # Commented out - let NetworkManager auto-configure to debug speed cap
