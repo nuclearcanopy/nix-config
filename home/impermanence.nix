@@ -23,13 +23,8 @@
       ".config/FreeTube"
       ".config/Signal"
 
-      # steam - use symlink method to avoid breakage
-      ".steam"
-      {
-        directory = ".local/share/Steam";
-        method = "symlink";
-      }
-      ".cache/mesa_shader_cache"  # mesa shader cache for native games
+      # steam persistence moved to system/core/impermanence.nix (NixOS level)
+      # to avoid issues with home-manager persistence
 
       ".local/share/Signal"
     ];

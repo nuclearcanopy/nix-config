@@ -15,6 +15,14 @@
     files = [
       "/etc/machine-id"
     ];
+
+    users.${username} = {
+      directories = [
+        ".steam"
+        ".local/share/Steam"
+        ".cache/mesa_shader_cache"
+      ];
+    };
   };
 
   boot.tmp.useTmpfs = true;
