@@ -13,7 +13,7 @@
   services.geoclue2.enable = false;
 
   # gnome
-  services.gnome.gnome-keyring.enable = false;
+  services.gnome.gnome-keyring.enable = true; # protonvpn & element require it
   services.gnome.tinysparql.enable = false;
   services.gnome.localsearch.enable = false;
 
