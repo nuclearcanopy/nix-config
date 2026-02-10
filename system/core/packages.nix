@@ -44,5 +44,6 @@
     # hardware
     pulseaudio
     linux-firmware
+    ethtool
   ];
 }

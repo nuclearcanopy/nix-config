@@ -9,7 +9,7 @@
     networkmanager = {
       enable = true;
 
-      # Ensure gigabit ethernet with auto-negotiation
+      # Ensure gigabit ethernet with forced 1000Mbps speed
       ensureProfiles.profiles = {
         "Wired connection 1" = {
           connection = {
@@ -19,6 +19,8 @@
           };
           ethernet = {
             auto-negotiate = true;
+            speed = 1000;
+            duplex = "full";
           };
           ipv4.method = "auto";
           ipv6.method = "auto";
