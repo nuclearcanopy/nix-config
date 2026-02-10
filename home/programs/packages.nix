@@ -18,6 +18,7 @@
     # communication
     signal-desktop
     qbittorrent
+    element-desktop
 
     # music
     easyeffects          # eq
