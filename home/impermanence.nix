@@ -9,6 +9,7 @@
       "Documents"
       "Pictures"
       "Videos"
+      "avocatsite"
 
       ".ssh"
       ".gnupg"
