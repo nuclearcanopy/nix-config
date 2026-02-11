@@ -17,7 +17,7 @@
 
     # communication
     signal-desktop
-    nheko
+    cinny-desktop
     qbittorrent
 
     # music
