@@ -17,7 +17,7 @@
 
     # communication
     signal-desktop
-    cinny-desktop
+    element-desktop
     qbittorrent
 
     # music
