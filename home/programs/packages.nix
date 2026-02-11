@@ -17,8 +17,8 @@
 
     # communication
     signal-desktop
+    nheko
     qbittorrent
-    element-desktop
 
     # music
     easyeffects          # eq
