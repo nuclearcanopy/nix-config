@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     # browsers
     librewolf
+    ungoogled-chromium
     freetube
 
     # creative
