@@ -2,6 +2,8 @@
 
 {
   home.packages = with pkgs; [
+    yubikey-manager
+
     # launcher
     bemenu
     j4-dmenu-desktop
