@@ -18,7 +18,6 @@
 
     # communication
     signal-desktop
-    element-desktop
     qbittorrent
 
     # music
