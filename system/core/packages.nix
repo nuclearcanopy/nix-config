@@ -22,7 +22,7 @@
   environment.systemPackages = with pkgs; [
     # vpn
     wireguard-tools
-    unstable.protonvpn-gui
+    mullvad-vpn
 
     # gaming
     bottles

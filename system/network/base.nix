@@ -1,6 +1,9 @@
 { ... }:
 
 {
+  # Mullvad VPN daemon
+  services.mullvad-vpn.enable = true;
+
   # DNS resolution with VPN leak protection
   services.resolved = {
     enable = true;
@@ -47,13 +50,13 @@
       enable = true;
       checkReversePath = false;
 
-      # ProtonVPN WireGuard ports (per official support)
+      # Mullvad VPN WireGuard
       allowedUDPPorts = [
-        88 443 500 1224 4500 51820
+        51820  # WireGuard
       ];
 
       allowedTCPPorts = [
-        443  # WireGuard TCP fallback
+        443  # Mullvad API
       ];
     };
   };
