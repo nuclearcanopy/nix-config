@@ -19,7 +19,7 @@
       ".librewolf"
       ".claude"
 
-      ".config/Proton"
+      # ".config/Proton"
       ".config/vesktop"
       ".config/FreeTube"
       ".config/Signal"
