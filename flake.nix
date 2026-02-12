@@ -39,6 +39,7 @@
           home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit secrets username; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "backup";
           home-manager.users.${username} = import ./home/home.nix;
         }
       ];
