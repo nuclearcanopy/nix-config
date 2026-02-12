@@ -8,26 +8,26 @@
       force = true;
       text = ''
 [soe][Equalizer#0#left]
-band0Gain=3
-band1Gain=2.3
-band2Gain=1.8
-band3Gain=1
-band4Gain=1
-band5Gain=0.7
-band6Gain=0.35
-band7Gain=0.3
+band0Gain=8
+band1Gain=7.5
+band2Gain=6.4
+band3Gain=5.6
+band4Gain=4.2
+band5Gain=3.9
+band6Gain=2.6
+band7Gain=1.4
 band8Gain=0.3
 
 [soe][Equalizer#0#right]
-band0Gain=3
-band1Gain=2.3
-band2Gain=1.8
-band3Gain=1
-band4Gain=1
-band5Gain=0.7
-band6Gain=0.35
-band7Gain=0.3
-band8Gain=0.3 
+band0Gain=8
+band1Gain=7.5
+band2Gain=6.4
+band3Gain=5.6
+band4Gain=4.2
+band5Gain=3.9
+band6Gain=2.6
+band7Gain=1.4
+band8Gain=0.3
       '';
     };
 
@@ -36,7 +36,7 @@ band8Gain=0.3
       text = ''
 [soe][Loudness#0]
 std=0
-volume=-3
+volume=-8.1
       '';
     };
 

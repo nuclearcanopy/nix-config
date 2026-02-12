@@ -19,13 +19,9 @@
       ".librewolf"
       ".claude"
 
-      # ".config/Proton"
       ".config/vesktop"
       ".config/FreeTube"
       ".config/Signal"
-
-      # steam persistence moved to system/core/impermanence.nix (NixOS level)
-      # to avoid issues with home-manager persistence
 
       ".local/share/Signal"
     ];
