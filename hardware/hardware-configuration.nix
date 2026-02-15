@@ -8,20 +8,162 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/mapper/cryptroot";
+    { device = "/dev/disk/by-uuid/17c52675-9c32-403f-b556-b37f2a943482";
       fsType = "ext4";
     };
 
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/2c5aa5bd-4f7a-4032-96e4-aa868e551e95";
+  fileSystems."/var/lib/nixos" =
+    { device = "/persist/var/lib/nixos";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/var/log" =
+    { device = "/persist/var/log";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/etc/ssh" =
+    { device = "/persist/etc/ssh";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.cache/mesa_shader_cache" =
+    { device = "/persist/home/nuclearcanopy/.cache/mesa_shader_cache";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.claude" =
+    { device = "/persist/home/nuclearcanopy/.claude";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.config/FreeTube" =
+    { device = "/persist/home/nuclearcanopy/.config/FreeTube";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.config/Signal" =
+    { device = "/persist/home/nuclearcanopy/.config/Signal";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.config/vesktop" =
+    { device = "/persist/home/nuclearcanopy/.config/vesktop";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.gnupg" =
+    { device = "/persist/home/nuclearcanopy/.gnupg";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.librewolf" =
+    { device = "/persist/home/nuclearcanopy/.librewolf";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.local/share/Signal" =
+    { device = "/persist/home/nuclearcanopy/.local/share/Signal";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.local/share/Steam" =
+    { device = "/persist/home/nuclearcanopy/.local/share/Steam";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.local/share/keyrings" =
+    { device = "/persist/home/nuclearcanopy/.local/share/keyrings";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.mozilla" =
+    { device = "/persist/home/nuclearcanopy/.mozilla";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.ssh" =
+    { device = "/persist/home/nuclearcanopy/.ssh";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/.steam" =
+    { device = "/persist/home/nuclearcanopy/.steam";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/Documents" =
+    { device = "/persist/home/nuclearcanopy/Documents";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/Pictures" =
+    { device = "/persist/home/nuclearcanopy/Pictures";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/Downloads" =
+    { device = "/persist/home/nuclearcanopy/Downloads";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/Videos" =
+    { device = "/persist/home/nuclearcanopy/Videos";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/avocatsite" =
+    { device = "/persist/home/nuclearcanopy/avocatsite";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home/nuclearcanopy/nix-config" =
+    { device = "/persist/home/nuclearcanopy/nix-config";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/var/lib/NetworkManager" =
+    { device = "/persist/var/lib/NetworkManager";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/var/lib/systemd" =
+    { device = "/persist/var/lib/systemd";
+      fsType = "none";
+      options = [ "bind" ];
+    };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/118B-A6D5";
+    { device = "/dev/disk/by-uuid/0798-6C94";
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
