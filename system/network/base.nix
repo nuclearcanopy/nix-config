@@ -38,6 +38,7 @@
 
       allowedTCPPorts = [
         443  # Mullvad API
+        8080
       ];
     };
   };
