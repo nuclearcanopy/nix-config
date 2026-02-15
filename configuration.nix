@@ -20,7 +20,7 @@
 
     users.${username} = {
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "video" "input" ];
+      extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
       hashedPassword = secrets.user.hashedPassword;
     };
 
