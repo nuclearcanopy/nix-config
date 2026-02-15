@@ -4,6 +4,13 @@
   # realtime
   security.rtkit.enable = true;
 
+  # pam limits for realtime audio
+  security.pam.loginLimits = [
+    { domain = "@audio"; item = "memlock"; type = "-"; value = "unlimited"; }
+    { domain = "@audio"; item = "rtprio"; type = "-"; value = "99"; }
+    { domain = "@audio"; item = "nice"; type = "-"; value = "-19"; }
+  ];
+
   # usb power
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", TEST=="power/control", ATTR{power/control}="on"
@@ -37,8 +44,10 @@
       };
     };
 
+    pulse.enable = true;
+
     extraConfig.pipewire = {
-      # low latency
+      # low latency + realtime
       "92-low-latency" = {
         "context.properties" = {
           "default.clock.rate" = 48000;
@@ -46,6 +55,10 @@
           "default.clock.min-quantum" = 1024;
           "default.clock.max-quantum" = 8192;
           "default.clock.allowed-rates" = [ 44100 48000 ];
+          # realtime scheduling via rtkit
+          "support.dbus" = true;
+          "rt.prio" = 88;
+          "nice.level" = -11;
         };
       };
     };
