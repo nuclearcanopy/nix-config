@@ -9,5 +9,6 @@
     rustfmt
 
     claude-code
+    codex
   ];
 }
