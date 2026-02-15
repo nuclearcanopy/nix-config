@@ -16,6 +16,23 @@
     ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", TEST=="power/control", ATTR{power/control}="on"
   '';
 
+  # systemd user service limits for realtime audio
+  systemd.user.services.pipewire.serviceConfig = {
+    LimitRTPRIO = 95;
+    LimitNICE = 40;  # nice level = 20 - value, so 40 = -20
+    LimitMEMLOCK = "infinity";
+  };
+  systemd.user.services.pipewire-pulse.serviceConfig = {
+    LimitRTPRIO = 95;
+    LimitNICE = 40;
+    LimitMEMLOCK = "infinity";
+  };
+  systemd.user.services.wireplumber.serviceConfig = {
+    LimitRTPRIO = 95;
+    LimitNICE = 40;
+    LimitMEMLOCK = "infinity";
+  };
+
   # pipewire
   services.pipewire = {
     enable = true;
