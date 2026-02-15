@@ -36,7 +36,7 @@ band8Gain=0.3
       text = ''
 [soe][Loudness#0]
 std=0
-volume=-8.1
+volume=-12.5
       '';
     };
 
