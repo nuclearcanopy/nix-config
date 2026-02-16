@@ -22,6 +22,7 @@
       ".config/vesktop"
       ".config/FreeTube"
       ".config/Signal"
+      ".config/Feishin"
 
       ".local/share/Signal"
     ];
