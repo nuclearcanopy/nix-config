@@ -12,10 +12,10 @@
   gtk = {
 
     enable = true;
-    iconTheme = {
-      name = "Arashi";
-      package = pkgs.arashi;
-    };
+    #iconTheme = {
+    #  name = "Arashi";
+    #  package = pkgs.arashi;
+    #};
 
     theme = {
       name = "Adwaita-dark";
