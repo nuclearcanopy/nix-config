@@ -1,8 +1,13 @@
 { pkgs, ... }:
 
 {
-  # realtime
+  # realtime - disable canary to fix RT priority loss after suspend
+  # https://github.com/heftig/rtkit/issues/13
   security.rtkit.enable = true;
+  systemd.services.rtkit-daemon.serviceConfig.ExecStart = [
+    ""  # clear existing entry
+    "${pkgs.rtkit}/libexec/rtkit-daemon --no-canary"
+  ];
 
   # pam limits for realtime audio
   security.pam.loginLimits = [
