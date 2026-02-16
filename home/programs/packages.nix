@@ -24,5 +24,6 @@
     picard               # tagger
     asunder              # ripper
     unstable.feishin     # player
+    qjackctl
   ];
 }
