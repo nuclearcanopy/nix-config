@@ -26,6 +26,11 @@
       # gpu
       "amdgpu.ppfeaturemask=0xffffffff"
       "preempt=full"
+
+      # latency
+      "nmi_watchdog=0"
+      "nowatchdog"
+      "tsc=reliable"
     ];
 
     blacklistedKernelModules = [
