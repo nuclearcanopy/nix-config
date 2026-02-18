@@ -41,10 +41,5 @@
 
   environment.variables = {
     EDITOR = "nvim";
-
-    DOTNET_CLI_TELEMETRY_OPTOUT = "1";
-    POWERSHELL_TELEMETRY_OPTOUT = "1";
-    AZURE_CORE_COLLECT_TELEMETRY = "0";
-    DO_NOT_TRACK = "1";
   };
 }
