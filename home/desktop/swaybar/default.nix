@@ -68,6 +68,16 @@ let
     interval = 60
     format = " ''$timestamp.datetime(f:'%d.%m %a %H:%M') "
 
+    # mic status
+    [[block]]
+    block = "custom"
+    command = "${micStatusScript}"
+    json = true
+    interval = 2
+    [[block.click]]
+    button = "left"
+    cmd = "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
+
     # volume
     [[block]]
     block = "sound"
@@ -81,16 +91,6 @@ let
     button = "middle"
     cmd = "pavucontrol"
 
-    # mic status
-    [[block]]
-    block = "custom"
-    command = "${micStatusScript}"
-    json = true
-    interval = 2
-    [[block.click]]
-    button = "left"
-    cmd = "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
-
     # mpris
     [[block]]
     block = "music"
@@ -100,7 +100,7 @@ let
     [block.theme_overrides]
     idle_fg = "#666666"
 
-    # separator for center alignment simulation
+    # spacer
     [[block]]
     block = "custom"
     command = "echo ' '"
@@ -114,15 +114,15 @@ let
 
     # cpu temp + usage
     [[block]]
-    block = "cpu"
-    format = " CPU ''$utilization "
-    interval = 2
-
-    [[block]]
     block = "temperature"
-    format = " ''$average° "
+    format = " CPU ''$average° "
     chip = "*-isa-*"
     interval = 5
+
+    [[block]]
+    block = "cpu"
+    format = "''$utilization "
+    interval = 2
 
     # gpu profile (LACT)
     [[block]]
