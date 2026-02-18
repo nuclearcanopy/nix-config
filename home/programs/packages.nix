@@ -25,7 +25,5 @@
     asunder              # ripper
     unstable.feishin     # player
     qjackctl
-
-    psensor
   ];
 }

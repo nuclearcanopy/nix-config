@@ -20,9 +20,10 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # vpn
+    # vpn / network
     wireguard-tools
     mullvad-vpn
+    dnsutils
 
     # gaming
     bottles
