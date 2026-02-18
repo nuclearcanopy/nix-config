@@ -66,12 +66,12 @@ let
     [[block]]
     block = "time"
     interval = 60
-    format = " $timestamp.datetime(f:'%d.%m %a %H:%M') "
+    format = " ''$timestamp.datetime(f:'%d.%m %a %H:%M') "
 
     # volume
     [[block]]
     block = "sound"
-    format = " VOL $volume "
+    format = " VOL ''$volume "
     format_muted = " VOL MUTE "
     show_volume_when_muted = false
     [[block.click]]
@@ -94,7 +94,7 @@ let
     # mpris
     [[block]]
     block = "music"
-    format = " [$play$artist] "
+    format = " [''$play''$artist] "
     player = "spotify"
     interface_name_exclude = ["firefox", "librewolf"]
     [block.theme_overrides]
@@ -103,24 +103,24 @@ let
     # separator for center alignment simulation
     [[block]]
     block = "custom"
-    command = "echo ''"
+    command = "echo ' '"
     interval = "once"
 
     # memory
     [[block]]
     block = "memory"
-    format = " MEM $mem_used.eng(prefix:G, w:3, p:1) "
+    format = " MEM ''$mem_used.eng(prefix:G, w:3, p:1) "
     interval = 5
 
     # cpu temp + usage
     [[block]]
     block = "cpu"
-    format = " CPU $utilization "
+    format = " CPU ''$utilization "
     interval = 2
 
     [[block]]
     block = "temperature"
-    format = " $average° "
+    format = " ''$average° "
     chip = "*-isa-*"
     interval = 5
 
