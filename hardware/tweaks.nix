@@ -17,13 +17,13 @@
       enable32Bit = true;
 
       # mesa
-      package = mesa;
-      package32 = pkgsi686Linux.mesa;
+      package = pkgs.mesa;
+      package32 = pkgs.pkgsi686Linux.mesa;
 
       # vulkan
       extraPackages = [
-        vulkan-loader
-        vulkan-tools
+        pkgs.vulkan-loader
+        pkgs.vulkan-tools
       ];
     };
   };
