@@ -18,6 +18,7 @@ in
       output = {
         "DP-1" = {
           mode = "2560x1440@120Hz";
+          adaptiveSync = "off";
           position = "0,0";
           scale = "1";
           bg = "#060606 solid_color";
