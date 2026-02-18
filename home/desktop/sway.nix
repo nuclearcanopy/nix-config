@@ -17,7 +17,7 @@ in
       # monitors
       output = {
         "DP-1" = {
-          mode = "2560x1440@120Hz";
+          mode = "2560x1440@119.998Hz";
           #adaptive_sync = "off";
           position = "0,0";
           scale = "1";
