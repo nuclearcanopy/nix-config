@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 
 let
   bemenuStyle = ''-i -c -l 5 -W 0.20 -B 0 -p "" --fn "monospace 16" --tb "#060606" --tf "#cccccc" --fb "#060606" --ff "#cccccc" --nb "#060606" --nf "#888888" --ab "#060606" --af "#888888" --hb "#0d0d0d" --hf "#ffffff" --sb "#060606" --sf "#ffffff" --scb "#060606" --scf "#888888"'';
@@ -71,40 +71,8 @@ in
         titlebar = false;
       };
 
-      # swaybar
-      bars = [{
-        position = "top";
-        statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ~/.config/i3status-rust/config.toml";
-        fonts = {
-          names = [ "monospace" ];
-          size = 11.0;
-        };
-        colors = {
-          background = "#060606";
-          statusline = "#a0a0a0";
-          separator = "#060606";
-          focusedWorkspace = {
-            border = "#060606";
-            background = "#060606";
-            text = "#dddddd";
-          };
-          activeWorkspace = {
-            border = "#060606";
-            background = "#060606";
-            text = "#999999";
-          };
-          inactiveWorkspace = {
-            border = "#060606";
-            background = "#060606";
-            text = "#444444";
-          };
-          urgentWorkspace = {
-            border = "#060606";
-            background = "#060606";
-            text = "#B96B6B";
-          };
-        };
-      }];
+      # no bar
+      bars = [];
 
       # colors
       colors = {
@@ -136,6 +104,7 @@ in
         { command = "mullvad-gui"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
+        { command = "waybar"; }
         { command = "easyeffects -w"; }
       ];
 
@@ -158,9 +127,9 @@ in
         "Control+y" = "exec freetube";
 
         # gpu profiles
-        "${mod}+z" = "exec lact cli profile set LOW";
-        "${mod}+x" = "exec lact cli profile set MID";
-        "${mod}+c" = "exec lact cli profile set MAX";
+        "${mod}+z" = "exec lact cli profile set LOW && pkill -RTMIN+8 waybar";
+        "${mod}+x" = "exec lact cli profile set MID && pkill -RTMIN+8 waybar";
+        "${mod}+c" = "exec lact cli profile set MAX && pkill -RTMIN+8 waybar";
 
         # windows
         "${alt}+c" = "kill";
@@ -169,7 +138,7 @@ in
         "${mod}+j" = "layout toggle split";
         "${mod}+m" = "exit";
 
-        # audio toggles
+        # waybar
         "${mod}+${alt}+1" = "exec pactl -- set-sink-mute 0 toggle";
         "${mod}+${alt}+2" = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle";
 

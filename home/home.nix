@@ -43,7 +43,7 @@
     # desktop
     ./desktop/packages.nix
     ./desktop/sway.nix
-    ./desktop/swaybar
+    ./desktop/waybar/config.nix
     ./desktop/mako.nix
     ./desktop/theme.nix
 
