@@ -27,6 +27,7 @@
 
     # gaming
     bottles
+    protonup-qt
 
     # utilities
     unzip
