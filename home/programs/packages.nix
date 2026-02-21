@@ -12,6 +12,9 @@
     gimp
     xournalpp
 
+    # gaming
+    mangohud
+
     # productivity
     onlyoffice-desktopeditors
 
