@@ -15,6 +15,7 @@
     # gaming
     mangohud
     vkbasalt
+    protontricks
 
     # productivity
     onlyoffice-desktopeditors
