@@ -15,7 +15,7 @@
     # gaming
     mangohud
     vkbasalt
-    protontricks
+    unstable.protontricks
 
     # productivity
     onlyoffice-desktopeditors
