@@ -31,6 +31,7 @@
 
     # utilities
     unzip
+    p7zip
     wget
     git
     rsync
