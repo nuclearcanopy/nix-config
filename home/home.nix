@@ -61,6 +61,7 @@
     ./programs/steam.nix
     ./programs/asunder.nix
     ./programs/easyeffects.nix
+    ./programs/vkbasalt.nix
 
     # development
     ./dev/packages.nix
