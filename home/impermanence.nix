@@ -24,9 +24,10 @@
       ".config/FreeTube"
       ".config/Signal"
       ".config/Feishin"
+      ".config/bolt-launcher"
 
       ".local/share/Signal"
-      ".local/bin"
+      ".local/share/bolt-launcher"
     ];
 
     files = [
