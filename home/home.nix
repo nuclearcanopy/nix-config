@@ -24,6 +24,10 @@
       nerd-fonts.noto
       noto-fonts-color-emoji
     ];
+
+    sessionVariables = {
+      _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
+    };
   };
 
   # font config
