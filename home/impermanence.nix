@@ -26,6 +26,7 @@
       ".config/Feishin"
 
       ".local/share/Signal"
+      ".local/bin"
     ];
 
     files = [
