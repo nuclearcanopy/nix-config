@@ -13,6 +13,7 @@
     xournalpp
 
     # gaming
+    bolt-launcher
     mangohud
     vkbasalt
     unstable.protontricks

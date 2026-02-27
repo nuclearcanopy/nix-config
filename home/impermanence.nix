@@ -9,6 +9,7 @@
       "Documents"
       "Pictures"
       "Videos"
+      "Games" 
       "avocatsite"
 
       ".ssh"
