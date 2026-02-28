@@ -31,6 +31,7 @@
 
     # utilities
     unzip
+    unrar
     p7zip
     wget
     git
