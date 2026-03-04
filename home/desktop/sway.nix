@@ -205,5 +205,9 @@ in
         mouseWarping = "container";
       };
     };
+
+    extraConfig = ''
+      output DP-1 adaptive_sync on
+    '';
   };
 }

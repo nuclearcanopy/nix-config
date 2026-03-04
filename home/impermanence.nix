@@ -12,6 +12,9 @@
       "Games" 
       "avocatsite"
 
+      "MO2"
+      "Vortex"
+
       ".ssh"
       ".gnupg"
       ".local/share/keyrings"
