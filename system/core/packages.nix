@@ -6,6 +6,7 @@
     "steam"
     "steam-unwrapped"
     "claude-code"
+    "unrar"
   ];
 
   # programs
