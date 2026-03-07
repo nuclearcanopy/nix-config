@@ -40,6 +40,8 @@
     usbutils
     pciutils
 
+    jdk
+
     # storage
     cifs-utils
 
