@@ -12,7 +12,7 @@
     audacity
     gimp
     xournalpp
-    kdenlive
+    kdePackages.kdenlive
 
     # gaming
     bolt-launcher
