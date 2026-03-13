@@ -12,6 +12,7 @@
     audacity
     gimp
     xournalpp
+    kdenlive
 
     # gaming
     bolt-launcher
