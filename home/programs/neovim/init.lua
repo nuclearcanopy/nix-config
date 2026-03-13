@@ -49,8 +49,8 @@ require("lazy").setup({
       config = function()
         require("lackluster").setup({
           tweak_color = {
-            gray1 = "#1C1C1C",
-            gray2 = "#2F2F2F",
+            gray1 = "#000000",
+            gray2 = "#000000",
             gray3 = "#494949",
             gray4 = "#5A5A5A",
             gray5 = "#7A7A7A",
@@ -59,11 +59,14 @@ require("lazy").setup({
             gray8 = "#DDDDDD",
             gray9 = "#f0f0f0",
             luster = "#ffffff",
-            lack = "#2c2c2c",
+            lack = "#000000",
             error = "#a04a4a",
           },
+          tweak_syntax = {
+            string = "#7A7A7A",
+          },
           tweak_background = {
-            normal = "#0c0c0c",
+            normal = "#000000",
           },
         })
         vim.cmd("colorscheme lackluster")

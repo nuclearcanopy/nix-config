@@ -5,8 +5,8 @@
     enable = true;
 
     settings = {
-      background-color = "#131313";
-      border-color = "#1d1d1d";
+      background-color = "#000000";
+      border-color = "#000000";
       default-timeout = 7500;
       padding = "13";
     };

@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  bemenuStyle = ''-i -c -l 5 -W 0.20 -B 0 -p "" --fn "monospace 16" --tb "#060606" --tf "#cccccc" --fb "#060606" --ff "#cccccc" --nb "#060606" --nf "#888888" --ab "#060606" --af "#888888" --hb "#0d0d0d" --hf "#ffffff" --sb "#060606" --sf "#ffffff" --scb "#060606" --scf "#888888"'';
+  bemenuStyle = ''-i -c -l 5 -W 0.20 -B 0 -p "" --fn "monospace 16" --tb "#000000" --tf "#cccccc" --fb "#000000" --ff "#cccccc" --nb "#000000" --nf "#888888" --ab "#000000" --af "#888888" --hb "#000000" --hf "#ffffff" --sb "#000000" --sf "#ffffff" --scb "#000000" --scf "#888888"'';
 in
 {
   wayland.windowManager.sway = {
@@ -70,25 +70,25 @@ in
       # colors
       colors = {
         focused = {
-          border = "#060606";
-          background = "#060606";
+          border = "#000000";
+          background = "#000000";
           text = "#f0f0f0";
-          indicator = "#060606";
-          childBorder = "#060606";
+          indicator = "#000000";
+          childBorder = "#000000";
         };
         unfocused = {
-          border = "#060606";
-          background = "#060606";
-          text = "#060606";
-          indicator = "#060606";
-          childBorder = "#060606";
+          border = "#000000";
+          background = "#000000";
+          text = "#000000";
+          indicator = "#000000";
+          childBorder = "#000000";
         };
         focusedInactive = {
-          border = "#060606";
-          background = "#060606";
+          border = "#000000";
+          background = "#000000";
           text = "#888888";
-          indicator = "#060606";
-          childBorder = "#060606";
+          indicator = "#000000";
+          childBorder = "#000000";
         };
       };
 
