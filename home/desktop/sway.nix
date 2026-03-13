@@ -14,34 +14,26 @@ in
       
       modifier = "Mod4";  # super
 
-      # monitors
+      # monitors (ASUS left, Dell/Alienware right)
       output = {
         "DP-1" = {
-          mode = "2560x1440@119.998Hz";
-          #adaptive_sync = "off";
+          mode = "2560x1440@120Hz";
           position = "0,0";
           scale = "1";
-          bg = "#060606 solid_color";
+          bg = "#000000 solid_color";
         };
-        "HDMI-A-1" = {
-          mode = "1920x1080@71.92Hz";
-          position = "2560,380";
+        "DP-2" = {
+          mode = "2560x1440@120Hz";
+          position = "2560,0";
           scale = "1";
-          bg = "#060606 solid_color";
-        };
-        "HDMI-A-2" = {
-          mode = "1920x1080@60Hz";
-          position = "300,1440";
-          scale = "1";
-          bg = "#060606 solid_color";
+          bg = "#000000 solid_color";
         };
       };
 
       # ws assign
       workspaceOutputAssign = [
         { workspace = "1"; output = "DP-1"; }
-        { workspace = "2"; output = "HDMI-A-1"; }
-        { workspace = "3"; output = "HDMI-A-2"; }
+        { workspace = "2"; output = "DP-2"; }
       ];
 
       # input

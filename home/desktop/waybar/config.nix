@@ -12,7 +12,7 @@
         reload_style_on_change = true;
         fixed-center = true;
         layer = "top";
-        output = [ "DP-1" "HDMI-A-1" ];
+        output = [ "DP-1" "DP-2" ];
         position = "top";
         height = 39;
         spacing = 0;
