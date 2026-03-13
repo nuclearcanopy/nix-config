@@ -10,6 +10,6 @@ C3="18;18;18"
 WHITE="180;180;180"
 BLACK="0;0;0"
 
-PROMPT=" $(fg_custom $INVIZ)$(bg_custom $C3)"
+PROMPT=" $(fg_custom $BLACK)$(bg_custom $C3)"
 PROMPT+="$(fg_custom $WHITE)$(bg_custom $C3) %~ "
-PROMPT+="$(fg_custom $C3)$(bg_custom $BLACK)%k%f "
+PROMPT+="$(fg_custom $C3)$(bg_custom $BLACK)%k%f "
