@@ -22,6 +22,7 @@
 
     # productivity
     onlyoffice-desktopeditors
+    calibre
 
     # communication
     signal-desktop
