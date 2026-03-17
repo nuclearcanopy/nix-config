@@ -28,6 +28,12 @@ in
           scale = "1";
           bg = "#000000 solid_color";
         };
+        "HDMI-A-2" = {
+          mode = "1920x1080@60Hz";
+          position = "0,1440";
+          scale = "1";
+          bg = "#000000 solid_color";
+        };
       };
 
       # ws assign
