@@ -5,15 +5,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    impermanence.url = "github:nix-community/impermanence";
-
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, unstable, impermanence, home-manager, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -31,7 +29,6 @@
       specialArgs = { unstable = unstable-pkgs; inherit secrets username; };
 
       modules = [
-	impermanence.nixosModules.impermanence
         ./configuration.nix
 
         home-manager.nixosModules.home-manager
