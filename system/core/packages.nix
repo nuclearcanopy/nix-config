@@ -18,6 +18,10 @@
       dedicatedServer.openFirewall = true;
       localNetworkGameTransfers.openFirewall = true;
     };
+    gamescope = {
+      enable = true;
+      capSysNice = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [
