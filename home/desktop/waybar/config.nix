@@ -172,7 +172,7 @@
         };
         "temperature#gpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon5/temp2_input";
-          format = "{temperatureC}°";
+          format = "GPU {temperatureC}°";
           tooltip = false;
         };
         "custom/gpu" = {
