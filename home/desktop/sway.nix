@@ -125,11 +125,6 @@ in
         "${mod}+g" = "exec librewolf -P llm";
         "Control+y" = "exec freetube";
 
-        # gpu profiles
-        "${mod}+z" = "exec lact cli profile set LOW && pkill -RTMIN+8 waybar";
-        "${mod}+x" = "exec lact cli profile set MID && pkill -RTMIN+8 waybar";
-        "${mod}+c" = "exec lact cli profile set MAX && pkill -RTMIN+8 waybar";
-
         # windows
         "${alt}+c" = "kill";
         "${alt}+v" = "floating toggle";

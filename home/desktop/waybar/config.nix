@@ -33,7 +33,6 @@
         modules-right = [
           "memory"
           "group/cpuheader"
-          "custom/lact"
           "group/gpuheader"
           "custom/reboot"
           "custom/power"
@@ -148,14 +147,6 @@
         };
 
         # hardware
-        "custom/lact" = {
-          exec = "lact cli profile get";
-          interval = 30;
-          format = "GPU {}";
-          on-click = "${./scripts/lact.sh}";
-          signal = 8;
-        };
-
         memory = {
           format = "MEM {used:0.1f}G ";
           tooltip = false;
