@@ -134,7 +134,7 @@ window#waybar {
 }
 
 #gpuheader {
-  margin: 0px -25px 0px 0px;
+  margin: 0px 25px 0px 0px;
 }
 
 #cpu,
