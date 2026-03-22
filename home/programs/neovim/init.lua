@@ -49,8 +49,8 @@ require("lazy").setup({
       config = function()
         require("lackluster").setup({
           tweak_color = {
-            gray1 = "#000000",
-            gray2 = "#000000",
+            gray1 = "#1a1a1a",
+            gray2 = "#2a2a2a",
             gray3 = "#494949",
             gray4 = "#5A5A5A",
             gray5 = "#7A7A7A",
