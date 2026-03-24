@@ -23,6 +23,7 @@
     # productivity
     onlyoffice-desktopeditors
     calibre
+    lyx
 
     # communication
     signal-desktop
