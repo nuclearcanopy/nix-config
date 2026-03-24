@@ -24,6 +24,7 @@
     onlyoffice-desktopeditors
     calibre
     lyx
+    texlive.combined.scheme-full
 
     # communication
     signal-desktop
