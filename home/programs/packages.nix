@@ -19,6 +19,7 @@
     mangohud
     vkbasalt
     unstable.protontricks
+    xivlauncher
 
     # productivity
     onlyoffice-desktopeditors
