@@ -4,7 +4,7 @@ nix-commit() {
   
   echo "󱄅 Rebuilding..."
   
-  if sudo nixos-rebuild switch --flake ~/nix-config/#kuraokami --impure --show-trace 2>&1 | tee /tmp/nix-build-log; then
+  if sudo nixos-rebuild switch --flake ~/nix-config/#kuraokami --impure --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     BUILD_SUCCESS=true
   else
     BUILD_SUCCESS=false
