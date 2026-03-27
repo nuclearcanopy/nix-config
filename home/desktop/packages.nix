@@ -21,5 +21,8 @@
     hyprpicker
     wl-clipboard
     jp2a
+
+    # tiling
+    autotiling-rs
   ];
 }
