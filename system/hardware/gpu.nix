@@ -1,14 +1,14 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 {
   # lact
   services.lact.enable = true;
 
-  # Declaratively manage LACT config
-  environment.etc."lact/config.yaml" = {
-    source = ./lact/config.yaml;
-    mode = "0644";
-  };
+  # Declaratively manage LACT config via out-of-store symlink
+  systemd.tmpfiles.rules = [
+    "d /etc/lact 0755 root root -"
+    "L+ /etc/lact/config.yaml - - - - /home/${username}/nix-config/system/hardware/lact/config.yaml"
+  ];
 
   # Service configuration
   systemd.services.lactd = {
