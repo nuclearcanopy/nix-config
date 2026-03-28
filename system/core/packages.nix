@@ -32,6 +32,7 @@
 
     # utilities
     unzip
+    zip
     unrar
     p7zip
     wget
