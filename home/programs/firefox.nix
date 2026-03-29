@@ -80,6 +80,24 @@ in
         }
       '';
 
+      # search engine
+      search = {
+        force = true;
+        default = "nuclearcanopy";
+        engines = {
+          "nuclearcanopy" = {
+            urls = [{ template = "https://search.local/?q={searchTerms}"; }];
+            definedAliases = [ "@a" ];
+          };
+          "ddg".metaData.alias = "@d";
+          "google".metaData.hidden = true;
+          "bing".metaData.hidden = true;
+          "amazondotcom-us".metaData.hidden = true;
+          "ebay".metaData.hidden = true;
+          "wikipedia".metaData.hidden = true;
+        };
+      };
+
       # settings from librewolf
       settings = {
         # enable userChrome/userContent
