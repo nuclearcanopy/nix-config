@@ -28,6 +28,5 @@
     ./services/flatpak.nix
     ./services/backups.nix
     ./services/privacy.nix
-    ./services/persist-migration.nix
   ];
 }

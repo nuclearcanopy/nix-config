@@ -3,9 +3,6 @@
 {
   programs.home-manager.enable = true;
 
-  # keyring (protonvpn & element require it)
-  services.gnome-keyring.enable = true;
-
   # xdg
   xdg = {
     enable = true;

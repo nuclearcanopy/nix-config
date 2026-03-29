@@ -30,6 +30,33 @@ in
         customTheme
       ];
 
+      # ublock origin settings
+      extensions.settings = {
+        "uBlock0@raymondhill.net".settings = {
+          selectedFilterLists = [
+            # built-in
+            "user-filters"
+            "ublock-filters"
+            "ublock-badware"
+            "ublock-privacy"
+            "ublock-quick-fixes"
+            "ublock-unbreak"
+            # ads
+            "easylist"
+            # privacy
+            "adguard-spyware-url"
+            "easyprivacy"
+            # malware
+            "urlhaus-1"
+            # annoyances - cookie notices
+            "ublock-cookies-easylist"
+            "ublock-cookies-adguard"
+            # annoyances - url tracking
+            "adguard-url-tracking-protection"
+          ];
+        };
+      };
+
       # userChrome.css - black toolbar theme
       userChrome = ''
         .tabbrowser-tab[label="New Tab"] .tab-icon-image,
@@ -138,6 +165,15 @@ in
         "toolkit.telemetry.bhrPing.enabled" = false;
         "toolkit.telemetry.firstShutdownPing.enabled" = false;
         "toolkit.telemetry.dau.enabled" = false;
+        "toolkit.telemetry.reportingpolicy.firstRun" = false;
+        "app.update.background.rolledout" = false;
+        "dom.security.unexpected_system_load_telemetry_enabled" = false;
+        "toolkit.coverage.opt-out" = true;
+        "toolkit.coverage.endpoint.base" = "";
+
+        # https-only mode
+        "dom.security.https_only_mode" = true;
+        "dom.security.https_only_mode_ever_enabled" = true;
 
         # disable studies and experiments
         "app.shield.optoutstudies.enabled" = false;
