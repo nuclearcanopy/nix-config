@@ -93,6 +93,14 @@ in
         .browserContainer {
           background-color: #000000 !important;
         }
+
+        /* disable curved border on vertical tabs */
+        #nav-bar {
+          border-top-left-radius: 0 !important;
+        }
+        #tabbrowser-tabbox {
+          border-start-start-radius: 0 !important;
+        }
       '';
 
       # userContent.css - blank new tab
