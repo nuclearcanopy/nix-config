@@ -29,7 +29,7 @@
     # gaming
     bottles
     protonup-qt
-    openrazer
+    linuxKernel.packages.linux_zen.openrazer
 
     # utilities
     unzip
