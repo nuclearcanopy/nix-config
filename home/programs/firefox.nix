@@ -225,7 +225,6 @@ in
 
         # security
         "security.tls.enable_0rtt_data" = false;
-        "dom.security.https_only_mode_ever_enabled" = true;
 
         # clipboard
         "clipboard.autocopy" = false;
