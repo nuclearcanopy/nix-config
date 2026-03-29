@@ -39,7 +39,7 @@ window#waybar {
 #custom-gpu,
 #custom-reboot,
 #custom-power {
-  margin: 2px 8px;
+  margin: 2px 11px;
   padding: 2px 0px;
   background: transparent;
 }
@@ -62,7 +62,7 @@ window#waybar {
 #workspaces {
   font-weight: bold;
   padding: 0px;
-  margin: 2px 8px;
+  margin: 2px 11px;
   background: transparent;
   border: none;
 }
