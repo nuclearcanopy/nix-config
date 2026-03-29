@@ -35,24 +35,13 @@ window#waybar {
 #mpris,
 #custom-mouse,
 #memory,
-#cpuheader,
-#gpuheader,
+#custom-cpu,
+#custom-gpu,
 #custom-reboot,
 #custom-power {
   margin: 2px 8px;
   padding: 2px 0px;
   background: transparent;
-}
-
-/* ============================================
-   GROUPED MODULE CHILDREN: NO MARGIN
-   ============================================ */
-
-#temperature,
-#cpu,
-#custom-gpu {
-  margin: 0px;
-  padding: 0px;
 }
 
 #custom-expand {

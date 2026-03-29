@@ -34,8 +34,8 @@
         modules-right = [
           "custom/mouse"
           "memory"
-          "group/cpuheader"
-          "group/gpuheader"
+          "custom/cpu"
+          "custom/gpu"
           "custom/reboot"
           "custom/power"
         ];
@@ -167,33 +167,14 @@
           tooltip = false;
         };
 
-        "group/cpuheader" = {
-          orientation = "horizontal";
-          modules = [ "temperature#cpu" "cpu" ];
-        };
-        "temperature#cpu" = {
-          hwmon-path = "/sys/class/hwmon/hwmon1/temp1_input";
-          format = "CPU {temperatureC}° ";
+        "custom/cpu" = {
+          exec = "${./scripts/cpu_status.sh}";
+          interval = 5;
           tooltip = false;
-        };
-        cpu = {
-          format = "{usage}%";
-          tooltip = true;
         };
 
-        "group/gpuheader" = {
-          orientation = "horizontal";
-          modules = [ "temperature#gpu" "custom/gpu" ];
-        };
-        "temperature#gpu" = {
-          hwmon-path = "/sys/class/hwmon/hwmon5/temp2_input";
-          format = "GPU {temperatureC}° ";
-          tooltip = false;
-        };
         "custom/gpu" = {
-          exec = "cat /sys/class/hwmon/hwmon5/device/gpu_busy_percent";
-          format = "{}%";
-          return-type = "";
+          exec = "${./scripts/gpu_status.sh}";
           interval = 5;
           tooltip = false;
         };
