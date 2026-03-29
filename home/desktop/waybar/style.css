@@ -59,16 +59,6 @@ window#waybar {
   padding: 2px 4px;
 }
 
-/* Temperature labels */
-#temperature {
-  min-width: 5em;
-}
-
-/* Usage percentages */
-#cpu,
-#custom-gpu {
-  min-width: 2.5em;
-}
 
 #tray {
   margin: 0px;
