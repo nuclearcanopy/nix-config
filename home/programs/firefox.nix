@@ -108,6 +108,23 @@ in
         }
       '';
 
+      # bookmarks with keywords
+      bookmarks = {
+        force = true;
+        settings = [
+          { name = "Proton Mail"; url = "https://mail.proton.me/u/0/inbox"; keyword = "pmail"; }
+          { name = "Proton Drive"; url = "https://drive.proton.me/"; keyword = "pdrive"; }
+          { name = "Reddit"; url = "https://www.reddit.com/"; keyword = "reddit"; }
+          { name = "NixOS Packages"; url = "https://search.nixos.org/packages"; keyword = "nixpkgs"; }
+          { name = "Google Classroom"; url = "https://classroom.google.com/u/1/"; keyword = "class"; }
+          { name = "Piracy Megathread"; url = "https://www.reddit.com/r/Piracy/wiki/megathread/"; keyword = "megathread"; }
+          { name = "YouTube Music"; url = "https://music.youtube.com/"; keyword = "ytm"; }
+          { name = "Warframe Market"; url = "https://warframe.market/"; keyword = "wfm"; }
+          { name = "Dexonline"; url = "https://dexonline.ro/"; keyword = "dex"; }
+          { name = "WhatsApp"; url = "https://web.whatsapp.com/"; keyword = "wa"; }
+        ];
+      };
+
       # search engine
       search = {
         force = true;
@@ -208,12 +225,16 @@ in
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
         "privacy.trackingprotection.emailtracking.enabled" = true;
-        "privacy.fingerprintingProtection" = true;
-        "privacy.resistFingerprinting.letterboxing" = true;
+        "privacy.fingerprintingProtection" = false;
+        "privacy.resistFingerprinting" = false;
+        "privacy.resistFingerprinting.letterboxing" = false;
         "privacy.query_stripping.enabled" = true;
         "privacy.query_stripping.enabled.pbmode" = true;
         "privacy.bounceTrackingProtection.mode" = 1;
         "privacy.annotate_channels.strict_list.enabled" = true;
+
+        # fix major site issues (webcompat shims)
+        "extensions.webcompat.enable_shims" = true;
 
         # privacy - network
         "network.prefetch-next" = false;
