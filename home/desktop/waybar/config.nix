@@ -3,8 +3,6 @@
 {
   programs.waybar = {
     enable = true;
-
-    # css import
     style = builtins.readFile ./style.css;
 
     settings = {
@@ -17,14 +15,11 @@
         height = 39;
         spacing = 0;
 
-        # layout
         modules-left = [
           "clock#date"
           "custom/time"
           "pulseaudio"
           "wireplumber"
-          #"network"
-          #"custom/vpn"
           "group/expand"
           "mpris"
         ];
@@ -41,7 +36,6 @@
           "custom/power"
         ];
 
-        # power session
         "custom/power" = {
           format = "PWR";
           on-click-middle = "systemctl suspend";
@@ -60,24 +54,6 @@
           tooltip = false;
         };
 
-        #"network" = {
-        #  format-ethernet = "NET";
-        #  tooltip-format = "UP {bandwidthUpBytes} DOWN {bandwidthDownBytes}";
-        #  format-linked = "<span color='#FFA500'>NET</span>{ifname} (No IP)";
-        #  format-disconnected = "<span color='#FF4040'>NO NET</span>";
-        #  interval = 1;
-        #};
-
-        #"custom/vpn" = {
-        #  format = "{}";
-        #  return-type = "json";
-        #  exec = "${./scripts/vpn.sh}";
-        #  interval = 5;
-        #  tooltip = true;
-        #  on-click = "mullvad-gui";
-        #};
-
-        # tray
         "custom/expand" = {
           format = ">";
           tooltip = false;
@@ -98,7 +74,6 @@
           spacing = 6;
         };
 
-        # media
         mpris = {
           format = "[{status}] {dynamic}";
           interval = 0;
@@ -110,11 +85,9 @@
             paused = "||";
             stopped = "[]";
           };
-
           ignored-players = [ "firefox" ];
         };
 
-        # system
         "clock#date" = {
           interval = 60;
           format = "{:%F}";
@@ -161,7 +134,6 @@
           tooltip-format = "{node_name}";
         };
 
-        # hardware
         "custom/mouse" = {
           exec = "${./scripts/mouse_battery.sh}";
           format = "MOU {}%";
@@ -184,12 +156,6 @@
         "custom/gpu" = {
           exec = "${./scripts/gpu_status.sh}";
           interval = 5;
-          tooltip = false;
-        };
-
-        "custom/refresh" = {
-          format = "R";
-          on-click = "pkill waybar && waybar &";
           tooltip = false;
         };
       };

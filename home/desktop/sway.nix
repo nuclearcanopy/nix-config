@@ -8,13 +8,10 @@ in
     enable = true;
 
     config = {
-      # variables
       terminal = "alacritty";
       menu = "j4-dmenu-desktop --dmenu='bemenu ${bemenuStyle}'";
-      
-      modifier = "Mod4";  # super
+      modifier = "Mod4";
 
-      # monitors (ASUS left, Dell/Alienware right)
       output = {
         "DP-1" = {
           mode = "2560x1440@120Hz";
@@ -36,13 +33,11 @@ in
         };
       };
 
-      # ws assign
       workspaceOutputAssign = [
         { workspace = "1"; output = "DP-1"; }
         { workspace = "2"; output = "DP-2"; }
       ];
 
-      # input
       input = {
         "*" = {
           xkb_layout = "us";
@@ -59,7 +54,6 @@ in
         };
       };
 
-      # general
       gaps = {
         inner = 0;
         outer = 0;
@@ -70,10 +64,8 @@ in
         titlebar = false;
       };
 
-      # no bar
       bars = [];
 
-      # colors
       colors = {
         focused = {
           border = "#000000";
@@ -98,7 +90,6 @@ in
         };
       };
 
-      # autostart
       startup = [
         { command = "mullvad-gui"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
@@ -108,42 +99,35 @@ in
         { command = "autotiling-rs"; }
       ];
 
-      # keybinds
       keybindings = let
-        mod = "Mod4";  # super
-        alt = "Mod1";  # alt
+        mod = "Mod4";
+        alt = "Mod1";
       in {
-        # launcher
         "Control+Return" = "exec j4-dmenu-desktop --dmenu='bemenu ${bemenuStyle}'";
         "Control+BackSpace" = "exec bemenu-run ${bemenuStyle}";
 
         "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
         "${mod}+p" = "exec hyprpicker";
 
-        # apps
         "${mod}+q" = "exec alacritty";
         "${mod}+Tab" = "exec librewolf";
         "${mod}+g" = "exec librewolf -P llm";
         "Control+y" = "exec freetube";
 
-        # windows
         "${alt}+c" = "kill";
         "${alt}+v" = "floating toggle";
         "${alt}+f" = "fullscreen toggle";
         "${mod}+j" = "layout toggle split";
         "${mod}+m" = "exit";
 
-        # waybar
         "${mod}+${alt}+1" = "exec pactl -- set-sink-mute 0 toggle";
         "${mod}+${alt}+2" = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle";
 
-        # focus
         "${mod}+a" = "focus left";
         "${mod}+d" = "focus right";
         "${mod}+w" = "focus up";
         "${mod}+s" = "focus down";
 
-        # workspaces
         "${mod}+1" = "workspace number 1";
         "${mod}+2" = "workspace number 2";
         "${mod}+3" = "workspace number 3";
@@ -155,7 +139,6 @@ in
         "${mod}+9" = "workspace number 9";
         "${mod}+0" = "workspace number 10";
 
-        # move
         "${mod}+Control+1" = "move container to workspace number 1";
         "${mod}+Control+2" = "move container to workspace number 2";
         "${mod}+Control+3" = "move container to workspace number 3";
@@ -172,9 +155,8 @@ in
         "${mod}+Shift+w" = "move up";
         "${mod}+Shift+s" = "move down";
 
-        "${mod}+t" = "split toggle";  # toggle between h/v
+        "${mod}+t" = "split toggle";
 
-        # media
         "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
         "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
         "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
@@ -188,12 +170,10 @@ in
         "XF86AudioPrev" = "exec playerctl previous";
       };
 
-      # floating
       floating = {
         modifier = "Mod4";
       };
 
-      # mouse
       focus = {
         followMouse = true;
         mouseWarping = "container";

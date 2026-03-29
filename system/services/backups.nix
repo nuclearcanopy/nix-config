@@ -1,7 +1,6 @@
 { pkgs, username, ... }:
 
 {
-  # backup
   systemd.user.services.librewolf-backup = {
     description = "Backup LibreWolf profiles";
 
@@ -11,13 +10,4 @@
       ExecStart = "${pkgs.rsync}/bin/rsync -av --delete /home/${username}/.librewolf/ /mnt/nas/librewolf-backup/";
     };
   };
-
-  #systemd.user.timers.librewolf-backup = {
-  #  wantedBy = [ "timers.target" ];
-  #
-  #  timerConfig = {
-  #    OnCalendar = "daily";
-  #   Persistent = true;
-  #  };
-  #};
 }

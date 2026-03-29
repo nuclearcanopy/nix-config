@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # connectivity
   networking.networkmanager.settings = {
     connectivity = {
       enabled = false;
@@ -9,14 +8,11 @@
     };
   };
 
-  # location
   services.geoclue2.enable = false;
 
-  # gnome
-  services.gnome.gnome-keyring.enable = true; # protonvpn & element require it
+  services.gnome.gnome-keyring.enable = true;
   services.gnome.tinysparql.enable = false;
   services.gnome.localsearch.enable = false;
 
-  # packagekit
   services.packagekit.enable = false;
 }

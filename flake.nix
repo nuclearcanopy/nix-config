@@ -21,7 +21,7 @@
       config.allowUnfree = false;
     };
 
-    # must use absolute path because gitignored files don't get copied to nix store
+    # absolute path - gitignored
     secrets = import /home/${username}/nix-config/secrets.nix;
   in {
     nixosConfigurations.kuraokami = nixpkgs.lib.nixosSystem {

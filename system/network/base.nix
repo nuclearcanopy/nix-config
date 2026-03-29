@@ -2,7 +2,6 @@
 
 {
   services.mullvad-vpn.enable = true;
-
   services.resolved.enable = true;
 
   networking = {
@@ -32,15 +31,8 @@
       enable = true;
       checkReversePath = false;
 
-      allowedUDPPorts = [
-        51820  # WireGuard
-      ];
-
-      allowedTCPPorts = [
-        443  # Mullvad API
-        8080
-        10206 # server
-      ];
+      allowedUDPPorts = [ 51820 ];
+      allowedTCPPorts = [ 443 8080 10206 ];
     };
   };
 }
