@@ -93,14 +93,6 @@ in
         .browserContainer {
           background-color: #000000 !important;
         }
-
-        /* disable curved border on vertical tabs */
-        #nav-bar {
-          border-top-left-radius: 0 !important;
-        }
-        #tabbrowser-tabbox {
-          border-start-start-radius: 0 !important;
-        }
       '';
 
       # userContent.css - blank new tab
@@ -183,6 +175,17 @@ in
         # https-only mode
         "dom.security.https_only_mode" = true;
         "dom.security.https_only_mode_ever_enabled" = true;
+
+        # clear on shutdown (exceptions can be added manually in settings)
+        "privacy.sanitize.sanitizeOnShutdown" = true;
+        "privacy.clearOnShutdown.cookies" = true;
+        "privacy.clearOnShutdown.cache" = true;
+        "privacy.clearOnShutdown.history" = true;
+        "privacy.clearOnShutdown.sessions" = true;
+        "privacy.clearOnShutdown.offlineApps" = false;
+        "privacy.clearOnShutdown.formdata" = true;
+        "privacy.clearOnShutdown.downloads" = true;
+        "privacy.clearOnShutdown.siteSettings" = false;
 
         # disable studies and experiments
         "app.shield.optoutstudies.enabled" = false;
