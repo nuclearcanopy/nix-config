@@ -48,13 +48,14 @@ window#waybar {
    GROUPED MODULE CHILDREN: NO MARGIN
    ============================================ */
 
-#cpuheader > *,
-#gpuheader > * {
+#temperature,
+#cpu,
+#custom-gpu {
   margin: 0px;
-  padding: 2px 0px;
+  padding: 0px;
 }
 
-#expand > * {
+#custom-expand {
   margin: 0px;
   padding: 2px 4px;
 }
