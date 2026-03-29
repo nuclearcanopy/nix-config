@@ -12,7 +12,7 @@
         ublock-origin
         darkreader
         bitwarden
-        tampermonkey
+        # tampermonkey - unfree, install manually from AMO
       ];
 
       # userChrome.css - black toolbar theme
