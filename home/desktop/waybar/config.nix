@@ -42,7 +42,7 @@
 
         # power session
         "custom/power" = {
-          format = "PWR ";
+          format = "PWR";
           on-click-middle = "systemctl suspend";
           tooltip = false;
         };
@@ -148,8 +148,8 @@
 
         wireplumber = {
           node-type = "Audio/Source";
-          format = "MIC ";
-          format-muted = "<span color='#B96B6B'>MIC MUTE</span> ";
+          format = "MIC";
+          format-muted = "<span color='#B96B6B'>MIC MUTE</span>";
           on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
           tooltip-format = "{node_name}";
         };
@@ -163,7 +163,7 @@
         };
 
         memory = {
-          format = "MEM {used:0.1f}G ";
+          format = "MEM {used:0.1f}G";
           tooltip = false;
         };
 
