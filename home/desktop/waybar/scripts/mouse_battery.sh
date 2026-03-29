@@ -3,7 +3,9 @@
 RAW=$(cat /sys/bus/hid/drivers/razermouse/0003:1532:00B7.*/charge_level 2>/dev/null | head -1)
 
 if [[ -n "$RAW" ]]; then
-    echo $((RAW * 100 / 255))
+    PERCENT=$((RAW * 100 / 255))
+    ((PERCENT > 99)) && PERCENT=99
+    printf "%02d" "$PERCENT"
 else
     echo ""
 fi

@@ -34,7 +34,7 @@ window#waybar {
 #expand,
 #mpris,
 #custom-mouse,
-#memory,
+#custom-memory,
 #custom-cpu,
 #custom-gpu,
 #custom-reboot,
@@ -118,7 +118,7 @@ window#waybar {
 
 #clock:hover,
 #custom-time:hover,
-#memory:hover,
+#custom-memory:hover,
 #wireplumber:hover,
 #custom-power:hover,
 #custom-reboot:hover,

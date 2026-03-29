@@ -33,7 +33,7 @@
         ];
         modules-right = [
           "custom/mouse"
-          "memory"
+          "custom/memory"
           "custom/cpu"
           "custom/gpu"
           "custom/reboot"
@@ -162,8 +162,9 @@
           tooltip = false;
         };
 
-        memory = {
-          format = "MEM {used:0.1f}G";
+        "custom/memory" = {
+          exec = "${./scripts/memory.sh}";
+          interval = 5;
           tooltip = false;
         };
 
