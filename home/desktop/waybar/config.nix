@@ -36,6 +36,7 @@
           "custom/memory"
           "custom/cpu"
           "custom/gpu"
+          "custom/firmware"
           "custom/reboot"
           "custom/power"
         ];
@@ -44,6 +45,12 @@
         "custom/power" = {
           format = "PWR";
           on-click-middle = "systemctl suspend";
+          tooltip = false;
+        };
+
+        "custom/firmware" = {
+          format = "FRM";
+          on-click-middle = "systemctl reboot --firmware-setup";
           tooltip = false;
         };
 

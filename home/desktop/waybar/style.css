@@ -37,6 +37,7 @@ window#waybar {
 #custom-memory,
 #custom-cpu,
 #custom-gpu,
+#custom-firmware,
 #custom-reboot,
 #custom-power {
   margin: 2px 11px;
