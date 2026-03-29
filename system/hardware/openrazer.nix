@@ -5,5 +5,7 @@
     users = [ "${username}" ];
   };
 
-  environment.systemPackages = pkgs.polychromatic
+  environment.systemPackages = [
+    pkgs.polychromatic
+  ];
 }
