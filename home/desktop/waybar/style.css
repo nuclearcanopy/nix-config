@@ -26,13 +26,11 @@ window#waybar {
   border: none;
 }
 
-/* UNIFORM SPACING FOR ALL MODULES */
+/* UNIFORM SPACING FOR ALL MODULES - 6px margin on each side = 12px between modules */
 #clock,
 #network,
 #wireplumber,
 #memory,
-#temperature,
-#cpu,
 #pulseaudio,
 #mpris,
 #tray,
@@ -42,22 +40,27 @@ window#waybar {
 #custom-refresh,
 #custom-logout,
 #custom-vpn,
-#custom-lact,
-#custom-mouse,
-#custom-gpu {
+#custom-mouse {
   margin: 2px 6px;
   padding: 2px 6px;
   background: transparent;
 }
 
-/* GROUPED MODULES - no extra margin inside group */
+/* CLOCK - uppercase day name */
+#clock {
+  text-transform: uppercase;
+  color: #888888;
+}
+
+/* GROUPED MODULES - same outer margin as other modules */
 #cpuheader,
 #gpuheader {
   margin: 2px 6px;
-  padding: 0px;
+  padding: 2px 0px;
   background: transparent;
 }
 
+/* Children inside groups - NO margin, tight together */
 #cpuheader > *,
 #gpuheader > * {
   margin: 0px;
@@ -82,10 +85,6 @@ window#waybar {
 }
 
 /* MODULE-SPECIFIC COLORS */
-#clock {
-  color: #888888;
-}
-
 #wireplumber.muted {
   color: #b96b6b;
 }

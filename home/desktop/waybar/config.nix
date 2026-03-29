@@ -19,7 +19,8 @@
 
         # layout
         modules-left = [
-          "clock"
+          "clock#date"
+          "clock#time"
           "pulseaudio"
           "wireplumber"
           #"network"
@@ -107,11 +108,18 @@
         };
 
         # system
-        clock = {
+        "clock#date" = {
           interval = 60;
-          format = "{:%F %a %H:%M}";
+          format = "{:%F}";
           tooltip = true;
-          tooltip-format = "{:L%Y.%m.%d, %A}";
+          tooltip-format = "{:L%Y.%m.%d}";
+        };
+
+        "clock#time" = {
+          interval = 60;
+          format = "{:%a %H:%M}";
+          tooltip = true;
+          tooltip-format = "{:%A}";
         };
 
         "sway/workspaces" = {
