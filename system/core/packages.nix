@@ -20,7 +20,7 @@
     };
   };
 
-  environment.systemPackages = with pkgs; [
+  environment.systempackages = with pkgs; [
     # vpn / network
     wireguard-tools
     mullvad-vpn
@@ -29,7 +29,6 @@
     # gaming
     bottles
     protonup-qt
-    linuxKernel.packages.linux_zen.openrazer
 
     # utilities
     unzip

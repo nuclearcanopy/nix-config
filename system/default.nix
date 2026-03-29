@@ -16,6 +16,7 @@
     ./hardware/audio.nix
     ./hardware/gpu.nix
     ./hardware/cpu.nix
+    ./hardware/openrazer.nix
 
     # Network configuration
     ./network/base.nix
