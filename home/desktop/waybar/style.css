@@ -58,14 +58,14 @@ window#waybar {
 /* Temperature labels - min-width for "CPU 100°" / "GPU 100°" */
 #cpuheader > #temperature,
 #gpuheader > #temperature {
-  min-width: 70px;
+  min-width: 120px;
 }
 
 /* Usage percentages - min-width for "100%" */
 #cpuheader > #cpu,
 #gpuheader > #custom-gpu {
-  min-width: 36px;
-  margin-left: 6px;
+  min-width: 60px;
+  margin-left: 8px;
 }
 
 #tray {
