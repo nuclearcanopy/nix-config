@@ -29,6 +29,7 @@
     # gaming
     bottles
     protonup-qt
+    openrazer
 
     # utilities
     unzip
