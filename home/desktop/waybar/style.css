@@ -60,11 +60,10 @@ window#waybar {
   min-width: 5em;
 }
 
-/* Usage percentages + space before */
+/* Usage percentages */
 #cpu,
 #custom-gpu {
   min-width: 2.5em;
-  margin-left: 4px;
 }
 
 #tray {
