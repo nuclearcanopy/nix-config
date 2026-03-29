@@ -26,25 +26,45 @@ window#waybar {
   border: none;
 }
 
+/* UNIFORM SPACING FOR ALL MODULES */
 #clock,
 #network,
 #wireplumber,
-#wireplumber.muted,
 #memory,
-#cpuheader,
-#gpuheader,
+#temperature,
+#cpu,
 #pulseaudio,
+#mpris,
+#tray,
 #custom-expand,
 #custom-power,
 #custom-reboot,
 #custom-refresh,
 #custom-logout,
-#mpris {
-  margin: 2px;
+#custom-vpn,
+#custom-lact,
+#custom-mouse,
+#custom-gpu {
+  margin: 2px 6px;
   padding: 2px 6px;
   background: transparent;
 }
 
+/* GROUPED MODULES - no extra margin inside group */
+#cpuheader,
+#gpuheader {
+  margin: 2px 6px;
+  padding: 0px;
+  background: transparent;
+}
+
+#cpuheader > *,
+#gpuheader > * {
+  margin: 0px;
+  padding: 2px 4px;
+}
+
+/* HOVER STATES */
 #clock:hover,
 #network:hover,
 #memory:hover,
@@ -56,15 +76,30 @@ window#waybar {
 #custom-expand:hover,
 #pulseaudio:hover,
 #custom-gpu:hover,
+#custom-mouse:hover,
 #custom-refresh:hover {
   color: #b0b0b0;
 }
 
+/* MODULE-SPECIFIC COLORS */
 #clock {
   color: #888888;
-  padding: 2px 8px;
 }
 
+#wireplumber.muted {
+  color: #b96b6b;
+}
+
+#mpris {
+  color: #666666;
+  font-size: 13px;
+}
+
+#mpris.playing {
+  color: #cccccc;
+}
+
+/* WORKSPACES */
 #workspaces {
   font-weight: bold;
   padding: 0px;
@@ -93,97 +128,16 @@ window#waybar {
   color: #444444;
 }
 
-#network {
-  padding: 2px 6px;
-  background: transparent;
-}
-
-#custom-vpn {
-  padding: 2px 6px;
-  background: transparent;
-}
-
-#wireplumber,
-#wireplumber.muted {
-  margin: 2px;
-  padding: 2px 6px;
-}
-
-#wireplumber.muted {
-  color: #b96b6b;
-}
-
-#pulseaudio {
-  padding: 2px 6px;
-  min-width: 90px;
-}
-
-#custom-lact {
-  padding: 2px 6px;
-  background: transparent;
-}
-
-#custom-mouse {
-  padding: 0px 15px 0px 0px;
-}
-
-#memory {
-  padding: 2px 6px;
-}
-
-#cpuheader,
-#gpuheader {
-  padding: 2px 6px;
-  min-width: 100px;
-}
-
-#gpuheader {
-  margin: 0px 0px 0px 0px;
-}
-
-#cpu,
-#custom-gpu {
-  padding: 0px 4px;
-}
-
-#custom-expand {
-  padding: 2px 6px;
-}
-
-#custom-power,
-#custom-reboot,
-#custom-logout {
-  padding: 2px 6px;
-}
-
-#custom-refresh {
-  padding: 2px 6px;
-}
-
-#tray {
-  padding: 2px 8px;
-  margin: 2px;
-  background: transparent;
-}
-
+/* TRAY MENU */
 #tray menu *,
 #tray menu separator {
   padding: 2px 4px;
 }
 
+/* TOOLTIP */
 tooltip {
   color: #cccccc;
   padding: 4px 8px;
   background: #000000;
   border: none;
-}
-
-#mpris {
-  color: #666666;
-  font-size: 13px;
-  padding: 2px 12px;
-}
-
-#mpris.playing {
-  color: #cccccc;
 }
