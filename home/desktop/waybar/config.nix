@@ -31,6 +31,7 @@
           "sway/workspaces"
         ];
         modules-right = [
+          "custom/mouse"
           "memory"
           "group/cpuheader"
           "group/gpuheader"
@@ -147,6 +148,13 @@
         };
 
         # hardware
+        "custom/mouse" = {
+          exec = "${./scripts/mouse_battery.sh}";
+          format = "MOU {}%";
+          interval = 60;
+          tooltip = false;
+        };
+
         memory = {
           format = "MEM {used:0.1f}G ";
           tooltip = false;
