@@ -19,7 +19,8 @@
       ReadWritePaths = [ "/etc/lact" ];
 
       # Basic hardening that doesn't interfere with LACT
-      ProtectHome = true;
+      # ProtectHome disabled - config symlinked from home dir
+      ProtectHome = false;
       ProtectClock = true;
       ProtectHostname = true;
       NoNewPrivileges = true;
