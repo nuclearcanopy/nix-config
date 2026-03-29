@@ -55,16 +55,16 @@ window#waybar {
   padding: 2px 4px;
 }
 
-/* Temperature labels - min-width for "CPU 100°" / "GPU 100°" */
+/* Temperature labels */
 #temperature {
-  min-width: 120px;
+  min-width: 5em;
 }
 
-/* Usage percentages - min-width for "100%" + space before */
+/* Usage percentages + space before */
 #cpu,
 #custom-gpu {
-  min-width: 60px;
-  margin-left: 8px;
+  min-width: 2.5em;
+  margin-left: 4px;
 }
 
 #tray {
