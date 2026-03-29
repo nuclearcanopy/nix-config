@@ -31,6 +31,7 @@ in
       ];
 
       # ublock origin settings
+      extensions.force = true;
       extensions.settings = {
         "uBlock0@raymondhill.net".settings = {
           selectedFilterLists = [
