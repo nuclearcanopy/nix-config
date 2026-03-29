@@ -6,10 +6,12 @@ let
     pname = "firefox-custom-theme";
     version = "1.0";
     src = ./firefox/theme.xpi;
+    addonId = "{84a0df07-efa2-493f-a644-c702666e6e65}";
     dontUnpack = true;
     installPhase = ''
-      install -D $src "$out/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/custom-theme@local.xpi"
+      install -D $src "$out/{84a0df07-efa2-493f-a644-c702666e6e65}.xpi"
     '';
+    passthru = { addonId = "{84a0df07-efa2-493f-a644-c702666e6e65}"; };
   };
 in
 {
@@ -94,6 +96,38 @@ in
         "browser.ml.chat.enabled" = false;
         "browser.ml.chat.sidebar" = false;
         "browser.ml.linkPreview.enabled" = false;
+
+        # disable autofill
+        "extensions.formautofill.addresses.enabled" = false;
+        "extensions.formautofill.creditCards.enabled" = false;
+
+        # disable password manager
+        "signon.rememberSignons" = false;
+        "signon.autofillForms" = false;
+        "signon.generation.enabled" = false;
+        "signon.firefoxRelay.feature" = "disabled";
+        "signon.management.page.breach-alerts.enabled" = false;
+
+        # disable telemetry
+        "datareporting.healthreport.uploadEnabled" = false;
+        "datareporting.policy.dataSubmissionEnabled" = false;
+        "toolkit.telemetry.enabled" = false;
+        "toolkit.telemetry.unified" = false;
+        "toolkit.telemetry.archive.enabled" = false;
+        "toolkit.telemetry.newProfilePing.enabled" = false;
+        "toolkit.telemetry.shutdownPingSender.enabled" = false;
+        "toolkit.telemetry.updatePing.enabled" = false;
+        "toolkit.telemetry.bhrPing.enabled" = false;
+        "toolkit.telemetry.firstShutdownPing.enabled" = false;
+        "toolkit.telemetry.dau.enabled" = false;
+
+        # disable studies and experiments
+        "app.shield.optoutstudies.enabled" = false;
+        "app.normandy.enabled" = false;
+        "app.normandy.api_url" = "";
+
+        # disable personalized extensions
+        "browser.discovery.enabled" = false;
 
         # dark theme
         "browser.theme.toolbar-theme" = 0;
