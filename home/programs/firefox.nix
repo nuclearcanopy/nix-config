@@ -83,6 +83,18 @@ in
         # enable userChrome/userContent
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
+        # scaling
+        "layout.css.devPixelsPerPx" = "1.4";
+
+        # vertical tabs
+        "sidebar.verticalTabs" = true;
+
+        # disable AI features
+        "browser.ml.enable" = false;
+        "browser.ml.chat.enabled" = false;
+        "browser.ml.chat.sidebar" = false;
+        "browser.ml.linkPreview.enabled" = false;
+
         # dark theme
         "browser.theme.toolbar-theme" = 0;
 
