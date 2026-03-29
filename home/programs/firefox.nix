@@ -1,5 +1,17 @@
 { pkgs, ... }:
 
+let
+  # local theme from firefox color
+  customTheme = pkgs.stdenvNoCC.mkDerivation {
+    pname = "firefox-custom-theme";
+    version = "1.0";
+    src = ./firefox/theme.xpi;
+    dontUnpack = true;
+    installPhase = ''
+      install -D $src "$out/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/custom-theme@local.xpi"
+    '';
+  };
+in
 {
   programs.firefox = {
     enable = true;
@@ -13,6 +25,7 @@
         darkreader
         bitwarden
         # tampermonkey - unfree, install manually from AMO
+        customTheme
       ];
 
       # userChrome.css - black toolbar theme
