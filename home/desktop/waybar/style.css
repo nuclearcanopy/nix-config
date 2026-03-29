@@ -123,6 +123,10 @@ window#waybar {
   background: transparent;
 }
 
+#custom-mouse {
+  padding: 0px 15px 0px 0px;
+}
+
 #memory {
   padding: 2px 6px;
 }
