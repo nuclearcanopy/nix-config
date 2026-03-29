@@ -156,7 +156,7 @@
         wireplumber = {
           node-type = "Audio/Source";
           format = "MIC";
-          format-muted = "<span color='#B96B6B'>MIC MUTE</span>";
+          format-muted = "<span color='#B96B6B'>MTD</span>";
           on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
           tooltip-format = "{node_name}";
         };
