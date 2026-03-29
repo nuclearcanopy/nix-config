@@ -9,9 +9,14 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, unstable, home-manager, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, nur, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -30,6 +35,9 @@
 
       modules = [
         ./configuration.nix
+
+        # nur overlay for firefox extensions
+        { nixpkgs.overlays = [ nur.overlays.default ]; }
 
         home-manager.nixosModules.home-manager
         {

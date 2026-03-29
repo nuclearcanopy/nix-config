@@ -63,6 +63,7 @@
     ./programs/asunder.nix
     ./programs/easyeffects.nix
     ./programs/vkbasalt.nix
+    ./programs/firefox.nix
 
     # development
     ./dev/packages.nix

@@ -4,7 +4,7 @@
   home.packages = with pkgs; [
     # browsers
     librewolf
-    firefox
+    # firefox - managed by programs.firefox
     freetube
 
     # creative
