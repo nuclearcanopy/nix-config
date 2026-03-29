@@ -20,7 +20,7 @@
         # layout
         modules-left = [
           "clock#date"
-          "clock#time"
+          "custom/time"
           "pulseaudio"
           "wireplumber"
           #"network"
@@ -115,11 +115,10 @@
           tooltip-format = "{:L%Y.%m.%d}";
         };
 
-        "clock#time" = {
+        "custom/time" = {
+          exec = "${./scripts/clock_time.sh}";
           interval = 60;
-          format = "{:%a %H:%M}";
-          tooltip = true;
-          tooltip-format = "{:%A}";
+          tooltip = false;
         };
 
         "sway/workspaces" = {

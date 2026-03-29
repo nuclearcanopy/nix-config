@@ -2,6 +2,8 @@
   font-size: 15px;
   font-family: monospace;
   border: none;
+  margin: 0;
+  padding: 0;
 }
 
 window#waybar {
@@ -14,95 +16,58 @@ window#waybar {
 .modules-left,
 .modules-center,
 .modules-right {
-  padding: 2px;
+  padding: 2px 0px;
   margin: 0px;
   background: transparent;
   border: none;
 }
 
-.modules-center {
-  padding: 2px 10px;
-  margin: 0px 20px;
-  border: none;
-}
+/* ============================================
+   EVERY TOP-LEVEL MODULE: IDENTICAL SPACING
+   margin: 2px 8px = 16px between modules
+   ============================================ */
 
-/* UNIFORM SPACING FOR ALL MODULES - 6px margin on each side = 12px between modules */
 #clock,
-#network,
-#wireplumber,
-#memory,
+#custom-time,
 #pulseaudio,
+#wireplumber,
+#expand,
 #mpris,
-#tray,
-#custom-expand,
-#custom-power,
-#custom-reboot,
-#custom-refresh,
-#custom-logout,
-#custom-vpn,
-#custom-mouse {
-  margin: 2px 6px;
-  padding: 2px 6px;
-  background: transparent;
-}
-
-/* CLOCK - uppercase day name */
-#clock {
-  text-transform: uppercase;
-  color: #888888;
-}
-
-/* GROUPED MODULES - same outer margin as other modules */
+#custom-mouse,
+#memory,
 #cpuheader,
-#gpuheader {
-  margin: 2px 6px;
+#gpuheader,
+#custom-reboot,
+#custom-power {
+  margin: 2px 8px;
   padding: 2px 0px;
   background: transparent;
 }
 
-/* Children inside groups - NO margin, tight together */
+/* ============================================
+   GROUPED MODULE CHILDREN: NO MARGIN
+   ============================================ */
+
 #cpuheader > *,
-#gpuheader > * {
+#gpuheader > *,
+#expand > * {
   margin: 0px;
   padding: 2px 4px;
 }
 
-/* HOVER STATES */
-#clock:hover,
-#network:hover,
-#memory:hover,
-#wireplumber:hover,
-#temperature:hover,
-#custom-power:hover,
-#custom-reboot:hover,
-#custom-logout:hover,
-#custom-expand:hover,
-#pulseaudio:hover,
-#custom-gpu:hover,
-#custom-mouse:hover,
-#custom-refresh:hover {
-  color: #b0b0b0;
+#tray {
+  margin: 0px;
+  padding: 2px 4px;
 }
 
-/* MODULE-SPECIFIC COLORS */
-#wireplumber.muted {
-  color: #b96b6b;
-}
+/* ============================================
+   WORKSPACES
+   ============================================ */
 
-#mpris {
-  color: #666666;
-  font-size: 13px;
-}
-
-#mpris.playing {
-  color: #cccccc;
-}
-
-/* WORKSPACES */
 #workspaces {
   font-weight: bold;
   padding: 0px;
-  margin: 2px 6px;
+  margin: 2px 8px;
   background: transparent;
   border: none;
 }
@@ -127,13 +92,55 @@ window#waybar {
   color: #444444;
 }
 
-/* TRAY MENU */
+/* ============================================
+   COLORS
+   ============================================ */
+
+#clock {
+  color: #888888;
+}
+
+#custom-time {
+  color: #888888;
+}
+
+#wireplumber.muted {
+  color: #b96b6b;
+}
+
+#mpris {
+  color: #666666;
+  font-size: 13px;
+}
+
+#mpris.playing {
+  color: #cccccc;
+}
+
+/* ============================================
+   HOVER
+   ============================================ */
+
+#clock:hover,
+#custom-time:hover,
+#memory:hover,
+#wireplumber:hover,
+#custom-power:hover,
+#custom-reboot:hover,
+#pulseaudio:hover,
+#custom-mouse:hover {
+  color: #b0b0b0;
+}
+
+/* ============================================
+   TRAY MENU & TOOLTIP
+   ============================================ */
+
 #tray menu *,
 #tray menu separator {
   padding: 2px 4px;
 }
 
-/* TOOLTIP */
 tooltip {
   color: #cccccc;
   padding: 4px 8px;
