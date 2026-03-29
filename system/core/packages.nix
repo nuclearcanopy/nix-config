@@ -20,7 +20,7 @@
     };
   };
 
-  environment.systempackages = with pkgs; [
+  environment.systemPackages = with pkgs; [
     # vpn / network
     wireguard-tools
     mullvad-vpn
