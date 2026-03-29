@@ -49,7 +49,11 @@ window#waybar {
    ============================================ */
 
 #cpuheader > *,
-#gpuheader > *,
+#gpuheader > * {
+  margin: 0px;
+  padding: 2px 0px;
+}
+
 #expand > * {
   margin: 0px;
   padding: 2px 4px;
