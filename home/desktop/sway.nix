@@ -110,8 +110,7 @@ in
         "${mod}+p" = "exec hyprpicker";
 
         "${mod}+q" = "exec alacritty";
-        "${mod}+Tab" = "exec librewolf";
-        "${mod}+g" = "exec librewolf -P llm";
+        "${mod}+Tab" = "exec firefox";
         "Control+y" = "exec freetube";
 
         "${alt}+c" = "kill";
