@@ -21,6 +21,9 @@
 
   # services
   services = {
+    # logind power button behavior
+    logind.powerKey = "suspend";
+
     # xserver
     xserver = {
       enable = true;

@@ -95,7 +95,6 @@ in
         }
       '';
 
-      # userContent.css - blank new tab
       userContent = ''
         @-moz-document url("about:home"),url("about:newtab"),url("about:blank"){
           body * {
@@ -108,7 +107,6 @@ in
         }
       '';
 
-      # bookmarks with keywords
       bookmarks = {
         force = true;
         settings = [
@@ -145,26 +143,20 @@ in
 
       # settings from librewolf
       settings = {
-        # enable userChrome/userContent
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-        # scaling
         "layout.css.devPixelsPerPx" = "1.4";
 
-        # vertical tabs
         "sidebar.verticalTabs" = true;
 
-        # disable AI features
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;
         "browser.ml.chat.sidebar" = false;
         "browser.ml.linkPreview.enabled" = false;
 
-        # disable autofill
         "extensions.formautofill.addresses.enabled" = false;
         "extensions.formautofill.creditCards.enabled" = false;
 
-        # disable password manager
         "signon.rememberSignons" = false;
         "signon.autofillForms" = false;
         "signon.generation.enabled" = false;
@@ -189,7 +181,6 @@ in
         "toolkit.coverage.opt-out" = true;
         "toolkit.coverage.endpoint.base" = "";
 
-        # https-only mode
         "dom.security.https_only_mode" = true;
         "dom.security.https_only_mode_ever_enabled" = true;
 
@@ -204,23 +195,18 @@ in
         "privacy.clearOnShutdown.downloads" = true;
         "privacy.clearOnShutdown.siteSettings" = false;
 
-        # disable studies and experiments
         "app.shield.optoutstudies.enabled" = false;
         "app.normandy.enabled" = false;
         "app.normandy.api_url" = "";
 
-        # disable personalized extensions
         "browser.discovery.enabled" = false;
 
-        # dark theme
         "browser.theme.toolbar-theme" = 0;
 
-        # search & new tab
         "browser.newtabpage.activity-stream.showSearch" = false;
         "browser.newtabpage.activity-stream.showSponsoredCheckboxes" = false;
         "browser.toolbars.bookmarks.visibility" = "never";
 
-        # privacy - tracking protection
         "browser.contentblocking.category" = "strict";
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
@@ -236,7 +222,6 @@ in
         # fix major site issues (webcompat shims)
         "extensions.webcompat.enable_shims" = true;
 
-        # privacy - network
         "network.prefetch-next" = false;
         "network.http.speculative-parallel-limit" = 0;
         "network.early-hints.preconnect.max_connections" = 0;
@@ -244,14 +229,13 @@ in
         "network.connectivity-service.enabled" = false;
         "network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation" = true;
 
-        # privacy - safe browsing (disabled for privacy)
         "browser.safebrowsing.downloads.remote.enabled" = false;
         "browser.safebrowsing.downloads.remote.block_potentially_unwanted" = false;
         "browser.safebrowsing.downloads.remote.block_uncommon" = false;
         "browser.safebrowsing.downloads.remote.url" = "";
         "browser.safebrowsing.provider.google4.dataSharingURL" = "";
 
-        # privacy - region & telemetry
+        # privacy - regi & telemetry
         "browser.region.update.enabled" = false;
         "browser.region.network.url" = "";
         "captivedetect.canonicalURL" = "";

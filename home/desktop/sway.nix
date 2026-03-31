@@ -121,6 +121,7 @@ in
 
         "${mod}+${alt}+1" = "exec pactl -- set-sink-mute 0 toggle";
         "${mod}+${alt}+2" = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle";
+        "${mod}+${alt}+Shift+p" = "exec systemctl suspend";
 
         "${mod}+a" = "focus left";
         "${mod}+d" = "focus right";
