@@ -22,7 +22,7 @@
   # services
   services = {
     # logind power button behavior
-    logind.powerKey = "suspend";
+    logind.settings.Login.HandlePowerKey = "suspend";
 
     # xserver
     xserver = {
