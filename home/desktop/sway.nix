@@ -119,8 +119,8 @@ in
         "${mod}+j" = "layout toggle split";
         "${mod}+m" = "exit";
 
-        "${mod}+${alt}+1" = "exec pactl -- set-sink-mute 0 toggle";
-        "${mod}+${alt}+2" = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle";
+        "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        "${mod}+${alt}+2" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
         "${mod}+${alt}+Shift+p" = "exec systemctl suspend";
 
         "${mod}+a" = "focus left";

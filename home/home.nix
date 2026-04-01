@@ -1,4 +1,4 @@
-{ config, pkgs, unstable, username, ... }:
+{ config, username, ... }:
 
 {
   programs.home-manager.enable = true;
@@ -14,13 +14,6 @@
     username = username;
     homeDirectory = "/home/${username}";
     stateVersion = "25.11";
-
-    # fonts only
-    packages = with pkgs; [
-      nerd-fonts.jetbrains-mono
-      nerd-fonts.noto
-      noto-fonts-color-emoji
-    ];
 
     sessionVariables = {
       _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
