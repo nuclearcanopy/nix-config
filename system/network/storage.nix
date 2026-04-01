@@ -1,9 +1,13 @@
-{ secrets, username, config, ... }:
+{ secrets, username, pkgs, ... }:
 
 {
-  environment.etc."nas-credentials".text = ''
-    username=${secrets.nas.username}
-    password=${secrets.nas.password}
+  # Create credentials file with restricted permissions (not in nix store)
+  system.activationScripts.nas-credentials = ''
+    cat > /etc/nas-credentials <<EOF
+username=${secrets.nas.username}
+password=${secrets.nas.password}
+EOF
+    chmod 600 /etc/nas-credentials
   '';
 
   fileSystems."/mnt/nas" = {

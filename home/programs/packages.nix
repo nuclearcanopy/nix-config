@@ -3,7 +3,6 @@
 {
   home.packages = with pkgs; [
     # browsers
-    librewolf
     # firefox - managed by programs.firefox
     freetube
 

@@ -26,7 +26,6 @@
     # System services
     ./services/system.nix
     ./services/flatpak.nix
-    ./services/backups.nix
     ./services/privacy.nix
   ];
 }

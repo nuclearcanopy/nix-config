@@ -113,7 +113,7 @@ require("lazy").setup({
         if vim.tbl_contains(video_exts, ext) then
           vim.fn.jobstart({"mpv", node.path}, {detach = true})
         elseif vim.tbl_contains(image_exts, ext) then
-          vim.fn.jobstart({"librewolf", node.path}, {detach = true})
+          vim.fn.jobstart({"firefox", node.path}, {detach = true})
         else
           vim.fn.jobstart({"xdg-open", node.path}, {detach = true})
         end
