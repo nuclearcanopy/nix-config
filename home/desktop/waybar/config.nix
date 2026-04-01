@@ -18,7 +18,7 @@
         modules-left = [
           "clock#date"
           "custom/time"
-          "pulseaudio"
+          "custom/volume"
           "wireplumber"
           "group/expand"
           "mpris"
@@ -119,9 +119,9 @@
           };
         };
 
-        pulseaudio = {
-          format = "VOL {volume}%";
-          format-muted = "<span color='#B96B6B'>VOL 00%</span>";
+        "custom/volume" = {
+          exec = "${./scripts/volume.sh}";
+          interval = 1;
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           on-click-middle = "pavucontrol";
         };
