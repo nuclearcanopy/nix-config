@@ -14,9 +14,14 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, unstable, home-manager, nur, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, nur, disko, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -35,6 +40,8 @@
 
       modules = [
         ./configuration.nix
+        ./hardware/disko.nix
+        disko.nixosModules.disko
 
         # nur overlay for firefox extensions
         { nixpkgs.overlays = [ nur.overlays.default ]; }
