@@ -121,8 +121,8 @@
 
         pulseaudio = {
           format = "VOL {volume}%";
-          format-muted = "<span color='#B96B6B'>VOL MUTE</span>";
-          on-click = "pactl -- set-sink-mute @DEFAULT_SINK@ toggle";
+          format-muted = "<span color='#B96B6B'>VOL 00%</span>";
+          on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           on-click-middle = "pavucontrol";
         };
 
@@ -130,7 +130,7 @@
           node-type = "Audio/Source";
           format = "MIC";
           format-muted = "<span color='#B96B6B'>MTD</span>";
-          on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
+          on-click = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
           tooltip-format = "{node_name}";
         };
 
