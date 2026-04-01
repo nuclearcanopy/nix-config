@@ -31,6 +31,9 @@
     signal-desktop
     qbittorrent
 
+    # vpn
+    unstable.protonvpn-gui
+
     # music
     easyeffects          # eq
     picard               # tagger
