@@ -15,7 +15,7 @@
     kdePackages.kdenlive
 
     # gaming
-    bolt-launcher
+    bolt-launcher  # requires client argument: _JAVA_AWT_WM_NONREPARENTING=1
     mangohud
     vkbasalt
     unstable.protontricks
