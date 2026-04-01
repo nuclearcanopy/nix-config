@@ -1,4 +1,4 @@
-{ config, lib, pkgs, username, ... }:
+{ config, lib, pkgs, username, secrets, ... }:
 
 {
   system.stateVersion = "25.11";
@@ -22,7 +22,7 @@
       hashedPassword = secrets.user.hashedPassword;
     };
 
-    users.root.hashedPassword = secrets.user.hashedPassword;
+    users.root.hashedPassword = "!";
   };
 
   security.sudo = {
