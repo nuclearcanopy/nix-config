@@ -14,14 +14,11 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, unstable, home-manager, nur, disko, ... }:
+  # disko used standalone by install.sh, not as flake input
+
+  outputs = { self, nixpkgs, unstable, home-manager, nur, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -40,8 +37,7 @@
 
       modules = [
         ./configuration.nix
-        ./hardware/disko.nix
-        disko.nixosModules.disko
+        # disko.nix only used by install.sh, not imported here
 
         # nur overlay for firefox extensions
         { nixpkgs.overlays = [ nur.overlays.default ]; }

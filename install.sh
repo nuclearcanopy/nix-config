@@ -91,7 +91,7 @@ fi
 
 # Step 1: Partition and format with disko
 echo -e "\n${GREEN}[1/4] Partitioning with disko...${NC}"
-nix --experimental-features "nix-command flakes" run github:nix-community/disko -- --mode disko --flake .#kuraokami
+nix --experimental-features "nix-command flakes" run github:nix-community/disko -- --mode disko ./hardware/disko.nix
 
 # Step 2: Install NixOS
 echo -e "\n${GREEN}[2/4] Installing NixOS...${NC}"
