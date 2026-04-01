@@ -15,7 +15,6 @@
           connection = {
             id = "Wired connection 1";
             type = "ethernet";
-            interface-name = "enp4s0";
             autoconnect = true;
           };
           ethernet = {
