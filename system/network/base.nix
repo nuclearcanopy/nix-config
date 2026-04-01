@@ -29,10 +29,14 @@
 
     firewall = {
       enable = true;
-      checkReversePath = false;
+      checkReversePath = false;  # Required for Mullvad VPN
 
-      allowedUDPPorts = [ 51820 ];
-      allowedTCPPorts = [ 443 8080 10206 ];
+      allowedUDPPorts = [
+        51820  # WireGuard (Mullvad)
+      ];
+      allowedTCPPorts = [
+        10206  # Local webdev server
+      ];
     };
   };
 }
