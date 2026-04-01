@@ -186,7 +186,8 @@ in
 
         # clear on shutdown (exceptions can be added manually in settings)
         "privacy.sanitize.sanitizeOnShutdown" = true;
-        "privacy.clearOnShutdown.cookies" = true;
+        "privacy.clearOnShutdown.cookies" = false;  # use v2 system instead
+        "privacy.clearOnShutdown_v2.cookiesAndStorage" = true;  # respects per-site exceptions
         "privacy.clearOnShutdown.cache" = true;
         "privacy.clearOnShutdown.history" = true;
         "privacy.clearOnShutdown.sessions" = true;
