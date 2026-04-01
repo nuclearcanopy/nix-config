@@ -154,6 +154,10 @@ in
         "browser.ml.chat.sidebar" = false;
         "browser.ml.linkPreview.enabled" = false;
 
+        # local translation models
+        "browser.translations.enable" = true;
+        "browser.translations.automaticallyPopup" = true;
+
         "extensions.formautofill.addresses.enabled" = false;
         "extensions.formautofill.creditCards.enabled" = false;
 
@@ -222,6 +226,7 @@ in
 
         # fix major site issues (webcompat shims)
         "extensions.webcompat.enable_shims" = true;
+        "privacy.webcompat.fixMajorSiteIssues" = true;
 
         "network.prefetch-next" = false;
         "network.http.speculative-parallel-limit" = 0;
