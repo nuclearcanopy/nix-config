@@ -2,6 +2,9 @@
 
 {
   imports = [
+    # Secrets management
+    ./secrets.nix
+
     # Core system configuration
     ./core/boot.nix
     ./core/nix.nix

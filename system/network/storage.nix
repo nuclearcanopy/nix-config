@@ -1,21 +1,14 @@
-{ secrets, username, pkgs, ... }:
+{ config, username, pkgs, ... }:
 
 {
-  # Create credentials file with restricted permissions (not in nix store)
-  system.activationScripts.nas-credentials = ''
-    cat > /etc/nas-credentials <<EOF
-username=${secrets.nas.username}
-password=${secrets.nas.password}
-EOF
-    chmod 600 /etc/nas-credentials
-  '';
+  # NAS credentials are managed by agenix at /etc/nas-credentials
 
   fileSystems."/mnt/nas" = {
-    device = "//${secrets.nas.ip}/${secrets.nas.share}";
+    device = "//192.168.0.123/nuclearcanopy";
     fsType = "cifs";
 
     options = [
-      "credentials=/etc/nas-credentials"
+      "credentials=${config.age.secrets.nas-credentials.path}"
       "uid=${username}"
       "gid=users"
       "iocharset=utf8"

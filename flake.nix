@@ -14,11 +14,16 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # disko used standalone by install.sh, not as flake input
 
-  outputs = { self, nixpkgs, unstable, home-manager, nur, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -27,13 +32,10 @@
       inherit system;
       config.allowUnfree = false;
     };
-
-    # absolute path - gitignored
-    secrets = import /home/${username}/nix-config/secrets.nix;
   in {
     nixosConfigurations.kuraokami = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { unstable = unstable-pkgs; inherit secrets username; };
+      specialArgs = { unstable = unstable-pkgs; inherit username; };
 
       modules = [
         ./configuration.nix
@@ -42,9 +44,12 @@
         # nur overlay for firefox extensions
         { nixpkgs.overlays = [ nur.overlays.default ]; }
 
+        # agenix for secrets management
+        agenix.nixosModules.default
+
         home-manager.nixosModules.home-manager
         {
-          home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit secrets username; };
+          home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit username; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";

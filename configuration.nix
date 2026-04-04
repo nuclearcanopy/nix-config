@@ -1,4 +1,4 @@
-{ config, lib, pkgs, username, secrets, ... }:
+{ config, lib, pkgs, username, ... }:
 
 {
   system.stateVersion = "25.11";
@@ -19,7 +19,7 @@
     users.${username} = {
       isNormalUser = true;
       extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
-      hashedPassword = secrets.user.hashedPassword;
+      hashedPasswordFile = config.age.secrets.user-password.path;
     };
 
     users.root.hashedPassword = "!";

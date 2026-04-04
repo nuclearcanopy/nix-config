@@ -1,4 +1,4 @@
-{ config, secrets, ... }:
+{ config, ... }:
 
 {
   programs.ssh = {
@@ -17,22 +17,7 @@
     };
   };
 
-  # Create .ssh directory and place keys
-  home.file = {
-    ".ssh/id_ed25519_codeberg" = {
-      text = secrets.ssh.codeberg.privateKey;
-      executable = false;
-    };
-    ".ssh/id_ed25519_codeberg.pub" = {
-      text = secrets.ssh.codeberg.publicKey;
-      executable = false;
-    };
-  };
-
-  # Fix permissions on SSH directory
-  home.activation.fixSshPermissions = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD chmod 700 ${config.home.homeDirectory}/.ssh
-    $DRY_RUN_CMD chmod 600 ${config.home.homeDirectory}/.ssh/id_ed25519_codeberg
-    $DRY_RUN_CMD chmod 644 ${config.home.homeDirectory}/.ssh/id_ed25519_codeberg.pub
-  '';
+  # Public key can be managed by home-manager (not sensitive)
+  home.file.".ssh/id_ed25519_codeberg.pub".text =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEw3uZ/5xY3VHdAJEcY9rGntIbXOUwA5yFWDx/wPGeNr";
 }
