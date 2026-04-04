@@ -102,14 +102,46 @@
           --tab-selected-bgcolor: #171717 !important;
           --lwt-selected-tab-background-color: #171717 !important;
 
-          /* other accents */
-          --toolbar-field-focus-border-color: #242424 !important;
+          /* borders - all black */
+          --toolbar-field-focus-border-color: #000000 !important;
           --lwt-toolbar-field-highlight: #272727 !important;
           --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
           --arrowpanel-dimmed: #1c1c1c !important;
           --tab-line-color: #000000 !important;
           --lwt-tab-line-color: #000000 !important;
           --tab-loading-fill: #000000 !important;
+          --chrome-content-separator-color: #000000 !important;
+          --toolbox-border-bottom-color: #000000 !important;
+          --sidebar-border-color: #000000 !important;
+          --focus-outline-color: transparent !important;
+        }
+
+        /* remove all borders/separators */
+        #navigator-toolbox {
+          border-bottom: none !important;
+        }
+        #sidebar-box,
+        #sidebar-splitter {
+          border-color: #000000 !important;
+        }
+        #tabbrowser-tabbox {
+          border: none !important;
+        }
+
+        /* hide window controls (using sway) */
+        .titlebar-buttonbox-container,
+        .titlebar-close,
+        .titlebar-min,
+        .titlebar-max,
+        .titlebar-restore {
+          display: none !important;
+        }
+
+        /* remove focus outlines */
+        *:focus,
+        *:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
         }
 
         .tabbrowser-tab[selected] .tab-background {
