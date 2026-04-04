@@ -2,7 +2,13 @@
 
 {
   services.mullvad-vpn.enable = true;
-  services.resolved.enable = true;
+  services.resolved = {
+    enable = true;
+    dnssec = "true";
+    dnsovertls = "true";
+    llmnr = "false";
+    multicastDNS = "false";
+  };
 
   networking = {
     hostName = "kuraokami";

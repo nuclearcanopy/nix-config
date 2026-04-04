@@ -1,7 +1,7 @@
 { config, username, pkgs, ... }:
 
 {
-  # NAS credentials are managed by agenix at /etc/nas-credentials
+  # NAS credentials are managed by agenix at /run/agenix/nas-credentials
 
   fileSystems."/mnt/nas" = {
     device = "//192.168.0.123/nuclearcanopy";
