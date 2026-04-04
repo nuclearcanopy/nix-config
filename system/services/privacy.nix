@@ -10,7 +10,7 @@
 
   services.geoclue2.enable = false;
 
-  services.gnome.gnome-keyring.enable = true;
+  services.gnome.gnome-keyring.enable = false;
   services.gnome.tinysparql.enable = false;
   services.gnome.localsearch.enable = false;
 

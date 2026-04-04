@@ -34,5 +34,8 @@
 
     # dbus
     dbus.enable = true;
+
+    # disable zeroconf/mDNS
+    avahi.enable = false;
   };
 }
