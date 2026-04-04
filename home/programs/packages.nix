@@ -32,7 +32,6 @@
 
 
     # music
-    easyeffects          # eq
     picard               # tagger
     asunder              # ripper
     feishin              # player

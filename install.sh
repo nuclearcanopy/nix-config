@@ -22,59 +22,21 @@ fi
 USERNAME=$(grep 'username = ' flake.nix | head -1 | sed 's/.*username = "\([^"]*\)".*/\1/')
 echo -e "Username: ${GREEN}${USERNAME}${NC}\n"
 
-# Generate secrets.nix if it doesn't exist
-if [ ! -f "secrets.nix" ]; then
-  echo -e "${CYAN}=== Setting up secrets ===${NC}\n"
-
-  # User password
-  echo -e "${YELLOW}Set your login password:${NC}"
-  while true; do
-    read -s -p "Password: " USER_PASS
-    echo
-    read -s -p "Confirm: " USER_PASS_CONFIRM
-    echo
-    if [ "$USER_PASS" = "$USER_PASS_CONFIRM" ]; then
-      break
-    fi
-    echo -e "${RED}Passwords don't match, try again${NC}"
-  done
-  HASHED_PASS=$(echo "$USER_PASS" | mkpasswd -m sha-512 -s)
-
-  # NAS config (optional)
-  echo ""
-  read -p "Configure NAS mount? [y/N] " SETUP_NAS
-  if [ "$SETUP_NAS" = "y" ] || [ "$SETUP_NAS" = "Y" ]; then
-    read -p "NAS IP address: " NAS_IP
-    read -p "NAS share name: " NAS_SHARE
-    read -p "NAS username: " NAS_USER
-    read -s -p "NAS password: " NAS_PASS
-    echo
-  else
-    NAS_IP="0.0.0.0"
-    NAS_SHARE="disabled"
-    NAS_USER="disabled"
-    NAS_PASS="disabled"
-  fi
-
-  # Write secrets.nix
-  cat > secrets.nix <<EOF
-{
-  nas = {
-    ip = "${NAS_IP}";
-    share = "${NAS_SHARE}";
-    username = "${NAS_USER}";
-    password = "${NAS_PASS}";
-  };
-
-  user = {
-    hashedPassword = "${HASHED_PASS}";
-  };
-}
-EOF
-
-  echo -e "\n${GREEN}secrets.nix created${NC}\n"
+# Age identity (provided by user)
+echo -e "${CYAN}=== Age identity ===${NC}\n"
+read -p "Place /etc/age/key.txt yourself? [Y/n] " PLACE_SELF
+if [ "$PLACE_SELF" = "n" ] || [ "$PLACE_SELF" = "N" ]; then
+  echo -e "${YELLOW}Paste your age identity key. End with Ctrl-D:${NC}"
+  mkdir -p /etc/age
+  cat > /etc/age/key.txt
+  chmod 600 /etc/age/key.txt
 else
-  echo -e "Using existing secrets.nix\n"
+  echo -e "Expected at: ${GREEN}/etc/age/key.txt${NC}"
+fi
+
+if [ ! -f "/etc/age/key.txt" ]; then
+  echo -e "${RED}Missing /etc/age/key.txt. Add it, then re-run.${NC}"
+  exit 1
 fi
 
 # Confirm disk wipe
@@ -95,14 +57,13 @@ nix --experimental-features "nix-command flakes" run github:nix-community/disko 
 
 # Step 2: Install NixOS
 echo -e "\n${GREEN}[2/4] Installing NixOS...${NC}"
-nixos-install --flake .#kuraokami --impure --no-root-password
+nixos-install --flake .#kuraokami --no-root-password
 
 # Step 3: Copy repo to new system
 echo -e "\n${GREEN}[3/4] Copying config to new system...${NC}"
 DEST="/mnt/home/${USERNAME}/nix-config"
 mkdir -p "$DEST"
 cp -r . "$DEST"
-cp secrets.nix "$DEST/secrets.nix"
 chown -R 1000:users "/mnt/home/${USERNAME}"
 
 # Step 4: Done
