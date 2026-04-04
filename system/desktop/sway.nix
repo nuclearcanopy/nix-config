@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-  services.xserver.enable = true;
-
   programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
@@ -15,7 +13,6 @@
   };
 
   xdg.portal = {
-    enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
     wlr.enable = true;
   };
