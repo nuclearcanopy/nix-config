@@ -48,7 +48,6 @@
     systemd-manager-tui
 
     # hardware
-    pulseaudio
     linux-firmware
     ethtool
   ];
