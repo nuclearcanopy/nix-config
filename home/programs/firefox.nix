@@ -36,6 +36,8 @@
             # annoyances - cookie notices
             "ublock-cookies-easylist"
             "ublock-cookies-adguard"
+            "easylist-cookies"
+            "adguard-cookies"
             # annoyances - url tracking
             "adguard-url-tracking-protection"
           ];
