@@ -59,7 +59,10 @@
           --arrowpanel-background: #000000 !important;
           --panel-background: #000000 !important;
           --sidebar-background-color: #000000 !important;
-          --toolbar-field-background-color: #000000 !important;
+          --toolbar-field-background-color: #0a0a0a !important;
+
+          /* bookmark star - gray instead of blue */
+          --toolbarbutton-icon-fill-attention: #666666 !important;
 
           /* text colors from theme */
           --toolbar-color: rgb(117, 117, 117) !important;
@@ -91,6 +94,14 @@
 
         .tabbrowser-tab[selected] .tab-background {
           background-color: #171717 !important;
+        }
+
+        /* bookmark star gray instead of blue */
+        #star-button[starred] {
+          fill: #666666 !important;
+        }
+        #star-button[starred] .toolbarbutton-icon {
+          fill: #666666 !important;
         }
 
         #navigator-toolbox,
