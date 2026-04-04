@@ -3,8 +3,12 @@
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
 
     matchBlocks = {
+      "*" = {
+        identitiesOnly = true;
+      };
       "codeberg.org" = {
         hostname = "codeberg.org";
         user = "git";
