@@ -7,7 +7,9 @@
     dnssec = "true";
     dnsovertls = "true";
     llmnr = "false";
-    multicastDNS = "false";
+    extraConfig = ''
+      MulticastDNS=no
+    '';
   };
 
   networking = {
