@@ -1,4 +1,4 @@
-{ config, username, ... }:
+{ config, username, secrets, ... }:
 
 {
   programs.home-manager.enable = true;
@@ -18,6 +18,24 @@
     sessionVariables = {
       _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
     };
+  };
+
+  # trash cleanup timer
+  systemd.user.services.trash-empty = {
+    Unit.Description = "Empty trash files older than 3 days";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${config.home.profileDirectory}/bin/trash-empty 3";
+    };
+  };
+  systemd.user.timers.trash-empty = {
+    Unit.Description = "Empty trash every 3 days";
+    Timer = {
+      OnBootSec = "10min";
+      OnUnitActiveSec = "3d";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
   };
 
   # font config
@@ -43,6 +61,7 @@
     ./shell/packages.nix
     ./shell/environment.nix
     ./shell/alacritty.nix
+    ./shell/ssh.nix
 
     # programs
     ./programs/packages.nix
