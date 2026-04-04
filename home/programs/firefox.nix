@@ -4,6 +4,21 @@
   programs.firefox = {
     enable = true;
 
+    policies = {
+      ExtensionSettings = {
+        "uBlock0@raymondhill.net" = {
+          allowed_private_browsing = true;
+        };
+        "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
+          allowed_private_browsing = true;
+        };
+      };
+      # allow extensions on Mozilla restricted sites
+      "3rdparty".Extensions."uBlock0@raymondhill.net".adminSettings = {
+        allowGenericFiltering = true;
+      };
+    };
+
     profiles.default = {
       isDefault = true;
 
