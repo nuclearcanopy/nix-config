@@ -1,19 +1,5 @@
 { pkgs, ... }:
 
-let
-  # local theme from firefox color
-  customTheme = pkgs.stdenvNoCC.mkDerivation {
-    pname = "firefox-custom-theme";
-    version = "1.0";
-    src = ./firefox/theme.xpi;
-    addonId = "{84a0df07-efa2-493f-a644-c702666e6e65}";
-    dontUnpack = true;
-    installPhase = ''
-      install -D $src "$out/{84a0df07-efa2-493f-a644-c702666e6e65}.xpi"
-    '';
-    passthru = { addonId = "{84a0df07-efa2-493f-a644-c702666e6e65}"; };
-  };
-in
 {
   programs.firefox = {
     enable = true;
@@ -26,8 +12,6 @@ in
         ublock-origin
         darkreader
         bitwarden
-        # tampermonkey - unfree, install manually from AMO
-        customTheme
       ];
 
       # ublock origin settings
@@ -58,7 +42,7 @@ in
         };
       };
 
-      # userChrome.css - black toolbar theme
+      # userChrome.css - full theme (converted from theme.xpi)
       userChrome = ''
         .tabbrowser-tab[label="New Tab"] .tab-icon-image,
         .tabbrowser-tab[label="New Tab"] .tab-icon-stack {
@@ -66,32 +50,74 @@ in
         }
 
         :root {
-          --toolbar-bgcolor: #000000 !important;
-          --lwt-accent-color: #000000 !important;
-          --lwt-toolbarbutton-background: #000000 !important;
-          --arrowpanel-background: #000000 !important;
-          --sidebar-background-color: #000000 !important;
+          /* frame / accent */
+          --lwt-accent-color: rgb(12, 12, 12) !important;
+
+          /* toolbar */
+          --toolbar-bgcolor: rgb(34, 34, 34) !important;
+          --lwt-toolbar-bgcolor: rgb(34, 34, 34) !important;
+          --toolbar-color: rgb(117, 117, 117) !important;
+          --lwt-text-color: rgb(117, 117, 117) !important;
+          --lwt-toolbar-bgcolor: rgb(34, 34, 34) !important;
+          --toolbar-bottom-separator: rgb(9, 9, 9) !important;
+          --lwt-tabs-border-color: rgb(9, 9, 9) !important;
+
+          /* toolbar field (url bar) */
+          --toolbar-field-background-color: rgb(18, 18, 18) !important;
+          --toolbar-field-color: rgb(148, 148, 148) !important;
+          --toolbar-field-focus-border-color: rgb(36, 36, 36) !important;
+          --lwt-toolbar-field-highlight: rgb(39, 39, 39) !important;
+          --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
+
+          /* tabs */
+          --tab-selected-bgcolor: rgb(23, 23, 23) !important;
+          --lwt-selected-tab-background-color: rgb(23, 23, 23) !important;
+          --tab-text-color: rgb(117, 117, 117) !important;
+          --lwt-tab-text: rgb(117, 117, 117) !important;
+          --tab-line-color: rgb(0, 0, 0) !important;
+          --lwt-tab-line-color: rgb(0, 0, 0) !important;
+          --tab-loading-fill: rgb(0, 0, 0) !important;
+
+          /* icons */
+          --toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
+          --lwt-toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
+          --lwt-toolbarbutton-icon-fill-attention: rgb(67, 67, 67) !important;
+
+          /* popups / panels */
+          --arrowpanel-background: rgb(12, 12, 12) !important;
+          --arrowpanel-color: rgb(129, 129, 129) !important;
+          --arrowpanel-dimmed: rgb(28, 28, 28) !important;
+          --panel-background: rgb(12, 12, 12) !important;
+          --panel-color: rgb(129, 129, 129) !important;
+
+          /* sidebar */
+          --sidebar-background-color: rgb(12, 12, 12) !important;
+        }
+
+        /* ensure selected tab uses the color */
+        .tabbrowser-tab[selected] .tab-background {
+          background-color: rgb(23, 23, 23) !important;
         }
 
         #navigator-toolbox,
-        #TabsToolbar,
         #nav-bar,
         #PersonalToolbar,
         #titlebar {
-          background-color: #000000 !important;
+          background-color: rgb(34, 34, 34) !important;
+        }
+
+        #TabsToolbar {
+          background-color: rgb(12, 12, 12) !important;
         }
 
         #tabbrowser-tabpanels,
         #appcontent,
         browser[type="content"],
-        browser[type="content-primary"] {
-          background-color: #000000 !important;
-        }
-
+        browser[type="content-primary"],
         #browser,
         .browserStack,
         .browserContainer {
-          background-color: #000000 !important;
+          background-color: rgb(12, 12, 12) !important;
         }
       '';
 
