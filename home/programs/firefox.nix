@@ -77,6 +77,9 @@
           --panel-background: #000000 !important;
           --sidebar-background-color: #000000 !important;
           --toolbar-field-background-color: #0a0a0a !important;
+          --toolbar-field-focus-background-color: #0a0a0a !important;
+          --urlbar-box-bgcolor: #0a0a0a !important;
+          --urlbar-box-focus-bgcolor: #0a0a0a !important;
 
           /* bookmark star - gray instead of blue */
           --toolbarbutton-icon-fill-attention: #666666 !important;
@@ -119,6 +122,13 @@
         }
         #star-button[starred] .toolbarbutton-icon {
           fill: #666666 !important;
+        }
+
+        /* url bar focused state */
+        #urlbar[focused] #urlbar-background,
+        #urlbar[open] #urlbar-background,
+        #searchbar:focus-within {
+          background-color: #0a0a0a !important;
         }
 
         #navigator-toolbox,
