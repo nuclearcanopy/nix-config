@@ -18,6 +18,7 @@
       dedicatedServer.openFirewall = false;
       localNetworkGameTransfers.openFirewall = false;
     };
+    gamemode.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
