@@ -1,13 +1,9 @@
-{ pkgs, username, ... }:
+{ pkgs, ... }:
 
 {
   services.lact.enable = true;
 
-  # symlink config from repo
-  systemd.tmpfiles.rules = [
-    "d /etc/lact 0755 root root -"
-    "L+ /etc/lact/config.yaml - - - - /home/${username}/nix-config/system/hardware/lact/config.yaml"
-  ];
+  environment.etc."lact/config.yaml".source = ./lact/config.yaml;
 
   systemd.services.lactd = {
     path = [ pkgs.coreutils ];

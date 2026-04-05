@@ -1,3 +1,5 @@
+{ device ? "/dev/nvme0n1", ... }:
+
 {
   # Disko config - used for fresh installs
   # On existing systems, this generates fileSystems from the layout below
@@ -6,7 +8,7 @@
     disk = {
       main = {
         type = "disk";
-        device = "/dev/nvme0n1";
+        device = device;
         content = {
           type = "gpt";
           partitions = {

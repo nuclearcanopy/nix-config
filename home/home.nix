@@ -38,44 +38,10 @@
     Install.WantedBy = [ "timers.target" ];
   };
 
-  # font config
-  fonts.fontconfig = {
-    enable = true;
-    defaultFonts = {
-      monospace = [ "JetBrainsMono Nerd Font" ];
-      sansSerif = [ "Noto Sans" ];
-      emoji = [ "Noto Color Emoji" ];
-    };
-  };
-
   imports = [
-    # desktop
-    ./desktop/packages.nix
-    ./desktop/sway.nix
-    ./desktop/waybar/config.nix
-    ./desktop/mako.nix
-    ./desktop/theme.nix
-
-    # shell
-    ./shell/zsh/zsh.nix
-    ./shell/packages.nix
-    ./shell/environment.nix
-    ./shell/alacritty.nix
-    ./shell/ssh.nix
-
-    # programs
-    ./programs/packages.nix
-    ./programs/neovim/config.nix
-    ./programs/btop.nix
-    ./programs/vesktop.nix
-    ./programs/steam.nix
-    ./programs/asunder.nix
-    ./programs/easyeffects.nix
-    ./programs/vkbasalt.nix
-    ./programs/firefox.nix
-
-    # development
-    ./dev/packages.nix
-    ./dev/claudecode.nix
+    ./desktop
+    ./shell
+    ./programs
+    ./dev
   ];
 }

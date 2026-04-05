@@ -13,6 +13,8 @@
       "gid=users"
       "iocharset=utf8"
       "vers=3.1.1"
+      "x-systemd.requires=network-online.target"
+      "x-systemd.after=network-online.target"
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"

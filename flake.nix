@@ -19,11 +19,21 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # disko used standalone by install.sh, not as flake input
 
-  outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, disko, nixvim, ... }:
   let
     username = "nuclearcanopy";
     system = "x86_64-linux";
@@ -33,6 +43,8 @@
       config.allowUnfree = false;
     };
   in {
+    packages.${system}.disko = disko.packages.${system}.disko;
+
     nixosConfigurations.kuraokami = nixpkgs.lib.nixosSystem {
       inherit system;
       specialArgs = { unstable = unstable-pkgs; inherit username; };
@@ -50,6 +62,7 @@
         home-manager.nixosModules.home-manager
         {
           home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit username; };
+          home-manager.sharedModules = [ nixvim.homeManagerModules.nixvim ];
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";

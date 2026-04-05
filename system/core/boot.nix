@@ -23,9 +23,6 @@
       "page_alloc.shuffle=1"
       "amdgpu.ppfeaturemask=0xffffffff"
       "preempt=full"
-      "nmi_watchdog=0"
-      "nowatchdog"
-      "tsc=reliable"
     ];
 
     blacklistedKernelModules = [

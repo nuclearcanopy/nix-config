@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
   programs.sway = {
@@ -12,8 +12,4 @@
     WLR_DRM_NO_ATOMIC = "1";  # fix DP atomic modesetting crashes
   };
 
-  xdg.portal = {
-    extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
-    wlr.enable = true;
-  };
 }
