@@ -11,7 +11,6 @@ window#waybar {
   color: #a0a0a0;
   background-color: #000000;
   border: none;
-  text-transform: uppercase;
 }
 
 .modules-left,
@@ -30,7 +29,6 @@ window#waybar {
 
 #clock,
 #custom-time,
-#pulseaudio,
 #wireplumber,
 #expand,
 #custom-mpris,
@@ -121,7 +119,6 @@ window#waybar {
 #wireplumber:hover,
 #custom-power:hover,
 #custom-reboot:hover,
-#pulseaudio:hover,
 #custom-mouse:hover {
   color: #b0b0b0;
 }

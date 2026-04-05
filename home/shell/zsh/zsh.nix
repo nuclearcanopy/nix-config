@@ -22,7 +22,7 @@
       # NAS mounts automatically via systemd automount - just access /mnt/nas
       sysd-ui = "systemd-manager-tui";
       vpnissue = "mullvad status && mullvad relay list";
-      fix-nvim = "sudo rm -f ~/.config/nvim/lazy-lock.json && sudo chown -R $USER:users ~/.local/share/nvim 2>/dev/null || true";
+      fix-nvim = "rm -f ~/.config/nvim/lazy-lock.json && rm -rf ~/.local/share/nvim/lazy 2>/dev/null || true";
     };
 
     initContent = ''

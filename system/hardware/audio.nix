@@ -22,17 +22,17 @@
 
   systemd.user.services.pipewire.serviceConfig = {
     LimitRTPRIO = 95;
-    LimitNICE = 40;
+    LimitNICE = 19;
     LimitMEMLOCK = "infinity";
   };
   systemd.user.services.pipewire-pulse.serviceConfig = {
     LimitRTPRIO = 95;
-    LimitNICE = 40;
+    LimitNICE = 19;
     LimitMEMLOCK = "infinity";
   };
   systemd.user.services.wireplumber.serviceConfig = {
     LimitRTPRIO = 95;
-    LimitNICE = 40;
+    LimitNICE = 19;
     LimitMEMLOCK = "infinity";
   };
 
