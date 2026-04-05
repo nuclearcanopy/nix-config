@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  powerManagement.cpuFreqGovernor = "performance";
+
   services = {
     scx = {
       enable = true;

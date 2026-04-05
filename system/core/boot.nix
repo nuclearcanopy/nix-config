@@ -23,6 +23,7 @@
       "page_alloc.shuffle=1"
       "amdgpu.ppfeaturemask=0xffffffff"
       "preempt=full"
+      "amd_pstate=active"
     ];
 
     blacklistedKernelModules = [
