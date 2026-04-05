@@ -26,7 +26,7 @@
     };
 
     nixvim = {
-      url = "github:nix-community/nixvim";
+      url = "github:nix-community/nixvim/nixos-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -62,7 +62,7 @@
         home-manager.nixosModules.home-manager
         {
           home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit username; };
-          home-manager.sharedModules = [ nixvim.homeManagerModules.nixvim ];
+          home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
