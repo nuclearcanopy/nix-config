@@ -21,7 +21,7 @@
           "custom/volume"
           "wireplumber"
           "group/expand"
-          "mpris"
+          "custom/mpris"
         ];
         modules-center = [
           "sway/workspaces"
@@ -74,18 +74,10 @@
           spacing = 6;
         };
 
-        mpris = {
-          format = "[{status}] {dynamic}";
-          interval = 0;
-          dynamic-len = 50;
-          dynamic-separator = " - ";
-          dynamic-order = [ "artist" ];
-          status-icons = {
-            playing = ">";
-            paused = "||";
-            stopped = "[]";
-          };
-          ignored-players = [ "firefox" ];
+        "custom/mpris" = {
+          exec = "${./scripts/mpris.sh}";
+          interval = 1;
+          tooltip = false;
         };
 
         "clock#date" = {

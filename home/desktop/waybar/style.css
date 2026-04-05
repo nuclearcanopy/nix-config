@@ -11,6 +11,7 @@ window#waybar {
   color: #a0a0a0;
   background-color: #000000;
   border: none;
+  text-transform: uppercase;
 }
 
 .modules-left,
@@ -32,7 +33,7 @@ window#waybar {
 #pulseaudio,
 #wireplumber,
 #expand,
-#mpris,
+#custom-mpris,
 #custom-mouse,
 #custom-memory,
 #custom-cpu,
@@ -104,14 +105,11 @@ window#waybar {
   color: #b96b6b;
 }
 
-#mpris {
+#custom-mpris {
   color: #666666;
-  font-size: 13px;
+  font-size: 15px;
 }
 
-#mpris.playing {
-  color: #cccccc;
-}
 
 /* ============================================
    HOVER
