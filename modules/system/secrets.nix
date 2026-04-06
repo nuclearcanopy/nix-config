@@ -7,7 +7,7 @@
 
     secrets = {
       ssh-codeberg = {
-        file = ../secrets/ssh-codeberg.age;
+        file = ../../secrets/ssh-codeberg.age;
         path = "/run/agenix/ssh-codeberg";
         owner = "nuclearcanopy";
         group = "users";
@@ -15,13 +15,13 @@
       };
 
       nas-credentials = {
-        file = ../secrets/nas-credentials.age;
+        file = ../../secrets/nas-credentials.age;
         path = "/run/agenix/nas-credentials";
         mode = "600";
       };
 
       user-password = {
-        file = ../secrets/user-password.age;
+        file = ../../secrets/user-password.age;
       };
     };
   };
