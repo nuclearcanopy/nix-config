@@ -7,6 +7,13 @@
   xdg = {
     enable = true;
     mime.enable = true;
+    desktopEntries.bolt-launcher = {
+      name = "Bolt Launcher";
+      exec = "bolt-launcher";
+      icon = "bolt-launcher";
+      comment = "RuneScape launcher (Mullvad excluded)";
+      categories = [ "Game" ];
+    };
   };
 
   # home
