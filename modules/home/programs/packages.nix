@@ -10,7 +10,10 @@
     kdePackages.kdenlive
 
     # gaming
-    bolt-launcher  # requires client argument: _JAVA_AWT_WM_NONREPARENTING=1
+    # requires client argument: _JAVA_AWT_WM_NONREPARENTING=1
+    (writeShellScriptBin "bolt-launcher" ''
+      exec mullvad-exclude ${bolt-launcher}/bin/bolt-launcher "$@"
+    '')
     mangohud
     vkbasalt
     protontricks

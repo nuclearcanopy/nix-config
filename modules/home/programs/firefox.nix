@@ -27,6 +27,7 @@
         ublock-origin
         darkreader
         bitwarden
+        sponsorblock
       ];
 
       # ublock origin settings
