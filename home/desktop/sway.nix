@@ -7,6 +7,10 @@ in
   wayland.windowManager.sway = {
     enable = true;
 
+    # debug logging
+    systemd.enable = true;
+    extraOptions = [ "-d" ];
+
     config = {
       terminal = "alacritty";
       menu = "j4-dmenu-desktop --dmenu='bemenu ${bemenuStyle}'";

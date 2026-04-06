@@ -17,7 +17,6 @@
 
     # aliases
     shellAliases = {
-      snvim = "sudo -E nvim";
       nvfx = "nvim .";
       # NAS mounts automatically via systemd automount - just access /mnt/nas
       sysd-ui = "systemd-manager-tui";
@@ -27,6 +26,7 @@
 
     initContent = ''
       ${builtins.readFile ./prompt.zsh}
+      ${builtins.readFile ./privilege.zsh}
       ${builtins.readFile ./nix-commit.zsh}
     '';
   };
