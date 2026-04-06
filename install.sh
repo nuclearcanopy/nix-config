@@ -105,7 +105,7 @@ echo "[$(ts)] Installer started" > "$LOG"
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
-  die "Run this script with sudo"
+  die "Run this script as root (sudo or doas)"
 fi
 
 section "User"
