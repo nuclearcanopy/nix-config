@@ -115,7 +115,6 @@ in
 
         "${mod}+q" = "exec alacritty";
         "${mod}+Tab" = "exec firefox";
-        "Control+y" = "exec freetube";
 
         "${alt}+c" = "kill";
         "${alt}+v" = "floating toggle";

@@ -154,14 +154,14 @@ TOTAL_STEPS=5
 STEP=1
 progress "$STEP" "$TOTAL_STEPS"
 section "Partitioning (disko)"
-run_step "Running disko" nix --experimental-features "nix-command flakes" run .#disko -- --mode disko ./hardware/disko.nix --argstr device "$DISK"
+run_step "Running disko" nix --experimental-features "nix-command flakes" run .#disko -- --mode disko ./modules/hardware/disko.nix --argstr device "$DISK"
 ok "Disk partitioned"
 
 STEP=$((STEP + 1))
 progress "$STEP" "$TOTAL_STEPS"
 section "Generating hardware config"
 run_step "nixos-generate-config" nixos-generate-config --root /mnt
-cp /mnt/etc/nixos/hardware-configuration.nix ./hardware/hardware-configuration.nix
+cp /mnt/etc/nixos/hardware-configuration.nix ./modules/hardware/hardware-configuration.nix
 ok "hardware-configuration.nix updated"
 
 STEP=$((STEP + 1))

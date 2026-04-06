@@ -2,10 +2,6 @@
 
 {
   home.packages = with pkgs; [
-    # browsers
-    # firefox - managed by programs.firefox
-    freetube
-
     # creative
     obs-studio
     audacity

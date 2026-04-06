@@ -4,8 +4,8 @@
   system.stateVersion = "25.11";
 
   imports = [
-    ./hardware
-    ./system
+    ./modules/hardware
+    ./modules/system
   ];
 
   time.timeZone = "Europe/Bucharest";
