@@ -253,6 +253,7 @@
           { name = "Warframe Market"; url = "https://warframe.market/"; keyword = "wfm"; }
           { name = "Dexonline"; url = "https://dexonline.ro/"; keyword = "dex"; }
           { name = "WhatsApp"; url = "https://web.whatsapp.com/"; keyword = "wa"; }
+          { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
         ];
       };
 
