@@ -49,6 +49,7 @@
     script = ''
       # Wait for daemon to be fully ready
       sleep 2
+      ${pkgs.mullvad}/bin/mullvad lan set allow
       ${pkgs.mullvad}/bin/mullvad connect
     '';
   };
