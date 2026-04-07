@@ -18,9 +18,9 @@ in
 
       elevate() {
         if command -v doas >/dev/null 2>&1; then
-          doas -E "$@"; return $?
+          doas "$@"; return $?
         fi
-        sudo -E "$@"
+        sudo -H "$@"
       }
 
       nix-commit() {

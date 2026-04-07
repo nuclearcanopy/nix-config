@@ -1,10 +1,10 @@
 elevate() {
   if command -v doas >/dev/null 2>&1; then
-    doas -E "$@"
+    doas "$@"
     return $?
   fi
   if command -v sudo >/dev/null 2>&1; then
-    sudo -E "$@"
+    sudo -H "$@"
     return $?
   fi
   echo "Neither doas nor sudo is available." >&2
