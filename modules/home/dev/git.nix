@@ -3,7 +3,9 @@
 {
   programs.git = {
     enable = true;
-    userName = "nuclearcanopy";
-    userEmail = "homeserver@nuclearcanopy.git";
+    settings.user = {
+      name = "nuclearcanopy";
+      email = "homeserver@nuclearcanopy.git";
+    };
   };
 }
