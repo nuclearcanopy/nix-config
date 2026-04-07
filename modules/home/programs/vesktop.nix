@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-
-  # discord
   programs.vesktop = {
     enable = true;
 
@@ -23,9 +21,7 @@
     };
   };
 
-  # plugins
   home.file.".config/vesktop/settings/settings.json".text = builtins.toJSON {
-    # privacy
     notifyAboutUpdates = false;
     autoUpdate = false;
     disableMinSize = true;

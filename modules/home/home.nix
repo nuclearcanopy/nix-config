@@ -3,7 +3,6 @@
 {
   programs.home-manager.enable = true;
 
-  # xdg
   xdg = {
     enable = true;
     mime.enable = true;
@@ -16,7 +15,6 @@
     };
   };
 
-  # home
   home = {
     username = username;
     homeDirectory = "/home/${username}";
@@ -27,7 +25,6 @@
     };
   };
 
-  # trash cleanup timer
   systemd.user.services.trash-empty = {
     Unit.Description = "Empty trash files older than 3 days";
     Service = {

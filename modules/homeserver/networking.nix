@@ -1,43 +1,37 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Hostname
   networking.hostName = "homeserver";
 
-  # NetworkManager
   networking.networkmanager.enable = true;
 
-  # Firewall
   networking.firewall = {
     enable = true;
     trustedInterfaces = [ "docker0" ];
     allowedTCPPorts = [
-      1208   # SSH
-      4533   # Navidrome
-      8080   # SearXNG
-      8081   # FileBrowser
-      9000   # Portainer
-      8090   # MSCD API
+      1208  # ssh
+      4533  # navidrome
+      8080  # searxng
+      8081  # filebrowser
+      9000  # portainer
+      8090  # mscd api
     ];
     allowedUDPPorts = [];
   };
 
-  # Mullvad VPN
   services.mullvad-vpn.enable = true;
 
-  # SSH configuration
   services.openssh = {
     enable = true;
     ports = [ 1208 ];
     settings = {
-      PasswordAuthentication = true;  # Enabled for password auth
+      PasswordAuthentication = true;
       PubkeyAuthentication = true;
       PermitRootLogin = "no";
       ListenAddress = "0.0.0.0";
     };
   };
 
-  # Systemd service for Mullvad auto-connect
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
     after = [ "network-online.target" "mullvad-daemon.service" ];
@@ -48,7 +42,7 @@
       RemainAfterExit = true;
     };
     script = ''
-      # Wait for daemon to be fully ready
+      # wait for daemon
       sleep 2
       ${pkgs.mullvad}/bin/mullvad lan set allow
       ${pkgs.mullvad}/bin/mullvad connect

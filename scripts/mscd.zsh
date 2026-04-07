@@ -1,6 +1,4 @@
-# ~/.zsh/functions/mscd.zsh
 
-# --- GLOBALS ---
 MUSIC_BASE="/mnt/nas/Navidrome/music/Web"
 MUSIC_BASE_BOUGHT="/mnt/nas/Navidrome/music/Bought"
 URLS_FILE="/var/lib/navidrome/data/urls/urls.txt"
@@ -8,7 +6,6 @@ URLS_FILE_ALEXANDRA="/var/lib/navidrome/data/urls/urls_alexandra.txt"
 MSCD_COOKIES="/mnt/nas/Navidrome/cookies.txt"
 MSCD_ARCHIVE="/var/lib/navidrome/data/mscd_archive.txt"
 
-# Ensure latest yt-dlp version
 mkdir -p ~/.local/bin
 curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
 chmod +x ~/.local/bin/yt-dlp
@@ -17,13 +14,10 @@ export PATH="$HOME/.local/bin:$PATH"
 which yt-dlp
 yt-dlp --version
 
-# Ensure predictable UTF-8 handling for sed/ffprobe/python tag text
 export LC_ALL="${LC_ALL:-C.UTF-8}"
 
-# Default genre tag for all imported tracks
 MSCD_GENRE_DEFAULT="Web"
 
-# Find python binary (NixOS might not have python3 symlink)
 if command -v python3 &>/dev/null; then
   MSCD_PYTHON=python3
 elif command -v python &>/dev/null; then
@@ -33,21 +27,13 @@ else
   [[ -z "$MSCD_PYTHON" || ! -x "$MSCD_PYTHON" ]] && echo "[ERROR] No python found!" && MSCD_PYTHON=python3
 fi
 
-# --- UTILITY FUNCTIONS ---
 
-# Normalize all the weird Unicode garbage YouTube/yt-dlp injects:
-#   fullwidth punctuation → ASCII equivalents
-#   smart quotes / curly quotes / backticks → straight apostrophe
-#   em/en dashes → hyphen
-#   various whitespace → space
-#   strip ALL double-quote-like characters (uses Python for reliable Unicode)
 normalize_text() {
   printf '%s' "$1" | "$MSCD_PYTHON" -c "
 import sys, unicodedata
 
 t = sys.stdin.read()
 
-# Fullwidth ASCII variants (U+FF01..U+FF5E) → ASCII (U+0021..U+007E)
 out = []
 for c in t:
     cp = ord(c)
@@ -57,34 +43,27 @@ for c in t:
         out.append(c)
 t = ''.join(out)
 
-# Smart/curly single quotes + backtick + acute accent → ASCII apostrophe
 for c in '\u2018\u2019\u201a\u201b\u0060\u00b4':
     t = t.replace(c, \"'\")
 
-# ALL double-quote-like characters → deleted
 for c in '\u0022\u201c\u201d\u201e\u201f\u2033\u2036\u02ba\u301d\u301e\u301f':
     t = t.replace(c, '')
 
-# Em/en dashes → hyphen
 for c in '\u2013\u2014':
     t = t.replace(c, '-')
 
-# Special whitespace → regular space
 import re
 t = re.sub(r'[\u00a0\u2000-\u200a\u202f\u205f]', ' ', t)
 
-# Zero-width characters → deleted
 t = re.sub(r'[\u200b-\u200d\ufeff]', '', t)
 
 sys.stdout.write(t)
 "
 }
 
-# Sanitize for use in tags and filenames
 sanitize() {
   local text
   text=$(normalize_text "$1")
-  # Belt-and-suspenders: strip any surviving double quotes
   text="${text//\"/}"
   printf '%s' "$text" \
     | sed 's/[[:space:]]\+/ /g; s/^[[:space:]_-]\+//; s/[[:space:]_-]\+$//'
@@ -109,7 +88,6 @@ get_tags() {
   done
 }
 
-# Read a field from yt-dlp's .info.json file (safe with special chars in paths)
 read_info_json() {
   local audio_file="$1" field="$2"
   local base="${audio_file%.*}"
@@ -125,7 +103,6 @@ except: pass
 " "$json_file" "$field" 2>/dev/null
 }
 
-# --- RESOLVE FUNCTIONS (file tags → info.json fallbacks) ---
 
 resolve_artist() {
   local file="$1"
@@ -185,9 +162,7 @@ resolve_year() {
   [[ "$raw" =~ ^[0-9]{4}$ ]] && echo "$raw"
 }
 
-# --- TAG/PATH HELPERS ---
 
-# Generate unique filename if file exists, using Songname_(n).ext pattern
 unique_filename() {
   local path="$1"
   [[ ! -f "$path" ]] && printf '%s' "$path" && return
@@ -220,34 +195,26 @@ find_thumbnail() {
   done
 }
 
-# Clean artist: normalize, collapse whitespace, take first artist before comma
 clean_artist() {
   local artist
   artist=$(normalize_text "$1")
-  # Strip any surviving double quotes
   artist="${artist//\"/}"
 
   setopt local_options extendedglob
   artist="${artist//[[:space:]][[:space:]]#/ }"
-  # "Artist1, Artist2" → "Artist1"
   artist="${artist%%, *}"
   printf '%s' "$artist"
 }
 
-# Check if a song already exists in Web or Bought libraries
-# Usage: song_exists <artist> <title>  → returns 0 if found, 1 if not
 song_exists() {
   local artist="$1" title="$2"
   [[ -z "$title" ]] && return 1
 
-  # Normalize for matching: lowercase, strip punctuation/extra spaces
   local match_title match_artist
   match_title=$("$MSCD_PYTHON" -c "
 import sys, re, unicodedata
 t = sys.argv[1].lower()
-# strip accents
 t = ''.join(c for c in unicodedata.normalize('NFD', t) if unicodedata.category(c) != 'Mn')
-# strip punctuation, collapse spaces
 t = re.sub(r'[^a-z0-9 ]', '', t)
 t = ' '.join(t.split())
 print(t)
@@ -267,7 +234,6 @@ print(t)
   local dir found
   for dir in "$MUSIC_BASE" "$MUSIC_BASE_BOUGHT"; do
     [[ -d "$dir" ]] || continue
-    # Search filenames for matching title (case-insensitive)
     found=$("$MSCD_PYTHON" -c "
 import os, sys, re, unicodedata
 
@@ -282,13 +248,11 @@ target_artist = sys.argv[2]
 search_dir = sys.argv[3]
 
 for root, dirs, files in os.walk(search_dir):
-    # Check if artist matches the directory path
     path_norm = norm(root)
     if target_artist and target_artist not in path_norm:
         continue
     for f in files:
         name = os.path.splitext(f)[0]
-        # Strip leading track numbers like '01 - '
         name = re.sub(r'^\d+\s*-\s*', '', name)
         if norm(name) == target_title:
             print(os.path.join(root, f))
@@ -316,15 +280,12 @@ def dequote(v):
         return ''
     v = str(v)
     v = v.replace('\r',' ').replace('\n',' ').strip()
-    # unwrap one layer of matching quotes (ASCII or Unicode)
     if len(v) >= 2 and ((v[0] == v[-1] == '"') or (v[0] == v[-1] == "'")):
         v = v[1:-1].strip()
     if len(v) >= 2 and v[0] in '\u201c\u201d\u201e\u201f\u2033\u02ba\uff02' and v[-1] in '\u201c\u201d\u201e\u201f\u2033\u02ba\uff02':
         v = v[1:-1].strip()
-    # hard-remove ALL double-quote-like characters
     for c in '"\u201c\u201d\u201e\u201f\u2033\u2036\u02ba\u301d\u301e\u301f\uff02':
         v = v.replace(c, '')
-    # collapse whitespace
     v = ' '.join(v.split())
     return v
 
@@ -392,7 +353,6 @@ def process_file(filepath, tags, thumb_path=None):
             f = Ogg(filepath)
             old_pic = None if thumb_path else existing_ogg_picture(f)
 
-            # delete + re-open for clean slate
             f.delete(); f.save(); f = Ogg(filepath)
 
             for k,v in (tags or {}).items():
@@ -455,7 +415,6 @@ def process_file(filepath, tags, thumb_path=None):
             print('[DEBUG:python] SUCCESS')
 
         else:
-            # fallback: ffmpeg rewrite metadata (no cover handling here)
             import subprocess, shutil, tempfile
             tmp = tempfile.mktemp(suffix='.'+ext)
             cmd = ['ffmpeg','-y','-i',filepath,'-map','0','-c','copy','-map_metadata','-1']
@@ -503,7 +462,6 @@ PYEOF
   echo "[DEBUG:write_metadata] Python exit code: $rc" >&2
 }
 
-# --- MAIN ENTRYPOINT ---
 
 mscd() {
   if [[ -z "$1" ]]; then
@@ -564,7 +522,6 @@ mscd_add() {
   mscd_add_h "$@"
 }
 
-# --- SINGLE FROM TMP ---
 
 mscd_single_from_tmp() {
   local file="$1"
@@ -606,7 +563,6 @@ for k in ('artist', 'uploader', 'creator', 'channel', 'album', 'track', 'title',
   local title_file="${title_ascii//\//-}"
   title_file="${title_file//\"/}"
 
-  # Skip if song already exists in Web or Bought libraries
   if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii"; then
     echo "[DEBUG] Skipping single (already exists)"
     return 0
@@ -644,7 +600,6 @@ for k in ('artist', 'uploader', 'creator', 'channel', 'album', 'track', 'title',
   echo "[DEBUG] Written: $final_path"
 }
 
-# --- ALBUM ---
 mscd_album() {
   if [[ -z "$1" ]]; then
     echo "Usage: mscd <URL>"
@@ -691,7 +646,6 @@ mscd_album() {
     return
   fi
 
-  # --- Resolve album artist ---
   local album_artist="" file
 
   for file in "${all_files[@]}"; do
@@ -734,7 +688,6 @@ mscd_album() {
   [[ -z "$album_artist" ]] && album_artist="Unknown Artist"
   echo "[DEBUG] Resolved album artist: $album_artist"
 
-  # --- Resolve album name ---
   local album_name=""
   for file in "${all_files[@]}"; do
     album_name=$(resolve_album "$file")
@@ -743,7 +696,6 @@ mscd_album() {
   [[ -z "$album_name" ]] && album_name="Unknown Album"
   echo "[DEBUG] Resolved album name: $album_name"
 
-  # --- Resolve album year ---
   local -A year_count
   local y
   for file in "${all_files[@]}"; do
@@ -763,7 +715,6 @@ mscd_album() {
   [[ -n "$album_year" ]] && echo "[DEBUG] Resolved album year: $album_year" \
     || echo "[DEBUG] No album year found"
 
-  # --- Prepare directories ---
   local artist_dir album_dir dest
   artist_dir=$(sanitize "$album_artist")
   [[ -z "$artist_dir" ]] && artist_dir="Unknown_Artist"
@@ -779,7 +730,6 @@ mscd_album() {
   mkdir -p "$dest"
   echo "[DEBUG] Album destination: $dest"
 
-  # --- Crop thumbnails ---
   echo "[DEBUG] Cropping thumbnails to 1:1..."
   local thumb cropped
   for file in "${all_files[@]}"; do
@@ -790,7 +740,6 @@ mscd_album() {
     fi
   done
 
-  # --- Process each track ---
   local -a batch_meta_args final_paths
   local ext filebase track_number track_padded title title_ascii title_file final_path
 
@@ -803,17 +752,14 @@ mscd_album() {
     track_number="${filebase%% -*}"
 
 track_number="${filebase%% -*}"
-# Prefer numeric prefix from yt-dlp template "%(playlist_index)02d - ..."
 track_number="${track_number//[^0-9]/}"
 
-# Strip leading zeros but keep "0" if it was all zeros
 if [[ -n "$track_number" ]]; then
   local _tn_stripped="${track_number##0}"
   track_number="${_tn_stripped:-0}"
 fi
 
 if [[ -z "$track_number" || "$track_number" == "0" ]]; then
-  # fallback: info.json playlist_index
   track_number=$(read_info_json "$file" "playlist_index")
   track_number="${track_number//[^0-9]/}"
   if [[ -n "$track_number" ]]; then
@@ -836,7 +782,6 @@ fi
     title_file="${title_ascii//\//-}"
     title_file="${title_file//\"/}"
 
-    # Skip if this track already exists in Web or Bought libraries
     if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii"; then
       echo "[DEBUG] Skipping track $track_padded (already exists)"
       continue
@@ -869,7 +814,6 @@ fi
 
   write_metadata "${batch_meta_args[@]}"
 
-  # Verify with mutagen (ffprobe can't read opus vorbis comments on NixOS)
   for final_path in "${final_paths[@]}"; do
     echo "[DEBUG] Verifying: ${final_path:t}"
     "$MSCD_PYTHON" -c "
@@ -896,7 +840,6 @@ except Exception as e:
   echo "[DEBUG] Done!"
 }
 
-# --- SINGLE ---
 mscd_single() {
   if [[ -z "$1" ]]; then
     echo "Usage: mscd_single <URL>"
@@ -941,7 +884,6 @@ mscd_single() {
   echo "[DEBUG] Done!"
 }
 
-# --- ADD URL ---
 mscd_add_h() {
   if [[ -z "$1" ]]; then
     echo "Usage: mscd_add <URL> [-a] [--force]"
@@ -981,7 +923,6 @@ mscd_add_h() {
   fi
 }
 
-# --- CLEANUP QUOTED DIRECTORIES ---
 mscd_cleanup() {
   local base="${1:-$MUSIC_BASE}"
   echo "[CLEANUP] Scanning for quoted directory names in: $base"
@@ -989,10 +930,8 @@ mscd_cleanup() {
   local count=0
   local dir clean_name target
 
-  # Find artist directories (depth 1) and album directories (depth 2) with quotes
   find "$base" -mindepth 1 -maxdepth 2 -type d -name '*"*' | sort -r | while IFS= read -r dir; do
     clean_name=$(basename "$dir" | tr -d '"')
-    # Also run through Python to catch any Unicode quote lookalikes
     clean_name=$("$MSCD_PYTHON" -c "
 import sys
 t = sys.argv[1]
@@ -1009,12 +948,10 @@ print(t)
     fi
 
     if [[ -d "$target" ]]; then
-      # Clean version already exists — merge contents
       echo "[CLEANUP] Merging: $(basename "$dir") → $clean_name"
       cp -rn "$dir"/* "$target"/ 2>/dev/null
       rm -rf "$dir"
     else
-      # Just rename
       echo "[CLEANUP] Renaming: $(basename "$dir") → $clean_name"
       mv "$dir" "$target"
     fi
@@ -1024,7 +961,6 @@ print(t)
   echo "[CLEANUP] Fixed $count directories"
 }
 
-# --- BATCH DOWNLOAD ---
 batch_mscd() {
   if [[ -z "$1" ]]; then
     echo "Usage: batch_mscd <file.txt>"

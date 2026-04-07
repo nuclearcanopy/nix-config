@@ -1,48 +1,32 @@
 #!/usr/bin/env python3
-"""
-Web API for mscd commands
-Allows remote users to download music via HTTP requests
-"""
 
 from flask import Flask, request, jsonify
 import subprocess
-import re
+import hashlib
+import hmac
+import os
 
 app = Flask(__name__)
 
-# API Password - CHANGE THIS!
-API_PASSWORD = "changeme123"
+API_HASH = os.environ.get("MSCD_API_HASH", "").strip()
 
 def is_valid_url(url):
-    """Basic URL validation"""
     return url.startswith(('http://', 'https://')) or 'youtube.com' in url or 'music.youtube.com' in url
+
+def hash_value(value):
+    return hashlib.sha512(value.encode()).hexdigest()
+
+def auth_ok(token):
+    if not API_HASH:
+        return False
+    return hmac.compare_digest(hash_value(token), API_HASH)
 
 @app.route('/download', methods=['POST'])
 def download_music():
-    """
-    Download music using mscd commands
-
-    Usage:
-    curl -X POST "http://your-ip:8090/download" \
-         -H "Authorization: your-password" \
-         -H "Content-Type: application/json" \
-         -d '{"command": "mscd", "url": "https://youtube.com/watch?v=..."}'
-
-    Commands:
-    - "mscd" - Direct download
-    - "mscd_add" - Add to queue and download
-    - "mscd_add_a" - Add to Alexandra's queue and download
-
-    Optional params:
-    - force=true (for --force flag, only with mscd_add commands)
-    """
-
-    # Check password
     auth = request.headers.get('Authorization')
-    if auth != API_PASSWORD:
+    if not auth_ok(auth or ""):
         return jsonify({'error': 'Unauthorized - invalid password'}), 401
 
-    # Get parameters
     data = request.json if request.json else {}
     url = data.get('url') or request.form.get('url')
     command = data.get('command') or request.form.get('command') or 'mscd'
@@ -57,7 +41,6 @@ def download_music():
     if command not in ['mscd', 'mscd_add', 'mscd_add_a']:
         return jsonify({'error': 'Invalid command. Use: mscd, mscd_add, or mscd_add_a'}), 400
 
-    # Build command
     zsh_path = '/run/current-system/sw/bin/zsh'
     if command == 'mscd':
         cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd "{url}"']
@@ -73,7 +56,6 @@ def download_music():
             cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add -a "{url}"']
 
     try:
-        # Run command in background (can take a while)
         result = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -87,19 +69,17 @@ def download_music():
             'url': url,
             'command': command,
             'force': force
-        }), 202  # 202 Accepted (processing)
+        }), 202
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check endpoint"""
     return jsonify({'status': 'ok'}), 200
 
 @app.route('/', methods=['GET'])
 def index():
-    """Simple web form for non-technical users"""
     return '''
     <!DOCTYPE html>
     <html>

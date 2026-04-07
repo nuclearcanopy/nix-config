@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Find amdgpu hwmon dynamically
+# find amdgpu hwmon
 for hwmon in /sys/class/hwmon/hwmon*; do
   if [ "$(cat "$hwmon/name" 2>/dev/null)" = "amdgpu" ]; then
     TEMP=$(cat "$hwmon/temp2_input" 2>/dev/null)

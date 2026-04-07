@@ -7,7 +7,6 @@ in
   wayland.windowManager.sway = {
     enable = true;
 
-    # debug logging
     systemd.enable = true;
     extraOptions = [ "-d" ];
 

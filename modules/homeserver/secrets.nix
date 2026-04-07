@@ -36,6 +36,13 @@
 
       homeserver-cloudflared-credentials = {
         file = ../../secrets/homeserver-cloudflared-credentials.age;
+        path = "/etc/cloudflared/credentials.json";
+        mode = "600";
+      };
+
+      homeserver-mscd-api-hash = {
+        file = ../../secrets/homeserver-mscd-api-hash.age;
+        path = "/run/agenix/homeserver-mscd-api-hash";
         mode = "600";
       };
     };
