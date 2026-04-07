@@ -7,5 +7,6 @@
     ./services.nix
     ./users.nix
     ./zsh.nix
+    ./secrets.nix
   ];
 }

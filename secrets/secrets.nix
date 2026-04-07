@@ -17,4 +17,10 @@ in
 
   # User password hash
   "user-password.age".publicKeys = systems;
+
+  # Homeserver secrets
+  "homeserver-user-password.age".publicKeys = systems;
+  "homeserver-navidrome-env.age".publicKeys = systems;
+  "homeserver-searxng-env.age".publicKeys = systems;
+  "homeserver-cloudflared-credentials.age".publicKeys = systems;
 }
