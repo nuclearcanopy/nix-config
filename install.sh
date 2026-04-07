@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# Kuraokami NixOS Install Script
+# NixOS Install Script (Multi-Host)
 # Run this from the NixOS live ISO after cloning the repo
 
 RED='\033[0;31m'
@@ -89,27 +89,54 @@ progress() {
   fi
 }
 
-LOG="/tmp/kuraokami-install.log"
-START_ALL=$(now_s)
-
-echo -e "${GREEN}=== Kuraokami NixOS Install ===${NC}\n"
-echo "This installer will:"
-echo "  1) Partition and format disk"
-echo "  2) Generate hardware config"
-echo "  3) Install NixOS"
-echo "  4) Copy repo to target system"
-echo ""
-echo "Log: ${LOG}"
-echo ""
-echo "[$(ts)] Installer started" > "$LOG"
-
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
   die "Run this script as root (sudo or doas)"
 fi
 
+echo -e "${GREEN}=== NixOS Multi-Host Install ===${NC}\n"
+
+# Host selection
+section "Host selection"
+echo "Available hosts:"
+echo "  1) kuraokami  - Desktop workstation (AMD GPU, Sway, gaming)"
+echo "  2) homeserver - Home server (Docker, Navidrome, etc.)"
+echo ""
+read -p "Select host [1/2]: " HOST_CHOICE
+
+case "$HOST_CHOICE" in
+  1|kuraokami)
+    HOST="kuraokami"
+    DEFAULT_USERNAME="nuclearcanopy"
+    DEFAULT_DISK="/dev/nvme0n1"
+    ;;
+  2|homeserver)
+    HOST="homeserver"
+    DEFAULT_USERNAME="homeserver"
+    DEFAULT_DISK="/dev/sda"
+    ;;
+  *)
+    die "Invalid host selection"
+    ;;
+esac
+
+ok "Selected host: ${HOST}"
+
+LOG="/tmp/${HOST}-install.log"
+START_ALL=$(now_s)
+
+echo ""
+echo "This installer will:"
+echo "  1) Partition and format disk"
+echo "  2) Generate hardware config"
+echo "  3) Install NixOS (${HOST})"
+echo "  4) Copy repo to target system"
+echo ""
+echo "Log: ${LOG}"
+echo ""
+echo "[$(ts)] Installer started for ${HOST}" > "$LOG"
+
 section "User"
-DEFAULT_USERNAME="nuclearcanopy"
 read -p "Username [${DEFAULT_USERNAME}]: " USERNAME
 USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
 ok "Username: ${USERNAME}"
@@ -131,7 +158,6 @@ if [ ! -f "/etc/age/key.txt" ]; then
 fi
 
 section "Disk selection"
-DEFAULT_DISK="/dev/nvme0n1"
 read -p "Disk to install to [${DEFAULT_DISK}]: " DISK
 DISK="${DISK:-$DEFAULT_DISK}"
 if [ ! -b "$DISK" ]; then
@@ -154,20 +180,24 @@ TOTAL_STEPS=5
 STEP=1
 progress "$STEP" "$TOTAL_STEPS"
 section "Partitioning (disko)"
-run_step "Running disko" nix --experimental-features "nix-command flakes" run .#disko -- --mode disko ./modules/hardware/disko.nix --argstr device "$DISK"
+DISKO_PATH="./hosts/${HOST}/disko.nix"
+if [ ! -f "$DISKO_PATH" ]; then
+  die "Disko config not found: ${DISKO_PATH}"
+fi
+run_step "Running disko" nix --experimental-features "nix-command flakes" run .#disko -- --mode disko "$DISKO_PATH" --argstr device "$DISK"
 ok "Disk partitioned"
 
 STEP=$((STEP + 1))
 progress "$STEP" "$TOTAL_STEPS"
 section "Generating hardware config"
 run_step "nixos-generate-config" nixos-generate-config --root /mnt
-cp /mnt/etc/nixos/hardware-configuration.nix ./modules/hardware/hardware-configuration.nix
-ok "hardware-configuration.nix updated"
+cp /mnt/etc/nixos/hardware-configuration.nix "./hosts/${HOST}/hardware-configuration.nix"
+ok "hardware-configuration.nix updated for ${HOST}"
 
 STEP=$((STEP + 1))
 progress "$STEP" "$TOTAL_STEPS"
 section "Installing NixOS"
-run_step "nixos-install" nixos-install --flake .#kuraokami --no-root-password
+run_step "nixos-install" nixos-install --flake ".#${HOST}" --no-root-password
 ok "NixOS installed"
 
 STEP=$((STEP + 1))
@@ -198,6 +228,11 @@ echo ""
 echo "Next steps:"
 echo "  1. Reboot into your new system"
 echo "  2. Log in as ${USERNAME}"
+if [ "$HOST" = "kuraokami" ]; then
+  echo "  3. Run: sudo nixos-rebuild switch --flake ~/nix-config#kuraokami"
+else
+  echo "  3. Run: sudo nixos-rebuild switch --flake ~/nix-config#homeserver"
+fi
 echo ""
 read -p "Reboot now? [y/N] " REBOOT
 if [ "$REBOOT" = "y" ] || [ "$REBOOT" = "Y" ]; then
