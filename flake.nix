@@ -1,5 +1,5 @@
 {
-  description = "Kuraokami NixOS";
+  description = "NixOS configurations for kuraokami and homeserver";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -31,11 +31,8 @@
     };
   };
 
-  # disko used standalone by install.sh, not as flake input
-
   outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, disko, nixvim, ... }:
   let
-    username = "nuclearcanopy";
     system = "x86_64-linux";
 
     unstable-pkgs = import unstable {
@@ -45,30 +42,53 @@
   in {
     packages.${system}.disko = disko.packages.${system}.disko;
 
-    nixosConfigurations.kuraokami = nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = { unstable = unstable-pkgs; inherit username; };
+    nixosConfigurations = {
+      # Desktop workstation
+      kuraokami = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          unstable = unstable-pkgs;
+          username = "nuclearcanopy";
+        };
 
-      modules = [
-        ./configuration.nix
-        # disko.nix only used by install.sh, not imported here
+        modules = [
+          ./hosts/kuraokami/configuration.nix
 
-        # nur overlay for firefox extensions
-        { nixpkgs.overlays = [ nur.overlays.default ]; }
+          # nur overlay for firefox extensions
+          { nixpkgs.overlays = [ nur.overlays.default ]; }
 
-        # agenix for secrets management
-        agenix.nixosModules.default
+          # agenix for secrets management
+          agenix.nixosModules.default
 
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.extraSpecialArgs = { unstable = unstable-pkgs; inherit username; };
-          home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.${username} = import ./modules/home/home.nix;
-        }
-      ];
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.extraSpecialArgs = {
+              unstable = unstable-pkgs;
+              username = "nuclearcanopy";
+            };
+            home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.nuclearcanopy = import ./modules/home/home.nix;
+          }
+        ];
+      };
+
+      # Home server
+      homeserver = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          unstable = unstable-pkgs;
+        };
+
+        modules = [
+          ./hosts/homeserver/configuration.nix
+
+          # agenix for secrets management (for future use)
+          agenix.nixosModules.default
+        ];
+      };
     };
   };
 }
