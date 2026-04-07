@@ -31,6 +31,19 @@ nix-commit() {
   fi
 }
 
+nix-clone() {
+  echo "󰊢 Pulling latest from Codeberg..."
+  git -C ~/nix-config/ pull origin main || { echo "󰚌 Pull failed"; return 1; }
+
+  echo "󱄅 Rebuilding..."
+  if elevate nixos-rebuild switch --flake ~/nix-config/#kuraokami --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+    GEN_NUM=$(nixos-rebuild list-generations --flake ~/nix-config/#kuraokami | grep True | awk '{print $1}')
+    echo " Done. (Gen $GEN_NUM)"
+  else
+    echo "󰚌 Build Failed"
+  fi
+}
+
 nix-upd() {
   echo " Changes"
   git -C ~/nix-config/ diff --stat --color=always
