@@ -23,6 +23,12 @@
     sessionVariables = {
       _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
     };
+
+    activation.setNixConfigRemote = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+      if [ -d "$HOME/nix-config/.git" ]; then
+        ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote set-url origin git@codeberg.org:nuclearcanopy/nix-config.git 2>/dev/null || true
+      fi
+    '';
   };
 
   systemd.user.services.trash-empty = {

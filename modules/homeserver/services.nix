@@ -7,7 +7,7 @@ let
     name = "mscd_api.py";
     text = builtins.replaceStrings
       [ "/etc/nixos/mscd.zsh" ]
-      [ mscdZsh ]
+      [ "${mscdZsh}" ]
       (builtins.readFile ../../scripts/mscd_api.py);
     executable = true;
   };
