@@ -11,6 +11,13 @@
         mode = "600";
       };
 
+      ssh-codeberg = {
+        file = ../../secrets/ssh-codeberg.age;
+        path = "/home/homeserver/.ssh/id_codeberg";
+        mode = "600";
+        owner = "homeserver";
+      };
+
       homeserver-user-password = {
         file = ../../secrets/homeserver-user-password.age;
       };
