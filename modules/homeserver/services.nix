@@ -26,11 +26,11 @@ in
         environment = {
           ND_SCANSCHEDULE = "1h";
           ND_LASTFM_ENABLED = "true";
-          # TODO: Move to agenix
-          ND_LASTFM_APIKEY = "9a7691497f066c0ca8e66b6193ba5beb";
-          ND_LASTFM_SECRET = "c48dfe426dd69edd5c8507c95a18d871";
           ND_LASTFM_ISENABLED = "true";
         };
+        environmentFiles = [
+          config.age.secrets.homeserver-navidrome-env.path
+        ];
         extraOptions = [ "--network=cloudflared-net" ];
       };
 
@@ -39,7 +39,6 @@ in
         ports = [ "127.0.0.1:8000:80" ];
         volumes = [ "/var/lib/vaultwarden:/data" ];
         environment = {
-          # TODO: Move to agenix
           DOMAIN = "https://vaultwarden.local";
           SIGNUPS_ALLOWED = "false";
         };
@@ -67,11 +66,12 @@ in
         ports = [ "8080:8080" ];
         volumes = [ "/var/lib/searxng:/etc/searxng:rw" ];
         environment = {
-          # TODO: Move to agenix
           SEARXNG_BASE_URL = "https://search.nuclearcanopy.xyz/";
           SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
-          SEARXNG_SECRET = "68b38378ab58f2dc7360e071c5578d30d81f3fe4251a9ccab6feacc7c297ec80";
         };
+        environmentFiles = [
+          config.age.secrets.homeserver-searxng-env.path
+        ];
         extraOptions = [ "--network=cloudflared-net" ];
       };
 
@@ -103,6 +103,11 @@ in
       };
     };
   };
+
+  # Ensure cloudflared credentials are present
+  system.activationScripts.cloudflaredCredentials.text = ''
+    ${pkgs.coreutils}/bin/install -m 600 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
+  '';
 
   # Create necessary directories
   systemd.tmpfiles.rules = [

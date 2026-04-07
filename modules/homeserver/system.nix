@@ -78,8 +78,12 @@
       let
         automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
       in
-        # TODO: Move credentials to agenix
-        ["${automount_opts},username=nuclearcanopy,password=REDACTED,uid=1000,gid=100"];
+        [
+          "${automount_opts}"
+          "credentials=${config.age.secrets.nas-credentials.path}"
+          "uid=1000"
+          "gid=100"
+        ];
   };
 
   # System packages
