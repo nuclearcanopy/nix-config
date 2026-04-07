@@ -45,21 +45,6 @@ in
         extraOptions = [ "--network=cloudflared-net" ];
       };
 
-      qbittorrent = {
-        image = "lscr.io/linuxserver/qbittorrent:latest";
-        ports = [ "8082:8082" ];
-        volumes = [
-          "/var/lib/qbittorrent:/config"
-          "/mnt/nas/music:/music"
-        ];
-        environment = {
-          PUID = "1000";
-          PGID = "100";
-          TZ = "Europe/Bucharest";
-          WEBUI_PORT = "8082";
-        };
-        extraOptions = [ "--network=cloudflared-net" ];
-      };
 
       searxng = {
         image = "searxng/searxng:latest";
@@ -104,16 +89,23 @@ in
     };
   };
 
-  # Ensure cloudflared credentials are present
-  system.activationScripts.cloudflaredCredentials.text = ''
-    ${pkgs.coreutils}/bin/install -m 600 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
+  # Deploy service configs and credentials on rebuild
+  system.activationScripts.cloudflaredCredentials = {
+    deps = [ "agenixInstall" ];
+    text = ''
+      ${pkgs.coreutils}/bin/install -m 600 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
+    '';
+  };
+
+  system.activationScripts.serviceConfigs.text = ''
+    ${pkgs.coreutils}/bin/install -m 644 ${pkgs.writeText "cloudflared-config.yml" (builtins.readFile ../../configs/cloudflared.yml)} /var/lib/cloudflared/config.yml
+    ${pkgs.coreutils}/bin/install -m 644 ${pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml)} /var/lib/searxng/settings.yml
   '';
 
   # Create necessary directories
   systemd.tmpfiles.rules = [
     "d /var/lib/lidarr 0755 root root -"
     "d /var/lib/prowlarr 0755 root root -"
-    "d /var/lib/qbittorrent 0755 root root -"
     "d /var/lib/searxng 0755 root root -"
     "d /var/lib/filebrowser 0755 root root -"
     "d /var/lib/vaultwarden 0755 root root -"
@@ -183,14 +175,13 @@ in
       mkdir -p /mnt/nas/homeserver/var/lib
 
       # Backup using rsync
-      ${pkgs.rsync}/bin/rsync -av --delete /home/homeserver/nix-config /mnt/nas/homeserver/etc/
+      ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' /home/homeserver/nix-config /mnt/nas/homeserver/etc/
       ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/searxng /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/cloudflared /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/qbittorrent /mnt/nas/homeserver/var/lib/
 
       echo "Backup completed successfully at $(date)"
     '';
