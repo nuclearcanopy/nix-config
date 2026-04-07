@@ -93,7 +93,7 @@ in
   system.activationScripts.cloudflaredCredentials = {
     deps = [ "agenixInstall" ];
     text = ''
-      ${pkgs.coreutils}/bin/install -m 600 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
+      ${pkgs.coreutils}/bin/install -m 644 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
     '';
   };
 
