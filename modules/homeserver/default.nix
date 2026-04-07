@@ -8,5 +8,6 @@
     ./users.nix
     ./zsh.nix
     ./secrets.nix
+    ./git.nix
   ];
 }

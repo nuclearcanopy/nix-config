@@ -15,7 +15,6 @@ let
   searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml);
 in
 {
-  environment.etc."cloudflared/config.yml".source = cloudflaredConfig;
   environment.etc."searxng/settings.yml".source = searxngConfig;
 
   virtualisation.docker.enable = true;
@@ -89,7 +88,10 @@ in
 
       cloudflared = {
         image = "cloudflare/cloudflared:latest";
-        volumes = [ "/etc/cloudflared:/etc/cloudflared:ro" ];
+        volumes = [
+          "${cloudflaredConfig}:/etc/cloudflared/config.yml:ro"
+          "${config.age.secrets.homeserver-cloudflared-credentials.path}:/etc/cloudflared/credentials.json:ro"
+        ];
         cmd = [ "tunnel" "--config" "/etc/cloudflared/config.yml" "run" ];
         extraOptions = [ "--network=${dockerNet}" ];
       };

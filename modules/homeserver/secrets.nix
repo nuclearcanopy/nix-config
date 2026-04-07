@@ -36,8 +36,7 @@
 
       homeserver-cloudflared-credentials = {
         file = ../../secrets/homeserver-cloudflared-credentials.age;
-        path = "/etc/cloudflared/credentials.json";
-        mode = "600";
+        mode = "644";
       };
 
       homeserver-mscd-api-hash = {
