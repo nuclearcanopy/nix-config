@@ -19,4 +19,12 @@
   };
 
   users.defaultUserShell = pkgs.zsh;
+
+  # SSH client config for Codeberg
+  programs.ssh.extraConfig = ''
+    Host codeberg.org
+      User git
+      IdentityFile /home/homeserver/.ssh/id_codeberg
+      IdentitiesOnly yes
+  '';
 }
