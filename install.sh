@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# NixOS Install Script (Multi-Host)
 # Run this from the NixOS live ISO after cloning the repo
 
 RED='\033[0;31m'
@@ -89,14 +88,12 @@ progress() {
   fi
 }
 
-# Check if running as root
 if [ "$EUID" -ne 0 ]; then
   die "Run this script as root (sudo or doas)"
 fi
 
 echo -e "${GREEN}=== NixOS Multi-Host Install ===${NC}\n"
 
-# Host selection
 section "Host selection"
 echo "Available hosts:"
 echo "  1) kuraokami  - Desktop workstation (AMD GPU, Sway, gaming)"
@@ -141,7 +138,6 @@ read -p "Username [${DEFAULT_USERNAME}]: " USERNAME
 USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
 ok "Username: ${USERNAME}"
 
-# Age identity (provided by user)
 section "Age identity"
 read -p "Place /etc/age/key.txt yourself? [Y/n] " PLACE_SELF
 if [ "$PLACE_SELF" = "n" ] || [ "$PLACE_SELF" = "N" ]; then
@@ -164,7 +160,6 @@ if [ ! -b "$DISK" ]; then
   die "Disk not found: ${DISK}"
 fi
 
-# Confirm disk wipe
 warn "This will WIPE ${DISK}"
 echo "Make sure this is the correct drive!"
 echo ""

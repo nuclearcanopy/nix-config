@@ -34,6 +34,7 @@
   outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, disko, nixvim, ... }:
   let
     system = "x86_64-linux";
+    username = "nuclearcanopy";
 
     unstable-pkgs = import unstable {
       inherit system;
@@ -48,7 +49,7 @@
         inherit system;
         specialArgs = {
           unstable = unstable-pkgs;
-          username = "nuclearcanopy";
+          inherit username;
         };
 
         modules = [
@@ -64,13 +65,13 @@
           {
             home-manager.extraSpecialArgs = {
               unstable = unstable-pkgs;
-              username = "nuclearcanopy";
+              inherit username;
             };
             home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
-            home-manager.users.nuclearcanopy = import ./modules/home/home.nix;
+            home-manager.users.${username} = import ./modules/home/home.nix;
           }
         ];
       };
