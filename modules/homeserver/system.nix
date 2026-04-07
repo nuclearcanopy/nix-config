@@ -1,6 +1,21 @@
 { config, pkgs, lib, unstable, ... }:
 
 {
+  system.stateVersion = "25.11";
+
+  nix = {
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+      auto-optimise-store = true;
+    };
+
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+  };
+
   # Boot configuration
   boot = {
     loader.systemd-boot.enable = true;

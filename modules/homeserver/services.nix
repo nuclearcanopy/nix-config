@@ -1,17 +1,18 @@
 { config, pkgs, lib, ... }:
 
 let
+  dockerNet = "cloudflared-net";
   mscdApi = pkgs.writeTextFile {
     name = "mscd_api.py";
     text = builtins.readFile ../../scripts/mscd_api.py;
     executable = true;
   };
+  cloudflaredConfig = pkgs.writeText "cloudflared-config.yml" (builtins.readFile ../../configs/cloudflared.yml);
+  searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml);
 in
 {
-  # Enable Docker
   virtualisation.docker.enable = true;
 
-  # Docker containers
   virtualisation.oci-containers = {
     backend = "docker";
 
@@ -31,7 +32,7 @@ in
         environmentFiles = [
           config.age.secrets.homeserver-navidrome-env.path
         ];
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
 
       vaultwarden = {
@@ -42,9 +43,8 @@ in
           DOMAIN = "https://vaultwarden.local";
           SIGNUPS_ALLOWED = "false";
         };
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
-
 
       searxng = {
         image = "searxng/searxng:latest";
@@ -57,7 +57,7 @@ in
         environmentFiles = [
           config.age.secrets.homeserver-searxng-env.path
         ];
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
 
       filebrowser = {
@@ -67,7 +67,7 @@ in
           "/mnt/nas/filebrowser:/srv"
           "/var/lib/filebrowser:/database"
         ];
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
 
       portainer = {
@@ -77,19 +77,18 @@ in
           "/var/run/docker.sock:/var/run/docker.sock"
           "/var/lib/portainer:/data"
         ];
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
 
       cloudflared = {
         image = "cloudflare/cloudflared:latest";
         volumes = [ "/var/lib/cloudflared:/etc/cloudflared" ];
         cmd = [ "tunnel" "--config" "/etc/cloudflared/config.yml" "run" ];
-        extraOptions = [ "--network=cloudflared-net" ];
+        extraOptions = [ "--network=${dockerNet}" ];
       };
     };
   };
 
-  # Deploy service configs and credentials on rebuild
   system.activationScripts.cloudflaredCredentials = {
     deps = [ "agenixInstall" ];
     text = ''
@@ -98,11 +97,10 @@ in
   };
 
   system.activationScripts.serviceConfigs.text = ''
-    ${pkgs.coreutils}/bin/install -m 644 ${pkgs.writeText "cloudflared-config.yml" (builtins.readFile ../../configs/cloudflared.yml)} /var/lib/cloudflared/config.yml
-    ${pkgs.coreutils}/bin/install -m 644 ${pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml)} /var/lib/searxng/settings.yml
+    ${pkgs.coreutils}/bin/install -m 644 ${cloudflaredConfig} /var/lib/cloudflared/config.yml
+    ${pkgs.coreutils}/bin/install -m 644 ${searxngConfig} /var/lib/searxng/settings.yml
   '';
 
-  # Create necessary directories
   systemd.tmpfiles.rules = [
     "d /var/lib/lidarr 0755 root root -"
     "d /var/lib/prowlarr 0755 root root -"
@@ -114,19 +112,16 @@ in
     "d /var/lib/cloudflared 0755 root root -"
   ];
 
-  # Docker network service
   systemd.services.init-docker-network = {
     description = "Create Docker network for Cloudflared";
     after = [ "network.target" "docker.service" ];
     wantedBy = [ "multi-user.target" ];
     script = ''
-      ${pkgs.docker}/bin/docker network inspect cloudflared-net >/dev/null 2>&1 || \
-      ${pkgs.docker}/bin/docker network create cloudflared-net || true
+      ${pkgs.docker}/bin/docker network inspect ${dockerNet} >/dev/null 2>&1 || \
+      ${pkgs.docker}/bin/docker network create ${dockerNet} || true
     '';
   };
 
-  # FIX: Make searxng wait for network to be fully ready
-  # This fixes the DNS timeout issue on boot
   systemd.services.docker-searxng = {
     after = [
       "network-online.target"
@@ -134,15 +129,11 @@ in
       "init-docker-network.service"
     ];
     wants = [ "network-online.target" ];
-    # Add a delay to ensure DNS is fully operational
-    serviceConfig = {
-      ExecStartPre = [
-        "${pkgs.coreutils}/bin/sleep 10"
-      ];
-    };
+    serviceConfig.ExecStartPre = [
+      "${pkgs.coreutils}/bin/sleep 10"
+    ];
   };
 
-  # MSCD API service
   systemd.services.mscd-api = {
     description = "MSCD Web API for remote music downloads";
     after = [ "network.target" ];
@@ -159,7 +150,6 @@ in
     };
   };
 
-  # Backup to NAS service
   systemd.services.backup-to-nas = {
     description = "Backup server configuration and data to NAS";
     after = [ "mnt-nas.mount" ];
@@ -170,11 +160,9 @@ in
     script = ''
       set -e
 
-      # Ensure NAS backup directories exist
       mkdir -p /mnt/nas/homeserver/etc
       mkdir -p /mnt/nas/homeserver/var/lib
 
-      # Backup using rsync
       ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' /home/homeserver/nix-config /mnt/nas/homeserver/etc/
       ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/searxng /mnt/nas/homeserver/var/lib/
@@ -187,18 +175,14 @@ in
     '';
   };
 
-  # Scheduled reboot service
   systemd.services.scheduled-reboot = {
     description = "Scheduled system reboot";
-    serviceConfig = {
-      Type = "oneshot";
-    };
+    serviceConfig.Type = "oneshot";
     script = ''
       ${pkgs.systemd}/bin/systemctl reboot
     '';
   };
 
-  # Timers
   systemd.timers.backup-to-nas = {
     description = "Timer for automated NAS backups";
     wantedBy = [ "timers.target" ];

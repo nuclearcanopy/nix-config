@@ -1,7 +1,6 @@
-{ config, ... }:
+{ config, username, ... }:
 
 {
-  # agenix configuration
   age = {
     identityPaths = [ "/etc/age/key.txt" ];
 
@@ -9,7 +8,7 @@
       ssh-codeberg = {
         file = ../../secrets/ssh-codeberg.age;
         path = "/run/agenix/ssh-codeberg";
-        owner = "nuclearcanopy";
+        owner = username;
         group = "users";
         mode = "600";
       };

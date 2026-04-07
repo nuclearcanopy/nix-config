@@ -1,12 +1,7 @@
-{ config, lib, pkgs, username, ... }:
+{ config, pkgs, username, ... }:
 
 {
   system.stateVersion = "25.11";
-
-  imports = [
-    ./modules/hardware
-    ./modules/system
-  ];
 
   time.timeZone = "Europe/Bucharest";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -37,7 +32,5 @@
     memoryPercent = 33;
   };
 
-  environment.variables = {
-    EDITOR = "nvim";
-  };
+  environment.variables.EDITOR = "nvim";
 }
