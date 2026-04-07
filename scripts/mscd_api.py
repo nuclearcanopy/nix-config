@@ -111,55 +111,87 @@ def index():
 <title>MSCD</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0a0f;--surface:#12121a;--border:#1e1e2e;--cyan:#00fff2;--magenta:#ff00ff;--green:#00ff88;--red:#ff3366;--text:#e0e0e0;--dim:#666680}
+:root{--bg:#000;--surface:#0a0a0a;--border:#1a1a1a;--accent:#fff;--accent-dim:#888;--success:#ccc;--error:#666;--text:#e0e0e0;--dim:#555}
 html{font-size:16px}
 body{font-family:'SF Mono','Fira Code','JetBrains Mono',Consolas,monospace;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
 .container{width:100%;max-width:500px;margin:0 auto}
 .header{text-align:center;margin-bottom:20px}
-.logo{font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px}
+.logo{font-size:2rem;font-weight:700;color:var(--accent);letter-spacing:3px}
 .tagline{color:var(--dim);font-size:0.65rem;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--cyan));opacity:0.7}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.5}
 .form-group{margin-bottom:14px}
-label{display:block;font-size:0.7rem;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+label{display:block;font-size:0.7rem;color:var(--accent-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 input,select{width:100%;padding:14px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:16px;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none}
-input:focus,select:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,255,242,0.15)}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,255,255,0.1)}
 input::placeholder{color:var(--dim)}
-select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300fff2' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 select option{background:var(--bg);color:var(--text)}
 .checkbox-group{display:flex;align-items:center;gap:12px;margin:16px 0;min-height:44px}
-.checkbox-group input[type="checkbox"]{width:24px;height:24px;accent-color:var(--magenta);cursor:pointer;flex-shrink:0}
+.checkbox-group input[type="checkbox"]{width:24px;height:24px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
 .checkbox-group label{margin:0;font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.btn{width:100%;padding:16px;background:var(--cyan);border:none;color:var(--bg);font-family:inherit;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;border-radius:8px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn{width:100%;padding:16px;background:var(--accent);border:none;color:var(--bg);font-family:inherit;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;border-radius:8px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .btn:active{transform:scale(0.98);opacity:0.9}
 .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-.btn.running{background:transparent;border:2px solid var(--magenta);color:var(--magenta);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,0,255,0.5)}50%{box-shadow:0 0 15px 3px rgba(255,0,255,0.3)}}
+.btn.running{background:transparent;border:2px solid var(--accent-dim);color:var(--accent-dim);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.3)}50%{box-shadow:0 0 15px 3px rgba(255,255,255,0.15)}}
 .progress-container{margin-top:16px;display:none}
 .progress-container.active{display:block}
 .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:12px}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--magenta));transition:width 0.3s}
+.progress-fill{height:100%;width:0;background:var(--accent);transition:width 0.2s ease-out}
 .progress-fill.indeterminate{width:30%;animation:indeterminate 1.2s infinite ease-in-out}
 @keyframes indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
-.progress-fill.complete{width:100%;background:var(--green)}
-.progress-fill.error{width:100%;background:var(--red)}
+.progress-pct{font-size:0.7rem;color:var(--accent-dim);text-align:right;margin-top:4px;font-variant-numeric:tabular-nums}
+.progress-fill.complete{width:100%;background:var(--success)}
+.progress-fill.error{width:100%;background:var(--error)}
 .console{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:40vh;overflow-y:auto;font-size:0.75rem;line-height:1.5;-webkit-overflow-scrolling:touch}
 .console-line{white-space:pre-wrap;word-break:break-word;padding:2px 0}
-.console-line.stderr{color:var(--red)}
-.console-line.info{color:var(--cyan)}
-.console-line.success{color:var(--green)}
-.console-line.error{color:var(--red);font-weight:600}
+.console-line.stderr{color:var(--error)}
+.console-line.info{color:var(--accent-dim)}
+.console-line.success{color:var(--success)}
+.console-line.error{color:var(--error);font-weight:600}
 .status{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:0.75rem}
 .status-dot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex-shrink:0}
-.status-dot.running{background:var(--magenta);animation:blink 1s infinite}
-.status-dot.complete{background:var(--green)}
-.status-dot.error{background:var(--red)}
+.status-dot.running{background:var(--accent);animation:blink 1s infinite}
+.status-dot.complete{background:var(--success)}
+.status-dot.error{background:var(--error)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .status-text{color:var(--dim);text-transform:uppercase;letter-spacing:1px}
 .cmd-hint{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .cmd-tag{font-size:0.65rem;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--dim)}
-.cmd-tag code{color:var(--cyan)}
+.cmd-tag code{color:var(--accent)}
 @media(max-width:380px){.cmd-hint{gap:6px}.cmd-tag{padding:5px 8px;font-size:0.6rem}}
+.batch-toggle{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.batch-toggle label{margin:0}
+.toggle-btn{background:var(--bg);border:1px solid var(--border);color:var(--dim);padding:6px 12px;border-radius:6px;font-family:inherit;font-size:0.7rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s}
+.toggle-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.url-single{display:block}
+.url-single.hidden{display:none}
+.url-batch{display:none;flex-direction:column;gap:8px}
+.url-batch.active{display:flex}
+.url-row{display:flex;gap:8px;align-items:center}
+.url-row input{flex:1}
+.url-row-btn{width:44px;height:44px;border:1px solid var(--border);background:var(--bg);color:var(--dim);border-radius:8px;font-size:1.2rem;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+.url-row-btn:hover{border-color:var(--accent);color:var(--accent)}
+.url-row-btn.add{color:var(--accent)}
+.url-row-btn.remove:hover{border-color:var(--error);color:var(--error)}
+.batch-counter{font-size:0.7rem;color:var(--dim);text-align:center;margin-top:8px}
+.batch-progress{font-size:0.75rem;color:var(--accent-dim);margin-bottom:8px;text-align:center}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;max-width:380px;width:100%;position:relative;animation:modalIn 0.2s ease-out}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:12px 12px 0 0}
+.modal-icon{font-size:2rem;text-align:center;margin-bottom:12px}
+.modal-title{font-size:1rem;font-weight:700;text-align:center;margin-bottom:8px;color:var(--text)}
+.modal-msg{font-size:0.8rem;color:var(--dim);text-align:center;margin-bottom:16px;line-height:1.5}
+.modal-file{font-size:0.7rem;color:var(--accent-dim);background:var(--bg);padding:10px;border-radius:6px;margin-bottom:16px;word-break:break-all;text-align:center}
+.modal-btns{display:flex;gap:10px}
+.modal-btn{flex:1;padding:14px;border:none;border-radius:8px;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:1px}
+.modal-btn.yes{background:var(--accent);color:var(--bg)}
+.modal-btn.yes:active{background:var(--accent-dim)}
+.modal-btn.no{background:var(--bg);border:1px solid var(--border);color:var(--dim)}
+.modal-btn.no:active{background:var(--border)}
 </style>
 </head>
 <body>
@@ -188,8 +220,20 @@ select option{background:var(--bg);color:var(--text)}
 </select>
 </div>
 <div class="form-group">
+<div class="batch-toggle">
 <label>URL</label>
-<input type="text" id="url" placeholder="https://music.youtube.com/watch?v=..." required>
+<button type="button" class="toggle-btn" id="batchToggle">Batch</button>
+</div>
+<div class="url-single" id="urlSingle">
+<input type="text" id="url" placeholder="https://music.youtube.com/watch?v=...">
+</div>
+<div class="url-batch" id="urlBatch">
+<div class="url-row">
+<input type="text" class="batch-url" placeholder="https://music.youtube.com/watch?v=...">
+<button type="button" class="url-row-btn add" onclick="addUrlRow()">+</button>
+</div>
+</div>
+<div class="batch-counter" id="batchCounter"></div>
 </div>
 <div class="checkbox-group">
 <input type="checkbox" id="force">
@@ -198,6 +242,7 @@ select option{background:var(--bg);color:var(--text)}
 <button type="submit" id="btn" class="btn">Execute</button>
 </form>
 <div class="progress-container" id="progress">
+<div class="batch-progress" id="batchProgress"></div>
 <div class="status">
 <div class="status-dot" id="statusDot"></div>
 <span class="status-text" id="statusText">Initializing...</span>
@@ -205,7 +250,20 @@ select option{background:var(--bg);color:var(--text)}
 <div class="progress-bar">
 <div class="progress-fill" id="progressFill"></div>
 </div>
+<div class="progress-pct" id="progressPct"></div>
 <div class="console" id="console"></div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="dupeModal">
+<div class="modal">
+<div class="modal-icon">⚠️</div>
+<div class="modal-title">File Already Exists</div>
+<div class="modal-msg">This track has already been downloaded. Re-download with a new filename?</div>
+<div class="modal-file" id="dupeFile"></div>
+<div class="modal-btns">
+<button class="modal-btn no" id="dupeNo">Skip</button>
+<button class="modal-btn yes" id="dupeYes">Re-download</button>
 </div>
 </div>
 </div>
@@ -217,7 +275,77 @@ const console_=document.getElementById('console');
 const statusDot=document.getElementById('statusDot');
 const statusText=document.getElementById('statusText');
 const progressFill=document.getElementById('progressFill');
+const progressPct=document.getElementById('progressPct');
+const dupeModal=document.getElementById('dupeModal');
+const dupeFile=document.getElementById('dupeFile');
+const dupeYes=document.getElementById('dupeYes');
+const dupeNo=document.getElementById('dupeNo');
+const batchToggle=document.getElementById('batchToggle');
+const urlSingle=document.getElementById('urlSingle');
+const urlBatch=document.getElementById('urlBatch');
+const batchCounter=document.getElementById('batchCounter');
+const batchProgress=document.getElementById('batchProgress');
 let running=false;
+let currentPct=0;
+let currentParams=null;
+let dupeResolver=null;
+let batchMode=false;
+
+function updateBatchCounter(){
+const urls=getUrls();
+const count=urls.length;
+batchCounter.textContent=count>0?`${count} URL${count>1?'s':''} queued`:'';
+}
+
+function toggleBatchMode(){
+batchMode=!batchMode;
+batchToggle.className='toggle-btn'+(batchMode?' active':'');
+urlSingle.className='url-single'+(batchMode?' hidden':'');
+urlBatch.className='url-batch'+(batchMode?' active':'');
+if(batchMode){
+const singleUrl=document.getElementById('url').value;
+const firstBatch=urlBatch.querySelector('.batch-url');
+if(firstBatch&&singleUrl)firstBatch.value=singleUrl;
+}else{
+const firstBatch=urlBatch.querySelector('.batch-url');
+if(firstBatch)document.getElementById('url').value=firstBatch.value;
+}
+updateBatchCounter();
+}
+
+batchToggle.onclick=toggleBatchMode;
+
+function addUrlRow(){
+const row=document.createElement('div');
+row.className='url-row';
+row.innerHTML=`<input type="text" class="batch-url" placeholder="https://music.youtube.com/watch?v=..."><button type="button" class="url-row-btn remove" onclick="removeUrlRow(this)">−</button>`;
+urlBatch.appendChild(row);
+row.querySelector('input').focus();
+updateBatchCounter();
+}
+
+function removeUrlRow(btn){
+const rows=urlBatch.querySelectorAll('.url-row');
+if(rows.length>1){
+btn.parentElement.remove();
+updateBatchCounter();
+}
+}
+
+function getUrls(){
+if(!batchMode){
+const url=document.getElementById('url').value.trim();
+return url?[url]:[];
+}
+const urls=[];
+urlBatch.querySelectorAll('.batch-url').forEach(input=>{
+const url=input.value.trim();
+if(url)urls.push(url);
+});
+return urls;
+}
+
+urlBatch.addEventListener('input',updateBatchCounter);
 
 function log(text,type=''){
 const line=document.createElement('div');
@@ -227,28 +355,125 @@ console_.appendChild(line);
 console_.scrollTop=console_.scrollHeight;
 }
 
+function setProgress(pct,info=''){
+currentPct=Math.max(currentPct,pct);
+progressFill.style.width=currentPct+'%';
+progressFill.className='progress-fill';
+progressPct.textContent=info?`${currentPct.toFixed(1)}% • ${info}`:currentPct>0?`${currentPct.toFixed(1)}%`:'';
+}
+
 function setStatus(text,state){
 statusText.textContent=text;
 statusDot.className='status-dot '+state;
-progressFill.className='progress-fill '+(state==='running'?'indeterminate':state);
+if(state==='running'&&currentPct===0){
+progressFill.className='progress-fill indeterminate';
+progressPct.textContent='';
+}else if(state==='complete'){
+progressFill.className='progress-fill complete';
+progressFill.style.width='100%';
+progressPct.textContent='100%';
+}else if(state==='error'){
+progressFill.className='progress-fill error';
+progressPct.textContent='';
+}
 }
 
-form.onsubmit=async(e)=>{
-e.preventDefault();
-if(running)return;
+function parseProgress(line){
+const match=line.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?(\S+)(?:\s+at\s+(\S+))?(?:\s+ETA\s+(\S+))?/);
+if(match){
+const pct=parseFloat(match[1]);
+const size=match[2]||'';
+const speed=match[3]||'';
+const eta=match[4]||'';
+let info=size;
+if(speed)info+=` @ ${speed}`;
+if(eta)info+=` ETA ${eta}`;
+return{pct,info};
+}
+const match100=line.match(/\[download\]\s+100%\s+of\s+~?(\S+)/);
+if(match100){
+return{pct:100,info:match100[1]};
+}
+return null;
+}
 
-const password=document.getElementById('password').value;
-const command=document.getElementById('command').value;
-const url=document.getElementById('url').value;
-const force=document.getElementById('force').checked;
+function handleOutputLine(line){
+const prog=parseProgress(line);
+if(prog){
+setProgress(prog.pct,prog.info);
+statusText.textContent='Downloading...';
+return;
+}
+if(line.match(/^\[youtube(:tab|:search)?\]/i)){
+statusText.textContent='Fetching metadata...';
+progressFill.className='progress-fill indeterminate';
+progressPct.textContent='';
+}else if(line.match(/^\[download\]\s+Destination:/)){
+statusText.textContent='Starting download...';
+currentPct=0;
+setProgress(0,'');
+}else if(line.match(/^\[download\]\s+Downloading/i)){
+statusText.textContent='Preparing download...';
+}else if(line.match(/^\[ExtractAudio\]/i)){
+statusText.textContent='Extracting audio...';
+setProgress(100,'Processing');
+}else if(line.match(/^\[Merger\]/i)||line.match(/^\[ffmpeg\]/i)){
+statusText.textContent='Processing with ffmpeg...';
+setProgress(100,'Processing');
+}else if(line.match(/^\[EmbedThumbnail\]/i)){
+statusText.textContent='Embedding thumbnail...';
+}else if(line.match(/^\[Metadata\]/i)||line.match(/^\[mutagen\]/i)){
+statusText.textContent='Writing metadata...';
+}else if(line.match(/^\[info\]/i)){
+statusText.textContent='Processing info...';
+}else if(line.match(/^Deleting original/i)||line.match(/^\[download\]\s+Deleting/i)){
+statusText.textContent='Cleaning up...';
+}else if(line.match(/Moving to library/i)||line.match(/Moved.*to/i)){
+statusText.textContent='Moving to library...';
+}
+return null;
+}
 
+function showDupeModal(filename){
+return new Promise((resolve)=>{
+dupeFile.textContent=filename||'(unknown file)';
+dupeModal.className='modal-overlay active';
+dupeResolver=resolve;
+});
+}
+
+function hideDupeModal(){
+dupeModal.className='modal-overlay';
+dupeResolver=null;
+}
+
+dupeYes.onclick=()=>{
+if(dupeResolver)dupeResolver(true);
+hideDupeModal();
+};
+
+dupeNo.onclick=()=>{
+if(dupeResolver)dupeResolver(false);
+hideDupeModal();
+};
+
+async function runDownload(params,clearConsole=true){
+const{password,command,url,force,_batch}=params;
+currentParams=params;
+if(!_batch||clearConsole){
 running=true;
 btn.disabled=true;
 btn.className='btn running';
-btn.textContent='Running...';
+btn.textContent=_batch?'Batch...':'Running...';
+}
 progress.className='progress-container active';
-console_.innerHTML='';
+if(clearConsole)console_.innerHTML='';
+currentPct=0;
+progressFill.style.width='0%';
 setStatus('Connecting...','running');
+
+let dupeDetected=false;
+let dupeFilename='';
 
 try{
 const response=await fetch('/download',{
@@ -280,14 +505,33 @@ try{
 const data=JSON.parse(line.slice(6));
 if(data.type==='start'){
 log(`> ${data.command} "${data.url}"`,'info');
-setStatus('Downloading...','running');
+setStatus('Fetching metadata...','running');
 }else if(data.type==='output'){
 log(data.line,data.stream==='stderr'?'stderr':'');
+handleOutputLine(data.line);
+const dupeMatch=data.line.match(/\[download\]\s+(.+)\s+has already been downloaded/i);
+if(dupeMatch&&!force){
+dupeDetected=true;
+dupeFilename=dupeMatch[1];
+}
 }else if(data.type==='complete'){
-if(data.exit_code===0){
+if(dupeDetected){
+setStatus('Duplicate found','running');
+statusDot.className='status-dot';
+log('\\n⚠ File already exists','info');
+const retry=await showDupeModal(dupeFilename);
+if(retry){
+log('\\n↻ Retrying with --force...','info');
+await runDownload({...params,force:true},false);
+return;
+}else{
+setStatus('Skipped','complete');
+log('\\n○ Skipped duplicate','info');
+}
+}else if(data.exit_code===0){
 setStatus('Complete','complete');
 log('\\n✓ Download complete','success');
-document.getElementById('url').value='';
+if(!params._batch)document.getElementById('url').value='';
 }else{
 setStatus('Failed','error');
 log(`\\n✗ Exit code: ${data.exit_code}`,'error');
@@ -303,10 +547,63 @@ log(`\\n✗ ${data.message}`,'error');
 setStatus('Error','error');
 log(`✗ ${err.message}`,'error');
 }finally{
+if(!params._batch){
 running=false;
 btn.disabled=false;
 btn.className='btn';
 btn.textContent='Execute';
+}
+}
+}
+
+form.onsubmit=async(e)=>{
+e.preventDefault();
+if(running)return;
+const password=document.getElementById('password').value;
+const command=document.getElementById('command').value;
+const force=document.getElementById('force').checked;
+const urls=getUrls();
+
+if(urls.length===0){
+alert('Please enter at least one URL');
+return;
+}
+
+if(urls.length===1){
+batchProgress.textContent='';
+await runDownload({password,command,url:urls[0],force});
+}else{
+let completed=0;
+let failed=0;
+running=true;
+btn.disabled=true;
+btn.className='btn running';
+btn.textContent='Batch...';
+for(let i=0;i<urls.length;i++){
+batchProgress.textContent=`Processing ${i+1} of ${urls.length}`;
+const isLast=i===urls.length-1;
+const clearConsole=i===0;
+try{
+await runDownload({password,command,url:urls[i],force,_batch:true},clearConsole);
+completed++;
+}catch(err){
+failed++;
+}
+if(!isLast){
+log('\\n────────────────────────────────\\n','info');
+currentPct=0;
+}
+}
+batchProgress.textContent=`Batch complete: ${completed} done${failed>0?`, ${failed} failed`:''}`;
+running=false;
+btn.disabled=false;
+btn.className='btn';
+btn.textContent='Execute';
+if(completed===urls.length){
+urlBatch.querySelectorAll('.batch-url').forEach((input,i)=>{if(i>0)input.parentElement.remove();else input.value='';});
+document.getElementById('url').value='';
+updateBatchCounter();
+}
 }
 };
 </script>
