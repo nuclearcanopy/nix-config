@@ -29,7 +29,6 @@
 
       homeserver-cloudflared-credentials = {
         file = ../../secrets/homeserver-cloudflared-credentials.age;
-        path = "/run/agenix/homeserver-cloudflared-credentials.json";
         mode = "600";
       };
     };

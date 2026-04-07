@@ -15,11 +15,10 @@
       4533   # Navidrome
       8080   # SearXNG
       8081   # FileBrowser
-      8082   # qBittorrent
       9000   # Portainer
       10206  # MSCD API
     ];
-    allowedUDPPorts = [ 6881 ];  # qBittorrent
+    allowedUDPPorts = [];
   };
 
   # Mullvad VPN
