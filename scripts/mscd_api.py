@@ -401,36 +401,273 @@ function handleOutputLine(line){
 const prog=parseProgress(line);
 if(prog){
 setProgress(prog.pct,prog.info);
-statusText.textContent='Downloading...';
+statusText.textContent='Downloading audio...';
 return;
 }
-if(line.match(/^\[youtube(:tab|:search)?\]/i)){
-statusText.textContent='Fetching metadata...';
-progressFill.className='progress-fill indeterminate';
-progressPct.textContent='';
-}else if(line.match(/^\[download\]\s+Destination:/)){
+const indeterminate=()=>{progressFill.className='progress-fill indeterminate';progressPct.textContent='';};
+
+// yt-dlp update/version checks
+if(line.match(/Updating to version/i)||line.match(/yt-dlp is up to date/i)){
+statusText.textContent='Checking yt-dlp version...';indeterminate();
+}else if(line.match(/Current version/i)&&line.match(/yt-dlp/i)){
+statusText.textContent='Verifying yt-dlp...';indeterminate();
+}else if(line.match(/Latest version/i)){
+statusText.textContent='Fetching latest yt-dlp...';indeterminate();
+}else if(line.match(/Downloading yt-dlp/i)||line.match(/updating.*yt-dlp/i)){
+statusText.textContent='Downloading yt-dlp update...';indeterminate();
+}
+
+// Playlist/channel processing
+else if(line.match(/^\[youtube:tab\]/i)){
+statusText.textContent='Fetching playlist info...';indeterminate();
+}else if(line.match(/^\[youtube:playlist\]/i)){
+statusText.textContent='Processing playlist...';indeterminate();
+}else if(line.match(/^\[youtube:search\]/i)){
+statusText.textContent='Searching YouTube...';indeterminate();
+}else if(line.match(/Downloading item (\d+) of (\d+)/i)){
+const m=line.match(/Downloading item (\d+) of (\d+)/i);
+statusText.textContent=`Playlist item ${m[1]}/${m[2]}`;indeterminate();
+}
+
+// Player/JS downloads
+else if(line.match(/Downloading.*player.*API.*JSON/i)){
+statusText.textContent='Fetching player API...';indeterminate();
+}else if(line.match(/Downloading.*client.*config/i)){
+statusText.textContent='Fetching client config...';indeterminate();
+}else if(line.match(/Downloading.*player/i)){
+statusText.textContent='Downloading player JS...';indeterminate();
+}else if(line.match(/Downloading (android|ios|web|tv)\s/i)){
+const m=line.match(/Downloading (android|ios|web|tv)\s/i);
+statusText.textContent=`Fetching ${m[1]} client...`;indeterminate();
+}else if(line.match(/Downloading iframe API/i)){
+statusText.textContent='Downloading iframe API...';indeterminate();
+}else if(line.match(/Downloading js player/i)){
+statusText.textContent='Downloading JS player...';indeterminate();
+}else if(line.match(/Downloading sign/i)||line.match(/signature/i)){
+statusText.textContent='Downloading signature...';indeterminate();
+}else if(line.match(/Downloading initial data/i)){
+statusText.textContent='Fetching initial data...';indeterminate();
+}else if(line.match(/nsig.*decryption/i)){
+statusText.textContent='Decrypting nsig...';indeterminate();
+}
+
+// Webpage/metadata fetching
+else if(line.match(/Downloading webpage/i)){
+statusText.textContent='Downloading webpage...';indeterminate();
+}else if(line.match(/Downloading.*JSON/i)){
+statusText.textContent='Fetching JSON data...';indeterminate();
+}else if(line.match(/Downloading (API|api)/i)){
+statusText.textContent='Fetching API data...';indeterminate();
+}else if(line.match(/Downloading video info/i)){
+statusText.textContent='Fetching video info...';indeterminate();
+}else if(line.match(/Downloading m3u8/i)){
+statusText.textContent='Fetching HLS manifest...';indeterminate();
+}else if(line.match(/Downloading MPD/i)||line.match(/Downloading DASH/i)){
+statusText.textContent='Fetching DASH manifest...';indeterminate();
+}else if(line.match(/Downloading (formats|format list)/i)){
+statusText.textContent='Fetching format list...';indeterminate();
+}else if(line.match(/Extracting URL/i)){
+statusText.textContent='Extracting URL...';indeterminate();
+}else if(line.match(/Downloading thumbnail/i)){
+statusText.textContent='Downloading thumbnail...';indeterminate();
+}else if(line.match(/Downloading.*po_token/i)){
+statusText.textContent='Fetching PO token...';indeterminate();
+}else if(line.match(/Downloading.*config/i)){
+statusText.textContent='Fetching config...';indeterminate();
+}
+
+// Single video metadata
+else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading/i)){
+statusText.textContent='Fetching video data...';indeterminate();
+}else if(line.match(/^\[youtube\]/i)&&!line.match(/\[youtube:tab\]/i)){
+statusText.textContent='Processing YouTube video...';indeterminate();
+}else if(line.match(/^\[youtube:music\]/i)||line.match(/^\[Music\]/i)){
+statusText.textContent='Fetching from YouTube Music...';indeterminate();
+}
+
+// Generic extractors
+else if(line.match(/^\[generic\]/i)){
+statusText.textContent='Using generic extractor...';indeterminate();
+}else if(line.match(/^\[redirect\]/i)){
+statusText.textContent='Following redirect...';indeterminate();
+}
+
+// Cookies
+else if(line.match(/^\[Cookies\]/i)||line.match(/Loading cookies/i)){
+statusText.textContent='Loading cookies...';indeterminate();
+}
+
+// Download states
+else if(line.match(/^\[download\]\s+Destination:/)){
 statusText.textContent='Starting download...';
-currentPct=0;
-setProgress(0,'');
+currentPct=0;setProgress(0,'');
+}else if(line.match(/^\[download\]\s+Resuming download/i)){
+statusText.textContent='Resuming download...';indeterminate();
+}else if(line.match(/^\[download\]\s+Downloading video/i)){
+statusText.textContent='Downloading video stream...';indeterminate();
+}else if(line.match(/^\[download\]\s+Downloading audio/i)){
+statusText.textContent='Downloading audio stream...';indeterminate();
 }else if(line.match(/^\[download\]\s+Downloading/i)){
-statusText.textContent='Preparing download...';
-}else if(line.match(/^\[ExtractAudio\]/i)){
+statusText.textContent='Preparing download...';indeterminate();
+}else if(line.match(/^\[download\]\s+has already been downloaded/i)){
+statusText.textContent='Already downloaded!';
+}else if(line.match(/\[download\]\s+100%/)){
+statusText.textContent='Download complete!';
+setProgress(100,'Done');
+}
+
+// Post-processing stages
+else if(line.match(/^\[ExtractAudio\]/i)){
 statusText.textContent='Extracting audio...';
+setProgress(100,'Extracting');
+}else if(line.match(/^\[Merger\]/i)){
+statusText.textContent='Merging streams...';
+setProgress(100,'Merging');
+}else if(line.match(/^\[ffmpeg\].*Merging/i)){
+statusText.textContent='FFmpeg merging...';
+setProgress(100,'Merging');
+}else if(line.match(/^\[ffmpeg\].*Converting/i)){
+statusText.textContent='FFmpeg converting...';
+setProgress(100,'Converting');
+}else if(line.match(/^\[ffmpeg\].*Correcting/i)){
+statusText.textContent='FFmpeg correcting...';
+setProgress(100,'Fixing');
+}else if(line.match(/^\[ffmpeg\]/i)){
+statusText.textContent='Processing with FFmpeg...';
 setProgress(100,'Processing');
-}else if(line.match(/^\[Merger\]/i)||line.match(/^\[ffmpeg\]/i)){
-statusText.textContent='Processing with ffmpeg...';
-setProgress(100,'Processing');
-}else if(line.match(/^\[EmbedThumbnail\]/i)){
+}
+
+// Thumbnail processing
+else if(line.match(/^\[EmbedThumbnail\]/i)){
 statusText.textContent='Embedding thumbnail...';
-}else if(line.match(/^\[Metadata\]/i)||line.match(/^\[mutagen\]/i)){
+setProgress(100,'Thumbnail');
+}else if(line.match(/^\[ThumbnailsConvertor\]/i)){
+statusText.textContent='Converting thumbnail...';
+setProgress(100,'Thumbnail');
+}
+
+// Metadata
+else if(line.match(/^\[Metadata\]/i)){
 statusText.textContent='Writing metadata...';
-}else if(line.match(/^\[info\]/i)){
-statusText.textContent='Processing info...';
+setProgress(100,'Metadata');
+}else if(line.match(/^\[mutagen\]/i)){
+statusText.textContent='Tagging with mutagen...';
+setProgress(100,'Tagging');
+}else if(line.match(/Writing video metadata/i)){
+statusText.textContent='Writing video tags...';
+setProgress(100,'Tags');
+}else if(line.match(/Writing video subtitles/i)){
+statusText.textContent='Writing subtitles...';
+setProgress(100,'Subtitles');
+}
+
+// Chapters/SponsorBlock
+else if(line.match(/^\[SponsorBlock\]/i)||line.match(/^\[Sponsorblock\]/i)){
+statusText.textContent='Processing SponsorBlock...';
+setProgress(100,'SponsorBlock');
+}else if(line.match(/^\[ModifyChapters\]/i)){
+statusText.textContent='Modifying chapters...';
+setProgress(100,'Chapters');
+}else if(line.match(/^\[Chapters\]/i)){
+statusText.textContent='Processing chapters...';
+setProgress(100,'Chapters');
+}else if(line.match(/^\[SplitChapters\]/i)){
+statusText.textContent='Splitting chapters...';
+setProgress(100,'Splitting');
+}
+
+// Fixups
+else if(line.match(/^\[FixupM3u8\]/i)){
+statusText.textContent='Fixing M3U8...';
+setProgress(100,'Fixing');
+}else if(line.match(/^\[FixupDuplicateMoov\]/i)){
+statusText.textContent='Fixing duplicate moov...';
+setProgress(100,'Fixing');
+}else if(line.match(/^\[FixupDuration\]/i)){
+statusText.textContent='Fixing duration...';
+setProgress(100,'Fixing');
+}else if(line.match(/^\[Fixup/i)){
+statusText.textContent='Fixing file...';
+setProgress(100,'Fixing');
+}
+
+// File operations
+else if(line.match(/^\[MoveFiles\]/i)){
+statusText.textContent='Moving files...';
+setProgress(100,'Moving');
 }else if(line.match(/^Deleting original/i)||line.match(/^\[download\]\s+Deleting/i)){
-statusText.textContent='Cleaning up...';
+statusText.textContent='Cleaning up temp files...';
+setProgress(100,'Cleanup');
 }else if(line.match(/Moving to library/i)||line.match(/Moved.*to/i)){
 statusText.textContent='Moving to library...';
+setProgress(100,'Organizing');
+}else if(line.match(/copying thumbnail/i)){
+statusText.textContent='Copying thumbnail...';
+setProgress(100,'Thumbnail');
 }
+
+// Info messages
+else if(line.match(/^\[info\].*format/i)){
+statusText.textContent='Selecting format...';indeterminate();
+}else if(line.match(/^\[info\].*download/i)){
+statusText.textContent='Preparing download...';indeterminate();
+}else if(line.match(/^\[info\]/i)){
+statusText.textContent='Processing info...';indeterminate();
+}
+
+// Debug/verbose
+else if(line.match(/^\[debug\]/i)){
+statusText.textContent='Debug info...';
+}
+
+// PostProcessor generic
+else if(line.match(/^\[PostProcessor\]/i)){
+statusText.textContent='Post-processing...';
+setProgress(100,'Processing');
+}
+
+// Network/retry
+else if(line.match(/Retrying/i)||line.match(/retry/i)){
+statusText.textContent='Retrying...';indeterminate();
+}else if(line.match(/rate.?limit/i)||line.match(/429/i)){
+statusText.textContent='Rate limited, waiting...';indeterminate();
+}else if(line.match(/Sleeping/i)||line.match(/sleep/i)){
+statusText.textContent='Waiting...';indeterminate();
+}else if(line.match(/Throttled/i)){
+statusText.textContent='Throttled, waiting...';indeterminate();
+}else if(line.match(/timed? ?out/i)){
+statusText.textContent='Request timed out...';indeterminate();
+}
+
+// Video info display
+else if(line.match(/^\[download\]\s+Downloading video \d+ of \d+/i)){
+const m=line.match(/Downloading video (\d+) of (\d+)/i);
+statusText.textContent=`Video ${m[1]}/${m[2]}`;indeterminate();
+}else if(line.match(/Available formats/i)){
+statusText.textContent='Listing formats...';indeterminate();
+}else if(line.match(/Requested format/i)){
+statusText.textContent='Format selected...';indeterminate();
+}
+
+// mscd specific
+else if(line.match(/Checking for existing/i)){
+statusText.textContent='Checking library...';indeterminate();
+}else if(line.match(/Already exists/i)){
+statusText.textContent='Already in library!';
+}else if(line.match(/Adding to queue/i)||line.match(/Queued/i)){
+statusText.textContent='Adding to queue...';
+}else if(line.match(/Scanning library/i)){
+statusText.textContent='Scanning library...';indeterminate();
+}else if(line.match(/Updating database/i)){
+statusText.textContent='Updating database...';
+}else if(line.match(/navidrome/i)){
+statusText.textContent='Updating Navidrome...';indeterminate();
+}else if(line.match(/beets/i)&&line.match(/import/i)){
+statusText.textContent='Running beets import...';indeterminate();
+}else if(line.match(/tagging/i)){
+statusText.textContent='Tagging files...';indeterminate();
+}
+
 return null;
 }
 
@@ -505,7 +742,7 @@ try{
 const data=JSON.parse(line.slice(6));
 if(data.type==='start'){
 log(`> ${data.command} "${data.url}"`,'info');
-setStatus('Fetching metadata...','running');
+setStatus('Initializing yt-dlp...','running');
 }else if(data.type==='output'){
 log(data.line,data.stream==='stderr'?'stderr':'');
 handleOutputLine(data.line);
