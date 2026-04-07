@@ -1,4 +1,4 @@
-{ pkgs, unstable, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -28,7 +28,6 @@
     # communication
     signal-desktop
     qbittorrent
-
 
     # music
     picard               # tagger

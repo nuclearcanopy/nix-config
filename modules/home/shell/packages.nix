@@ -6,9 +6,5 @@
     trash-cli
     xdg-utils
     fastfetch
-
-    # dev
-    gnumake
-    gcc
   ];
 }
