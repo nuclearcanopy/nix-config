@@ -2,15 +2,22 @@
 
 let
   dockerNet = "cloudflared-net";
+  mscdZsh = pkgs.writeText "mscd.zsh" (builtins.readFile ../../scripts/mscd.zsh);
   mscdApi = pkgs.writeTextFile {
     name = "mscd_api.py";
-    text = builtins.readFile ../../scripts/mscd_api.py;
+    text = builtins.replaceStrings
+      [ "/etc/nixos/mscd.zsh" ]
+      [ mscdZsh ]
+      (builtins.readFile ../../scripts/mscd_api.py);
     executable = true;
   };
   cloudflaredConfig = pkgs.writeText "cloudflared-config.yml" (builtins.readFile ../../configs/cloudflared.yml);
   searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml);
 in
 {
+  environment.etc."cloudflared/config.yml".source = cloudflaredConfig;
+  environment.etc."searxng/settings.yml".source = searxngConfig;
+
   virtualisation.docker.enable = true;
 
   virtualisation.oci-containers = {
@@ -49,7 +56,7 @@ in
       searxng = {
         image = "searxng/searxng:latest";
         ports = [ "8080:8080" ];
-        volumes = [ "/var/lib/searxng:/etc/searxng:rw" ];
+        volumes = [ "/etc/searxng:/etc/searxng:ro" ];
         environment = {
           SEARXNG_BASE_URL = "https://search.nuclearcanopy.xyz/";
           SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
@@ -82,34 +89,20 @@ in
 
       cloudflared = {
         image = "cloudflare/cloudflared:latest";
-        volumes = [ "/var/lib/cloudflared:/etc/cloudflared" ];
+        volumes = [ "/etc/cloudflared:/etc/cloudflared:ro" ];
         cmd = [ "tunnel" "--config" "/etc/cloudflared/config.yml" "run" ];
         extraOptions = [ "--network=${dockerNet}" ];
       };
     };
   };
 
-  system.activationScripts.cloudflaredCredentials = {
-    deps = [ "agenixInstall" ];
-    text = ''
-      ${pkgs.coreutils}/bin/install -m 644 ${config.age.secrets.homeserver-cloudflared-credentials.path} /var/lib/cloudflared/credentials.json
-    '';
-  };
-
-  system.activationScripts.serviceConfigs.text = ''
-    ${pkgs.coreutils}/bin/install -m 644 ${cloudflaredConfig} /var/lib/cloudflared/config.yml
-    ${pkgs.coreutils}/bin/install -m 644 ${searxngConfig} /var/lib/searxng/settings.yml
-  '';
-
   systemd.tmpfiles.rules = [
     "d /var/lib/lidarr 0755 root root -"
     "d /var/lib/prowlarr 0755 root root -"
-    "d /var/lib/searxng 0755 root root -"
     "d /var/lib/filebrowser 0755 root root -"
     "d /var/lib/vaultwarden 0755 root root -"
     "d /var/lib/navidrome 0755 root root -"
     "d /var/lib/portainer 0755 root root -"
-    "d /var/lib/cloudflared 0755 root root -"
   ];
 
   systemd.services.init-docker-network = {
@@ -141,6 +134,7 @@ in
     serviceConfig = {
       Type = "simple";
       User = "homeserver";
+      EnvironmentFile = [ config.age.secrets.homeserver-mscd-api-hash.path ];
       ExecStart = "${pkgs.python3.withPackages (ps: [ ps.mutagen ps.flask ])}/bin/python3 ${mscdApi}";
       Restart = "on-failure";
       RestartSec = "10s";
@@ -165,8 +159,6 @@ in
 
       ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' /home/homeserver/nix-config /mnt/nas/homeserver/etc/
       ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/searxng /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/cloudflared /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
       ${pkgs.rsync}/bin/rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/

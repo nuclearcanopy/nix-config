@@ -1,7 +1,6 @@
 { unstable, pkgs, lib, ... }:
 
 {
-  # unfree
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "steam"
     "steam-unwrapped"
@@ -9,7 +8,6 @@
     "unrar"
   ];
 
-  # programs
   programs = {
     zsh.enable = true;
     steam = {
@@ -22,16 +20,13 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # vpn / network
     wireguard-tools
     mullvad-vpn
     dnsutils
 
-    # gaming
     bottles
     protonup-qt
 
-    # utilities
     unzip
     zip
     unrar
@@ -42,13 +37,10 @@
     usbutils
     pciutils
 
-    # storage
     cifs-utils
 
-    # management
     systemd-manager-tui
 
-    # hardware
     linux-firmware
     ethtool
   ];

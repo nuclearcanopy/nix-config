@@ -1,9 +1,6 @@
 { device ? "/dev/nvme0n1", ... }:
 
 {
-  # Disko config - used for fresh installs
-  # On existing systems, this generates fileSystems from the layout below
-
   disko.devices = {
     disk = {
       main = {

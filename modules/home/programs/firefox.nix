@@ -13,7 +13,7 @@
           allowed_private_browsing = true;
         };
       };
-      # allow extensions on Mozilla restricted sites
+      # allow ublock on mozilla pages
       "3rdparty".Extensions."uBlock0@raymondhill.net".adminSettings = {
         allowGenericFiltering = true;
       };
@@ -22,7 +22,6 @@
     profiles.default = {
       isDefault = true;
 
-      # extensions
       extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
         ublock-origin
         darkreader
@@ -30,37 +29,31 @@
         sponsorblock
       ];
 
-      # ublock origin settings
+      # stricter filters
       extensions.force = true;
       extensions.settings = {
         "uBlock0@raymondhill.net".settings = {
           selectedFilterLists = [
-            # built-in
             "user-filters"
             "ublock-filters"
             "ublock-badware"
             "ublock-privacy"
             "ublock-quick-fixes"
             "ublock-unbreak"
-            # ads
             "easylist"
-            # privacy
             "adguard-spyware-url"
             "easyprivacy"
-            # malware
             "urlhaus-1"
-            # annoyances - cookie notices
             "ublock-cookies-easylist"
             "ublock-cookies-adguard"
             "easylist-cookies"
             "adguard-cookies"
-            # annoyances - url tracking
             "adguard-url-tracking-protection"
           ];
         };
       };
 
-      # userChrome.css - OLED black with exceptions
+      # match oled
       userChrome = ''
         .tabbrowser-tab[label="New Tab"] .tab-icon-image,
         .tabbrowser-tab[label="New Tab"] .tab-icon-stack {
@@ -68,7 +61,6 @@
         }
 
         :root {
-          /* base - pitch black */
           --lwt-accent-color: #000000 !important;
           --toolbar-bgcolor: #000000 !important;
           --lwt-toolbar-bgcolor: #000000 !important;
@@ -82,10 +74,8 @@
           --urlbar-box-bgcolor: #0a0a0a !important;
           --urlbar-box-focus-bgcolor: #0a0a0a !important;
 
-          /* bookmark star - gray instead of blue */
           --toolbarbutton-icon-fill-attention: #666666 !important;
 
-          /* text colors from theme */
           --toolbar-color: rgb(117, 117, 117) !important;
           --lwt-text-color: rgb(117, 117, 117) !important;
           --toolbar-field-color: rgb(148, 148, 148) !important;
@@ -97,7 +87,6 @@
           --arrowpanel-color: rgb(129, 129, 129) !important;
           --panel-color: rgb(129, 129, 129) !important;
 
-          /* icons from theme - including focused states */
           --toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
           --lwt-toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
           --lwt-toolbarbutton-icon-fill-attention: rgb(67, 67, 67) !important;
@@ -108,11 +97,9 @@
           --identity-box-icon-fill-attention: rgb(148, 148, 148) !important;
           --link-color: rgb(148, 148, 148) !important;
 
-          /* selected tab - #171717 */
           --tab-selected-bgcolor: #171717 !important;
           --lwt-selected-tab-background-color: #171717 !important;
 
-          /* borders - all black */
           --toolbar-field-focus-border-color: #000000 !important;
           --lwt-toolbar-field-highlight: #272727 !important;
           --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
@@ -126,7 +113,6 @@
           --focus-outline-color: transparent !important;
         }
 
-        /* remove all borders/separators */
         #navigator-toolbox {
           border-bottom: none !important;
         }
@@ -138,7 +124,6 @@
           border: none !important;
         }
 
-        /* hide window controls (using sway) */
         .titlebar-buttonbox-container,
         .titlebar-close,
         .titlebar-min,
@@ -147,7 +132,6 @@
           display: none !important;
         }
 
-        /* remove focus outlines */
         *:focus,
         *:focus-visible {
           outline: none !important;
@@ -158,7 +142,6 @@
           background-color: #171717 !important;
         }
 
-        /* bookmark star gray instead of blue */
         #star-button[starred] {
           fill: #666666 !important;
         }
@@ -166,14 +149,12 @@
           fill: #666666 !important;
         }
 
-        /* url bar focused state */
         #urlbar[focused] #urlbar-background,
         #urlbar[open] #urlbar-background,
         #searchbar:focus-within {
           background-color: #0a0a0a !important;
         }
 
-        /* grey icons everywhere, no white ever */
         #urlbar *,
         #urlbar-container *,
         #urlbar[focused] *,
@@ -194,7 +175,6 @@
           -moz-context-properties: fill, fill-opacity !important;
         }
 
-        /* force urlbar text grey always - nuclear option */
         #urlbar-input {
           color: rgb(148, 148, 148) !important;
           -moz-appearance: none !important;
@@ -258,7 +238,6 @@
         ];
       };
 
-      # search engine
       search = {
         force = true;
         default = "nuclearcanopy";
@@ -276,7 +255,6 @@
         };
       };
 
-      # settings from librewolf
       settings = {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
@@ -289,7 +267,6 @@
         "browser.ml.chat.sidebar" = false;
         "browser.ml.linkPreview.enabled" = false;
 
-        # local translation models
         "browser.translations.enable" = true;
         "browser.translations.automaticallyPopup" = true;
 
@@ -302,7 +279,7 @@
         "signon.firefoxRelay.feature" = "disabled";
         "signon.management.page.breach-alerts.enabled" = false;
 
-        # disable telemetry
+        # kill telemetry
         "datareporting.healthreport.uploadEnabled" = false;
         "datareporting.policy.dataSubmissionEnabled" = false;
         "toolkit.telemetry.enabled" = false;
@@ -323,10 +300,10 @@
         "dom.security.https_only_mode" = true;
         "dom.security.https_only_mode_ever_enabled" = true;
 
-        # clear on shutdown (exceptions can be added manually in settings)
+        # privacy on shutdown
         "privacy.sanitize.sanitizeOnShutdown" = true;
-        "privacy.clearOnShutdown.cookies" = false;  # use v2 system instead
-        "privacy.clearOnShutdown_v2.cookiesAndStorage" = true;  # respects per-site exceptions
+        "privacy.clearOnShutdown.cookies" = false;
+        "privacy.clearOnShutdown_v2.cookiesAndStorage" = true;
         "privacy.clearOnShutdown.cache" = true;
         "privacy.clearOnShutdown.history" = true;
         "privacy.clearOnShutdown.sessions" = true;
@@ -359,7 +336,7 @@
         "privacy.bounceTrackingProtection.mode" = 1;
         "privacy.annotate_channels.strict_list.enabled" = true;
 
-        # fix major site issues (webcompat shims)
+        # avoid site breakage
         "extensions.webcompat.enable_shims" = true;
         "privacy.webcompat.fixMajorSiteIssues" = true;
 
@@ -376,21 +353,18 @@
         "browser.safebrowsing.downloads.remote.url" = "";
         "browser.safebrowsing.provider.google4.dataSharingURL" = "";
 
-        # privacy - regi & telemetry
+        # region + captive portal
         "browser.region.update.enabled" = false;
         "browser.region.network.url" = "";
         "captivedetect.canonicalURL" = "";
 
-        # security
         "security.tls.enable_0rtt_data" = false;
 
-        # clipboard
         "clipboard.autocopy" = false;
 
-        # drm (enabled for streaming)
+        # streaming drm
         "media.eme.enabled" = true;
 
-        # devtools
         "devtools.debugger.remote-enabled" = false;
         "devtools.console.stdout.chrome" = false;
         "browser.dom.window.dump.enabled" = false;

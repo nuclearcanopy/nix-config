@@ -1,8 +1,7 @@
 { pkgs, ... }:
 
 {
-  # rtkit - no canary fixes RT priority loss after suspend
-  # https://github.com/heftig/rtkit/issues/13
+  # keep rt after suspend
   security.rtkit.enable = true;
   systemd.services.rtkit-daemon.serviceConfig.ExecStart = [
     ""
@@ -15,7 +14,7 @@
     { domain = "@audio"; item = "nice"; type = "-"; value = "-19"; }
   ];
 
-  # usb audio power
+  # keep usb audio awake
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", TEST=="power/control", ATTR{power/control}="on"
   '';

@@ -16,13 +16,11 @@
     };
   };
 
-  # Boot configuration
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
   };
 
-  # Console configuration
   console = {
     enable = true;
     colors = [
@@ -33,7 +31,6 @@
     ];
   };
 
-  # TLP power management
   services.tlp = {
     enable = true;
     settings = {
@@ -46,7 +43,6 @@
     };
   };
 
-  # Disable sleep/suspend/hibernate
   systemd.targets = {
     sleep.enable = false;
     suspend.enable = false;
@@ -54,7 +50,6 @@
     hybrid-sleep.enable = false;
   };
 
-  # Ignore lid switch
   services.logind.settings = {
     Login = {
       HandleLidSwitch = "ignore";
@@ -63,7 +58,6 @@
     };
   };
 
-  # Localization
   time.timeZone = "Europe/Bucharest";
 
   i18n.defaultLocale = "en_US.UTF-8";
@@ -79,13 +73,11 @@
     LC_TIME = "ro_RO.UTF-8";
   };
 
-  # Keyboard layout
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # NAS mount
   fileSystems."/mnt/nas" = {
     device = "//192.168.0.123/nuclearcanopy";
     fsType = "cifs";
@@ -101,7 +93,6 @@
         ];
   };
 
-  # System packages
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "claude-code"
   ];
@@ -124,6 +115,5 @@
     rsync
   ];
 
-  # Sudo without password for wheel group
   security.sudo.wheelNeedsPassword = false;
 }

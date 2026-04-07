@@ -1,9 +1,6 @@
 { device ? "/dev/sda", ... }:
 
 {
-  # Disko config - used for fresh installs
-  # Homeserver layout: ESP + root + swap
-
   disko.devices = {
     disk = {
       main = {

@@ -6,12 +6,10 @@
     description = "homeserver";
     extraGroups = [ "networkmanager" "wheel" "docker" ];
 
-    # SSH public key authentication
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII36Xlq4Kisgp2YlSezcA3p5LSobE2PBnjiW3zCW+z9v nuclearcanopy@codeberg.org"
     ];
 
-    # Managed by agenix
     hashedPasswordFile = config.age.secrets.homeserver-user-password.path;
 
     shell = pkgs.zsh;
@@ -20,12 +18,10 @@
 
   users.defaultUserShell = pkgs.zsh;
 
-  # Codeberg host keys (declarative known_hosts)
   programs.ssh.knownHosts = {
     "codeberg.org".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
   };
 
-  # SSH client config for Codeberg
   programs.ssh.extraConfig = ''
     Host codeberg.org
       User git

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Find k10temp (AMD CPU) hwmon dynamically
+# find k10temp hwmon
 for hwmon in /sys/class/hwmon/hwmon*; do
   if [ "$(cat "$hwmon/name" 2>/dev/null)" = "k10temp" ]; then
     TEMP=$(cat "$hwmon/temp1_input" 2>/dev/null)
