@@ -10,13 +10,14 @@
   # Firewall
   networking.firewall = {
     enable = true;
+    trustedInterfaces = [ "docker0" ];
     allowedTCPPorts = [
       1208   # SSH
       4533   # Navidrome
       8080   # SearXNG
       8081   # FileBrowser
       9000   # Portainer
-      10206  # MSCD API
+      8090   # MSCD API
     ];
     allowedUDPPorts = [];
   };
