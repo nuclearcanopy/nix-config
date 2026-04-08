@@ -137,13 +137,12 @@ select option{background:var(--bg);color:var(--text)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.3)}50%{box-shadow:0 0 15px 3px rgba(255,255,255,0.15)}}
 .progress-container{margin-top:16px;display:none}
 .progress-container.active{display:block}
-.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:12px}
-.progress-fill{height:100%;width:0;background:var(--accent);transition:width 0.2s ease-out}
-.progress-fill.indeterminate{width:30%;animation:indeterminate 1.2s infinite ease-in-out}
-@keyframes indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
-.progress-pct{font-size:0.7rem;color:var(--accent-dim);text-align:right;margin-top:4px;font-variant-numeric:tabular-nums}
+.progress-bar{height:28px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;position:relative}
+.progress-fill{height:100%;width:0;background:var(--accent);transition:none}
 .progress-fill.complete{width:100%;background:var(--success)}
 .progress-fill.error{width:100%;background:var(--error)}
+.progress-counter{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--accent);mix-blend-mode:difference;pointer-events:none;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.progress-pct{font-size:0.7rem;color:var(--accent-dim);text-align:right;margin-top:4px;font-variant-numeric:tabular-nums}
 .console{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:40vh;overflow-y:auto;font-size:0.75rem;line-height:1.5;-webkit-overflow-scrolling:touch}
 .console-line{white-space:pre-wrap;word-break:break-word;padding:2px 0}
 .console-line.stderr{color:var(--error)}
@@ -249,6 +248,7 @@ select option{background:var(--bg);color:var(--text)}
 </div>
 <div class="progress-bar">
 <div class="progress-fill" id="progressFill"></div>
+<div class="progress-counter" id="progressCounter"></div>
 </div>
 <div class="progress-pct" id="progressPct"></div>
 <div class="console" id="console"></div>
@@ -276,6 +276,7 @@ const statusDot=document.getElementById('statusDot');
 const statusText=document.getElementById('statusText');
 const progressFill=document.getElementById('progressFill');
 const progressPct=document.getElementById('progressPct');
+const progressCounter=document.getElementById('progressCounter');
 const dupeModal=document.getElementById('dupeModal');
 const dupeFile=document.getElementById('dupeFile');
 const dupeYes=document.getElementById('dupeYes');
@@ -293,6 +294,89 @@ let batchMode=false;
 let totalItems=1;
 let currentItemIndex=0;
 let itemSource=''; // 'batch' or 'playlist'
+
+// Smooth progress tracking
+let displayedPct=0;
+let targetPct=0;
+let songStartTime=0;
+let lastSongDurations=[];
+let estimatedSongDuration=30000; // default 30s estimate
+let animationFrame=null;
+let lastActivityTime=0;
+let isIndeterminate=false;
+let indeterminateStartPct=0;
+
+function updateProgressCounter(){
+if(totalItems>1){
+progressCounter.textContent=`${currentItemIndex+1} / ${totalItems}`;
+}else{
+progressCounter.textContent=`${Math.round(displayedPct)}%`;
+}
+}
+
+function startProgressAnimation(){
+if(animationFrame)return;
+function animate(){
+const now=Date.now();
+if(isIndeterminate){
+// During indeterminate phases, slowly creep forward based on estimated time
+const elapsed=now-lastActivityTime;
+const songBaseStart=(currentItemIndex*100)/totalItems;
+const songBaseEnd=((currentItemIndex+1)*100)/totalItems;
+const songRange=songBaseEnd-songBaseStart;
+// Estimate we're at most 40% through the "prep" phase during indeterminate
+const indeterminateProgress=Math.min(0.4,elapsed/estimatedSongDuration);
+const estimatedPct=indeterminateStartPct+(songRange*indeterminateProgress*0.6);
+targetPct=Math.min(estimatedPct,songBaseEnd-1);
+}
+// Smooth interpolation toward target
+const diff=targetPct-displayedPct;
+if(Math.abs(diff)>0.05){
+// Ease toward target: faster when far, slower when close
+const speed=Math.max(0.3,Math.abs(diff)*0.12);
+displayedPct+=Math.sign(diff)*Math.min(speed,Math.abs(diff));
+}else{
+displayedPct=targetPct;
+}
+progressFill.style.width=displayedPct+'%';
+updateProgressCounter();
+if(running){
+animationFrame=requestAnimationFrame(animate);
+}else{
+animationFrame=null;
+}
+}
+animationFrame=requestAnimationFrame(animate);
+}
+
+function stopProgressAnimation(){
+if(animationFrame){
+cancelAnimationFrame(animationFrame);
+animationFrame=null;
+}
+}
+
+function recordSongComplete(){
+if(songStartTime>0){
+const duration=Date.now()-songStartTime;
+lastSongDurations.push(duration);
+if(lastSongDurations.length>5)lastSongDurations.shift();
+estimatedSongDuration=lastSongDurations.reduce((a,b)=>a+b,0)/lastSongDurations.length;
+}
+songStartTime=Date.now();
+}
+
+// Small progress bump for processing steps (makes bar feel responsive)
+function bumpProgress(amount){
+const songBaseEnd=((currentItemIndex+1)*100)/totalItems;
+// Don't bump past 95% of current song's range
+const maxBump=songBaseEnd-5;
+if(targetPct<maxBump){
+targetPct=Math.min(targetPct+amount,maxBump);
+isIndeterminate=false;
+}
+lastActivityTime=Date.now();
+}
 
 function updateBatchCounter(){
 const urls=getUrls();
@@ -361,38 +445,46 @@ console_.scrollTop=console_.scrollHeight;
 function setProgress(pct,info=''){
 currentPct=Math.max(currentPct,pct);
 let totalPct=currentPct;
-let itemLabel='';
 if(totalItems>1){
 totalPct=((currentItemIndex*100)+currentPct)/totalItems;
-itemLabel=`${currentItemIndex+1}/${totalItems}`;
 }
-progressFill.style.width=totalPct+'%';
+// Use smooth animation instead of direct set
+isIndeterminate=false;
+targetPct=totalPct;
 progressFill.className='progress-fill';
-let pctText=totalPct>0?`${totalPct.toFixed(1)}%`:'';
-if(itemLabel)pctText=itemLabel+(pctText?' • '+pctText:'');
-if(info)pctText+=(pctText?' • ':'')+info;
-progressPct.textContent=pctText;
+lastActivityTime=Date.now();
+// Info goes below the bar, counter is embedded
+progressPct.textContent=info||'';
 }
 
 function setStatus(text,state){
 statusText.textContent=text;
 statusDot.className='status-dot '+state;
 if(state==='running'&&currentPct===0){
-progressFill.className='progress-fill indeterminate';
-if(totalItems>1){
-progressPct.textContent=`${currentItemIndex+1}/${totalItems}`;
-}else{
+// Don't use CSS indeterminate - use smooth estimation instead
+progressFill.className='progress-fill';
+updateProgressCounter();
 progressPct.textContent='';
-}
 }else if(state==='complete'){
+isIndeterminate=false;
+targetPct=100;
+displayedPct=100;
 progressFill.className='progress-fill complete';
 progressFill.style.width='100%';
-let completeText='100%';
-if(totalItems>1)completeText=`${totalItems}/${totalItems} • 100%`;
-progressPct.textContent=completeText;
+if(totalItems>1){
+progressCounter.textContent=`${totalItems} / ${totalItems}`;
+progressPct.textContent='Complete!';
+}else{
+progressCounter.textContent='100%';
+progressPct.textContent='Complete!';
+}
+stopProgressAnimation();
 }else if(state==='error'){
+isIndeterminate=false;
 progressFill.className='progress-fill error';
+progressCounter.textContent='ERROR';
 progressPct.textContent='';
+stopProgressAnimation();
 }
 }
 
@@ -422,125 +514,138 @@ setProgress(prog.pct,prog.info);
 statusText.textContent='Downloading audio...';
 return;
 }
-const indeterminate=()=>{if(totalItems>1){const totalPct=((currentItemIndex*100)+currentPct)/totalItems;progressFill.style.width=totalPct+'%';progressFill.className='progress-fill';progressPct.textContent=`${currentItemIndex+1}/${totalItems} • ${totalPct.toFixed(1)}%`;}else{progressFill.className='progress-fill indeterminate';progressPct.textContent='';}};
+const indeterminate=()=>{
+lastActivityTime=Date.now();
+if(!isIndeterminate){
+isIndeterminate=true;
+indeterminateStartPct=displayedPct;
+}
+progressFill.className='progress-fill';
+progressPct.textContent=''; // Counter is embedded, info goes below
+};
 
 // yt-dlp update/version checks
 if(line.match(/Updating to version/i)||line.match(/yt-dlp is up to date/i)){
-statusText.textContent='Checking yt-dlp version...';indeterminate();
+statusText.textContent='Checking yt-dlp version...';bumpProgress(0.5);
 }else if(line.match(/Current version/i)&&line.match(/yt-dlp/i)){
-statusText.textContent='Verifying yt-dlp...';indeterminate();
+statusText.textContent='Verifying yt-dlp...';bumpProgress(0.3);
 }else if(line.match(/Latest version/i)){
-statusText.textContent='Fetching latest yt-dlp...';indeterminate();
+statusText.textContent='Fetching latest yt-dlp...';bumpProgress(0.3);
 }else if(line.match(/Downloading yt-dlp/i)||line.match(/updating.*yt-dlp/i)){
-statusText.textContent='Downloading yt-dlp update...';indeterminate();
+statusText.textContent='Downloading yt-dlp update...';bumpProgress(0.5);
 }
 
 // Playlist/channel processing
 else if(line.match(/^\[youtube:tab\]/i)){
-statusText.textContent='Fetching playlist info...';indeterminate();
+statusText.textContent='Fetching playlist info...';bumpProgress(1);
 }else if(line.match(/^\[youtube:playlist\]/i)){
-statusText.textContent='Processing playlist...';indeterminate();
+statusText.textContent='Processing playlist...';bumpProgress(0.5);
 }else if(line.match(/^\[youtube:search\]/i)){
-statusText.textContent='Searching YouTube...';indeterminate();
+statusText.textContent='Searching YouTube...';bumpProgress(0.5);
 }else if(line.match(/Downloading item (\d+) of (\d+)/i)){
 const m=line.match(/Downloading item (\d+) of (\d+)/i);
 const itemNum=parseInt(m[1],10);
 const itemTotal=parseInt(m[2],10);
 if(itemSource!=='batch'){
+if(itemNum>1)recordSongComplete(); // Record timing for previous song
 totalItems=itemTotal;
 currentItemIndex=itemNum-1;
 currentPct=0;
 itemSource='playlist';
+// Smoothly animate to new song start position
+const songStartPct=(currentItemIndex*100)/totalItems;
+targetPct=songStartPct;
+isIndeterminate=false;
 }
-statusText.textContent=`Playlist item ${m[1]}/${m[2]}`;indeterminate();
+statusText.textContent=`Fetching track ${m[1]} of ${m[2]}...`;indeterminate();
 }
 
 // Player/JS downloads
 else if(line.match(/Downloading.*player.*API.*JSON/i)){
-statusText.textContent='Fetching player API...';indeterminate();
+statusText.textContent='Fetching player API...';bumpProgress(0.5);
 }else if(line.match(/Downloading.*client.*config/i)){
-statusText.textContent='Fetching client config...';indeterminate();
+statusText.textContent='Fetching client config...';bumpProgress(0.3);
 }else if(line.match(/Downloading.*player/i)){
-statusText.textContent='Downloading player JS...';indeterminate();
+statusText.textContent='Downloading player JS...';bumpProgress(0.8);
 }else if(line.match(/Downloading (android|ios|web|tv)\s/i)){
 const m=line.match(/Downloading (android|ios|web|tv)\s/i);
-statusText.textContent=`Fetching ${m[1]} client...`;indeterminate();
+statusText.textContent=`Fetching ${m[1]} client...`;bumpProgress(0.5);
 }else if(line.match(/Downloading iframe API/i)){
-statusText.textContent='Downloading iframe API...';indeterminate();
+statusText.textContent='Downloading iframe API...';bumpProgress(0.3);
 }else if(line.match(/Downloading js player/i)){
-statusText.textContent='Downloading JS player...';indeterminate();
+statusText.textContent='Downloading JS player...';bumpProgress(0.5);
 }else if(line.match(/Downloading sign/i)||line.match(/signature/i)){
-statusText.textContent='Downloading signature...';indeterminate();
+statusText.textContent='Downloading signature...';bumpProgress(0.3);
 }else if(line.match(/Downloading initial data/i)){
-statusText.textContent='Fetching initial data...';indeterminate();
+statusText.textContent='Fetching initial data...';bumpProgress(0.5);
 }else if(line.match(/nsig.*decryption/i)){
-statusText.textContent='Decrypting nsig...';indeterminate();
+statusText.textContent='Decrypting nsig...';bumpProgress(0.3);
 }
 
 // Webpage/metadata fetching
 else if(line.match(/Downloading webpage/i)){
-statusText.textContent='Downloading webpage...';indeterminate();
+statusText.textContent='Downloading webpage...';bumpProgress(1);
 }else if(line.match(/Downloading.*JSON/i)){
-statusText.textContent='Fetching JSON data...';indeterminate();
+statusText.textContent='Fetching JSON data...';bumpProgress(0.8);
 }else if(line.match(/Downloading (API|api)/i)){
-statusText.textContent='Fetching API data...';indeterminate();
+statusText.textContent='Fetching API data...';bumpProgress(0.5);
 }else if(line.match(/Downloading video info/i)){
-statusText.textContent='Fetching video info...';indeterminate();
+statusText.textContent='Fetching video info...';bumpProgress(1);
 }else if(line.match(/Downloading m3u8/i)){
-statusText.textContent='Fetching HLS manifest...';indeterminate();
+statusText.textContent='Fetching HLS manifest...';bumpProgress(0.5);
 }else if(line.match(/Downloading MPD/i)||line.match(/Downloading DASH/i)){
-statusText.textContent='Fetching DASH manifest...';indeterminate();
+statusText.textContent='Fetching DASH manifest...';bumpProgress(0.5);
 }else if(line.match(/Downloading (formats|format list)/i)){
-statusText.textContent='Fetching format list...';indeterminate();
+statusText.textContent='Fetching format list...';bumpProgress(0.5);
 }else if(line.match(/Extracting URL/i)){
-statusText.textContent='Extracting URL...';indeterminate();
+statusText.textContent='Extracting URL...';bumpProgress(0.3);
 }else if(line.match(/Downloading thumbnail/i)){
-statusText.textContent='Downloading thumbnail...';indeterminate();
+statusText.textContent='Downloading thumbnail...';bumpProgress(0.5);
 }else if(line.match(/Downloading.*po_token/i)){
-statusText.textContent='Fetching PO token...';indeterminate();
+statusText.textContent='Fetching PO token...';bumpProgress(0.3);
 }else if(line.match(/Downloading.*config/i)){
-statusText.textContent='Fetching config...';indeterminate();
+statusText.textContent='Fetching config...';bumpProgress(0.3);
 }
 
 // Single video metadata
 else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading/i)){
-statusText.textContent='Fetching video data...';indeterminate();
+statusText.textContent='Fetching video data...';bumpProgress(0.8);
 }else if(line.match(/^\[youtube\]/i)&&!line.match(/\[youtube:tab\]/i)){
-statusText.textContent='Processing YouTube video...';indeterminate();
+statusText.textContent='Processing YouTube video...';bumpProgress(0.5);
 }else if(line.match(/^\[youtube:music\]/i)||line.match(/^\[Music\]/i)){
-statusText.textContent='Fetching from YouTube Music...';indeterminate();
+statusText.textContent='Fetching from YouTube Music...';bumpProgress(0.8);
 }
 
 // Generic extractors
 else if(line.match(/^\[generic\]/i)){
-statusText.textContent='Using generic extractor...';indeterminate();
+statusText.textContent='Using generic extractor...';bumpProgress(0.3);
 }else if(line.match(/^\[redirect\]/i)){
-statusText.textContent='Following redirect...';indeterminate();
+statusText.textContent='Following redirect...';bumpProgress(0.2);
 }
 
 // Cookies
 else if(line.match(/^\[Cookies\]/i)||line.match(/Loading cookies/i)){
-statusText.textContent='Loading cookies...';indeterminate();
+statusText.textContent='Loading cookies...';bumpProgress(0.2);
 }
 
 // Download states
 else if(line.match(/^\[download\]\s+Destination:/)){
 statusText.textContent='Starting download...';
 currentPct=0;
-setProgress(0,'');
+setProgress(0,'Starting...');
 }else if(line.match(/^\[download\]\s+Resuming download/i)){
-statusText.textContent='Resuming download...';indeterminate();
+statusText.textContent='Resuming download...';bumpProgress(1);
 }else if(line.match(/^\[download\]\s+Downloading video/i)){
-statusText.textContent='Downloading video stream...';indeterminate();
+statusText.textContent='Downloading video stream...';bumpProgress(0.5);
 }else if(line.match(/^\[download\]\s+Downloading audio/i)){
-statusText.textContent='Downloading audio stream...';indeterminate();
+statusText.textContent='Downloading audio stream...';bumpProgress(0.5);
 }else if(line.match(/^\[download\]\s+Downloading/i)){
-statusText.textContent='Preparing download...';indeterminate();
+statusText.textContent='Preparing download...';bumpProgress(0.5);
 }else if(line.match(/^\[download\]\s+has already been downloaded/i)){
-statusText.textContent='Already downloaded!';
+statusText.textContent='Already downloaded!';bumpProgress(2);
 }else if(line.match(/\[download\]\s+100%/)){
 statusText.textContent='Download complete!';
-setProgress(100,'Done');
+setProgress(100,'Download done');
 }
 
 // Post-processing stages
@@ -635,16 +740,29 @@ setProgress(100,'Thumbnail');
 
 // Info messages
 else if(line.match(/^\[info\].*format/i)){
-statusText.textContent='Selecting format...';indeterminate();
+statusText.textContent='Selecting format...';bumpProgress(0.5);
 }else if(line.match(/^\[info\].*download/i)){
-statusText.textContent='Preparing download...';indeterminate();
+statusText.textContent='Preparing download...';bumpProgress(0.3);
 }else if(line.match(/^\[info\]/i)){
-statusText.textContent='Processing info...';indeterminate();
+statusText.textContent='Processing info...';bumpProgress(0.2);
 }
 
-// Debug/verbose
+// Debug/verbose - parse actual debug content
 else if(line.match(/^\[debug\]/i)){
-statusText.textContent='Debug info...';
+if(line.match(/format selector/i))statusText.textContent='Selecting format...';
+else if(line.match(/extractor/i))statusText.textContent='Loading extractor...';
+else if(line.match(/cookie/i))statusText.textContent='Processing cookies...';
+else if(line.match(/proxy/i))statusText.textContent='Configuring proxy...';
+else if(line.match(/header/i))statusText.textContent='Setting headers...';
+else if(line.match(/request/i))statusText.textContent='Preparing request...';
+else if(line.match(/response/i))statusText.textContent='Processing response...';
+else if(line.match(/redirect/i))statusText.textContent='Following redirect...';
+else if(line.match(/download/i))statusText.textContent='Preparing download...';
+else if(line.match(/auth/i))statusText.textContent='Authenticating...';
+else if(line.match(/config/i))statusText.textContent='Loading config...';
+else if(line.match(/cache/i))statusText.textContent='Checking cache...';
+else statusText.textContent='Initializing...';
+indeterminate();
 }
 
 // PostProcessor generic
@@ -655,15 +773,15 @@ setProgress(100,'Processing');
 
 // Network/retry
 else if(line.match(/Retrying/i)||line.match(/retry/i)){
-statusText.textContent='Retrying...';indeterminate();
+statusText.textContent='Retrying request...';
 }else if(line.match(/rate.?limit/i)||line.match(/429/i)){
-statusText.textContent='Rate limited, waiting...';indeterminate();
+statusText.textContent='Rate limited, waiting...';
 }else if(line.match(/Sleeping/i)||line.match(/sleep/i)){
-statusText.textContent='Waiting...';indeterminate();
+statusText.textContent='Waiting...';
 }else if(line.match(/Throttled/i)){
-statusText.textContent='Throttled, waiting...';indeterminate();
+statusText.textContent='Throttled, waiting...';
 }else if(line.match(/timed? ?out/i)){
-statusText.textContent='Request timed out...';indeterminate();
+statusText.textContent='Request timed out...';
 }
 
 // Video info display
@@ -672,35 +790,39 @@ const m=line.match(/Downloading video (\d+) of (\d+)/i);
 const itemNum=parseInt(m[1],10);
 const itemTotal=parseInt(m[2],10);
 if(itemSource!=='batch'){
+if(itemNum>1)recordSongComplete();
 totalItems=itemTotal;
 currentItemIndex=itemNum-1;
 currentPct=0;
 itemSource='playlist';
+const songStartPct=(currentItemIndex*100)/totalItems;
+targetPct=songStartPct;
+isIndeterminate=false;
 }
-statusText.textContent=`Video ${m[1]}/${m[2]}`;indeterminate();
+statusText.textContent=`Fetching video ${m[1]} of ${m[2]}...`;indeterminate();
 }else if(line.match(/Available formats/i)){
-statusText.textContent='Listing formats...';indeterminate();
+statusText.textContent='Listing formats...';bumpProgress(0.3);
 }else if(line.match(/Requested format/i)){
-statusText.textContent='Format selected...';indeterminate();
+statusText.textContent='Format selected...';bumpProgress(0.5);
 }
 
 // mscd specific
 else if(line.match(/Checking for existing/i)){
-statusText.textContent='Checking library...';indeterminate();
+statusText.textContent='Checking library...';bumpProgress(0.5);
 }else if(line.match(/Already exists/i)){
-statusText.textContent='Already in library!';
+statusText.textContent='Already in library!';bumpProgress(1);
 }else if(line.match(/Adding to queue/i)||line.match(/Queued/i)){
-statusText.textContent='Adding to queue...';
+statusText.textContent='Adding to queue...';bumpProgress(0.5);
 }else if(line.match(/Scanning library/i)){
-statusText.textContent='Scanning library...';indeterminate();
+statusText.textContent='Scanning library...';bumpProgress(0.5);
 }else if(line.match(/Updating database/i)){
-statusText.textContent='Updating database...';
+statusText.textContent='Updating database...';bumpProgress(0.5);
 }else if(line.match(/navidrome/i)){
-statusText.textContent='Updating Navidrome...';indeterminate();
+statusText.textContent='Updating Navidrome...';bumpProgress(0.5);
 }else if(line.match(/beets/i)&&line.match(/import/i)){
-statusText.textContent='Running beets import...';indeterminate();
+statusText.textContent='Running beets import...';bumpProgress(1);
 }else if(line.match(/tagging/i)){
-statusText.textContent='Tagging files...';indeterminate();
+statusText.textContent='Tagging files...';bumpProgress(0.5);
 }
 
 return null;
@@ -745,11 +867,25 @@ if(!_batch){
 totalItems=1;
 currentItemIndex=0;
 itemSource='';
+displayedPct=0;
+targetPct=0;
+lastSongDurations=[];
+}else{
+// For batch/playlist transitions, smoothly move to next song start position
+const songStartPct=(currentItemIndex*100)/totalItems;
+targetPct=songStartPct;
 }
+isIndeterminate=false;
+songStartTime=Date.now();
+lastActivityTime=Date.now();
 let startPct=0;
 if(totalItems>1)startPct=(currentItemIndex*100)/totalItems;
-progressFill.style.width=startPct+'%';
+if(!_batch)displayedPct=startPct;
+targetPct=startPct;
+progressFill.style.width=displayedPct+'%';
+updateProgressCounter();
 setStatus('Connecting...','running');
+startProgressAnimation();
 
 let dupeDetected=false;
 let dupeFilename='';
