@@ -15,8 +15,6 @@ let
   searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ../../configs/searxng-settings.yml);
 in
 {
-  environment.etc."searxng/settings.yml".source = searxngConfig;
-
   virtualisation.docker.enable = true;
 
   virtualisation.oci-containers = {
@@ -55,7 +53,7 @@ in
       searxng = {
         image = "searxng/searxng:latest";
         ports = [ "8080:8080" ];
-        volumes = [ "/etc/searxng:/etc/searxng:ro" ];
+        volumes = [ "/var/lib/searxng:/etc/searxng" ];
         environment = {
           SEARXNG_BASE_URL = "https://search.nuclearcanopy.xyz/";
           SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
@@ -105,6 +103,7 @@ in
     "d /var/lib/vaultwarden 0755 root root -"
     "d /var/lib/navidrome 0755 root root -"
     "d /var/lib/portainer 0755 root root -"
+    "d /var/lib/searxng 0755 root root -"
   ];
 
   systemd.services.init-docker-network = {
@@ -126,6 +125,9 @@ in
     wants = [ "network-online.target" ];
     serviceConfig.ExecStartPre = [
       "${pkgs.coreutils}/bin/sleep 10"
+      # Copy settings.yml to writable volume (SearXNG needs write access to /etc/searxng)
+      "${pkgs.coreutils}/bin/cp -f ${searxngConfig} /var/lib/searxng/settings.yml"
+      "${pkgs.coreutils}/bin/chmod 644 /var/lib/searxng/settings.yml"
     ];
   };
 
