@@ -1,13 +1,14 @@
-# Local SSD paths for fast access (synced to NAS periodically)
-MUSIC_BASE="/home/homeserver/Navidrome/music/Web"
-MUSIC_BASE_BOUGHT="/home/homeserver/Navidrome/music/Bought"
-# NAS paths for sync operations
-MUSIC_BASE_NAS="/mnt/nas/Navidrome/music/Web"
-MUSIC_BASE_BOUGHT_NAS="/mnt/nas/Navidrome/music/Bought"
+# NAS is the primary storage (source of truth)
+# MSCD downloads to NAS, then syncs to local SSD for fast Navidrome streaming
+MUSIC_BASE="/mnt/nas/Navidrome/music/Web"
+MUSIC_BASE_BOUGHT="/mnt/nas/Navidrome/music/Bought"
+# Local SSD paths (fast cache, synced from NAS)
+MUSIC_BASE_LOCAL="/home/homeserver/Navidrome/music/Web"
+MUSIC_BASE_BOUGHT_LOCAL="/home/homeserver/Navidrome/music/Bought"
 
 URLS_FILE="/var/lib/navidrome/data/urls/urls.txt"
 URLS_FILE_ALEXANDRA="/var/lib/navidrome/data/urls/urls_alexandra.txt"
-MSCD_COOKIES="/home/homeserver/Navidrome/cookies.txt"
+MSCD_COOKIES="/mnt/nas/Navidrome/cookies.txt"
 MSCD_ARCHIVE="/var/lib/navidrome/data/mscd_archive.txt"
 
 mkdir -p ~/.local/bin
@@ -22,34 +23,25 @@ export LC_ALL="${LC_ALL:-C.UTF-8}"
 
 MSCD_GENRE_DEFAULT="Web"
 
-# Trigger sync to NAS (runs async in background)
+# Sync from NAS to local SSD (NAS is primary, SSD is fast cache)
+# This pulls new music from NAS to local for fast Navidrome streaming
 mscd_sync() {
-  echo "[SYNC] Triggering sync to NAS..."
+  echo "[SYNC] Syncing NAS → local SSD..."
   if command -v systemctl &>/dev/null; then
-    # Try to trigger the systemd service (will fail gracefully if not available)
-    systemctl start navidrome-sync-to-nas.service --no-block 2>/dev/null || {
-      # Fallback: direct rsync if systemd service isn't available
+    systemctl start navidrome-sync-from-nas.service --no-block 2>/dev/null || {
       echo "[SYNC] Systemd service not available, running direct rsync..."
-      rsync -av --update /home/homeserver/Navidrome/music/ /mnt/nas/Navidrome/music/ &
+      mkdir -p /home/homeserver/Navidrome/music
+      rsync -av --update /mnt/nas/Navidrome/music/ /home/homeserver/Navidrome/music/ &
     }
   fi
 }
 
-# Pull music library from NAS to local SSD (initial setup/recovery)
+# Full sync from NAS to local SSD (with progress, for manual use)
 mscd_pull() {
-  echo "[SYNC] Pulling music library from NAS to local SSD..."
-  if command -v systemctl &>/dev/null; then
-    systemctl start navidrome-sync-from-nas.service 2>/dev/null || {
-      echo "[SYNC] Systemd service not available, running direct rsync..."
-      mkdir -p /home/homeserver/Navidrome/music
-      rsync -av --progress /mnt/nas/Navidrome/music/ /home/homeserver/Navidrome/music/
-      [[ -f /mnt/nas/Navidrome/cookies.txt ]] && cp /mnt/nas/Navidrome/cookies.txt /home/homeserver/Navidrome/cookies.txt
-    }
-  else
-    mkdir -p /home/homeserver/Navidrome/music
-    rsync -av --progress /mnt/nas/Navidrome/music/ /home/homeserver/Navidrome/music/
-    [[ -f /mnt/nas/Navidrome/cookies.txt ]] && cp /mnt/nas/Navidrome/cookies.txt /home/homeserver/Navidrome/cookies.txt
-  fi
+  echo "[SYNC] Full sync: NAS → local SSD..."
+  mkdir -p /home/homeserver/Navidrome/music
+  rsync -av --progress --delete /mnt/nas/Navidrome/music/ /home/homeserver/Navidrome/music/
+  [[ -f /mnt/nas/Navidrome/cookies.txt ]] && cp /mnt/nas/Navidrome/cookies.txt /home/homeserver/Navidrome/cookies.txt
   echo "[SYNC] Pull complete!"
 }
 
@@ -266,9 +258,9 @@ print(t)
 
   [[ -z "$match_title" ]] && return 1
 
-  # Check both local SSD and NAS for duplicates
+  # Check both NAS (primary) and local SSD (cache) for duplicates
   local dir found
-  for dir in "$MUSIC_BASE" "$MUSIC_BASE_BOUGHT" "$MUSIC_BASE_NAS" "$MUSIC_BASE_BOUGHT_NAS"; do
+  for dir in "$MUSIC_BASE" "$MUSIC_BASE_BOUGHT" "$MUSIC_BASE_LOCAL" "$MUSIC_BASE_BOUGHT_LOCAL"; do
     [[ -d "$dir" ]] || continue
     found=$("$MSCD_PYTHON" -c "
 import os, sys, re, unicodedata

@@ -176,37 +176,10 @@ in
     '';
   };
 
-  # Sync local Navidrome library TO NAS (backup local changes)
-  systemd.services.navidrome-sync-to-nas = {
-    description = "Sync local Navidrome music library to NAS";
-    after = [ "mnt-nas.mount" ];
-    serviceConfig = {
-      Type = "oneshot";
-      User = "homeserver";
-    };
-    script = ''
-      set -e
-
-      # Ensure NAS directories exist
-      mkdir -p /mnt/nas/Navidrome/music
-
-      # Sync local → NAS (preserves NAS files not on local with --update)
-      ${pkgs.rsync}/bin/rsync -av --update \
-        /home/homeserver/Navidrome/music/ \
-        /mnt/nas/Navidrome/music/
-
-      # Also sync cookies if it exists locally
-      if [[ -f /home/homeserver/Navidrome/cookies.txt ]]; then
-        cp /home/homeserver/Navidrome/cookies.txt /mnt/nas/Navidrome/cookies.txt
-      fi
-
-      echo "Navidrome sync to NAS completed at $(date)"
-    '';
-  };
-
-  # Sync FROM NAS to local (for initial setup or recovery)
+  # Primary sync: NAS → local SSD (NAS is source of truth, SSD is fast cache)
+  # This runs frequently to keep local SSD up-to-date for fast Navidrome streaming
   systemd.services.navidrome-sync-from-nas = {
-    description = "Sync Navidrome music library from NAS to local SSD";
+    description = "Sync Navidrome music from NAS to local SSD cache";
     after = [ "mnt-nas.mount" ];
     serviceConfig = {
       Type = "oneshot";
@@ -216,10 +189,11 @@ in
       set -e
 
       # Ensure local directories exist
-      mkdir -p /home/homeserver/Navidrome/music
+      mkdir -p /home/homeserver/Navidrome/music/Web
+      mkdir -p /home/homeserver/Navidrome/music/Bought
 
-      # Sync NAS → local
-      ${pkgs.rsync}/bin/rsync -av --progress \
+      # Sync NAS → local (--delete keeps them identical)
+      ${pkgs.rsync}/bin/rsync -a --delete \
         /mnt/nas/Navidrome/music/ \
         /home/homeserver/Navidrome/music/
 
@@ -232,13 +206,14 @@ in
     '';
   };
 
-  systemd.timers.navidrome-sync-to-nas = {
-    description = "Timer for Navidrome library sync to NAS";
+  # Timer for NAS → SSD sync (runs every 15 minutes to keep SSD cache fresh)
+  systemd.timers.navidrome-sync-from-nas = {
+    description = "Timer for Navidrome NAS to SSD sync";
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      # Sync every 30 minutes and 5 min after boot
-      OnCalendar = "*:00/30";
-      OnBootSec = "5min";
+      # Sync every 15 minutes and 2 min after boot
+      OnCalendar = "*:00/15";
+      OnBootSec = "2min";
       Persistent = true;
     };
   };
