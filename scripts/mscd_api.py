@@ -137,11 +137,16 @@ select option{background:var(--bg);color:var(--text)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.3)}50%{box-shadow:0 0 15px 3px rgba(255,255,255,0.15)}}
 .progress-container{margin-top:16px;display:none}
 .progress-container.active{display:block}
-.progress-bar{height:28px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;position:relative}
-.progress-fill{height:100%;width:0;background:var(--accent);transition:none}
-.progress-fill.complete{width:100%;background:var(--success)}
-.progress-fill.error{width:100%;background:var(--error)}
-.progress-counter{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--accent);mix-blend-mode:difference;pointer-events:none;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.progress-bar{height:28px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;position:relative;animation:bar-breathe 3s ease-in-out infinite}
+@keyframes bar-breathe{0%,100%{background:var(--border)}50%{background:#1f1f1f}}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent) 0%,var(--accent) 100%);position:relative;transition:none}
+.progress-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.15) 50%,transparent 100%);animation:shimmer 2s infinite;background-size:200% 100%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.progress-fill.complete{background:var(--success)}
+.progress-fill.complete::after{animation:none;background:none}
+.progress-fill.error{background:var(--error)}
+.progress-fill.error::after{animation:none;background:none}
+.progress-counter{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--accent);mix-blend-mode:difference;pointer-events:none;letter-spacing:2px;font-variant-numeric:tabular-nums;transition:opacity 0.3s ease}
 .progress-pct{font-size:0.7rem;color:var(--accent-dim);text-align:right;margin-top:4px;font-variant-numeric:tabular-nums}
 .console{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:40vh;overflow-y:auto;font-size:0.75rem;line-height:1.5;-webkit-overflow-scrolling:touch}
 .console-line{white-space:pre-wrap;word-break:break-word;padding:2px 0}
@@ -150,11 +155,12 @@ select option{background:var(--bg);color:var(--text)}
 .console-line.success{color:var(--success)}
 .console-line.error{color:var(--error);font-weight:600}
 .status{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:0.75rem}
-.status-dot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex-shrink:0}
-.status-dot.running{background:var(--accent);animation:blink 1s infinite}
-.status-dot.complete{background:var(--success)}
-.status-dot.error{background:var(--error)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:all 0.3s ease}
+.status-dot.running{background:var(--accent);animation:pulse-glow 1.5s ease-in-out infinite}
+.status-dot.complete{background:var(--success);box-shadow:0 0 8px var(--success)}
+.status-dot.error{background:var(--error);box-shadow:0 0 8px var(--error)}
+@keyframes pulse-glow{0%,100%{opacity:1;box-shadow:0 0 4px var(--accent)}50%{opacity:0.7;box-shadow:0 0 12px var(--accent)}}
+.status-text{transition:opacity 0.2s ease}
 .status-text{color:var(--dim);text-transform:uppercase;letter-spacing:1px}
 .cmd-hint{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .cmd-tag{font-size:0.65rem;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--dim)}
@@ -316,7 +322,10 @@ progressCounter.textContent=`${Math.round(displayedPct)}%`;
 
 function startProgressAnimation(){
 if(animationFrame)return;
-function animate(){
+let lastFrameTime=performance.now();
+function animate(currentTime){
+const deltaTime=(currentTime-lastFrameTime)/16.67; // Normalize to ~60fps
+lastFrameTime=currentTime;
 const now=Date.now();
 if(isIndeterminate){
 // During indeterminate phases, slowly creep forward based on estimated time
@@ -324,17 +333,22 @@ const elapsed=now-lastActivityTime;
 const songBaseStart=(currentItemIndex*100)/totalItems;
 const songBaseEnd=((currentItemIndex+1)*100)/totalItems;
 const songRange=songBaseEnd-songBaseStart;
-// Estimate we're at most 40% through the "prep" phase during indeterminate
-const indeterminateProgress=Math.min(0.4,elapsed/estimatedSongDuration);
-const estimatedPct=indeterminateStartPct+(songRange*indeterminateProgress*0.6);
-targetPct=Math.min(estimatedPct,songBaseEnd-1);
+// Smoothly creep forward with easing
+const indeterminateProgress=Math.min(0.5,elapsed/estimatedSongDuration);
+// Use easeOutQuad for natural feel
+const eased=1-(1-indeterminateProgress)*(1-indeterminateProgress);
+const estimatedPct=indeterminateStartPct+(songRange*eased*0.5);
+targetPct=Math.min(estimatedPct,songBaseEnd-2);
 }
-// Smooth interpolation toward target
+// Smooth exponential interpolation toward target
 const diff=targetPct-displayedPct;
-if(Math.abs(diff)>0.05){
-// Ease toward target: faster when far, slower when close
-const speed=Math.max(0.3,Math.abs(diff)*0.12);
-displayedPct+=Math.sign(diff)*Math.min(speed,Math.abs(diff));
+if(Math.abs(diff)>0.01){
+// Use exponential easing - always smooth, never snappy
+// Lerp factor scales with deltaTime for consistent speed regardless of framerate
+const lerpFactor=1-Math.pow(0.85,deltaTime);
+displayedPct+=(diff*lerpFactor);
+// Clamp very small movements
+if(Math.abs(targetPct-displayedPct)<0.01)displayedPct=targetPct;
 }else{
 displayedPct=targetPct;
 }
@@ -608,10 +622,20 @@ statusText.textContent='Fetching config...';bumpProgress(0.3);
 }
 
 // Single video metadata
-else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading/i)){
-statusText.textContent='Fetching video data...';bumpProgress(0.8);
+else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading webpage/i)){
+statusText.textContent='Fetching video page...';bumpProgress(0.5);
+}else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading.*player/i)){
+statusText.textContent='Fetching player...';bumpProgress(0.3);
+}else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading.*client config/i)){
+statusText.textContent='Fetching config...';bumpProgress(0.2);
+}else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading.*API JSON/i)){
+statusText.textContent='Fetching API data...';bumpProgress(0.3);
+}else if(line.match(/^\[youtube\]\s+[A-Za-z0-9_-]+:\s*Downloading/i)){
+statusText.textContent='Fetching video data...';bumpProgress(0.3);
+}else if(line.match(/^\[youtube\]\s+Extracting URL/i)){
+statusText.textContent='Extracting video URL...';bumpProgress(0.3);
 }else if(line.match(/^\[youtube\]/i)&&!line.match(/\[youtube:tab\]/i)){
-statusText.textContent='Processing YouTube video...';bumpProgress(0.5);
+statusText.textContent='Processing video...';bumpProgress(0.2);
 }else if(line.match(/^\[youtube:music\]/i)||line.match(/^\[Music\]/i)){
 statusText.textContent='Fetching from YouTube Music...';bumpProgress(0.8);
 }
@@ -727,7 +751,9 @@ setProgress(100,'Fixing');
 else if(line.match(/^\[MoveFiles\]/i)){
 statusText.textContent='Moving files...';
 setProgress(100,'Moving');
-}else if(line.match(/^Deleting original/i)||line.match(/^\[download\]\s+Deleting/i)){
+}else if(line.match(/^Deleting original file/i)){
+statusText.textContent='Cleaning up...';
+}else if(line.match(/^\[download\]\s+Deleting/i)){
 statusText.textContent='Cleaning up temp files...';
 setProgress(100,'Cleanup');
 }else if(line.match(/Moving to library/i)||line.match(/Moved.*to/i)){
@@ -743,8 +769,17 @@ else if(line.match(/^\[info\].*format/i)){
 statusText.textContent='Selecting format...';bumpProgress(0.5);
 }else if(line.match(/^\[info\].*download/i)){
 statusText.textContent='Preparing download...';bumpProgress(0.3);
+}else if(line.match(/^\[info\]\s*Writing.*playlist metadata/i)){
+statusText.textContent='Saving playlist data...';bumpProgress(0.3);
 }else if(line.match(/^\[info\]/i)){
 statusText.textContent='Processing info...';bumpProgress(0.2);
+}
+
+// Playlist finished
+else if(line.match(/Finished downloading playlist/i)){
+const m=line.match(/playlist:\s*(.+)/);
+statusText.textContent=m?`Playlist done: ${m[1]}`:'Playlist downloaded!';
+setProgress(100,'Organizing files...');
 }
 
 // Debug/verbose - parse actual debug content
@@ -823,6 +858,175 @@ statusText.textContent='Updating Navidrome...';bumpProgress(0.5);
 statusText.textContent='Running beets import...';bumpProgress(1);
 }else if(line.match(/tagging/i)){
 statusText.textContent='Tagging files...';bumpProgress(0.5);
+}
+
+// curl progress (yt-dlp update download)
+else if(line.match(/^\s*\d+\s+[\d.]+[KMG]?\s+\d+\s+[\d.]+[KMG]?/)||line.match(/% Total.*% Received/)){
+statusText.textContent='Updating yt-dlp...';
+}
+
+// yt-dlp version/path info
+else if(line.match(/^\/.*yt-dlp$/)||line.match(/^\d{4}\.\d{2}\.\d{2}$/)){
+statusText.textContent='Checking yt-dlp...';bumpProgress(0.2);
+}
+
+// mscd initialization DEBUG messages
+else if(line.match(/^\[DEBUG\]\s*Added URL to/i)){
+statusText.textContent='URL queued';bumpProgress(0.3);
+}else if(line.match(/^\[DEBUG\]\s*Using python/i)){
+statusText.textContent='Initializing Python...';bumpProgress(0.2);
+}else if(line.match(/^\[DEBUG\]\s*mutagen version/i)){
+statusText.textContent='Loading mutagen...';bumpProgress(0.2);
+}else if(line.match(/^\[DEBUG\]\s*Starting mscd_album/i)){
+statusText.textContent='Starting album download...';bumpProgress(0.5);
+}else if(line.match(/^\[DEBUG\]\s*Temporary directory/i)){
+statusText.textContent='Creating temp directory...';bumpProgress(0.2);
+}
+
+// Playlist extraction
+else if(line.match(/Extracting URL/i)){
+statusText.textContent='Extracting URL...';bumpProgress(0.3);
+}else if(line.match(/Redownloading playlist API/i)){
+statusText.textContent='Fetching playlist data...';bumpProgress(0.5);
+}else if(line.match(/^\[download\]\s*Downloading playlist:/i)){
+const m=line.match(/Downloading playlist:\s*(.+)/);
+statusText.textContent=m?`Loading: ${m[1]}`:'Loading playlist...';bumpProgress(0.5);
+}else if(line.match(/Playlist.*Downloading \d+ items/i)){
+const m=line.match(/Downloading (\d+) items/i);
+statusText.textContent=m?`Found ${m[1]} tracks`:'Found tracks';bumpProgress(0.5);
+}
+
+// Playlist thumbnails
+else if(line.match(/Downloading playlist thumbnail/i)){
+statusText.textContent='Fetching playlist art...';bumpProgress(0.3);
+}else if(line.match(/Playlist Thumbnail.*does not exist/i)){
+statusText.textContent='No playlist art found';
+}else if(line.match(/Writing playlist thumbnail/i)){
+statusText.textContent='Saving playlist art...';bumpProgress(0.3);
+}else if(line.match(/Writing playlist metadata/i)){
+statusText.textContent='Saving playlist info...';bumpProgress(0.3);
+}
+
+// Warnings
+else if(line.match(/^WARNING:/i)){
+if(line.match(/YouTube Music is not directly supported/i)){
+statusText.textContent='Redirecting to YouTube...';
+}else if(line.match(/Download.*failed/i)){
+statusText.textContent='Retrying download...';
+}else{
+statusText.textContent='Warning received...';
+}
+}
+
+// JS challenges
+else if(line.match(/\[jsc:deno\]/i)||line.match(/Solving JS challenges/i)){
+statusText.textContent='Solving JS challenge...';bumpProgress(0.5);
+}
+
+// Format selection
+else if(line.match(/Downloading \d+ format/i)){
+const m=line.match(/Downloading (\d+) format/i);
+statusText.textContent=m?`Selected ${m[1]} format(s)`:'Format selected';bumpProgress(0.3);
+}
+
+// Video thumbnails
+else if(line.match(/Downloading video thumbnail/i)){
+statusText.textContent='Fetching thumbnail...';bumpProgress(0.3);
+}else if(line.match(/Writing video thumbnail/i)){
+statusText.textContent='Saving thumbnail...';bumpProgress(0.3);
+}else if(line.match(/Writing video metadata/i)){
+statusText.textContent='Saving video info...';bumpProgress(0.3);
+}
+
+// mscd DEBUG messages (uppercase)
+else if(line.match(/^\[DEBUG:resolve_artist\]/)){
+if(line.match(/From info\.json/i)){
+const m=line.match(/From info\.json:\s*'([^']+)'/);
+statusText.textContent=m?`Found: ${m[1]}`:'Resolving artist...';
+}else{
+statusText.textContent='Resolving artist...';
+}
+}else if(line.match(/^\[DEBUG\]\s*Resolved album artist/i)){
+const m=line.match(/Resolved album artist:\s*(.+)/);
+statusText.textContent=m?`Artist: ${m[1]}`:'Artist resolved';bumpProgress(0.3);
+}else if(line.match(/^\[DEBUG\]\s*Resolved album name/i)){
+const m=line.match(/Resolved album name:\s*(.+)/);
+statusText.textContent=m?`Album: ${m[1]}`:'Album resolved';bumpProgress(0.3);
+}else if(line.match(/^\[DEBUG\]\s*Resolved album year/i)){
+const m=line.match(/Resolved album year:\s*"?(\d+)"?/);
+statusText.textContent=m?`Year: ${m[1]}`:'Year resolved';bumpProgress(0.2);
+}else if(line.match(/^\[DEBUG\]\s*Album destination/i)){
+statusText.textContent='Setting destination...';bumpProgress(0.3);
+}else if(line.match(/^\[DEBUG\]\s*Cropping thumbnails/i)){
+statusText.textContent='Cropping album art...';bumpProgress(0.5);
+}else if(line.match(/^\[DEBUG\]\s*File:/i)){
+const m=line.match(/File:\s*\d+\s*-\s*[^-]+-\s*[^-]+-\s*(.+)\.opus/i);
+if(m){
+statusText.textContent=`Track: ${m[1]}`;
+}else{
+const m2=line.match(/File:\s*(.+)/);
+statusText.textContent=m2?`Processing: ${m2[1].split('/').pop()}`:'Processing track...';
+}
+bumpProgress(0.2);
+}else if(line.match(/^\[DEBUG\]\s*→/)){
+const m=line.match(/→\s*\d+\s*-\s*(.+)\.opus/i);
+statusText.textContent=m?`Renamed: ${m[1]}`:'Renaming...';bumpProgress(0.1);
+}else if(line.match(/^\[DEBUG\]\s+artist=/i)){
+statusText.textContent='Setting tags...';
+}
+
+// write_metadata debug
+else if(line.match(/^\[DEBUG:write_metadata\]\s*Calling python/i)){
+const m=line.match(/with (\d+) args/);
+statusText.textContent=m?`Tagging ${Math.floor(parseInt(m[1])/11)} tracks...`:'Writing metadata...';bumpProgress(0.5);
+}else if(line.match(/^\[DEBUG:write_metadata\]\s*First arg/i)){
+statusText.textContent='Starting metadata write...';
+}else if(line.match(/^\[DEBUG:write_metadata\]\s*Python exit code:\s*0/i)){
+statusText.textContent='Metadata written!';bumpProgress(0.5);
+}else if(line.match(/^\[DEBUG:write_metadata\]/i)){
+statusText.textContent='Writing metadata...';
+}
+
+// Python processing
+else if(line.match(/^\[DEBUG:python\]\s*Processing:/i)){
+const m=line.match(/Processing:\s*.+\/([^\/]+)$/);
+statusText.textContent=m?`Tagging: ${m[1]}`:'Tagging track...';bumpProgress(0.2);
+}else if(line.match(/^\[DEBUG:python\]\s*Tags to write/i)){
+statusText.textContent='Writing tags...';
+}else if(line.match(/^\[DEBUG:python\]\s*Thumbnail:/i)){
+statusText.textContent='Embedding artwork...';
+}else if(line.match(/^\[DEBUG:python\]\s*SUCCESS/i)){
+statusText.textContent='Track tagged!';bumpProgress(0.3);
+}else if(line.match(/^\[DEBUG:python\]/i)){
+statusText.textContent='Python processing...';
+}
+
+// Verification
+else if(line.match(/^\[DEBUG\]\s*Verifying:/i)){
+const m=line.match(/Verifying:\s*(.+)/);
+statusText.textContent=m?`Verifying: ${m[1]}`:'Verifying tags...';bumpProgress(0.1);
+}
+
+// Tag verification output
+else if(line.match(/^\s+(album|artist|albumartist|title|date|genre|tracknumber):\s*\[/)){
+// Tag verification line - just keep current status
+}
+
+// Final done
+else if(line.match(/^\[DEBUG\]\s*Done!/i)){
+statusText.textContent='All done!';bumpProgress(1);
+}else if(line.match(/^✓\s*Download complete/i)){
+statusText.textContent='Download complete!';
+}
+
+// Separator lines
+else if(line.match(/^-{10,}$/)){
+// Separator line, ignore
+}
+
+// Generic DEBUG fallback
+else if(line.match(/^\[DEBUG\]/i)){
+statusText.textContent='Processing...';bumpProgress(0.1);
 }
 
 return null;
