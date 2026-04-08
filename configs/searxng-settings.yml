@@ -36,6 +36,7 @@ server:
     Referrer-Policy: no-referrer
 
 engines:
+  # Search engines
   - name: google
     disabled: false
 
@@ -61,6 +62,29 @@ engines:
   - name: wikidata
     engine: wikidata
     disabled: true
+
+  # Calculator and unit converter
+  - name: calculator
+    engine: calculator
+    shortcut: calc
+    disabled: false
+
+  - name: unit converter
+    engine: convert
+    shortcut: conv
+    disabled: false
+
+  # Translation engines
+  - name: lingva
+    engine: lingva
+    shortcut: lv
+    base_url: https://lingva.ml
+    disabled: false
+
+  - name: mymemory translated
+    engine: mymemory_translated
+    shortcut: tl
+    disabled: false
 
 ui:
   static_f_cache: 1200
