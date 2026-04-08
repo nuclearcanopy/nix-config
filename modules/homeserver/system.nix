@@ -34,13 +34,64 @@
   services.tlp = {
     enable = true;
     settings = {
+      # Use powersave governor (with intel_pstate, this still scales on demand)
+      # This drops to low frequencies when idle, saving significant power
+      CPU_SCALING_GOVERNOR_ON_AC = "powersave";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+      # Energy policy: balance_performance for fast streaming response
+      # Options: performance > balance_performance > balance_power > power
+      # balance_performance = quick ramp-up, still saves power at idle
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_performance";
+
+      # Keep boost ENABLED - critical for fast single-thread when needed
       CPU_BOOST_ON_AC = 1;
       CPU_BOOST_ON_BAT = 1;
-      CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_SCALING_GOVERNOR_ON_BAT = "performance";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "performance";
+
+      # Intel Hardware P-state dynamic boost - quick frequency ramp-up
+      CPU_HWP_DYN_BOOST_ON_AC = 1;
+      CPU_HWP_DYN_BOOST_ON_BAT = 1;
+
+      # Don't limit min/max frequencies - let CPU use full range
+      CPU_SCALING_MIN_FREQ_ON_AC = 0;
+      CPU_SCALING_MAX_FREQ_ON_AC = 0;
+      CPU_SCALING_MIN_FREQ_ON_BAT = 0;
+      CPU_SCALING_MAX_FREQ_ON_BAT = 0;
+
+      # Platform profile for balanced operation
+      PLATFORM_PROFILE_ON_AC = "balanced";
+      PLATFORM_PROFILE_ON_BAT = "balanced";
     };
+  };
+
+  # Enable thermald for Intel - helps with efficient thermal/power management
+  services.thermald.enable = true;
+
+  # IRQ balancing for better I/O responsiveness
+  services.irqbalance.enable = true;
+
+  # Give Docker containers higher scheduling priority for responsive streaming
+  systemd.services.docker = {
+    serviceConfig = {
+      Nice = -5;           # Higher priority (-20 to 19, lower = higher priority)
+      IOSchedulingClass = "realtime";
+      IOSchedulingPriority = 2;  # 0-7, lower = higher priority
+    };
+  };
+
+  # Kernel parameters for better responsiveness under load
+  boot.kernel.sysctl = {
+    # Reduce swappiness - prefer keeping things in RAM
+    "vm.swappiness" = 10;
+    # More aggressive dirty page writeback (better I/O responsiveness)
+    "vm.dirty_ratio" = 10;
+    "vm.dirty_background_ratio" = 5;
+    # Increase network buffer sizes for streaming
+    "net.core.rmem_max" = 16777216;
+    "net.core.wmem_max" = 16777216;
+    "net.ipv4.tcp_rmem" = "4096 87380 16777216";
+    "net.ipv4.tcp_wmem" = "4096 65536 16777216";
   };
 
   systemd.targets = {

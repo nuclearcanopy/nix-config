@@ -26,7 +26,7 @@ in
         ports = [ "4533:4533" ];
         volumes = [
           "/var/lib/navidrome/data:/data"
-          "/mnt/nas/Navidrome/music:/music:ro"
+          "/home/homeserver/Navidrome/music:/music:ro"
         ];
         environment = {
           ND_SCANSCHEDULE = "1h";
@@ -104,6 +104,11 @@ in
     "d /var/lib/navidrome 0755 root root -"
     "d /var/lib/portainer 0755 root root -"
     "d /var/lib/searxng 0755 root root -"
+    # Local Navidrome music library on SSD for fast access
+    "d /home/homeserver/Navidrome 0755 homeserver users -"
+    "d /home/homeserver/Navidrome/music 0755 homeserver users -"
+    "d /home/homeserver/Navidrome/music/Web 0755 homeserver users -"
+    "d /home/homeserver/Navidrome/music/Bought 0755 homeserver users -"
   ];
 
   systemd.services.init-docker-network = {
@@ -169,6 +174,73 @@ in
 
       echo "Backup completed successfully at $(date)"
     '';
+  };
+
+  # Sync local Navidrome library TO NAS (backup local changes)
+  systemd.services.navidrome-sync-to-nas = {
+    description = "Sync local Navidrome music library to NAS";
+    after = [ "mnt-nas.mount" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "homeserver";
+    };
+    script = ''
+      set -e
+
+      # Ensure NAS directories exist
+      mkdir -p /mnt/nas/Navidrome/music
+
+      # Sync local → NAS (preserves NAS files not on local with --update)
+      ${pkgs.rsync}/bin/rsync -av --update \
+        /home/homeserver/Navidrome/music/ \
+        /mnt/nas/Navidrome/music/
+
+      # Also sync cookies if it exists locally
+      if [[ -f /home/homeserver/Navidrome/cookies.txt ]]; then
+        cp /home/homeserver/Navidrome/cookies.txt /mnt/nas/Navidrome/cookies.txt
+      fi
+
+      echo "Navidrome sync to NAS completed at $(date)"
+    '';
+  };
+
+  # Sync FROM NAS to local (for initial setup or recovery)
+  systemd.services.navidrome-sync-from-nas = {
+    description = "Sync Navidrome music library from NAS to local SSD";
+    after = [ "mnt-nas.mount" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "homeserver";
+    };
+    script = ''
+      set -e
+
+      # Ensure local directories exist
+      mkdir -p /home/homeserver/Navidrome/music
+
+      # Sync NAS → local
+      ${pkgs.rsync}/bin/rsync -av --progress \
+        /mnt/nas/Navidrome/music/ \
+        /home/homeserver/Navidrome/music/
+
+      # Copy cookies file if it exists on NAS
+      if [[ -f /mnt/nas/Navidrome/cookies.txt ]]; then
+        cp /mnt/nas/Navidrome/cookies.txt /home/homeserver/Navidrome/cookies.txt
+      fi
+
+      echo "Navidrome sync from NAS completed at $(date)"
+    '';
+  };
+
+  systemd.timers.navidrome-sync-to-nas = {
+    description = "Timer for Navidrome library sync to NAS";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      # Sync every 30 minutes and 5 min after boot
+      OnCalendar = "*:00/30";
+      OnBootSec = "5min";
+      Persistent = true;
+    };
   };
 
   systemd.services.scheduled-reboot = {
