@@ -290,6 +290,9 @@ let currentPct=0;
 let currentParams=null;
 let dupeResolver=null;
 let batchMode=false;
+let totalItems=1;
+let currentItemIndex=0;
+let itemSource=''; // 'batch' or 'playlist'
 
 function updateBatchCounter(){
 const urls=getUrls();
@@ -357,9 +360,18 @@ console_.scrollTop=console_.scrollHeight;
 
 function setProgress(pct,info=''){
 currentPct=Math.max(currentPct,pct);
-progressFill.style.width=currentPct+'%';
+let totalPct=currentPct;
+let itemLabel='';
+if(totalItems>1){
+totalPct=((currentItemIndex*100)+currentPct)/totalItems;
+itemLabel=`${currentItemIndex+1}/${totalItems}`;
+}
+progressFill.style.width=totalPct+'%';
 progressFill.className='progress-fill';
-progressPct.textContent=info?`${currentPct.toFixed(1)}% • ${info}`:currentPct>0?`${currentPct.toFixed(1)}%`:'';
+let pctText=totalPct>0?`${totalPct.toFixed(1)}%`:'';
+if(itemLabel)pctText=itemLabel+(pctText?' • '+pctText:'');
+if(info)pctText+=(pctText?' • ':'')+info;
+progressPct.textContent=pctText;
 }
 
 function setStatus(text,state){
@@ -367,11 +379,17 @@ statusText.textContent=text;
 statusDot.className='status-dot '+state;
 if(state==='running'&&currentPct===0){
 progressFill.className='progress-fill indeterminate';
+if(totalItems>1){
+progressPct.textContent=`${currentItemIndex+1}/${totalItems}`;
+}else{
 progressPct.textContent='';
+}
 }else if(state==='complete'){
 progressFill.className='progress-fill complete';
 progressFill.style.width='100%';
-progressPct.textContent='100%';
+let completeText='100%';
+if(totalItems>1)completeText=`${totalItems}/${totalItems} • 100%`;
+progressPct.textContent=completeText;
 }else if(state==='error'){
 progressFill.className='progress-fill error';
 progressPct.textContent='';
@@ -404,7 +422,7 @@ setProgress(prog.pct,prog.info);
 statusText.textContent='Downloading audio...';
 return;
 }
-const indeterminate=()=>{progressFill.className='progress-fill indeterminate';progressPct.textContent='';};
+const indeterminate=()=>{if(totalItems>1){const totalPct=((currentItemIndex*100)+currentPct)/totalItems;progressFill.style.width=totalPct+'%';progressFill.className='progress-fill';progressPct.textContent=`${currentItemIndex+1}/${totalItems} • ${totalPct.toFixed(1)}%`;}else{progressFill.className='progress-fill indeterminate';progressPct.textContent='';}};
 
 // yt-dlp update/version checks
 if(line.match(/Updating to version/i)||line.match(/yt-dlp is up to date/i)){
@@ -426,6 +444,14 @@ statusText.textContent='Processing playlist...';indeterminate();
 statusText.textContent='Searching YouTube...';indeterminate();
 }else if(line.match(/Downloading item (\d+) of (\d+)/i)){
 const m=line.match(/Downloading item (\d+) of (\d+)/i);
+const itemNum=parseInt(m[1],10);
+const itemTotal=parseInt(m[2],10);
+if(itemSource!=='batch'){
+totalItems=itemTotal;
+currentItemIndex=itemNum-1;
+currentPct=0;
+itemSource='playlist';
+}
 statusText.textContent=`Playlist item ${m[1]}/${m[2]}`;indeterminate();
 }
 
@@ -500,7 +526,8 @@ statusText.textContent='Loading cookies...';indeterminate();
 // Download states
 else if(line.match(/^\[download\]\s+Destination:/)){
 statusText.textContent='Starting download...';
-currentPct=0;setProgress(0,'');
+currentPct=0;
+setProgress(0,'');
 }else if(line.match(/^\[download\]\s+Resuming download/i)){
 statusText.textContent='Resuming download...';indeterminate();
 }else if(line.match(/^\[download\]\s+Downloading video/i)){
@@ -642,6 +669,14 @@ statusText.textContent='Request timed out...';indeterminate();
 // Video info display
 else if(line.match(/^\[download\]\s+Downloading video \d+ of \d+/i)){
 const m=line.match(/Downloading video (\d+) of (\d+)/i);
+const itemNum=parseInt(m[1],10);
+const itemTotal=parseInt(m[2],10);
+if(itemSource!=='batch'){
+totalItems=itemTotal;
+currentItemIndex=itemNum-1;
+currentPct=0;
+itemSource='playlist';
+}
 statusText.textContent=`Video ${m[1]}/${m[2]}`;indeterminate();
 }else if(line.match(/Available formats/i)){
 statusText.textContent='Listing formats...';indeterminate();
@@ -706,7 +741,14 @@ btn.textContent=_batch?'Batch...':'Running...';
 progress.className='progress-container active';
 if(clearConsole)console_.innerHTML='';
 currentPct=0;
-progressFill.style.width='0%';
+if(!_batch){
+totalItems=1;
+currentItemIndex=0;
+itemSource='';
+}
+let startPct=0;
+if(totalItems>1)startPct=(currentItemIndex*100)/totalItems;
+progressFill.style.width=startPct+'%';
 setStatus('Connecting...','running');
 
 let dupeDetected=false;
@@ -808,6 +850,9 @@ return;
 
 if(urls.length===1){
 batchProgress.textContent='';
+totalItems=1;
+currentItemIndex=0;
+itemSource='';
 await runDownload({password,command,url:urls[0],force});
 }else{
 let completed=0;
@@ -816,8 +861,12 @@ running=true;
 btn.disabled=true;
 btn.className='btn running';
 btn.textContent='Batch...';
+totalItems=urls.length;
+itemSource='batch';
 for(let i=0;i<urls.length;i++){
-batchProgress.textContent=`Processing ${i+1} of ${urls.length}`;
+currentItemIndex=i;
+currentPct=0;
+batchProgress.textContent='';
 const isLast=i===urls.length-1;
 const clearConsole=i===0;
 try{
@@ -828,10 +877,12 @@ failed++;
 }
 if(!isLast){
 log('\\n────────────────────────────────\\n','info');
-currentPct=0;
 }
 }
 batchProgress.textContent=`Batch complete: ${completed} done${failed>0?`, ${failed} failed`:''}`;
+totalItems=1;
+currentItemIndex=0;
+itemSource='';
 running=false;
 btn.disabled=false;
 btn.className='btn';
