@@ -26,11 +26,5 @@
     execWheelOnly = true;
   };
 
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 33;
-  };
-
   environment.variables.EDITOR = "nvim";
 }

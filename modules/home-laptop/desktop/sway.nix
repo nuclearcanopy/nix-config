@@ -26,6 +26,7 @@ in
       input = {
         "*" = {
           xkb_layout = "us";
+          xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";  # caps→ctrl, ctrl↔alt swap
           accel_profile = "flat";
           pointer_accel = "-0.5";
         };
@@ -35,6 +36,7 @@ in
           tap = "enabled";
           dwt = "enabled";        # disable while typing
           middle_emulation = "enabled";
+          pointer_accel = "-0.3";  # ~20% faster than default -0.5
         };
       };
 
@@ -75,12 +77,12 @@ in
       };
 
       startup = [
+        { command = "swaymsg workspace 1"; }  # start on workspace 1
         { command = "mullvad-gui"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
         { command = "waybar"; }
         { command = "autotiling-rs"; }
-        # Removed: easyeffects (no low-latency audio on laptop)
       ];
 
       keybindings = let

@@ -1,5 +1,5 @@
 NIX_FLAKE_DIR="$HOME/nix-config"
-: ${NIX_FLAKE_HOST:="kuraokami"}
+: ${NIX_FLAKE_HOST:="$(hostname)"}
 
 nix-commit() {
   echo " Changes"
