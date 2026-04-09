@@ -14,7 +14,7 @@
 
     secrets = {
       ssh-codeberg = {
-        file = ../../secrets/ssh-codeberg.age;
+        file = ../../../secrets/ssh-codeberg.age;
         path = "/run/agenix/ssh-codeberg";
         owner = username;
         group = "users";
@@ -24,7 +24,7 @@
       # Reuses kuraokami's user-password secret (same age key, same password hash).
       # See note above if you want a separate password.
       user-password = {
-        file = ../../secrets/user-password.age;
+        file = ../../../secrets/user-password.age;
       };
     };
   };

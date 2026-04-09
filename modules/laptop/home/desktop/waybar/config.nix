@@ -9,7 +9,7 @@
 {
   programs.waybar = {
     enable = true;
-    style = builtins.readFile ../../../home/desktop/waybar/style.css;
+    style = builtins.readFile ../../../../home/desktop/waybar/style.css;
 
     settings = {
       mainBar = {
@@ -79,7 +79,7 @@
         };
 
         "custom/mpris" = {
-          exec = "${../../../home/desktop/waybar/scripts/mpris.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/mpris.sh}";
           interval = 1;
           tooltip = false;
         };
@@ -92,7 +92,7 @@
         };
 
         "custom/time" = {
-          exec = "${../../../home/desktop/waybar/scripts/clock_time.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/clock_time.sh}";
           interval = 60;
           tooltip = false;
         };
@@ -115,7 +115,7 @@
         };
 
         "custom/volume" = {
-          exec = "${../../../home/desktop/waybar/scripts/volume.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/volume.sh}";
           interval = 1;
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           on-click-middle = "pavucontrol";
@@ -136,13 +136,13 @@
         };
 
         "custom/memory" = {
-          exec = "${../../../home/desktop/waybar/scripts/memory.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/memory.sh}";
           interval = 5;
           tooltip = false;
         };
 
         "custom/cpu" = {
-          exec = "${../../../home/desktop/waybar/scripts/cpu_status.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/cpu_status.sh}";
           interval = 5;
           tooltip = false;
         };

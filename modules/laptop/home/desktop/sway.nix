@@ -38,12 +38,6 @@ in
           middle_emulation = "enabled";
           pointer_accel = "-0.3";  # ~20% faster than default -0.5
         };
-
-        "type:touch" = {
-          # touchscreen settings - maps to built-in display by default
-          # uncomment to lock to specific output:
-          # map_to_output = "eDP-1";
-        };
       };
 
       gaps = {
@@ -89,7 +83,6 @@ in
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
         { command = "waybar"; }
         { command = "autotiling-rs"; }
-        { command = "libinput-gestures-setup start"; }  # touch gestures
       ];
 
       keybindings = let
@@ -160,9 +153,6 @@ in
         "XF86AudioPause" = "exec playerctl play-pause";
         "XF86AudioPlay" = "exec playerctl play-pause";
         "XF86AudioPrev" = "exec playerctl previous";
-
-        # on-screen keyboard toggle
-        "${mod}+k" = "exec pkill wvkbd-mobintl || wvkbd-mobintl -L 300";
       };
 
       floating = {
