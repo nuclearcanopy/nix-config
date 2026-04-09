@@ -97,9 +97,10 @@ echo -e "${GREEN}=== NixOS Multi-Host Install ===${NC}\n"
 section "Host selection"
 echo "Available hosts:"
 echo "  1) kuraokami  - Desktop workstation (AMD GPU, Sway, gaming)"
-echo "  2) homeserver - Home server (Docker, Navidrome, etc.)"
+echo "  2) nidhoggr   - Laptop (AMD GPU/CPU, Sway, coding/browsing, power-efficient)"
+echo "  3) homeserver - Home server (Docker, Navidrome, etc.)"
 echo ""
-read -p "Select host [1/2]: " HOST_CHOICE
+read -p "Select host [1/2/3]: " HOST_CHOICE
 
 case "$HOST_CHOICE" in
   1|kuraokami)
@@ -107,7 +108,12 @@ case "$HOST_CHOICE" in
     DEFAULT_USERNAME="nuclearcanopy"
     DEFAULT_DISK="/dev/nvme0n1"
     ;;
-  2|homeserver)
+  2|nidhoggr)
+    HOST="nidhoggr"
+    DEFAULT_USERNAME="nuclearcanopy"
+    DEFAULT_DISK="/dev/nvme0n1"
+    ;;
+  3|homeserver)
     HOST="homeserver"
     DEFAULT_USERNAME="homeserver"
     DEFAULT_DISK="/dev/sda"
@@ -139,6 +145,15 @@ USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
 ok "Username: ${USERNAME}"
 
 section "Age identity"
+if [ "$HOST" = "nidhoggr" ]; then
+  echo ""
+  echo "  nidhoggr uses the same age key as kuraokami by default."
+  echo "  If you have your existing key, paste/place it now."
+  echo "  If not, generate one: age-keygen -o /etc/age/key.txt"
+  echo "  Then add the pubkey (age-keygen -y /etc/age/key.txt) to"
+  echo "  secrets/secrets.nix and re-encrypt: cd secrets && agenix -e user-password.age"
+  echo ""
+fi
 read -p "Place /etc/age/key.txt yourself? [Y/n] " PLACE_SELF
 if [ "$PLACE_SELF" = "n" ] || [ "$PLACE_SELF" = "N" ]; then
   warn "Paste your age identity key. End with Ctrl-D."
@@ -225,6 +240,14 @@ echo "  1. Reboot into your new system"
 echo "  2. Log in as ${USERNAME}"
 if [ "$HOST" = "kuraokami" ]; then
   echo "  3. Run: sudo nixos-rebuild switch --flake ~/nix-config#kuraokami"
+elif [ "$HOST" = "nidhoggr" ]; then
+  echo "  3. Run: sudo nixos-rebuild switch --flake ~/nix-config#nidhoggr"
+  echo ""
+  echo "  [nidhoggr] If you used a new age key, remember to:"
+  echo "    a) Get pubkey:  age-keygen -y /etc/age/key.txt"
+  echo "    b) Update:      secrets/secrets.nix  (replace PLACEHOLDER with pubkey)"
+  echo "    c) Re-encrypt:  cd ~/nix-config/secrets && agenix -e user-password.age"
+  echo "    d) Rebuild:     sudo nixos-rebuild switch --flake ~/nix-config#nidhoggr"
 else
   echo "  3. Run: sudo nixos-rebuild switch --flake ~/nix-config#homeserver"
 fi
