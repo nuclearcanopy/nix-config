@@ -26,7 +26,7 @@ in
       input = {
         "*" = {
           xkb_layout = "us";
-          xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl,altwin:swap_alt_win";  # caps→ctrl, ctrl↔alt, alt↔super
+          xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";  # caps→ctrl, ctrl↔alt
           accel_profile = "flat";
           pointer_accel = "-0.5";
         };
