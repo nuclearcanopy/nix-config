@@ -67,6 +67,8 @@
   };
 
   # Lid close always suspends (on AC and battery)
-  services.logind.lidSwitch = "suspend";
-  services.logind.lidSwitchExternalPower = "suspend";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+  };
 }

@@ -32,7 +32,7 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "battery"
+          "custom/battery"
           "custom/memory"
           "custom/cpu"
           "custom/firmware"
@@ -129,19 +129,10 @@
           tooltip-format = "{node_name}";
         };
 
-        battery = {
+        "custom/battery" = {
+          exec = "${./scripts/battery.sh}";
           interval = 30;
-          format = "BAT {capacity}%";
-          format-charging = "CHG {capacity}%";
-          format-plugged = "PLG {capacity}%";
-          format-full = "FULL";
-          states = {
-            warning = 25;
-            critical = 10;
-          };
-          format-warning = "<span color='#e5c07b'>BAT {capacity}%</span>";
-          format-critical = "<span color='#B96B6B'>BAT {capacity}%</span>";
-          tooltip-format = "{timeTo} — {power:.1f}W";
+          tooltip = false;
         };
 
         "custom/memory" = {
