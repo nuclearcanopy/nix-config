@@ -1,5 +1,5 @@
 {
-  description = "NixOS configurations for kuraokami and homeserver";
+  description = "NixOS configurations for kuraokami, nidhoggr, and homeserver";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -72,6 +72,38 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
             home-manager.users.${username} = import ./modules/home/home.nix;
+          }
+        ];
+      };
+
+      # Laptop (AMD CPU+GPU, coding/browsing, power-efficient)
+      nidhoggr = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          unstable = unstable-pkgs;
+          inherit username;
+        };
+
+        modules = [
+          ./hosts/nidhoggr/configuration.nix
+
+          # nur overlay for firefox extensions
+          { nixpkgs.overlays = [ nur.overlays.default ]; }
+
+          # agenix for secrets management
+          agenix.nixosModules.default
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.extraSpecialArgs = {
+              unstable = unstable-pkgs;
+              inherit username;
+            };
+            home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.${username} = import ./modules/home-laptop/home.nix;
           }
         ];
       };
