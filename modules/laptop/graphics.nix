@@ -21,10 +21,6 @@
         pkgs.libva-utils
       ];
 
-      extraPackages32 = [
-        pkgs.pkgsi686Linux.vulkan-loader
-        pkgs.pkgsi686Linux.libva
-      ];
     };
   };
 }

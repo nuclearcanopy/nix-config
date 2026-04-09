@@ -207,6 +207,13 @@ ok "hardware-configuration.nix updated for ${HOST}"
 STEP=$((STEP + 1))
 progress "$STEP" "$TOTAL_STEPS"
 section "Installing NixOS"
+# Copy age key into chroot so agenix can decrypt secrets during activation.
+# Without this, hashedPasswordFile points to a non-existent path and you
+# can't log in on first boot.
+mkdir -p /mnt/etc/age
+cp /etc/age/key.txt /mnt/etc/age/key.txt
+chmod 600 /mnt/etc/age/key.txt
+ok "Age key staged at /mnt/etc/age/key.txt"
 run_step "nixos-install" nixos-install --flake ".#${HOST}" --no-root-password
 ok "NixOS installed"
 
