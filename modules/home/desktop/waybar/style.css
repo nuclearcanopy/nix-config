@@ -38,7 +38,8 @@ window#waybar {
 #custom-gpu,
 #custom-firmware,
 #custom-reboot,
-#custom-power {
+#custom-power,
+#battery {
   margin: 2px 11px;
   padding: 2px 0px;
   background: transparent;
@@ -80,7 +81,8 @@ window#waybar {
 }
 
 #workspaces button.active {
-  color: #dddddd;
+  color: #ffffff;
+  border-bottom: 2px solid #666666;
 }
 
 #workspaces button.empty {
@@ -119,7 +121,8 @@ window#waybar {
 #wireplumber:hover,
 #custom-power:hover,
 #custom-reboot:hover,
-#custom-mouse:hover {
+#custom-mouse:hover,
+#battery:hover {
   color: #b0b0b0;
 }
 

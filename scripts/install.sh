@@ -43,33 +43,25 @@ elapsed() {
   printf "%02dm%02ds" "$mins" "$secs"
 }
 
-spinner() {
-  local pid=$1
-  local msg=$2
-  local spin='|/-\'
-  local i=0
-  printf "%s " "$msg"
-  while kill -0 "$pid" 2>/dev/null; do
-    i=$(( (i + 1) % 4 ))
-    printf "\b%s" "${spin:$i:1}"
-    sleep 0.1
-  done
-  printf "\b"
-}
-
 run_step() {
   local msg=$1
   shift
-  local start_s
+  local start_s rc
   start_s=$(now_s)
+  echo ""
+  echo -e "${CYAN}>>> ${msg}${NC}"
   echo "[$(ts)] START: ${msg}" >> "$LOG"
-  "$@" >> "$LOG" 2>&1 & local pid=$!
-  spinner "$pid" "$msg"
-  wait "$pid"
-  local rc=$?
+  # Run command with output visible and logged (pipefail captures exit code through pipe)
+  set +e
+  "$@" 2>&1 | tee -a "$LOG"
+  rc=${PIPESTATUS[0]}
+  set -e
   local end_s
   end_s=$(now_s)
   echo "[$(ts)] END: ${msg} (rc=${rc}, elapsed=$(elapsed "$start_s" "$end_s"))" >> "$LOG"
+  if [ "$rc" -ne 0 ]; then
+    die "Command failed (exit $rc): $*"
+  fi
   return "$rc"
 }
 

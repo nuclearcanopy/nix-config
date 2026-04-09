@@ -3,6 +3,6 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/homeserver
+    ../../modules/server
   ];
 }
