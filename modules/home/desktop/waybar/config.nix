@@ -27,9 +27,9 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "custom/mouse"
           "custom/memory"
           "custom/cpu"
+          "custom/mouse"
           "custom/gpu"
           "custom/firmware"
           "custom/reboot"
