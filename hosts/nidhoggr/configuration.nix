@@ -4,6 +4,6 @@
   imports = [
     ./hardware-configuration.nix
     ./system.nix
-    ../../modules/laptop
+    ../../modules/laptop/system
   ];
 }

@@ -6,23 +6,6 @@
   xdg = {
     enable = true;
     mime.enable = true;
-
-    # libinput-gestures config for touchscreen/touchpad
-    configFile."libinput-gestures.conf".text = ''
-      # 3-finger swipe to switch workspaces
-      gesture swipe left  3 swaymsg workspace next
-      gesture swipe right 3 swaymsg workspace prev
-
-      # 4-finger swipe for window focus
-      gesture swipe left  4 swaymsg focus right
-      gesture swipe right 4 swaymsg focus left
-      gesture swipe up    4 swaymsg focus up
-      gesture swipe down  4 swaymsg focus down
-
-      # 3-finger pinch to toggle fullscreen
-      gesture pinch in  3 swaymsg fullscreen toggle
-      gesture pinch out 3 swaymsg fullscreen toggle
-    '';
   };
 
   home = {
@@ -57,15 +40,15 @@
   imports = [
     ./desktop
     # Shell: reuse kuraokami config entirely
-    ../home/shell
+    ../../home/shell
     # Programs: pick what makes sense on a laptop, skip gaming/studio
-    ../home/programs/firefox.nix
+    ../../home/programs/firefox.nix
     ./programs/firefox.nix  # laptop-specific overrides (devPixelsPerPx)
-    ../home/programs/neovim/config.nix
-    ../home/programs/btop.nix
-    ../home/programs/vesktop.nix
+    ../../home/programs/neovim/config.nix
+    ../../home/programs/btop.nix
+    ../../home/programs/vesktop.nix
     ./programs/packages.nix
     # Dev: reuse kuraokami config entirely
-    ../home/dev
+    ../../home/dev
   ];
 }
