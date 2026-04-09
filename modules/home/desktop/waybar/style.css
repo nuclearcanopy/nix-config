@@ -39,6 +39,7 @@ window#waybar {
 #custom-firmware,
 #custom-reboot,
 #custom-power,
+#custom-battery,
 #battery {
   margin: 2px 11px;
   padding: 2px 0px;
@@ -122,6 +123,7 @@ window#waybar {
 #custom-power:hover,
 #custom-reboot:hover,
 #custom-mouse:hover,
+#custom-battery:hover,
 #battery:hover {
   color: #b0b0b0;
 }

@@ -9,6 +9,14 @@
     memoryPercent = 50;  # uses 4GB RAM for ~8GB virtual swap
   };
 
+  # Earlyoom: kill memory hogs before OOM killer freezes system
+  services.earlyoom = {
+    enable = true;
+    freeMemThreshold = 5;
+    freeSwapThreshold = 10;
+    enableNotifications = true;
+  };
+
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -40,6 +48,8 @@
       "amdgpu.dpm=1"                # dynamic power management
       "pcie_aspm=force"             # force PCIe ASPM
       "pcie_aspm.policy=powersupersave"
+      # Faster suspend/resume
+      "mem_sleep_default=deep"
     ];
 
     # Kept: network protocol blacklisting for security

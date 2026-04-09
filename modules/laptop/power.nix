@@ -1,10 +1,19 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # TLP manages CPU frequency governors per AC/BAT state so laptop stays
   # cool on battery without sacrificing AC performance.
   # Conflicts with power-profiles-daemon — disable it.
   services.power-profiles-daemon.enable = false;
+
+  # Powertop auto-tune catches anything TLP misses
+  powerManagement.powertop.enable = true;
+
+  # Thermald for Intel/AMD thermal management
+  services.thermald.enable = true;
+
+  # Add powertop for manual inspection
+  environment.systemPackages = [ pkgs.powertop ];
 
   services.tlp = {
     enable = true;

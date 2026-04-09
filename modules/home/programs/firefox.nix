@@ -262,6 +262,22 @@
 
         "sidebar.verticalTabs" = true;
 
+        # Fast startup optimizations
+        "browser.startup.homepage.abouthome_cache.enabled" = true;
+        "browser.sessionstore.interval" = 60000;  # 60s instead of 15s
+        "browser.sessionstore.idleDelay" = 10000;
+        "browser.startup.preXulSkeletonUI" = false;  # skip skeleton (faster cold start)
+        "browser.tabs.animate" = false;
+        "browser.urlbar.trimURLs" = false;  # less processing
+        "browser.cache.disk.enable" = true;
+        "browser.cache.disk.smart_size.enabled" = false;
+        "browser.cache.disk.capacity" = 512000;  # 500MB cache
+        "browser.cache.memory.enable" = true;
+        "browser.cache.memory.capacity" = 131072;  # 128MB memory cache
+        "image.mem.decode_bytes_at_a_time" = 65536;  # faster image decode
+        "gfx.webrender.all" = true;
+        "layers.acceleration.force-enabled" = true;
+
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;
         "browser.ml.chat.sidebar" = false;
