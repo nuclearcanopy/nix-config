@@ -39,15 +39,22 @@
       "page_alloc.shuffle=1"
       "preempt=full"
       "amd_pstate=active"
-      # Laptop display: prevent screen tearing on eDP
-      "amdgpu.dc=1"
+      # Laptop display
+      "amdgpu.dc=1"                 # prevent screen tearing on eDP
+      "amdgpu.abmlevel=3"           # adaptive backlight management (saves power)
       # Power saving
-      "nmi_watchdog=0"              # disable NMI watchdog (saves power)
+      "nmi_watchdog=0"              # disable NMI watchdog
       "nowatchdog"                  # disable watchdog timers
-      "amdgpu.runpm=1"              # AMD GPU runtime PM
+      "amdgpu.runpm=1"              # GPU runtime PM
       "amdgpu.dpm=1"                # dynamic power management
+      "amdgpu.ppfeaturemask=0xffffffff"  # enable all power features
       "pcie_aspm=force"             # force PCIe ASPM
       "pcie_aspm.policy=powersupersave"
+      "ahci.mobile_lpm_policy=3"    # aggressive SATA power saving
+      "snd_hda_intel.power_save=1"  # audio codec power save
+      "snd_hda_intel.power_save_controller=Y"
+      "iwlwifi.power_save=1"        # wifi power save (if Intel)
+      "iwlwifi.uapsd_disable=0"     # enable U-APSD (wifi power save)
       # Faster suspend/resume
       "mem_sleep_default=deep"
     ];
@@ -88,6 +95,8 @@
       # Power saving
       "vm.laptop_mode" = 5;               # aggressive disk spin-down
       "kernel.nmi_watchdog" = 0;          # disable NMI watchdog
+      "vm.dirty_writeback_centisecs" = 6000;  # 60s writeback (batch disk writes)
+      "vm.dirty_expire_centisecs" = 6000;     # 60s before dirty pages expire
     };
   };
 }
