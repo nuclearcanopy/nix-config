@@ -9,5 +9,6 @@
     # Laptop-specific overrides
     ./sway.nix
     ./waybar/config.nix
+    ./swayidle.nix  # auto screen blank + suspend for battery
   ];
 }

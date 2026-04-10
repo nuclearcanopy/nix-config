@@ -6,12 +6,23 @@
   xdg = {
     enable = true;
     mime.enable = true;
+    desktopEntries.bolt-launcher = {
+      name = "Bolt Launcher";
+      exec = "bolt-launcher";
+      icon = "bolt-launcher";
+      comment = "RuneScape launcher (Mullvad excluded)";
+      categories = [ "Game" ];
+    };
   };
 
   home = {
     username = username;
     homeDirectory = "/home/${username}";
     stateVersion = "25.11";
+
+    sessionVariables = {
+      _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
+    };
 
     activation.setNixConfigRemote = config.lib.dag.entryAfter [ "writeBoundary" ] ''
       if [ -d "$HOME/nix-config/.git" ]; then

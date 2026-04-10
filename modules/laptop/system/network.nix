@@ -17,6 +17,9 @@
 
     networkmanager = {
       enable = true;
+      # WiFi power saving for battery life
+      wifi.powersave = true;
+      wifi.scanRandMacAddress = true;
       # WiFi is managed interactively via nmtui/nmcli or the NM applet.
       # Wired auto-connects below; wireless profiles added post-install.
       ensureProfiles.profiles = {
