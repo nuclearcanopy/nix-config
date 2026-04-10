@@ -83,17 +83,12 @@
   };
 
   # Lid close: suspend on battery, keep awake option on AC
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchExternalPower = "suspend";
-    # Power button: suspend instead of poweroff
-    settings = {
-      Login = {
-        HandlePowerKey = "suspend";
-        IdleAction = "suspend";
-        IdleActionSec = "15min";
-      };
-    };
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+    HandlePowerKey = "suspend";
+    IdleAction = "suspend";
+    IdleActionSec = "15min";
   };
 
   # Suspend-then-hibernate: if suspended for 30min, hibernate to save more power

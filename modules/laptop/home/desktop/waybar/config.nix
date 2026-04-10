@@ -13,7 +13,7 @@
 
     settings = {
       mainBar = {
-        reload_style_on_change = true;
+        reload_style_on_change = false;  # saves CPU - disable when not theming
         fixed-center = true;
         layer = "top";
         position = "top";
@@ -80,7 +80,7 @@
 
         "custom/mpris" = {
           exec = "${../../../../home/desktop/waybar/scripts/mpris.sh}";
-          interval = 1;
+          interval = 5;  # battery: reduced from 1s
           tooltip = false;
         };
 
@@ -116,7 +116,7 @@
 
         "custom/volume" = {
           exec = "${../../../../home/desktop/waybar/scripts/volume.sh}";
-          interval = 1;
+          interval = 5;  # battery: reduced from 1s
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           on-click-middle = "pavucontrol";
         };
@@ -137,13 +137,13 @@
 
         "custom/memory" = {
           exec = "${../../../../home/desktop/waybar/scripts/memory.sh}";
-          interval = 5;
+          interval = 10;  # battery: reduced from 5s
           tooltip = false;
         };
 
         "custom/cpu" = {
           exec = "${../../../../home/desktop/waybar/scripts/cpu_status.sh}";
-          interval = 5;
+          interval = 10;  # battery: reduced from 5s
           tooltip = false;
         };
       };
