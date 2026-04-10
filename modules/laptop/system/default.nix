@@ -5,6 +5,7 @@
     ./secrets.nix
     ./boot.nix
     ./audio.nix
+    ./bluetooth.nix
     ./cpu.nix
     ./graphics.nix
     ./network.nix

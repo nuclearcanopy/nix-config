@@ -77,8 +77,9 @@ in
       };
 
       startup = [
-        { command = "swaymsg workspace 1"; }  # start on workspace 1
+        { command = "swaymsg workspace 1"; }
         { command = "mullvad-gui"; }
+        { command = "blueman-applet"; }
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"; }
         { command = "waybar"; }
