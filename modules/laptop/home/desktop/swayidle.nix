@@ -7,21 +7,21 @@
     systemdTarget = "sway-session.target";
 
     timeouts = [
-      # Dim screen after 2 minutes (sets to 10% brightness)
+      # Dim screen after 1 minute (sets to 10% brightness)
       {
-        timeout = 120;
+        timeout = 60;
         command = "${pkgs.brightnessctl}/bin/brightnessctl -s set 10%";
         resumeCommand = "${pkgs.brightnessctl}/bin/brightnessctl -r";
       }
-      # Turn off screen after 3 minutes
+      # Turn off screen after 2 minutes
       {
-        timeout = 180;
+        timeout = 120;
         command = "${pkgs.sway}/bin/swaymsg 'output * power off'";
         resumeCommand = "${pkgs.sway}/bin/swaymsg 'output * power on'";
       }
-      # Suspend after 10 minutes of idle
+      # Suspend after 5 minutes of idle
       {
-        timeout = 600;
+        timeout = 300;
         command = "${pkgs.systemd}/bin/systemctl suspend";
       }
     ];
