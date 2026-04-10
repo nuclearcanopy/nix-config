@@ -5,6 +5,14 @@ nix-commit() {
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
 
+  echo ""
+  echo -n "󰏪 Commit message: "
+  read COMMIT_MSG
+  if [ -z "$COMMIT_MSG" ]; then
+    echo "󰚌 Aborted (no commit message)"
+    return 1
+  fi
+
   git -C "$NIX_FLAKE_DIR" add .
 
   echo "󱄅 Rebuilding..."
@@ -19,7 +27,7 @@ nix-commit() {
     GEN=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1 " (" $2 " " $3 ")"}')
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
 
-    git -C "$NIX_FLAKE_DIR" commit -m "Rebuild: $GEN" --quiet
+    git -C "$NIX_FLAKE_DIR" commit -m "$COMMIT_MSG (Gen $GEN_NUM)" --quiet
 
     echo "󰊢 Syncing..."
     git -C "$NIX_FLAKE_DIR" push origin main --quiet > /dev/null 2>&1

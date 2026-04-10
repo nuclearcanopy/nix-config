@@ -278,6 +278,18 @@
         "gfx.webrender.all" = true;
         "layers.acceleration.force-enabled" = true;
 
+        # Battery/CPU savings
+        "dom.ipc.processCount" = 4;  # reduce from default 8
+        "media.ffmpeg.vaapi.enabled" = true;  # hardware video decode
+        "media.hardware-video-decoding.force-enabled" = true;
+        "media.av1.enabled" = false;  # AV1 software decode is brutal on CPU
+        "beacon.enabled" = false;  # no background analytics pings
+        "dom.push.enabled" = false;  # no push notifications
+        "dom.push.connection.enabled" = false;
+        "dom.battery.enabled" = false;  # don't expose battery to sites
+        "layout.frame_rate" = 60;  # cap at 60fps (saves power on high-hz displays)
+        "gfx.webrender.compositor.force-enabled" = true;  # better GPU compositing
+
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;
         "browser.ml.chat.sidebar" = false;
