@@ -29,9 +29,9 @@
 
     linux-firmware
 
-    # Laptop essentials
     brightnessctl
     networkmanagerapplet
+    iwgtk
     acpi
   ];
 }

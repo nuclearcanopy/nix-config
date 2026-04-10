@@ -27,11 +27,6 @@
     ];
 
     events = [
-      # Lock before sleep
-      {
-        event = "before-sleep";
-        command = "${pkgs.swaylock}/bin/swaylock -f -c 000000";
-      }
       # Turn screen back on after resume
       {
         event = "after-resume";
@@ -42,7 +37,7 @@
 
   # Minimal swaylock config
   programs.swaylock = {
-    enable = true;
+    enable = false;
     settings = {
       color = "000000";
       show-failed-attempts = true;
