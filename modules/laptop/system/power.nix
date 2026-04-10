@@ -87,11 +87,13 @@
     lidSwitch = "suspend";
     lidSwitchExternalPower = "suspend";
     # Power button: suspend instead of poweroff
-    extraConfig = ''
-      HandlePowerKey=suspend
-      IdleAction=suspend
-      IdleActionSec=15min
-    '';
+    settings = {
+      Login = {
+        HandlePowerKey = "suspend";
+        IdleAction = "suspend";
+        IdleActionSec = "15min";
+      };
+    };
   };
 
   # Suspend-then-hibernate: if suspended for 30min, hibernate to save more power
