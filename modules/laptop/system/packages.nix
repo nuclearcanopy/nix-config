@@ -31,7 +31,6 @@
 
     brightnessctl
     networkmanagerapplet
-    iwgtk
     acpi
   ];
 }
