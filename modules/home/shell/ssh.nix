@@ -14,6 +14,11 @@
         user = "git";
         identityFile = "/run/agenix/ssh-codeberg";
       };
+      "github.com" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = "/run/agenix/ssh-codeberg";
+      };
     };
   };
 
