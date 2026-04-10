@@ -32,9 +32,9 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "custom/battery"
           "custom/memory"
           "custom/cpu"
+          "custom/battery"
           "custom/firmware"
           "custom/reboot"
           "custom/power"
