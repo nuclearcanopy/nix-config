@@ -11,6 +11,8 @@
       plenary-nvim
       nvim-web-devicons
       nui-nvim
+      (nvim-treesitter.withAllGrammars)
+      gitsigns-nvim
     ];
 
     extraConfigLua = ''
@@ -167,6 +169,41 @@
       vim.opt.expandtab = true
       vim.opt.clipboard = "unnamedplus"
       vim.opt.number = true
+
+      require("nvim-treesitter.configs").setup({
+        highlight = { enable = true },
+        indent = { enable = true },
+      })
+
+      require("gitsigns").setup({
+        signs = {
+          add          = { text = "+" },
+          change       = { text = "~" },
+          delete       = { text = "_" },
+          topdelete    = { text = "‾" },
+          changedelete = { text = "~" },
+        },
+        current_line_blame = false,  -- toggle with :Gitsigns toggle_current_line_blame
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+          -- navigation
+          map("n", "]c", function() gs.nav_hunk("next") end)
+          map("n", "[c", function() gs.nav_hunk("prev") end)
+          -- actions
+          map("n", "<leader>hs", gs.stage_hunk)
+          map("n", "<leader>hr", gs.reset_hunk)
+          map("n", "<leader>hS", gs.stage_buffer)
+          map("n", "<leader>hu", gs.undo_stage_hunk)
+          map("n", "<leader>hp", gs.preview_hunk)
+          map("n", "<leader>hb", function() gs.blame_line({ full = true }) end)
+          map("n", "<leader>hd", gs.diffthis)
+        end
+      })
     '';
   };
 }
