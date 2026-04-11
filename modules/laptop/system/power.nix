@@ -6,6 +6,9 @@
   # Conflicts with power-profiles-daemon — disable it.
   services.power-profiles-daemon.enable = false;
 
+  # Reduce background RAM usage
+  services.nscd.enable = false;
+
   # Powertop auto-tune catches anything TLP misses
   powerManagement.powertop.enable = true;
 

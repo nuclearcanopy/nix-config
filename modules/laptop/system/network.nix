@@ -1,7 +1,22 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   services.mullvad-vpn.enable = true;
+  systemd.services.mullvad-autoconnect = {
+    description = "Auto-connect Mullvad VPN on boot (laptop)";
+    after = [ "network-online.target" "mullvad-daemon.service" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      sleep 2
+      ${pkgs.mullvad}/bin/mullvad lan set allow
+      ${pkgs.mullvad}/bin/mullvad connect
+    '';
+  };
   services.resolved = {
     enable = true;
     dnssec = "true";
