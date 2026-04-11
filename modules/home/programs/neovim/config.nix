@@ -43,7 +43,7 @@
           gray8 = "#DDDDDD",
           gray9 = "#f0f0f0",
           luster = "#ffffff",
-          lack = "#000000",
+          lack = "#1a1a1a",
           error = "#a04a4a",
         },
         tweak_syntax = {
