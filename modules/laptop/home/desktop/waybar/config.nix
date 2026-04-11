@@ -9,6 +9,7 @@
 {
   programs.waybar = {
     enable = true;
+    systemd.enable = true;
     style = builtins.readFile ../../../../home/desktop/waybar/style.css;
 
     settings = {
