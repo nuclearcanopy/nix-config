@@ -31,6 +31,7 @@ nix-commit() {
 
     echo "󰊢 Syncing..."
     git -C "$NIX_FLAKE_DIR" push origin main --quiet > /dev/null 2>&1
+    git -C "$NIX_FLAKE_DIR" push github main --quiet > /dev/null 2>&1
 
     echo " Done. (Gen $GEN_NUM)"
   else
