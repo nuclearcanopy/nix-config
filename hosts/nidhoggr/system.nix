@@ -28,5 +28,8 @@
 
   environment.variables.EDITOR = "nvim";
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = false; # socket-activated; starts on demand
+  };
 }
