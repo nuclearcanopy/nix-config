@@ -13,7 +13,7 @@
 
     users.${username} = {
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
+      extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "docker" ];
       hashedPasswordFile = config.age.secrets.user-password.path;
     };
 
@@ -33,4 +33,6 @@
   };
 
   environment.variables.EDITOR = "nvim";
+
+  virtualisation.docker.enable = true;
 }
