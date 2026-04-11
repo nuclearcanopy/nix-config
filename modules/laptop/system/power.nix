@@ -9,8 +9,7 @@
   # Powertop auto-tune catches anything TLP misses
   powerManagement.powertop.enable = true;
 
-  # Thermald for thermal management
-  services.thermald.enable = true;
+  # Thermald is Intel-only, AMD uses its own thermal management
 
   # Add powertop for manual inspection
   environment.systemPackages = [ pkgs.powertop ];
@@ -22,11 +21,12 @@
       # AC MODE: UNLEASHED — full performance, no limits
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_DRIVER_OPMODE_ON_AC = "active";          # amd-pstate active mode
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;         # 400 MHz floor
       CPU_SCALING_MAX_FREQ_ON_AC = 4500000;        # 4.5 GHz ceiling
-      CPU_BOOST_ON_AC = 1;                         # turbo ON
+      CPU_BOOST_ON_AC = 1;                         # boost ON
       PLATFORM_PROFILE_ON_AC = "performance";      # full send
+      AMDGPU_ABM_LEVEL_ON_AC = 0;                  # display backlight no dimming
       PCIE_ASPM_ON_AC = "default";                 # let hardware decide
       SATA_LINKPWR_ON_AC = "max_performance";
       AHCI_RUNTIME_PM_ON_AC = "on";                # no runtime PM on AC
@@ -35,19 +35,16 @@
       SOUND_POWER_SAVE_ON_AC = 0;                  # no audio power save
 
       # ═══════════════════════════════════════════════════════════════════
-      # BATTERY MODE: ULTRA AGGRESSIVE — squeeze every drop
+      # BATTERY MODE: BALANCED POWERSAVE — save power but stay responsive
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";     # most aggressive
+      CPU_DRIVER_OPMODE_ON_BAT = "active";         # amd-pstate active mode
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;        # 400 MHz floor
-      CPU_SCALING_MAX_FREQ_ON_BAT = 1000000;       # 1.0 GHz cap (max battery)
-      CPU_BOOST_ON_BAT = 0;                        # turbo OFF
-      CPU_HWP_ON_BAT = "power";                    # Intel HWP energy bias
-      CPU_HWP_DYN_BOOST_ON_BAT = 0;                # disable dynamic boost
-      CPU_MIN_PERF_ON_BAT = 5;                     # Intel P-state min perf
-      CPU_MAX_PERF_ON_BAT = 20;                    # Intel P-state max perf
-      PLATFORM_PROFILE_ON_BAT = "low-power";
-      SCHED_POWERSAVE_ON_BAT = 1;                  # scheduler powersave
+      CPU_SCALING_MAX_FREQ_ON_BAT = 1500000;       # 1.5 GHz cap (responsive)
+      CPU_BOOST_ON_BAT = 0;                        # boost OFF (saves battery)
+      PLATFORM_PROFILE_ON_BAT = "balanced";
+      SCHED_POWERSAVE_ON_BAT = 0;                  # OFF — prevents input lag
+      AMDGPU_ABM_LEVEL_ON_BAT = 3;                 # adaptive backlight dimming (0-4)
       PCIE_ASPM_ON_BAT = "powersupersave";
       SATA_LINKPWR_ON_BAT = "min_power";
       AHCI_RUNTIME_PM_ON_BAT = "auto";
