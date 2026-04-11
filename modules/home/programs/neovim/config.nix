@@ -4,6 +4,17 @@
   programs.nixvim = {
     enable = true;
 
+    # Typo detection for code
+    plugins.lsp = {
+      enable = true;
+      servers.typos_lsp = {
+        enable = true;
+        extraOptions.init_options = {
+          diagnosticSeverity = "Warning";
+        };
+      };
+    };
+
     extraPlugins = with pkgs.vimPlugins; [
       lackluster-nvim
       nvim-colorizer-lua
