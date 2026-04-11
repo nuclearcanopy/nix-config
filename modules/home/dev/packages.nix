@@ -9,6 +9,8 @@
     rust-analyzer
     clippy
     rustfmt
+    docker
+
     claude-code
     codex
   ];
