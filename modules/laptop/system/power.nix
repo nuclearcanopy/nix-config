@@ -8,8 +8,8 @@
 
   services.nscd.enable = true;
 
-  # Powertop auto-tune catches anything TLP misses
-  powerManagement.powertop.enable = true;
+  # Powertop auto-tune disabled — conflicts with TLP and causes USB input lag
+  # powerManagement.powertop.enable = true;
 
   # Thermald is Intel-only, AMD uses its own thermal management
 
@@ -42,7 +42,7 @@
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
       CPU_DRIVER_OPMODE_ON_BAT = "active";         # amd-pstate active mode
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;        # 400 MHz floor
-      CPU_SCALING_MAX_FREQ_ON_BAT = 1500000;       # 1.5 GHz cap (responsive)
+      CPU_SCALING_MAX_FREQ_ON_BAT = 2000000;       # 2 GHz cap
       CPU_BOOST_ON_BAT = 0;                        # boost OFF (saves battery)
       PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 0;                  # OFF — prevents input lag
@@ -62,8 +62,8 @@
       START_CHARGE_THRESH_BAT0 = 20;
       STOP_CHARGE_THRESH_BAT0 = 80;
 
-      # USB autosuspend
-      USB_AUTOSUSPEND = 1;
+      # USB autosuspend — disabled to prevent keyboard/input lag
+      USB_AUTOSUSPEND = 0;
       USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;     # prevent wake from USB
       USB_EXCLUDE_BTUSB = 1;                       # BT reconnect jank
 
