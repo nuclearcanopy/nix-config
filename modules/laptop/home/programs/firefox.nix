@@ -6,7 +6,7 @@
     "layout.css.devPixelsPerPx" = lib.mkForce "1.35";
 
     # Battery savings (laptop only - these limit performance)
-    "dom.ipc.processCount" = lib.mkForce 4;  # reduce from default 8
+    # Note: dom.ipc.processCount removed - caused keyboard input lag
     "media.av1.enabled" = lib.mkForce false;  # AV1 software decode is brutal on CPU
     "layout.frame_rate" = lib.mkForce 60;  # cap at 60fps
     "dom.battery.enabled" = lib.mkForce false;  # don't expose battery to sites
