@@ -42,7 +42,7 @@
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
       CPU_DRIVER_OPMODE_ON_BAT = "active";         # amd-pstate active mode
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;        # 400 MHz floor
-      CPU_SCALING_MAX_FREQ_ON_BAT = 1500000;       # 1.5 GHz cap
+      CPU_SCALING_MAX_FREQ_ON_BAT = 3000000;       # 3 GHz cap (testing)
       CPU_BOOST_ON_BAT = 0;                        # boost OFF (saves battery)
       PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 0;                  # OFF — prevents input lag
