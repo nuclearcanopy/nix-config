@@ -53,8 +53,6 @@
       "ahci.mobile_lpm_policy=3"    # aggressive SATA power saving
       "snd_hda_intel.power_save=1"  # audio codec power save
       "snd_hda_intel.power_save_controller=Y"
-      "iwlwifi.power_save=1"        # wifi power save (if Intel)
-      "iwlwifi.uapsd_disable=0"     # enable U-APSD (wifi power save)
       # Faster suspend/resume
       "mem_sleep_default=deep"
     ];
