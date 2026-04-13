@@ -53,5 +53,6 @@
     ./shell
     ./programs
     ./dev
+    ./overrides/firefox-desktop.nix
   ];
 }
