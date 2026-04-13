@@ -235,12 +235,14 @@
           { name = "Dexonline"; url = "https://dexonline.ro/"; keyword = "dex"; }
           { name = "WhatsApp"; url = "https://web.whatsapp.com/"; keyword = "wa"; }
           { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
+          { name = "GitHub"; url = "https://github.com/"; keyword = "gh"; }
+          { name = "Codeberg"; url = "https://codeberg.org/"; keyword = "cb"; }
         ];
       };
 
       search = {
         force = true;
-        default = "nuclearcanopy";
+        default = "ddg";
         engines = {
           "nuclearcanopy" = {
             urls = [{ template = "https://search.local/?q={searchTerms}"; }];
