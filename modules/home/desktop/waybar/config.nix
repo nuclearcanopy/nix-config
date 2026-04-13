@@ -28,8 +28,8 @@
         ];
         modules-right = [
           "custom/memory"
-          "custom/cpu"
           "custom/mouse"
+          "custom/cpu"
           "custom/gpu"
           "custom/firmware"
           "custom/reboot"
