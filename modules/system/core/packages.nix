@@ -34,6 +34,7 @@
     wget
     git
     rsync
+    tree
     usbutils
     pciutils
 
