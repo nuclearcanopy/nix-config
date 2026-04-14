@@ -5,7 +5,7 @@
     enable = true;
     config = {
       user.name = "nuclearcanopy";
-      user.email = "nuclearcanopy@codeberg.org";
+      user.email = "nuclearcanopy@local";
     };
   };
 
