@@ -5,7 +5,7 @@
     enable = true;
     settings.user = {
       name = "nuclearcanopy";
-      email = "homeserver@nuclearcanopy.git";
+      email = "nuclearcanopy@local";
     };
   };
 }
