@@ -15,7 +15,9 @@
     mangohud
     vkbasalt
     protontricks
+
     xivlauncher
+    prismlauncher
 
     onlyoffice-desktopeditors
     calibre
