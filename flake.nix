@@ -36,79 +36,60 @@
     system = "x86_64-linux";
     username = "nuclearcanopy";
 
+    allowedUnfree = [
+      "steam"
+      "steam-unwrapped"
+      "claude-code"
+      "unrar"
+    ];
+
     unstable-pkgs = import unstable {
       inherit system;
-      config.allowUnfree = false;
+      config.allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) allowedUnfree;
+    };
+
+    # Shared host builder for desktop/laptop systems with home-manager
+    mkHost = { hostConfig, homeModule }: nixpkgs.lib.nixosSystem {
+      inherit system;
+      specialArgs = {
+        unstable = unstable-pkgs;
+        inherit username;
+      };
+
+      modules = [
+        hostConfig
+        { nixpkgs.overlays = [ nur.overlays.default ]; }
+        agenix.nixosModules.default
+        home-manager.nixosModules.home-manager
+        {
+          home-manager = {
+            extraSpecialArgs = {
+              unstable = unstable-pkgs;
+              inherit username;
+            };
+            sharedModules = [ nixvim.homeModules.nixvim ];
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            backupFileExtension = "backup";
+            users.${username} = import homeModule;
+          };
+        }
+      ];
     };
   in {
     packages.${system}.disko = disko.packages.${system}.disko;
 
     nixosConfigurations = {
-      # Desktop workstation
-      kuraokami = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {
-          unstable = unstable-pkgs;
-          inherit username;
-        };
-
-        modules = [
-          ./hosts/kuraokami/configuration.nix
-
-          # nur overlay for firefox extensions
-          { nixpkgs.overlays = [ nur.overlays.default ]; }
-
-          # agenix for secrets management
-          agenix.nixosModules.default
-
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.extraSpecialArgs = {
-              unstable = unstable-pkgs;
-              inherit username;
-            };
-            home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.${username} = import ./modules/home/home.nix;
-          }
-        ];
+      kuraokami = mkHost {
+        hostConfig = ./hosts/kuraokami/configuration.nix;
+        homeModule = ./modules/home/home.nix;
       };
 
-      # Laptop (AMD CPU+GPU, coding/browsing, power-efficient)
-      nidhoggr = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {
-          unstable = unstable-pkgs;
-          inherit username;
-        };
-
-        modules = [
-          ./hosts/nidhoggr/configuration.nix
-
-          # nur overlay for firefox extensions
-          { nixpkgs.overlays = [ nur.overlays.default ]; }
-
-          # agenix for secrets management
-          agenix.nixosModules.default
-
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.extraSpecialArgs = {
-              unstable = unstable-pkgs;
-              inherit username;
-            };
-            home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.${username} = import ./modules/laptop/home/home.nix;
-          }
-        ];
+      nidhoggr = mkHost {
+        hostConfig = ./hosts/nidhoggr/configuration.nix;
+        homeModule = ./modules/laptop/home/home.nix;
       };
 
-      # Home server
       homeserver = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {
@@ -117,8 +98,6 @@
 
         modules = [
           ./hosts/homeserver/configuration.nix
-
-          # agenix for secrets management (for future use)
           agenix.nixosModules.default
         ];
       };

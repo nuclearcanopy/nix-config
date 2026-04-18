@@ -11,9 +11,9 @@
         mode = "600";
       };
 
-      ssh-codeberg = {
+      ssh-git = {
         file = ../../secrets/ssh-codeberg.age;
-        path = "/home/homeserver/.ssh/id_codeberg";
+        path = "/home/homeserver/.ssh/id_git";
         mode = "600";
         owner = "homeserver";
       };

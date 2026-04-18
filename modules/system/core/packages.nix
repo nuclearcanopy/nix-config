@@ -21,11 +21,7 @@
 
   environment.systemPackages = with pkgs; [
     wireguard-tools
-    mullvad-vpn
     dnsutils
-
-    bottles
-    protonup-qt
 
     unzip
     zip

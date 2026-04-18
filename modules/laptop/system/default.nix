@@ -12,10 +12,7 @@
     ./packages.nix
     ./power.nix
     ../../system/core/nix.nix
-    ../../system/desktop/sway.nix
-    ../../system/desktop/fonts.nix
-    ../../system/desktop/xdg.nix
-    ../../system/services/core.nix
-    ../../system/services/privacy.nix
+    ../../system/desktop
+    ../../system/services
   ];
 }

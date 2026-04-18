@@ -2,7 +2,7 @@
 {
   hardware.openrazer = {
     enable = true;
-    users = [ "${username}" ];
+    users = [ username ];
   };
 
   nixpkgs.overlays = [

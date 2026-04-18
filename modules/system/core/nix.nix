@@ -1,7 +1,10 @@
 { ... }:
 
 {
-  documentation.enable = false;
+  documentation = {
+    nixos.enable = false;
+    doc.enable = false;
+  };
 
   nix = {
     settings = {
@@ -14,7 +17,5 @@
       automatic = true;
       options = "--delete-older-than 10d";
     };
- 
-    optimise.automatic = true;
   };
 }
