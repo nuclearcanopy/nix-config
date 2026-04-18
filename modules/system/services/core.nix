@@ -6,10 +6,7 @@
     protectKernelImage = true;
   };
 
-  systemd = {
-    services.display-manager.enable = false;
-    coredump.enable = false;
-  };
+  systemd.coredump.enable = false;
 
   services.udev.extraRules = ''
     # fix rtl8111 drops
@@ -19,13 +16,11 @@
   services = {
     logind.settings.Login.HandlePowerKey = "suspend";
 
-    xserver = {
-      displayManager.lightdm.enable = false;
-    };
-
     libinput.enable = true;
 
     dbus.enable = true;
+
+    flatpak.enable = true;
 
     avahi.enable = false;
   };

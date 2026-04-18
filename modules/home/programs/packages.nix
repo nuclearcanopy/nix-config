@@ -16,6 +16,8 @@
     vkbasalt
     protontricks
 
+    bottles
+    protonup-qt
     xivlauncher
     prismlauncher
 

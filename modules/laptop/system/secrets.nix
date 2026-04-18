@@ -13,9 +13,9 @@
     identityPaths = [ "/etc/age/key.txt" ];
 
     secrets = {
-      ssh-codeberg = {
+      ssh-git = {
         file = ../../../secrets/ssh-codeberg.age;
-        path = "/run/agenix/ssh-codeberg";
+        path = "/run/agenix/ssh-git";
         owner = username;
         group = "users";
         mode = "600";

@@ -12,12 +12,12 @@
       "codeberg.org" = {
         hostname = "codeberg.org";
         user = "git";
-        identityFile = "/run/agenix/ssh-codeberg";
+        identityFile = "/run/agenix/ssh-git";
       };
       "github.com" = {
         hostname = "github.com";
         user = "git";
-        identityFile = "/run/agenix/ssh-codeberg";
+        identityFile = "/run/agenix/ssh-git";
       };
     };
   };

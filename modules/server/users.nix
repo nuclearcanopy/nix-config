@@ -33,7 +33,7 @@
   programs.ssh.extraConfig = ''
     Host codeberg.org
       User git
-      IdentityFile /home/homeserver/.ssh/id_codeberg
+      IdentityFile /home/homeserver/.ssh/id_git
       IdentitiesOnly yes
   '';
 }

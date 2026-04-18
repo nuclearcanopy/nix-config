@@ -9,17 +9,18 @@
     CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
   };
 
-  home.file.".claude/settings.json" = {
-    force = true;
-    text = builtins.toJSON {
+  programs.claude-code = {
+    enable = true;
+    package = pkgs.claude-code;
+    mcpServers = {
+      nixos = {
+        type = "stdio";
+        command = "mcp-nixos";
+      };
+    };
+    settings = {
       enabledPlugins = {
         "rust-analyzer-lsp@claude-plugins-official" = true;
-      };
-      mcpServers = {
-        nixos = {
-          command = "nix";
-          args = [ "run" "github:utensils/mcp-nixos" "--" ];
-        };
       };
     };
   };
@@ -41,7 +42,8 @@
       log_user_prompt = false
 
       [mcp_servers.nixos]
-      url = "https://mcp-nixos.io/"
+      command = "mcp-nixos"
+      args = []
 
       [notice.model_migrations]
       "gpt-5.2" = "gpt-5.2-codex"

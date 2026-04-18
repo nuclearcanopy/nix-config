@@ -45,8 +45,6 @@
   };
 
   networking = {
-    hostName = "kuraokami";
-
     networkmanager = {
       enable = true;
 
