@@ -17,8 +17,8 @@
       };
       mcpServers = {
         nixos = {
-          type = "http";
-          url = "https://mcp-nixos.io/";
+          command = "nix";
+          args = [ "run" "github:utensils/mcp-nixos" "--" ];
         };
       };
     };
