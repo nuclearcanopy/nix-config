@@ -1,15 +1,6 @@
 NIX_FLAKE_DIR="$HOME/nix-config"
 : ${NIX_FLAKE_HOST:="$(hostname)"}
 
-_nix_eval_check() {
-  echo "󱄅 Evaluating config..."
-  if ! nix eval "${NIX_FLAKE_DIR}#nixosConfigurations.${NIX_FLAKE_HOST}.config.system.build.toplevel.drvPath" \
-      --option warn-dirty false 2>&1; then
-    echo "󰚌 Eval failed — aborting"
-    return 1
-  fi
-}
-
 nix-commit() {
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
@@ -23,11 +14,6 @@ nix-commit() {
   fi
 
   git -C "$NIX_FLAKE_DIR" add .
-
-  if ! _nix_eval_check; then
-    git -C "$NIX_FLAKE_DIR" reset --quiet
-    return 1
-  fi
 
   echo "󱄅 Rebuilding..."
 
@@ -72,11 +58,6 @@ nix-upd() {
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
 
   git -C "$NIX_FLAKE_DIR" add .
-
-  if ! _nix_eval_check; then
-    git -C "$NIX_FLAKE_DIR" reset --quiet
-    return 1
-  fi
 
   echo "󱄅 Rebuilding..."
 

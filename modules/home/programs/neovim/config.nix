@@ -5,6 +5,8 @@
     enable = true;
 
     # Typo detection for code
+    plugins.nvim-autopairs.enable = true;
+
     plugins.lsp = {
       enable = true;
       servers.typos_lsp = {
