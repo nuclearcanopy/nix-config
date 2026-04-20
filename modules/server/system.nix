@@ -101,6 +101,8 @@
     hybrid-sleep.enable = false;
   };
 
+  services.getty.autologinUser = "homeserver";
+
   services.logind.settings = {
     Login = {
       HandleLidSwitch = "ignore";

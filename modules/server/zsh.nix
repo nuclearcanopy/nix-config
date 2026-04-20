@@ -12,6 +12,11 @@ in
     interactiveShellInit = ''
       source ${mscdScript}
 
+      # Auto-start btop on TTY1 (outermost shell only, not nested or SSH)
+      if [[ $SHLVL -eq 1 && $(tty) == /dev/tty1 ]]; then
+        btop
+      fi
+
       elevate() {
         if command -v doas >/dev/null 2>&1; then
           doas "$@"; return $?
