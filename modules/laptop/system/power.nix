@@ -28,7 +28,7 @@
       CPU_BOOST_ON_AC = 1;
       PLATFORM_PROFILE_ON_AC = "performance";
       AMDGPU_ABM_LEVEL_ON_AC = 0;
-      PCIE_ASPM_ON_AC = "default";
+      PCIE_ASPM_ON_AC = "performance";
       SATA_LINKPWR_ON_AC = "max_performance";
       AHCI_RUNTIME_PM_ON_AC = "on";
       RUNTIME_PM_ON_AC = "on";
