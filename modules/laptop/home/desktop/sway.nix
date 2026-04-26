@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  imports = [ ../../../../shared/sway-base.nix ];
+  imports = [ ../../../shared/sway-base.nix ];
 
   wayland.windowManager.sway = {
     config = {
