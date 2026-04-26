@@ -37,7 +37,7 @@
   services.resolved = {
     enable = true;
     dnssec = "true";
-    dnsovertls = "true";
+    dnsovertls = "opportunistic";
     llmnr = "false";
     extraConfig = ''
       MulticastDNS=no

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, unstable, ... }:
 
 {
   programs.nixvim = {
@@ -26,6 +26,7 @@
       nui-nvim
       (nvim-treesitter.withAllGrammars)
       gitsigns-nvim
+      unstable.vimPlugins.render-markdown-nvim
     ];
 
     extraConfigLua = ''
@@ -183,10 +184,23 @@
       vim.opt.clipboard = "unnamedplus"
       vim.opt.number = true
 
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "markdown" },
+        callback = function()
+          vim.opt_local.conceallevel = 2
+          vim.opt_local.concealcursor = "nc"
+        end,
+      })
+
       require("nvim-treesitter.configs").setup({
         highlight = { enable = true },
         indent = { enable = true },
       })
+
+      local ok_render_markdown, render_markdown = pcall(require, "render-markdown")
+      if ok_render_markdown then
+        render_markdown.setup({})
+      end
 
       require("gitsigns").setup({
         signs = {
