@@ -36,6 +36,7 @@
           "custom/memory"
           "custom/cpu"
           "custom/battery"
+          "custom/profile"
           "custom/firmware"
           "custom/reboot"
           "custom/power"
@@ -133,6 +134,12 @@
         "custom/battery" = {
           exec = "${./scripts/battery.sh}";
           interval = 30;
+          tooltip = false;
+        };
+
+        "custom/profile" = {
+          exec = "${./scripts/power_profile.sh}";
+          interval = 5;
           tooltip = false;
         };
 
