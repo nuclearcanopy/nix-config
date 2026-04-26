@@ -1,15 +1,12 @@
 { pkgs, ... }:
 
 {
-  # Zram: compressed RAM swap — critical for 8GB systems
-  # Uses ~25% of RAM for ~2x effective capacity
   zramSwap = {
     enable = true;
     algorithm = "zstd";
-    memoryPercent = 50;  # uses 4GB RAM for ~8GB virtual swap
+    memoryPercent = 50;   # ceiling only; actual usage depends on swap pressure
   };
 
-  # Earlyoom: kill memory hogs before OOM killer freezes system
   services.earlyoom = {
     enable = true;
     freeMemThreshold = 5;
@@ -26,39 +23,39 @@
 
     tmp = {
       useTmpfs = true;
-      tmpfsSize = "2G";  # reduced for 8GB RAM
+      tmpfsSize = "4G";
     };
 
     kernelPackages = pkgs.linuxPackages_zen;
 
     kernelParams = [
+      # Security
       "pti=on"
       "vsyscall=none"
       "init_on_alloc=1"
       "slab_nomerge"
       "page_alloc.shuffle=1"
       "preempt=full"
+      # AMD
       "amd_pstate=active"
-      # Laptop display
-      "amdgpu.dc=1"                 # prevent screen tearing on eDP
-      "amdgpu.abmlevel=3"           # adaptive backlight management (saves power)
+      "amdgpu.dc=1"
+      "amdgpu.abmlevel=4"
+      "amdgpu.runpm=1"
+      "amdgpu.dpm=1"
+      "amdgpu.ppfeaturemask=0xffffffff"
       # Power saving
-      "nmi_watchdog=0"              # disable NMI watchdog
-      "nowatchdog"                  # disable watchdog timers
-      "amdgpu.runpm=1"              # GPU runtime PM
-      "amdgpu.dpm=1"                # dynamic power management
-      "amdgpu.ppfeaturemask=0xffffffff"  # enable all power features
-      "pcie_aspm=force"             # force PCIe ASPM
+      "nmi_watchdog=0"
+      "nowatchdog"
+      "workqueue.power_efficient=1"
+      "pcie_aspm=force"
       "pcie_aspm.policy=powersupersave"
-      "ahci.mobile_lpm_policy=3"    # aggressive SATA power saving
-      "snd_hda_intel.power_save=1"  # audio codec power save
+      "ahci.mobile_lpm_policy=3"
+      "snd_hda_intel.power_save=1"
       "snd_hda_intel.power_save_controller=Y"
-      # Faster suspend/resume
+      # Suspend
       "mem_sleep_default=deep"
     ];
 
-    # Kept: network protocol blacklisting for security
-    # Removed from kuraokami: uvcvideo (webcam), btusb/bluetooth (BT) — needed on laptop
     blacklistedKernelModules = [
       "dccp" "sctp" "rds" "tipc"
     ];
@@ -83,18 +80,18 @@
       "fs.protected_regular" = 2;
       "fs.protected_fifos" = 2;
 
-      # Memory efficiency for 8GB RAM
-      "vm.swappiness" = 180;              # aggressive zram usage
-      "vm.vfs_cache_pressure" = 50;       # keep dentries/inodes longer
-      "vm.dirty_ratio" = 10;              # write to disk sooner
-      "vm.dirty_background_ratio" = 5;
-      "vm.page-cluster" = 0;              # disable swap readahead (zram is fast)
+      # Memory tuning (16GB RAM)
+      "vm.swappiness" = 180;                  # aggressive zram usage — keeps file cache warm
+      "vm.vfs_cache_pressure" = 40;           # keep dentries/inodes cached longer
+      "vm.dirty_ratio" = 20;                  # batch writes — fewer disk wakeups
+      "vm.dirty_background_ratio" = 10;       # batch background writeback
+      "vm.page-cluster" = 0;                  # no swap readahead (zram is fast)
 
       # Power saving
-      "vm.laptop_mode" = 5;               # aggressive disk spin-down
-      "kernel.nmi_watchdog" = 0;          # disable NMI watchdog
-      "vm.dirty_writeback_centisecs" = 6000;  # 60s writeback (batch disk writes)
-      "vm.dirty_expire_centisecs" = 6000;     # 60s before dirty pages expire
+      "vm.laptop_mode" = 5;
+      "kernel.nmi_watchdog" = 0;
+      "vm.dirty_writeback_centisecs" = 6000;  # 60s writeback interval
+      "vm.dirty_expire_centisecs" = 6000;
     };
   };
 }
