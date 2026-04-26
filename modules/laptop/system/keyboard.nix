@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
-# 60ms keyboard debounce via interception-tools.
-# Filters chatter: if the same key is pressed again within 60ms of release, ignore it.
+# 50ms keyboard debounce via interception-tools.
+# Filters chatter: if the same key is pressed again within 50ms of release, ignore it.
 # Works at the evdev level — affects all keyboards, transparent to Sway/Wayland.
 let
   evdev-debounce = pkgs.stdenv.mkDerivation {
@@ -63,7 +63,7 @@ in
   services.interception-tools = {
     enable = true;
     udevmonConfig = ''
-      - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${evdev-debounce}/bin/evdev-debounce 60 | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
+      - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${evdev-debounce}/bin/evdev-debounce 50 | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
         DEVICE:
           NAME: ".*[Kk]eyboard.*"
     '';
