@@ -32,6 +32,7 @@
     extraConfigLua = ''
       vim.g.mapleader = " "
       vim.g.maplocalleader = "\\"
+      vim.opt.termguicolors = true
 
       vim.api.nvim_create_autocmd("VimLeave", {
         callback = function()
@@ -70,6 +71,18 @@
         },
       })
       vim.cmd("colorscheme lackluster")
+
+      -- Make emphasis visible even when the terminal can't do "real" bold/italic fonts.
+      -- (Still sets bold/italic attrs when available.)
+      vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#f0f0f0", bg = "#1a1a1a", bold = true })
+      vim.api.nvim_set_hl(0, "@markup.emphasis", { fg = "#c0dfdd", bg = "#0a0a0a", italic = true, underline = true })
+      vim.api.nvim_set_hl(0, "@markup.strong.emphasis", { fg = "#c0dfdd", bg = "#1a1a1a", bold = true, italic = true, underline = true })
+      vim.api.nvim_set_hl(0, "markdownBold", { fg = "#f0f0f0", bg = "#1a1a1a", bold = true })
+      vim.api.nvim_set_hl(0, "markdownItalic", { fg = "#c0dfdd", bg = "#0a0a0a", italic = true, underline = true })
+      vim.api.nvim_set_hl(0, "markdownBoldItalic", { fg = "#c0dfdd", bg = "#1a1a1a", bold = true, italic = true, underline = true })
+      vim.api.nvim_set_hl(0, "mkdBold", { fg = "#f0f0f0", bg = "#1a1a1a", bold = true })
+      vim.api.nvim_set_hl(0, "mkdItalic", { fg = "#c0dfdd", bg = "#0a0a0a", italic = true, underline = true })
+      vim.api.nvim_set_hl(0, "mkdBoldItalic", { fg = "#c0dfdd", bg = "#1a1a1a", bold = true, italic = true, underline = true })
 
       require("colorizer").setup({
         filetypes = { "*" },
