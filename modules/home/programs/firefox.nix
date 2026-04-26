@@ -27,6 +27,8 @@
         darkreader
         bitwarden
         sponsorblock
+        localcdn
+        violentmonkey
       ];
 
       # stricter filters
