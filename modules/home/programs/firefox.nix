@@ -1,6 +1,18 @@
 { pkgs, ... }:
-
 {
+  home.packages = [
+    (pkgs.writeShellScriptBin "firefox-compat" ''
+      exec firefox --no-remote -P compat "$@"
+    '')
+  ];
+
+  xdg.desktopEntries.firefox-compat = {
+    name = "Firefox (Compat)";
+    exec = "firefox-compat %U";
+    terminal = false;
+    categories = [ "Network" "WebBrowser" ];
+  };
+
   programs.firefox = {
     enable = true;
 
@@ -349,16 +361,19 @@
         "browser.newtabpage.activity-stream.showSponsoredCheckboxes" = false;
         "browser.toolbars.bookmarks.visibility" = "never";
 
-        "browser.contentblocking.category" = "strict";
+        # "strict" can break some auth flows (missing/invalid session tokens).
+        "browser.contentblocking.category" = "standard";
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
         "privacy.trackingprotection.emailtracking.enabled" = true;
         "privacy.fingerprintingProtection" = false;
         "privacy.resistFingerprinting" = false;
         "privacy.resistFingerprinting.letterboxing" = false;
-        "privacy.query_stripping.enabled" = true;
-        "privacy.query_stripping.enabled.pbmode" = true;
-        "privacy.bounceTrackingProtection.mode" = 1;
+        # Can break some login flows that (unfortunately) carry tokens in query params.
+        "privacy.query_stripping.enabled" = false;
+        "privacy.query_stripping.enabled.pbmode" = false;
+        # Can break some cross-site auth redirect flows (e.g. hosting panels).
+        "privacy.bounceTrackingProtection.mode" = 0;
         "privacy.annotate_channels.strict_list.enabled" = true;
 
         # avoid site breakage
@@ -370,7 +385,8 @@
         "network.early-hints.preconnect.max_connections" = 0;
         "network.captive-portal-service.enabled" = false;
         "network.connectivity-service.enabled" = false;
-        "network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation" = true;
+        # Some auth flows still (unfortunately) depend on Referer during redirects.
+        "network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation" = false;
 
         "browser.safebrowsing.downloads.remote.enabled" = false;
         "browser.safebrowsing.downloads.remote.block_potentially_unwanted" = false;
@@ -395,5 +411,28 @@
         "browser.dom.window.dump.enabled" = false;
       };
     };
+
+    # A less-hardened profile for sites with fragile auth flows (e.g. cPanel).
+    # Launch via `firefox-compat`.
+    profiles.compat = {
+      id = 1;
+      name = "compat";
+
+      settings = {
+        "browser.contentblocking.category" = "standard";
+
+        # Prefer compatibility over privacy for this profile.
+        "network.cookie.cookieBehavior" = 0;
+        "privacy.bounceTrackingProtection.mode" = 0;
+        "privacy.query_stripping.enabled" = false;
+        "privacy.query_stripping.enabled.pbmode" = false;
+        "network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation" = false;
+      };
+
+      extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
+        bitwarden
+      ];
+    };
+
   };
 }
