@@ -72,6 +72,27 @@
       })
       vim.cmd("colorscheme lackluster")
 
+      local function apply_ui_highlights()
+        -- Neo-tree "selection" is the window cursorline highlight group.
+        -- Set it explicitly so it doesn't fall back to a bright/terminal-default CursorLine.
+        vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "#000000" })
+        vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "#000000" })
+        vim.api.nvim_set_hl(0, "NeoTreeCursorLine", { bg = "#1a1a1a" })
+      end
+
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        callback = apply_ui_highlights,
+      })
+      apply_ui_highlights()
+
+      -- Keep cursorline highlight for editing buffers (e.g. markdown), but disable it in Neo-tree.
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "neo-tree",
+        callback = function()
+          vim.wo.cursorline = false
+        end,
+      })
+
       -- Make emphasis visible even when the terminal can't do "real" bold/italic fonts.
       -- (Still sets bold/italic attrs when available.)
       vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#f0f0f0", bg = "#1a1a1a", bold = true })

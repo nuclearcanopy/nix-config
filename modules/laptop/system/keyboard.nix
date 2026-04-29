@@ -29,7 +29,7 @@ let
       }
 
       int main(int argc, char *argv[]) {
-          int debounce_ms = argc > 1 ? atoi(argv[1]) : 80;
+          int debounce_ms = argc > 1 ? atoi(argv[1]) : 60;
           struct input_event ev;
 
           memset(last_release, 0, sizeof(last_release));
