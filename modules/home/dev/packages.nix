@@ -12,5 +12,21 @@
 
     mcp-nixos
     codex
+
+    nmap
+    nc
+    netcat-openbsd
+    gobuster
+    nikto
+    binwalk
+    strings
+    masscan
+    wfuzz
+    cyberchef
+    john
+    rsactftool
+    zsteg
+    scalpel
+    hexedit
   ];
 }
