@@ -27,8 +27,8 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "custom/memory"
           "custom/mouse"
+          "custom/memory"
           "custom/cpu"
           "custom/gpu"
           "custom/firmware"
@@ -128,7 +128,6 @@
 
         "custom/mouse" = {
           exec = "${./scripts/mouse_battery.sh}";
-          format = "MOU {}%";
           interval = 60;
           tooltip = false;
         };
