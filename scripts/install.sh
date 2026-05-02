@@ -663,19 +663,26 @@ do_install() {
   gum style --foreground 8 "  (This catches errors before wiping your disk)"
   echo ""
 
+  local PREFLIGHT_LOG="/tmp/${HOST}-preflight.log"
   set +e
-  PREFLIGHT_OUTPUT=$(nix build ".#nixosConfigurations.${HOST}.config.system.build.toplevel" \
+  nix build ".#nixosConfigurations.${HOST}.config.system.build.toplevel" \
     --dry-run \
+    --quiet \
     --show-trace \
-    --extra-experimental-features "nix-command flakes" 2>&1)
+    --extra-experimental-features "nix-command flakes" >"$PREFLIGHT_LOG" 2>&1
   PREFLIGHT_RC=$?
   set -e
+
+  # Restore terminal state in case nix's TUI output corrupted it
+  tput cnorm 2>/dev/null || true
+  stty sane 2>/dev/null || true
 
   if [ "$PREFLIGHT_RC" -ne 0 ]; then
     error "Configuration failed to evaluate!"
     echo ""
-    gum style --foreground 1 --border rounded --padding "1" \
-      "$PREFLIGHT_OUTPUT" | tail -50
+    tail -50 "$PREFLIGHT_LOG" | while IFS= read -r line; do
+      gum style --foreground 1 "  $line"
+    done
     echo ""
     gum style --foreground 3 "Common causes:"
     gum style --foreground 8 "  • Unfree package not in allowUnfreePredicate"
@@ -683,6 +690,7 @@ do_install() {
     gum style --foreground 8 "  • Syntax error in nix files"
     echo ""
     gum style --foreground 8 "Fix the issue and re-run the installer."
+    gum style --foreground 8 "Full log: $PREFLIGHT_LOG"
     exit 1
   fi
 
