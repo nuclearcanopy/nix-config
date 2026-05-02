@@ -27,6 +27,7 @@
       };
 
       startup = [
+        { command = "waybar"; }
         { command = "autotiling-rs"; }
       ];
     };
