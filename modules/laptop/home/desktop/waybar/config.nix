@@ -3,7 +3,8 @@
 # Laptop waybar config.
 # Differences from kuraokami:
 #   - Output: all outputs (no hardcoded DP-1/DP-2)
-#   - Removed: custom/gpu (no LACT), custom/mouse (no wireless mouse tracking)
+#   - Removed: custom/gpu (no LACT)
+#   - custom/mouse: shared script, falls back to hidpp_battery_0 (Logitech G502X)
 #   - Added: battery module (critical for laptop)
 #   - Scripts reused from home/desktop/waybar/scripts/
 {
@@ -33,10 +34,10 @@
           "sway/workspaces"
         ];
         modules-right = [
+          "custom/mouse"
           "custom/memory"
           "custom/cpu"
           "custom/battery"
-          "custom/mouse"
           "custom/firmware"
           "custom/reboot"
           "custom/power"
@@ -138,7 +139,7 @@
         };
 
         "custom/mouse" = {
-          exec = "${./scripts/mouse_battery.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/mouse_battery.sh}";
           interval = 60;
           tooltip = false;
         };
