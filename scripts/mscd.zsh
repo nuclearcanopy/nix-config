@@ -276,8 +276,10 @@ target_artist = sys.argv[2]
 search_dir = sys.argv[3]
 
 for root, dirs, files in os.walk(search_dir):
-    path_norm = norm(root)
-    if target_artist and target_artist not in path_norm:
+    rel = os.path.relpath(root, search_dir)
+    parts = rel.split(os.sep)
+    artist_dir = norm(parts[0]) if parts[0] != '.' else ''
+    if target_artist and target_artist not in artist_dir:
         continue
     for f in files:
         name = os.path.splitext(f)[0]

@@ -169,4 +169,17 @@
   ];
 
   security.sudo.wheelNeedsPassword = false;
+
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if (
+        action.id === "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") === "navidrome-sync-from-nas.service" &&
+        action.lookup("verb") === "start" &&
+        subject.user === "homeserver"
+      ) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 }

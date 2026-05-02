@@ -6,11 +6,15 @@ import hashlib
 import hmac
 import os
 import json
-import select
+import threading
+import uuid
+import time
 
 app = Flask(__name__)
 
 API_HASH = os.environ.get("MSCD_API_HASH", "").strip()
+
+jobs = {}  # job_id -> {output, done, exit_code, lock, timestamp}
 
 def is_valid_url(url):
     return url.startswith(('http://', 'https://')) or 'youtube.com' in url or 'music.youtube.com' in url
@@ -22,6 +26,42 @@ def auth_ok(token):
     if not API_HASH:
         return False
     return hmac.compare_digest(hash_value(token), API_HASH)
+
+def cleanup_jobs():
+    cutoff = time.time() - 3600
+    stale = [k for k, v in list(jobs.items()) if v['done'] and v['timestamp'] < cutoff]
+    for k in stale:
+        del jobs[k]
+
+def run_job(job_id, cmd):
+    job = jobs[job_id]
+    try:
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+
+        def read_pipe(pipe, stream_type):
+            for line in pipe:
+                with job['lock']:
+                    job['output'].append({'type': 'output', 'stream': stream_type, 'line': line.rstrip()})
+
+        t1 = threading.Thread(target=read_pipe, args=(process.stdout, 'stdout'), daemon=True)
+        t2 = threading.Thread(target=read_pipe, args=(process.stderr, 'stderr'), daemon=True)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+        process.wait()
+        exit_code = process.returncode
+    except Exception as e:
+        with job['lock']:
+            job['output'].append({'type': 'error', 'message': str(e)})
+        exit_code = -1
+
+    with job['lock']:
+        job['output'].append({'type': 'complete', 'exit_code': exit_code})
+        job['done'] = True
+        job['exit_code'] = exit_code
+
+    cleanup_jobs()
 
 @app.route('/download', methods=['POST'])
 def download_music():
@@ -57,40 +97,46 @@ def download_music():
         else:
             cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add -a "{url}"']
 
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {
+        'output': [{'type': 'start', 'command': command, 'url': url}],
+        'done': False,
+        'exit_code': None,
+        'lock': threading.Lock(),
+        'timestamp': time.time()
+    }
+
+    t = threading.Thread(target=run_job, args=(job_id, cmd), daemon=True)
+    t.start()
+
+    return jsonify({'job_id': job_id})
+
+@app.route('/stream/<job_id>', methods=['GET'])
+def stream_job(job_id):
+    auth = request.headers.get('Authorization')
+    if not auth_ok(auth or ""):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if job_id not in jobs:
+        return jsonify({'error': 'Job not found'}), 404
+
+    start_from = int(request.args.get('from', 0))
+
     def generate():
-        yield f"data: {json.dumps({'type': 'start', 'command': command, 'url': url})}\n\n"
+        job = jobs[job_id]
+        idx = start_from
+        while True:
+            with job['lock']:
+                pending = job['output'][idx:]
+                done_now = job['done'] and (idx + len(pending)) >= len(job['output'])
 
-        try:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1
-            )
+            for evt in pending:
+                yield f"data: {json.dumps(evt)}\n\n"
+            idx += len(pending)
 
-            while True:
-                reads = [process.stdout, process.stderr]
-                readable, _, _ = select.select(reads, [], [], 0.1)
-
-                for stream in readable:
-                    line = stream.readline()
-                    if line:
-                        stream_type = 'stdout' if stream == process.stdout else 'stderr'
-                        yield f"data: {json.dumps({'type': 'output', 'stream': stream_type, 'line': line.rstrip()})}\n\n"
-
-                if process.poll() is not None:
-                    for line in process.stdout:
-                        yield f"data: {json.dumps({'type': 'output', 'stream': 'stdout', 'line': line.rstrip()})}\n\n"
-                    for line in process.stderr:
-                        yield f"data: {json.dumps({'type': 'output', 'stream': 'stderr', 'line': line.rstrip()})}\n\n"
-                    break
-
-            exit_code = process.returncode
-            yield f"data: {json.dumps({'type': 'complete', 'exit_code': exit_code})}\n\n"
-
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            if done_now:
+                break
+            time.sleep(0.05)
 
     return Response(generate(), mimetype='text/event-stream', headers={
         'Cache-Control': 'no-cache',
@@ -295,6 +341,9 @@ const batchProgress=document.getElementById('batchProgress');
 let running=false;
 let currentPct=0;
 let currentParams=null;
+let currentJobId=null;
+let currentEventIdx=0;
+let reconnectNow=false;
 let dupeResolver=null;
 let batchMode=false;
 let totalItems=1;
@@ -1055,6 +1104,90 @@ if(dupeResolver)dupeResolver(false);
 hideDupeModal();
 };
 
+async function streamOutput(job_id,password,params){
+let dupeDetected=false;
+let dupeFilename='';
+while(running&&currentJobId===job_id){
+try{
+const response=await fetch('/stream/'+job_id+'?from='+currentEventIdx,{
+headers:{'Authorization':password}
+});
+if(!response.ok){
+const body=await response.json().catch(()=>({error:'Stream error'}));
+if(response.status===404){setStatus('Error','error');log('\\n✗ Job not found','error');return;}
+throw new Error(body.error||'Stream error');
+}
+const reader=response.body.getReader();
+const decoder=new TextDecoder();
+let buffer='';
+while(true){
+const{done,value}=await reader.read();
+if(done)break;
+buffer+=decoder.decode(value,{stream:true});
+const lines=buffer.split('\\n\\n');
+buffer=lines.pop()||'';
+for(const line of lines){
+if(!line.startsWith('data: '))continue;
+try{
+const data=JSON.parse(line.slice(6));
+currentEventIdx++;
+if(data.type==='start'){
+log(`> ${data.command} "${data.url}"`,'info');
+setStatus('Initializing yt-dlp...','running');
+}else if(data.type==='output'){
+log(data.line,data.stream==='stderr'?'stderr':'');
+handleOutputLine(data.line);
+const dupeMatch=data.line.match(/\[download\]\s+(.+)\s+has already been downloaded/i);
+if(dupeMatch&&!params.force){
+dupeDetected=true;
+dupeFilename=dupeMatch[1];
+}
+}else if(data.type==='complete'){
+if(dupeDetected){
+setStatus('Duplicate found','running');
+statusDot.className='status-dot';
+log('\\n⚠ File already exists','info');
+const retry=await showDupeModal(dupeFilename);
+if(retry){
+log('\\n↻ Retrying with --force...','info');
+await runDownload({...params,force:true},false);
+return;
+}else{
+setStatus('Skipped','complete');
+log('\\n○ Skipped duplicate','info');
+}
+}else if(data.exit_code===0){
+setStatus('Complete','complete');
+log('\\n✓ Download complete','success');
+if(!params._batch)document.getElementById('url').value='';
+}else{
+setStatus('Failed','error');
+log(`\\n✗ Exit code: ${data.exit_code}`,'error');
+}
+return;
+}else if(data.type==='error'){
+setStatus('Error','error');
+log(`\\n✗ ${data.message}`,'error');
+return;
+}
+}catch(parseErr){}
+}
+}
+}catch(connErr){
+// connection dropped, fall through to reconnect
+}
+if(running&&currentJobId===job_id){
+setStatus('Connection lost — reconnecting...','running');
+log('\\n↻ Connection lost, reconnecting...','info');
+reconnectNow=false;
+const start=Date.now();
+while(!reconnectNow&&(Date.now()-start)<3000){
+await new Promise(r=>setTimeout(r,100));
+}
+}
+}
+}
+
 async function runDownload(params,clearConsole=true){
 const{password,command,url,force,_batch}=params;
 currentParams=params;
@@ -1091,83 +1224,27 @@ updateProgressCounter();
 setStatus('Connecting...','running');
 startProgressAnimation();
 
-let dupeDetected=false;
-let dupeFilename='';
-
 try{
-const response=await fetch('/download',{
+const startResp=await fetch('/download',{
 method:'POST',
 headers:{'Authorization':password,'Content-Type':'application/json'},
 body:JSON.stringify({command,url,force})
 });
-
-if(!response.ok){
-const err=await response.json();
+if(!startResp.ok){
+const err=await startResp.json();
 throw new Error(err.error||'Request failed');
 }
-
-const reader=response.body.getReader();
-const decoder=new TextDecoder();
-let buffer='';
-
-while(true){
-const{done,value}=await reader.read();
-if(done)break;
-
-buffer+=decoder.decode(value,{stream:true});
-const lines=buffer.split('\\n\\n');
-buffer=lines.pop()||'';
-
-for(const line of lines){
-if(!line.startsWith('data: '))continue;
-try{
-const data=JSON.parse(line.slice(6));
-if(data.type==='start'){
-log(`> ${data.command} "${data.url}"`,'info');
-setStatus('Initializing yt-dlp...','running');
-}else if(data.type==='output'){
-log(data.line,data.stream==='stderr'?'stderr':'');
-handleOutputLine(data.line);
-const dupeMatch=data.line.match(/\[download\]\s+(.+)\s+has already been downloaded/i);
-if(dupeMatch&&!force){
-dupeDetected=true;
-dupeFilename=dupeMatch[1];
-}
-}else if(data.type==='complete'){
-if(dupeDetected){
-setStatus('Duplicate found','running');
-statusDot.className='status-dot';
-log('\\n⚠ File already exists','info');
-const retry=await showDupeModal(dupeFilename);
-if(retry){
-log('\\n↻ Retrying with --force...','info');
-await runDownload({...params,force:true},false);
-return;
-}else{
-setStatus('Skipped','complete');
-log('\\n○ Skipped duplicate','info');
-}
-}else if(data.exit_code===0){
-setStatus('Complete','complete');
-log('\\n✓ Download complete','success');
-if(!params._batch)document.getElementById('url').value='';
-}else{
-setStatus('Failed','error');
-log(`\\n✗ Exit code: ${data.exit_code}`,'error');
-}
-}else if(data.type==='error'){
-setStatus('Error','error');
-log(`\\n✗ ${data.message}`,'error');
-}
-}catch(parseErr){}
-}
-}
+const{job_id}=await startResp.json();
+currentJobId=job_id;
+currentEventIdx=0;
+await streamOutput(job_id,password,params);
 }catch(err){
 setStatus('Error','error');
 log(`✗ ${err.message}`,'error');
 }finally{
 if(!params._batch){
 running=false;
+currentJobId=null;
 btn.disabled=false;
 btn.className='btn';
 btn.textContent='Execute';
@@ -1234,6 +1311,9 @@ updateBatchCounter();
 }
 }
 };
+document.addEventListener('visibilitychange',()=>{
+if(!document.hidden)reconnectNow=true;
+});
 </script>
 </body>
 </html>'''
