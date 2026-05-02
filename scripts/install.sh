@@ -342,7 +342,7 @@ step_host() {
 
   DEFAULT_USERNAME="${HOST_USERNAMES[$HOST]}"
   DEFAULT_DISK="${HOST_DISKS[$HOST]}"
-  LOG="/tmp/${HOST}-install.log"
+  export LOG="/tmp/${HOST}-install.log"
 
   # Detect if this host uses LUKS encryption
   local disko_path
