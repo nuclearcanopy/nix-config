@@ -4,6 +4,7 @@
   imports = [
     ./secrets.nix
     ./boot.nix
+    ./luks.nix
     ./audio.nix
     ./bluetooth.nix
     ./cpu.nix
