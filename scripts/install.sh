@@ -296,12 +296,12 @@ draw_log_window() {
   local line_count=0
   while IFS= read -r line || [ -n "$line" ]; do
     printf '\033[36m│\033[0m \033[38;5;245m%-*s\033[0m \033[36m│\033[0m\n' "$((width - 4))" "$line"
-    ((line_count++))
+    (( ++line_count ))
   done <<< "$lines"
 
   while [ "$line_count" -lt "$height" ]; do
     printf '\033[36m│\033[0m %-*s \033[36m│\033[0m\n' "$((width - 4))" ""
-    ((line_count++))
+    (( ++line_count ))
   done
 
   # Bottom with spinner
