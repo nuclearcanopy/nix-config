@@ -19,9 +19,6 @@ if ! command -v age &>/dev/null; then
   export PATH="$(nix build nixpkgs#age --no-link --print-out-paths --extra-experimental-features 'nix-command flakes' 2>/dev/null)/bin:$PATH"
 fi
 
-if ! command -v openssl &>/dev/null; then
-  export PATH="$(nix build nixpkgs#openssl --no-link --print-out-paths --extra-experimental-features 'nix-command flakes' 2>/dev/null)/bin:$PATH"
-fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STYLES
@@ -640,7 +637,7 @@ do_install() {
   local AGE_PUBKEY_CURRENT
   AGE_PUBKEY_CURRENT=$(age-keygen -y /etc/age/key.txt)
   local HASHED_PASS
-  HASHED_PASS=$(openssl passwd -6 -stdin <<< "$LUKS_KEY")
+  HASHED_PASS=$(nix shell nixpkgs#openssl --extra-experimental-features "nix-command flakes" --command openssl passwd -6 -stdin <<< "$LUKS_KEY")
   printf '%s' "$HASHED_PASS" | age -e -r "$AGE_PUBKEY_CURRENT" -o ./secrets/user-password.age
   success "User password encrypted to secrets/user-password.age"
 
