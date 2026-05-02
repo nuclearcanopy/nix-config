@@ -36,7 +36,7 @@
           "custom/memory"
           "custom/cpu"
           "custom/battery"
-          "custom/profile"
+          "custom/mouse"
           "custom/firmware"
           "custom/reboot"
           "custom/power"
@@ -137,9 +137,9 @@
           tooltip = false;
         };
 
-        "custom/profile" = {
-          exec = "${./scripts/power_profile.sh}";
-          interval = 5;
+        "custom/mouse" = {
+          exec = "${./scripts/mouse_battery.sh}";
+          interval = 60;
           tooltip = false;
         };
 
