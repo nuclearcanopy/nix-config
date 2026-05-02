@@ -14,17 +14,15 @@
     codex
 
     nmap
-    nc
-    netcat-openbsd
+    netcat-gnu
     gobuster
     nikto
     binwalk
-    strings
+    binutils
     masscan
     wfuzz
     cyberchef
     john
-    rsactftool
     zsteg
     scalpel
     hexedit
