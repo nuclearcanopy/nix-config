@@ -15,6 +15,10 @@ if ! command -v gum &>/dev/null; then
   }
 fi
 
+if ! command -v age &>/dev/null; then
+  export PATH="$(nix build nixpkgs#age --no-link --print-out-paths --extra-experimental-features 'nix-command flakes' 2>/dev/null)/bin:$PATH"
+fi
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # STYLES
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -41,6 +45,8 @@ DISK=""
 AGE_KEY_METHOD=""  # paste, file, generate, existing
 AGE_KEY=""         # actual key if pasted
 AGE_PUBKEY=""      # pubkey if generated
+LUKS_KEY=""        # raw passphrase (LUKS + login)
+HOST_HAS_LUKS=0   # set after host selection if host uses LUKS
 DEFAULT_USERNAME=""
 DEFAULT_DISK=""
 LOG=""
@@ -337,15 +343,26 @@ step_host() {
   DEFAULT_DISK="${HOST_DISKS[$HOST]}"
   LOG="/tmp/${HOST}-install.log"
 
+  # Detect if this host uses LUKS encryption
+  local disko_path
+  disko_path="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/hosts/${HOST}/disko.nix"
+  if grep -q 'type = "luks"' "$disko_path" 2>/dev/null; then
+    HOST_HAS_LUKS=1
+  else
+    HOST_HAS_LUKS=0
+  fi
+
   success "Host: $HOST"
   info "Default user: $DEFAULT_USERNAME"
   info "Default disk: $DEFAULT_DISK"
+  [ "$HOST_HAS_LUKS" -eq 1 ] && info "Disk encryption: LUKS enabled"
   return 0
 }
 
 step_username() {
   header
-  step_header 2 5 "Configure User"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  step_header 2 "$total" "Configure User"
   show_breadcrumb
 
   info "Press Enter to accept default"
@@ -369,7 +386,8 @@ step_username() {
 
 step_age_key() {
   header
-  step_header 3 5 "Age Identity Key"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  step_header 3 "$total" "Age Identity Key"
   show_breadcrumb
 
   gum style --foreground 8 --margin "0 0 1 0" \
@@ -457,9 +475,57 @@ step_age_key() {
   esac
 }
 
+step_passphrase() {
+  header
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  step_header 4 "$total" "Login Password$([ "$HOST_HAS_LUKS" -eq 1 ] && echo ' & LUKS Passphrase')"
+  show_breadcrumb
+
+  if [ "$HOST_HAS_LUKS" -eq 1 ]; then
+    gum style --foreground 8 --margin "0 0 1 0" \
+      "This passphrase unlocks the encrypted disk at boot and is also your login password."
+  else
+    gum style --foreground 8 --margin "0 0 1 0" \
+      "Set your login password. It will be stored encrypted in secrets/user-password.age."
+  fi
+  echo ""
+
+  local pass1 pass2
+  while true; do
+    pass1=$(gum input --password --prompt "Passphrase: " --placeholder "")
+    pass2=$(gum input --password --prompt "Confirm:    " --placeholder "")
+
+    if [ -z "$pass1" ]; then
+      error "Passphrase cannot be empty"
+      echo ""
+      continue
+    fi
+
+    if [ "$pass1" != "$pass2" ]; then
+      error "Passphrases do not match, try again"
+      echo ""
+      continue
+    fi
+
+    break
+  done
+
+  LUKS_KEY="$pass1"
+  success "Passphrase set"
+  echo ""
+
+  local nav; nav=$(nav_choice)
+  case "$nav" in
+    next) return 0 ;;
+    back) LUKS_KEY=""; return 2 ;;
+    *) return 1 ;;
+  esac
+}
+
 step_disk() {
   header
-  step_header 4 5 "Select Disk"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  step_header 5 "$total" "Select Disk"
   show_breadcrumb
 
   gum style --foreground 8 "Available disks:"
@@ -500,17 +566,23 @@ step_disk() {
 
 step_confirm() {
   header
-  step_header 5 5 "Review & Install"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  step_header "$total" "$total" "Review & Install"
   echo ""
 
   # Show summary
+  local enc_line=""
+  [ "$HOST_HAS_LUKS" -eq 1 ] && enc_line="
+  $(gum style --foreground 8 'Encryption:') $(gum style --foreground 2 'LUKS (passphrase set)')"
+
   gum style --border double --border-foreground 6 --padding "1 2" \
     "$(gum style --foreground 6 --bold 'Installation Summary')
 
   $(gum style --foreground 8 'Host:')     $(gum style --foreground 7 "$HOST")
   $(gum style --foreground 8 'User:')     $(gum style --foreground 7 "$USERNAME")
   $(gum style --foreground 8 'Disk:')     $(gum style --foreground 1 "$DISK") $(gum style --foreground 1 '(will be wiped!)')
-  $(gum style --foreground 8 'Age key:')  $(gum style --foreground 7 "$AGE_KEY_METHOD")"
+  $(gum style --foreground 8 'Age key:')  $(gum style --foreground 7 "$AGE_KEY_METHOD")
+  $(gum style --foreground 8 'Password:') $(gum style --foreground 7 'set')${enc_line}"
 
   echo ""
 
@@ -560,6 +632,20 @@ do_install() {
   esac
   success "Age key ready"
 
+  # Encrypt user password with age and write to secrets/user-password.age
+  local AGE_PUBKEY_CURRENT
+  AGE_PUBKEY_CURRENT=$(age-keygen -y /etc/age/key.txt)
+  local HASHED_PASS
+  HASHED_PASS=$(openssl passwd -6 -stdin <<< "$LUKS_KEY")
+  printf '%s' "$HASHED_PASS" | age -e -r "$AGE_PUBKEY_CURRENT" -o ./secrets/user-password.age
+  success "User password encrypted to secrets/user-password.age"
+
+  # Write LUKS key file for disko (only used during partitioning, deleted after)
+  if [ "$HOST_HAS_LUKS" -eq 1 ]; then
+    printf '%s' "$LUKS_KEY" > /tmp/luks-key
+    chmod 600 /tmp/luks-key
+  fi
+
   # Check disko
   local DISKO_PATH="./hosts/${HOST}/disko.nix"
   if [ ! -f "$DISKO_PATH" ]; then
@@ -603,8 +689,15 @@ do_install() {
   echo ""
 
   # Partition
-  run_task_windowed "Partitioning disk" \
-    nix --experimental-features "nix-command flakes" run .#disko -- --mode disko "$DISKO_PATH" --argstr device "$DISK"
+  if [ "$HOST_HAS_LUKS" -eq 1 ]; then
+    run_task_windowed "Partitioning disk (LUKS)" \
+      nix --experimental-features "nix-command flakes" run .#disko -- \
+        --mode disko "$DISKO_PATH" --argstr device "$DISK" --argstr luksKeyFile /tmp/luks-key
+    rm -f /tmp/luks-key
+  else
+    run_task_windowed "Partitioning disk" \
+      nix --experimental-features "nix-command flakes" run .#disko -- --mode disko "$DISKO_PATH" --argstr device "$DISK"
+  fi
   success "Disk partitioned"
 
   # Generate hardware config
@@ -713,7 +806,7 @@ while true; do
       esac
       ;;
     4)
-      step_disk
+      step_passphrase
       case $? in
         0) STEP=5 ;;
         2) STEP=3 ;;
@@ -721,10 +814,18 @@ while true; do
       esac
       ;;
     5)
+      step_disk
+      case $? in
+        0) STEP=6 ;;
+        2) STEP=4 ;;
+        *) echo "Aborted."; exit 0 ;;
+      esac
+      ;;
+    6)
       step_confirm
       case $? in
         0) do_install; exit 0 ;;
-        2) STEP=4 ;;
+        2) STEP=5 ;;
         *) echo "Aborted."; exit 0 ;;
       esac
       ;;

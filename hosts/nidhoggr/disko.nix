@@ -1,4 +1,4 @@
-{ device ? "/dev/nvme0n1", ... }:
+{ device ? "/dev/nvme0n1", luksKeyFile ? null, ... }:
 
 {
   disko.devices = {
@@ -22,9 +22,20 @@
             root = {
               size = "100%";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/";
+                type = "luks";
+                name = "cryptroot";
+                # passwordFile: used for both luksFormat and luksOpen during install.
+                # null = interactive TTY prompt (for manual disko runs).
+                # Set via --argstr luksKeyFile /tmp/luks-key by install.sh.
+                passwordFile = luksKeyFile;
+                settings = {
+                  allowDiscards = true;
+                };
+                content = {
+                  type = "filesystem";
+                  format = "ext4";
+                  mountpoint = "/";
+                };
               };
             };
           };
