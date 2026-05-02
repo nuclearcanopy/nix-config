@@ -19,13 +19,17 @@ if ! command -v age &>/dev/null; then
   export PATH="$(nix build nixpkgs#age --no-link --print-out-paths --extra-experimental-features 'nix-command flakes' 2>/dev/null)/bin:$PATH"
 fi
 
+if ! command -v openssl &>/dev/null; then
+  export PATH="$(nix build nixpkgs#openssl --no-link --print-out-paths --extra-experimental-features 'nix-command flakes' 2>/dev/null)/bin:$PATH"
+fi
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # STYLES
 # ═══════════════════════════════════════════════════════════════════════════════
 
 export GUM_CHOOSE_CURSOR_FOREGROUND="6"
 export GUM_CHOOSE_SELECTED_FOREGROUND="2"
-export GUM_SPIN_SPINNER="dots"
+export GUM_SPIN_SPINNER="dot"
 export GUM_SPIN_SPINNER_FOREGROUND="6"
 export GUM_INPUT_CURSOR_FOREGROUND="6"
 export GUM_INPUT_PROMPT_FOREGROUND="8"
