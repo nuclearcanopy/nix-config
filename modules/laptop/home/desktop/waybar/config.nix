@@ -26,6 +26,7 @@
           "custom/time"
           "custom/volume"
           "wireplumber"
+          "custom/vpn"
           "group/expand"
           "custom/mpris"
         ];
@@ -79,6 +80,12 @@
         tray = {
           icon-size = 17;
           spacing = 6;
+        };
+
+        "custom/vpn" = {
+          exec = "${./scripts/vpn_status.sh}";
+          interval = 10;
+          tooltip = false;
         };
 
         "custom/mpris" = {

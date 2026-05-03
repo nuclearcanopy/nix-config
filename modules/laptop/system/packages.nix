@@ -13,7 +13,6 @@
   environment.systemPackages = with pkgs; [
     wireguard-tools
     mullvad-vpn
-    protonvpn-gui
     dnsutils
 
     unzip

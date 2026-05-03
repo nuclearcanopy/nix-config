@@ -33,7 +33,7 @@
 
     firewall = {
       enable = true;
-      checkReversePath = false;  # Required for WireGuard-based VPNs (Mullvad, ProtonVPN)
+      checkReversePath = false;  # Required for WireGuard-based VPNs (Mullvad)
 
       allowedUDPPorts = [
         51820  # WireGuard
@@ -41,6 +41,7 @@
       allowedTCPPorts = [
         10206  # Local webdev server
       ];
+
     };
   };
 }
