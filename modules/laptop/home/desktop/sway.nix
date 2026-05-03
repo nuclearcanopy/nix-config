@@ -29,6 +29,7 @@
       startup = [
         { command = "waybar"; }
         { command = "autotiling-rs"; }
+        { command = "protonvpn-app"; }
       ];
     };
   };

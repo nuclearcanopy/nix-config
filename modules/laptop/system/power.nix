@@ -1,5 +1,44 @@
 { pkgs, ... }:
 
+let
+  setCpuMode = pkgs.writeShellScript "set-cpu-mode" ''
+    set -euo pipefail
+    case "''${1:-}" in
+      spd)
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          printf 'performance' > "$f"
+        done
+        printf '1' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+          printf '4500000' > "$f"
+        done
+        ;;
+      bal)
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          printf 'powersave' > "$f"
+        done
+        printf '1' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+          printf '4500000' > "$f"
+        done
+        ;;
+      lap)
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          printf 'powersave' > "$f"
+        done
+        printf '0' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+          printf '2000000' > "$f"
+        done
+        ;;
+      *)
+        printf 'Usage: set-cpu-mode {spd|bal|lap}\n' >&2
+        exit 1
+        ;;
+    esac
+  '';
+in
+
 {
   # TLP manages CPU frequency governors per AC/BAT state.
   # AC: full performance. Battery: maximum power savings.
@@ -13,6 +52,16 @@
   };
 
   environment.systemPackages = [ pkgs.powertop ];
+
+  # Setuid wrapper so any user can toggle CPU thermal modes (spd/bal/lap)
+  # from the waybar button without a password prompt.
+  security.wrappers.set-cpu-mode = {
+    source = "${setCpuMode}";
+    owner = "root";
+    group = "users";
+    setuid = true;
+    permissions = "u+rx,g+rx,o+rx";
+  };
 
   services.tlp = {
     enable = true;

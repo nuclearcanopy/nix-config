@@ -36,6 +36,7 @@
           "custom/mouse"
           "custom/memory"
           "custom/cpu"
+          "custom/thermalmode"
           "custom/battery"
           "custom/firmware"
           "custom/reboot"
@@ -152,6 +153,14 @@
         "custom/cpu" = {
           exec = "${../../../../home/desktop/waybar/scripts/cpu_status.sh}";
           interval = 10;  # battery: reduced from 5s
+          tooltip = false;
+        };
+
+        "custom/thermalmode" = {
+          exec = "${./scripts/thermal_mode.sh}";
+          interval = 5;
+          on-click = "${./scripts/thermal_toggle.sh}";
+          signal = 3;
           tooltip = false;
         };
       };
