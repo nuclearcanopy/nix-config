@@ -1,7 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 let
-  setCpuMode = pkgs.writeShellScript "set-cpu-mode" ''
+  setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
     set -euo pipefail
     case "''${1:-}" in
       spd)
@@ -51,17 +51,16 @@ in
     resyncTimer = "30min";
   };
 
-  environment.systemPackages = [ pkgs.powertop ];
+  environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
-  # Setuid wrapper so any user can toggle CPU thermal modes (spd/bal/lap)
-  # from the waybar button without a password prompt.
-  security.wrappers.set-cpu-mode = {
-    source = "${setCpuMode}";
-    owner = "root";
-    group = "users";
-    setuid = true;
-    permissions = "u+rx,g+rx,o+rx";
-  };
+  # Allow user to toggle CPU thermal modes (spd/bal/lap) without a password.
+  security.sudo.extraRules = [{
+    users = [ username ];
+    commands = [{
+      command = "${setCpuMode}/bin/set-cpu-mode";
+      options = [ "NOPASSWD" ];
+    }];
+  }];
 
   services.tlp = {
     enable = true;
