@@ -13,7 +13,6 @@
     ../../home/programs/btop.nix
     ../../home/programs/vesktop.nix
     ./programs/packages.nix
-    ./programs/protonvpn.nix
     # Dev: reuse kuraokami config entirely
     ../../home/dev
   ];

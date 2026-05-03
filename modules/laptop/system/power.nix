@@ -53,14 +53,25 @@ in
 
   environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
-  # Allow user to toggle CPU thermal modes (spd/bal/lap) without a password.
-  security.sudo.extraRules = [{
-    users = [ username ];
-    commands = [{
-      command = "${setCpuMode}/bin/set-cpu-mode";
-      options = [ "NOPASSWD" ];
-    }];
-  }];
+  # Make CPU freq sysfs files group-writable by wheel at boot so the waybar
+  # thermal toggle can write directly without sudo.
+  users.users.${username}.extraGroups = [ "wheel" ];
+  systemd.services.cpu-freq-perms = {
+    description = "Allow wheel group to write CPU frequency sysfs files";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udevd.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor \
+               /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+        chgrp wheel "$f" && chmod g+w "$f" || true
+      done
+      if [ -f /sys/devices/system/cpu/cpufreq/boost ]; then
+        chgrp wheel /sys/devices/system/cpu/cpufreq/boost
+        chmod g+w /sys/devices/system/cpu/cpufreq/boost
+      fi
+    '';
+  };
 
   services.tlp = {
     enable = true;

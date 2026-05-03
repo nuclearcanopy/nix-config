@@ -49,6 +49,7 @@
       allowedTCPPorts = [
         10206  # Local webdev server
       ];
+
     };
   };
 }
