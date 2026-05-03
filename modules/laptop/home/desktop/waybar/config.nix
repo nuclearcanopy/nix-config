@@ -34,9 +34,9 @@
         ];
         modules-right = [
           "custom/mouse"
+          "custom/thermalmode"
           "custom/memory"
           "custom/cpu"
-          "custom/thermalmode"
           "custom/battery"
           "custom/firmware"
           "custom/reboot"
