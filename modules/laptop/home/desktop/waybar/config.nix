@@ -39,6 +39,7 @@
           "custom/thermalmode"
           "custom/memory"
           "custom/cpu"
+          "custom/brightness"
           "custom/battery"
           "custom/firmware"
           "custom/reboot"
@@ -147,6 +148,12 @@
           format-muted = "<span color='#B96B6B'>MTD</span>";
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
           tooltip-format = "{node_name}";
+        };
+
+        "custom/brightness" = {
+          exec = "${./scripts/brightness.sh}";
+          interval = 5;
+          tooltip = false;
         };
 
         "custom/battery" = {
