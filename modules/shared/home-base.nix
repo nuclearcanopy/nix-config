@@ -27,6 +27,11 @@
     activation.setNixConfigRemote = config.lib.dag.entryAfter [ "writeBoundary" ] ''
       if [ -d "$HOME/nix-config/.git" ]; then
         ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote set-url origin git@codeberg.org:nuclearcanopy/nix-config.git 2>/dev/null || true
+        if ! ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote get-url github &>/dev/null; then
+          ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote add github git@github.com:nuclearcanopy/nix-config.git
+        else
+          ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote set-url github git@github.com:nuclearcanopy/nix-config.git
+        fi
       fi
     '';
   };
