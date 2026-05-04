@@ -43,6 +43,7 @@ window#waybar {
 #custom-firmware,
 #custom-reboot,
 #custom-power,
+#custom-brightness,
 #custom-battery,
 #battery {
   margin: 2px 11px;
@@ -111,7 +112,7 @@ window#waybar {
 }
 
 #custom-caffeine.active {
-  color: #cc3333;
+  color: #b96b6b;
 }
 
 #custom-mpris {
