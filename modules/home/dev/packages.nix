@@ -13,6 +13,8 @@
     mcp-nixos
     codex
 
+    ghidra
+    ffuf
     nmap
     netcat-gnu
     gobuster
