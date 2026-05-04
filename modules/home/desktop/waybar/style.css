@@ -39,6 +39,7 @@ window#waybar {
 #custom-gpu,
 #custom-thermalmode,
 #custom-vpn,
+#custom-caffeine,
 #custom-firmware,
 #custom-reboot,
 #custom-power,
@@ -107,6 +108,10 @@ window#waybar {
 
 #wireplumber.muted {
   color: #b96b6b;
+}
+
+#custom-caffeine.active {
+  color: #cc3333;
 }
 
 #custom-mpris {

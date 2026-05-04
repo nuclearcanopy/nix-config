@@ -20,6 +20,7 @@
           "custom/time"
           "custom/volume"
           "wireplumber"
+          "custom/caffeine"
           "group/expand"
           "custom/mpris"
         ];
@@ -52,6 +53,15 @@
           format = "RBT";
           on-click-middle = "systemctl reboot";
           tooltip = false;
+        };
+
+        "custom/caffeine" = {
+          exec = "${./scripts/caffeine.sh}";
+          return-type = "json";
+          interval = "once";
+          signal = 8;
+          on-click = "${./scripts/caffeine.sh} toggle";
+          tooltip = true;
         };
 
         "custom/expand" = {

@@ -26,6 +26,7 @@
           "custom/time"
           "custom/volume"
           "wireplumber"
+          "custom/caffeine"
           "custom/vpn"
           "group/expand"
           "custom/mpris"
@@ -80,6 +81,15 @@
         tray = {
           icon-size = 17;
           spacing = 6;
+        };
+
+        "custom/caffeine" = {
+          exec = "${../../../../home/desktop/waybar/scripts/caffeine.sh}";
+          return-type = "json";
+          interval = "once";
+          signal = 8;
+          on-click = "${../../../../home/desktop/waybar/scripts/caffeine.sh} toggle";
+          tooltip = true;
         };
 
         "custom/vpn" = {
