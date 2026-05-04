@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-status_line=$(mullvad status 2>/dev/null | head -1)
+status=$(mullvad status 2>/dev/null)
 
 declare -A country_map=(
   [al]=ALB [at]=AUT [au]=AUS [be]=BEL [bg]=BGR [br]=BRA
@@ -14,11 +14,11 @@ declare -A country_map=(
   [za]=ZAF
 )
 
-if [[ "$status_line" == Connected* ]]; then
-  relay=$(echo "$status_line" | grep -oP '(?<=Connected to )\S+')
+if echo "$status" | grep -q "^Connected"; then
+  relay=$(echo "$status" | awk '/Relay:/ { print $2 }')
   cc=$(echo "$relay" | cut -d'-' -f1 | tr '[:upper:]' '[:lower:]')
-  code="${country_map[$cc]:-VPN}"
-  echo "[${code}]"
+  code="${country_map[$cc]:-???}"
+  echo "VPN [${code}]"
 else
-  echo "<span color='#B96B6B'>[OFF]</span>"
+  echo "<span color='#B96B6B'>VPN [OFF]</span>"
 fi
