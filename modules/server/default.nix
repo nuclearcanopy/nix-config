@@ -9,5 +9,6 @@
     ./zsh.nix
     ./secrets.nix
     ./git.nix
+    ./screen-brightness.nix
   ];
 }
