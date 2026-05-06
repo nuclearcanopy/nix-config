@@ -292,12 +292,10 @@
         "browser.cache.memory.capacity" = 131072;  # 128MB memory cache
         "image.mem.decode_bytes_at_a_time" = 65536;  # faster image decode
         "gfx.webrender.all" = true;
-        "layers.acceleration.force-enabled" = true;
-        "gfx.webrender.compositor.force-enabled" = true;
 
         # Hardware video decode (benefits all systems)
         "media.ffmpeg.vaapi.enabled" = true;
-        "media.hardware-video-decoding.force-enabled" = true;
+        "media.hardware-video-decoding.force-enabled" = false;
 
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;
