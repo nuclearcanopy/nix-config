@@ -152,7 +152,8 @@
 
         "custom/brightness" = {
           exec = "${./scripts/brightness.sh}";
-          interval = 5;
+          interval = "once";
+          signal = 4;
           tooltip = false;
         };
 
