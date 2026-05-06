@@ -5,6 +5,14 @@
     enable = true;
 
     enableCompletion = true;
+    completionInit = ''
+      autoload -Uz compinit
+      if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+        compinit
+      else
+        compinit -C
+      fi
+    '';
     syntaxHighlighting.enable = true;
     autosuggestion.enable = true;
 
