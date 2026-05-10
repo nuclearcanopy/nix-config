@@ -30,6 +30,7 @@
       "dccp" "sctp" "rds" "tipc"
       "uvcvideo"
       "btusb" "bluetooth"
+      "intel_sgx"
     ];
 
     extraModprobeConfig = ''
