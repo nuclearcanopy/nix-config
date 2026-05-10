@@ -79,13 +79,13 @@ in
       # ═══════════════════════════════════════════════════════════════════
       # AC MODE — full performance, no limits
       # ═══════════════════════════════════════════════════════════════════
-      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_AC = "powersave";
       CPU_DRIVER_OPMODE_ON_AC = "active";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;
       CPU_SCALING_MAX_FREQ_ON_AC = 4500000;
       CPU_BOOST_ON_AC = 1;
-      PLATFORM_PROFILE_ON_AC = "performance";
+      PLATFORM_PROFILE_ON_AC = "balanced";
       PCIE_ASPM_ON_AC = "performance";
       SATA_LINKPWR_ON_AC = "max_performance";
       AHCI_RUNTIME_PM_ON_AC = "on";
