@@ -8,25 +8,25 @@ let
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'performance' > "$f"
         done
-        printf '1' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-          printf '4500000' > "$f"
+          cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
         done
+        printf '0' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
         ;;
       bal)
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'powersave' > "$f"
         done
-        printf '1' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-          printf '4500000' > "$f"
+          cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
         done
+        printf '0' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
         ;;
       lap)
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'powersave' > "$f"
         done
-        printf '0' > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+        printf '1' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
           printf '2000000' > "$f"
         done
@@ -66,9 +66,9 @@ in
                /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
         chgrp wheel "$f" && chmod g+w "$f" || true
       done
-      if [ -f /sys/devices/system/cpu/cpufreq/boost ]; then
-        chgrp wheel /sys/devices/system/cpu/cpufreq/boost
-        chmod g+w /sys/devices/system/cpu/cpufreq/boost
+      if [ -f /sys/devices/system/cpu/intel_pstate/no_turbo ]; then
+        chgrp wheel /sys/devices/system/cpu/intel_pstate/no_turbo
+        chmod g+w /sys/devices/system/cpu/intel_pstate/no_turbo
       fi
     '';
   };
@@ -86,7 +86,6 @@ in
       CPU_SCALING_MAX_FREQ_ON_AC = 4500000;
       CPU_BOOST_ON_AC = 1;
       PLATFORM_PROFILE_ON_AC = "performance";
-      AMDGPU_ABM_LEVEL_ON_AC = 0;
       PCIE_ASPM_ON_AC = "performance";
       SATA_LINKPWR_ON_AC = "max_performance";
       AHCI_RUNTIME_PM_ON_AC = "on";
@@ -105,7 +104,6 @@ in
       CPU_BOOST_ON_BAT = 0;
       PLATFORM_PROFILE_ON_BAT = "low-power";
       SCHED_POWERSAVE_ON_BAT = 1;                    # scx_lavd handles responsiveness
-      AMDGPU_ABM_LEVEL_ON_BAT = 4;                   # max adaptive backlight dimming
       PCIE_ASPM_ON_BAT = "powersupersave";
       SATA_LINKPWR_ON_BAT = "min_power";
       AHCI_RUNTIME_PM_ON_BAT = "auto";
@@ -117,8 +115,11 @@ in
       # ═══════════════════════════════════════════════════════════════════
       # SHARED / BATTERY HEALTH
       # ═══════════════════════════════════════════════════════════════════
+      # T480 has dual batteries (external BAT0 + internal BAT1)
       START_CHARGE_THRESH_BAT0 = 20;
       STOP_CHARGE_THRESH_BAT0 = 80;
+      START_CHARGE_THRESH_BAT1 = 20;
+      STOP_CHARGE_THRESH_BAT1 = 80;
 
       # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;
@@ -137,6 +138,9 @@ in
       WOL_DISABLE = "Y";
     };
   };
+
+  # ThinkPad firmware updates via LVFS
+  services.fwupd.enable = true;
 
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";
