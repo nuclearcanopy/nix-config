@@ -14,6 +14,26 @@
     enableNotifications = true;
   };
 
+  services.displayManager = {
+    ly = {
+      enable = true;
+      settings = {
+        animate = false;
+      };
+    };
+    defaultSession = "sway";
+  };
+
+  # TPM2 for LUKS auto-unlock — enroll after first rebuild with:
+  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 /dev/<luks-partition>
+  security.tpm2 = {
+    enable = true;
+    pkcs11.enable = true;
+    tctiEnvironment.enable = true;
+  };
+
+  boot.initrd.systemd.enable = true;
+
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -53,6 +73,8 @@
       # Suspend
       "mem_sleep_default=deep"
     ];
+
+    kernelModules = [ "uvcvideo" ];
 
     blacklistedKernelModules = [
       "dccp" "sctp" "rds" "tipc"

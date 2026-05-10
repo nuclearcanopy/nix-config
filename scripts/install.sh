@@ -757,6 +757,26 @@ do_install() {
   gum style --foreground 7 "  2. Log in as $USERNAME"
   gum style --foreground 7 "  3. sudo nixos-rebuild switch --flake ~/nix-config#$HOST"
 
+  if [ "$HOST_HAS_LUKS" -eq 1 ]; then
+    local LUKS_PART
+    if [[ "$DISK" == *"nvme"* ]]; then
+      LUKS_PART="${DISK}p2"
+    else
+      LUKS_PART="${DISK}2"
+    fi
+    echo ""
+    gum style --border rounded --border-foreground 3 --padding "0 2" \
+      "$(gum style --foreground 3 --bold '⚠ TPM enrollment (run after first boot)')
+
+  Your config uses ly + TPM auto-unlock. After logging in for the
+  first time, run this once to enroll your LUKS key into the TPM:
+
+  $(gum style --foreground 6 "sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 ${LUKS_PART}")
+
+  You will be prompted for your LUKS passphrase to authorize.
+  Keep your passphrase safe — needed if firmware updates break TPM."
+  fi
+
   if [ -n "$AGE_PUBKEY" ]; then
     echo ""
     gum style --foreground 3 "New age key generated! Public key:"
