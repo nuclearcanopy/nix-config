@@ -36,13 +36,11 @@
       "slab_nomerge"
       "page_alloc.shuffle=1"
       "preempt=full"
-      # AMD
-      "amd_pstate=active"
-      "amdgpu.dc=1"
-      "amdgpu.abmlevel=4"
-      "amdgpu.runpm=1"
-      "amdgpu.dpm=1"
-      "amdgpu.ppfeaturemask=0xffffffff"
+      # Intel
+      "intel_pstate=active"
+      "i915.enable_fbc=1"           # framebuffer compression — saves power
+      "i915.enable_psr=1"           # panel self-refresh — reduces display power
+      "i915.enable_guc=3"           # GuC/HuC firmware — better GPU scheduling
       # Power saving
       "nmi_watchdog=0"
       "nowatchdog"

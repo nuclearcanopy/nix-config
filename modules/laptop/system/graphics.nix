@@ -1,26 +1,39 @@
 { pkgs, ... }:
 
-# AMD Vega iGPU (Ryzen 5500U APU — no discrete GPU).
-# Removed from kuraokami: amdgpu.overdrive (no OC), LACT daemon (gpu.nix).
-# radv (mesa) is the Vulkan driver — no amdvlk, radv is better for iGPU.
-# VA-API via mesa radeonsi gallium driver (saves CPU/battery on video playback).
+# Intel UHD 620 iGPU (ThinkPad T480 — no discrete GPU).
+# iHD VA-API driver (intel-media-driver) for hardware video decode on Gen 9+.
+# GuC/HuC firmware loaded via i915 kernel params in boot.nix.
+# intel.updateMicrocode is handled by hardware-configuration.nix.
 {
   hardware = {
-    cpu.amd.updateMicrocode = true;
-
     graphics = {
       enable = true;
       enable32Bit = true;
 
-      package = pkgs.mesa;
-      package32 = pkgs.pkgsi686Linux.mesa;
-
       extraPackages = [
-        pkgs.vulkan-loader
+        pkgs.intel-media-driver   # iHD VA-API (Broadwell / Gen 8+)
         pkgs.libva
         pkgs.libva-utils
+        pkgs.vulkan-loader
+        pkgs.intel-gpu-tools      # intel_gpu_top, intel_reg etc.
       ];
 
+      extraPackages32 = [
+        pkgs.pkgsi686Linux.intel-media-driver
+      ];
     };
+
+    # ThinkPad TrackPoint — middle-button scroll wheel
+    trackpoint = {
+      enable = true;
+      emulateWheel = true;
+      sensitivity = 200;
+      speed = 97;
+    };
+  };
+
+  environment.variables = {
+    LIBVA_DRIVER_NAME = "iHD";
+    VDPAU_DRIVER = "va_gl";       # VDPAU via VA-API (no native Intel VDPAU)
   };
 }
