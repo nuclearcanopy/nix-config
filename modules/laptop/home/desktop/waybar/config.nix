@@ -24,31 +24,48 @@
         modules-left = [
           "clock#date"
           "custom/time"
+          "custom/sep"
           "custom/volume"
           "wireplumber"
+          "custom/sep"
+          "custom/brightness"
           "custom/caffeine"
+          "custom/sep"
           "custom/vpn"
+          "custom/thermalmode"
           "group/expand"
-          "custom/mpris"
         ];
         modules-center = [
           "sway/workspaces"
         ];
         modules-right = [
-          "custom/thermalmode"
-          "custom/mouse"
-          "custom/brightness"
           "custom/memory"
+          "custom/sep"
           "custom/cpu"
           "custom/battery"
+          "custom/chg"
+          "custom/mouse"
+          "custom/sep"
           "custom/firmware"
           "custom/reboot"
+          "custom/sleep"
           "custom/power"
         ];
 
+        "custom/sep" = {
+          format = "|";
+          tooltip = false;
+        };
+
+        "custom/sleep" = {
+          format = "SLP";
+          on-click-middle = "systemctl suspend";
+          tooltip = false;
+        };
+
         "custom/power" = {
           format = "PWR";
-          on-click-middle = "systemctl suspend";
+          on-click-middle = "systemctl poweroff";
           tooltip = false;
         };
 
@@ -160,6 +177,12 @@
         "custom/battery" = {
           exec = "${./scripts/battery.sh}";
           interval = 30;
+          tooltip = false;
+        };
+
+        "custom/chg" = {
+          format = "CHG";
+          on-click-middle = "${./scripts/charge_once.sh}";
           tooltip = false;
         };
 
