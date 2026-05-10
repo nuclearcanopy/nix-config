@@ -45,10 +45,17 @@ window#waybar {
 #custom-power,
 #custom-brightness,
 #custom-battery,
+#custom-chg,
+#custom-sleep,
+#custom-sep,
 #battery {
   margin: 2px 11px;
   padding: 2px 0px;
   background: transparent;
+}
+
+#custom-sep {
+  color: #333333;
 }
 
 #custom-expand {

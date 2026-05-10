@@ -10,6 +10,9 @@
     settings = {
       "layout.css.devPixelsPerPx" = lib.mkForce "1.35";
 
+      # VA-API in the sandboxed RDD media process (without this, VA-API is unused despite being "enabled")
+      "media.rdd-ffmpeg.enabled" = lib.mkForce true;
+
       # Battery savings
       "media.av1.enabled" = lib.mkForce false;          # AV1 software decode is brutal on CPU
       "layout.frame_rate" = lib.mkForce 60;              # cap at 60fps

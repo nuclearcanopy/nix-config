@@ -39,7 +39,6 @@
         darkreader
         bitwarden
         sponsorblock
-        localcdn
         violentmonkey
       ];
 
@@ -293,7 +292,7 @@
         "image.mem.decode_bytes_at_a_time" = 65536;  # faster image decode
         # Hardware video decode (benefits all systems)
         "media.ffmpeg.vaapi.enabled" = true;
-        "media.hardware-video-decoding.force-enabled" = false;
+        "media.hardware-video-decoding.force-enabled" = true;
 
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;

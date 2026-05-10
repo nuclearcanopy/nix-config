@@ -139,6 +139,15 @@ in
     };
   };
 
+  # Allow wheel users to run tlp chargeonce without a password (waybar CHG button)
+  security.sudo.extraRules = [{
+    groups = [ "wheel" ];
+    commands = [{
+      command = "${pkgs.tlp}/bin/tlp chargeonce *";
+      options = [ "NOPASSWD" ];
+    }];
+  }];
+
   # ThinkPad firmware updates via LVFS
   services.fwupd.enable = true;
 
