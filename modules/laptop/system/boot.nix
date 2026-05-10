@@ -23,7 +23,7 @@
 
     tmp = {
       useTmpfs = true;
-      tmpfsSize = "4G";
+      tmpfsSize = "16G";
     };
 
     kernelPackages = pkgs.linuxPackages_zen;
@@ -78,8 +78,8 @@
       "fs.protected_regular" = 2;
       "fs.protected_fifos" = 2;
 
-      # Memory tuning (16GB RAM)
-      "vm.swappiness" = 180;                  # aggressive zram usage — keeps file cache warm
+      # Memory tuning (32GB RAM)
+      "vm.swappiness" = 60;                   # zram as overflow safety net; prefer physical RAM
       "vm.vfs_cache_pressure" = 40;           # keep dentries/inodes cached longer
       "vm.dirty_ratio" = 20;                  # batch writes — fewer disk wakeups
       "vm.dirty_background_ratio" = 10;       # batch background writeback
