@@ -148,6 +148,17 @@ in
     }];
   }];
 
+  # CPU undervolting — i5-8350U (Kaby Lake-R), BIOS N24ET81W 1.56
+  # Start conservative; go deeper if stable under stress-ng.
+  # WARNING: if system crashes/freezes, reduce offsets and rebuild.
+  services.undervolt = {
+    enable = true;
+    coreOffset    = -100;  # CPU cores
+    gpuOffset     = -50;   # Intel UHD 620
+    uncoreOffset  = -100;  # CPU cache / ring bus
+    analogioOffset = 0;    # leave alone
+  };
+
   # ThinkPad firmware updates via LVFS
   services.fwupd.enable = true;
 
