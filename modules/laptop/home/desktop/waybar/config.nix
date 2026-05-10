@@ -35,8 +35,8 @@
           "sway/workspaces"
         ];
         modules-right = [
-          "custom/mouse"
           "custom/thermalmode"
+          "custom/mouse"
           "custom/brightness"
           "custom/memory"
           "custom/cpu"

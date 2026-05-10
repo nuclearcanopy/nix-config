@@ -9,7 +9,7 @@ if [[ -n "$RAW" ]]; then
 else
   BAT=/sys/class/power_supply/hidpp_battery_0
   PERCENT=$(cat "$BAT/capacity" 2>/dev/null)
-  [[ -n "$PERCENT" ]] || exit 0
+  [[ -n "$PERCENT" ]] || { echo "MSE --%"; exit 0; }
   STATUS=$(cat "$BAT/status" 2>/dev/null)
   [[ "$STATUS" == "Charging" ]] && CHARGING=1
 fi
