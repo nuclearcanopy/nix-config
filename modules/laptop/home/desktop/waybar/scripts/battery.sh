@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Battery status for waybar - shows time remaining (discharge) or time to full (charge)
-BAT=/sys/class/power_supply/BAT0
+BAT=/sys/class/power_supply/BAT1
 STATUS=$(cat "$BAT/status" 2>/dev/null)
 CAPACITY=$(cat "$BAT/capacity" 2>/dev/null)
 ENERGY_NOW=$(cat "$BAT/energy_now" 2>/dev/null)

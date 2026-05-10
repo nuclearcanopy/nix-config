@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# find k10temp hwmon
+# find k10temp (AMD) or coretemp (Intel) hwmon
 for hwmon in /sys/class/hwmon/hwmon*; do
-  if [ "$(cat "$hwmon/name" 2>/dev/null)" = "k10temp" ]; then
+  name=$(cat "$hwmon/name" 2>/dev/null)
+  if [ "$name" = "k10temp" ] || [ "$name" = "coretemp" ]; then
     TEMP=$(cat "$hwmon/temp1_input" 2>/dev/null)
     break
   fi
