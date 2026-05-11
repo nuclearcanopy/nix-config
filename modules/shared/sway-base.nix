@@ -81,21 +81,21 @@ in
         "${mod}+9" = "workspace number 9";
         "${mod}+0" = "workspace number 10";
 
-        "Alt_R+1" = "move container to workspace number 1";
-        "Alt_R+2" = "move container to workspace number 2";
-        "Alt_R+3" = "move container to workspace number 3";
-        "Alt_R+4" = "move container to workspace number 4";
-        "Alt_R+5" = "move container to workspace number 5";
-        "Alt_R+6" = "move container to workspace number 6";
-        "Alt_R+7" = "move container to workspace number 7";
-        "Alt_R+8" = "move container to workspace number 8";
-        "Alt_R+9" = "move container to workspace number 9";
-        "Alt_R+0" = "move container to workspace number 10";
+        "${mod}+Shift+1" = "move container to workspace number 1";
+        "${mod}+Shift+2" = "move container to workspace number 2";
+        "${mod}+Shift+3" = "move container to workspace number 3";
+        "${mod}+Shift+4" = "move container to workspace number 4";
+        "${mod}+Shift+5" = "move container to workspace number 5";
+        "${mod}+Shift+6" = "move container to workspace number 6";
+        "${mod}+Shift+7" = "move container to workspace number 7";
+        "${mod}+Shift+8" = "move container to workspace number 8";
+        "${mod}+Shift+9" = "move container to workspace number 9";
+        "${mod}+Shift+0" = "move container to workspace number 10";
 
-        "Alt_R+a" = "move left";
-        "Alt_R+d" = "move right";
-        "Alt_R+w" = "move up";
-        "Alt_R+s" = "move down";
+        "${mod}+Shift+a" = "move left";
+        "${mod}+Shift+d" = "move right";
+        "${mod}+Shift+w" = "move up";
+        "${mod}+Shift+s" = "move down";
 
         "${mod}+t" = "split toggle";
 
