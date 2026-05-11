@@ -47,7 +47,9 @@
   };
 
   # TPM2 for LUKS auto-unlock — enroll after first rebuild with:
-  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 /dev/<luks-partition>
+  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7 /dev/nvme0n1p2
+  # PCRs 0 (BIOS firmware) + 7 (Secure Boot state) are stable across kernel/initrd updates.
+  # Avoid PCR 4/8/9/12 — those change with every rebuild and will break auto-unlock.
   security.tpm2 = {
     enable = true;
     pkcs11.enable = true;

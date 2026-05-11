@@ -130,8 +130,9 @@
 
         "custom/volume" = {
           exec = "${./scripts/volume.sh}";
-          interval = 1;
-          on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          interval = "once";
+          signal = 5;
+          on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
           on-click-middle = "pavucontrol";
         };
 

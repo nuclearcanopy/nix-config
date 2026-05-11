@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 # Shared sway config for desktop (kuraokami) and laptop (nidhoggr).
 # Hosts import this and add their own output, input, and startup overrides.
@@ -6,6 +6,19 @@ let
   bemenuStyle = ''-i -c -l 5 -W 0.20 -B 0 -p "" --fn "monospace 16" --tb "#000000" --tf "#cccccc" --fb "#000000" --ff "#cccccc" --nb "#000000" --nf "#888888" --ab "#000000" --af "#888888" --hb "#000000" --hf "#ffffff" --sb "#000000" --sf "#ffffff" --scb "#000000" --scf "#888888"'';
   mod = "Mod4";
   alt = "Mod1";
+  caffeineToggle = pkgs.writeShellScript "caffeine-toggle" ''
+    PIDFILE="/tmp/waybar-caffeine.pid"
+    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+      kill "$(cat "$PIDFILE")"
+      rm -f "$PIDFILE"
+    else
+      systemd-inhibit --what=idle:sleep --who=waybar-caffeine \
+        --why="Caffeine mode active" --mode=block \
+        sleep infinity &
+      echo $! > "$PIDFILE"
+    fi
+    pkill -RTMIN+8 waybar
+  '';
 in
 {
   wayland.windowManager.sway = {
@@ -61,8 +74,9 @@ in
         "${mod}+j" = "layout toggle split";
         "${mod}+m" = "exit";
 
-        "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
         "${mod}+${alt}+2" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+        "${mod}+${alt}+3" = "exec ${caffeineToggle}";
         "${mod}+${alt}+Shift+p" = "exec systemctl suspend";
 
         "${mod}+a" = "focus left";
@@ -99,9 +113,9 @@ in
 
         "${mod}+t" = "split toggle";
 
-        "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
-        "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
-        "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+5 waybar";
+        "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+5 waybar";
+        "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
         "XF86AudioMicMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
         "XF86MonBrightnessUp" = "exec brightnessctl -e4 -n2 set 5%+ && pkill -SIGRTMIN+4 waybar";
         "XF86MonBrightnessDown" = "exec brightnessctl -e4 -n2 set 5%- && pkill -SIGRTMIN+4 waybar";

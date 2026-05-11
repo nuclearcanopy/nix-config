@@ -5,6 +5,10 @@
 
   wayland.windowManager.sway = {
     config = {
+      keybindings = {
+        "Mod4+Mod1+4" = "exec ${./waybar/scripts/thermal_toggle.sh}";
+      };
+
       output."*" = {
         bg = "#000000 solid_color";
       };
