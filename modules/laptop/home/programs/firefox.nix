@@ -7,7 +7,7 @@
   home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     for profile in default compat; do
       link="$HOME/.mozilla/firefox/$profile"
-      backup="$HOME/.mozilla/firefox/${profile}-backup"
+      backup="$HOME/.mozilla/firefox/''${profile}-backup"
       if [ -L "$link" ] && [ ! -e "$link" ]; then
         $DRY_RUN_CMD rm "$link"
         if [ -d "$backup" ]; then
