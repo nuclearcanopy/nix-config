@@ -8,6 +8,9 @@ let
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'performance' > "$f"
         done
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
+          printf 'performance' > "$f" 2>/dev/null || true
+        done
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
           cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
         done
@@ -17,6 +20,9 @@ let
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'powersave' > "$f"
         done
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
+          printf 'balance_performance' > "$f" 2>/dev/null || true
+        done
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
           cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
         done
@@ -25,6 +31,9 @@ let
       lap)
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           printf 'powersave' > "$f"
+        done
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
+          printf 'power' > "$f" 2>/dev/null || true
         done
         printf '1' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
@@ -63,7 +72,8 @@ in
     serviceConfig.Type = "oneshot";
     script = ''
       for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor \
-               /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+               /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq \
+               /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
         chgrp wheel "$f" && chmod g+w "$f" || true
       done
       if [ -f /sys/devices/system/cpu/intel_pstate/no_turbo ]; then
@@ -81,11 +91,11 @@ in
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_AC = "powersave";
       CPU_DRIVER_OPMODE_ON_AC = "active";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;
       CPU_SCALING_MAX_FREQ_ON_AC = 4500000;
       CPU_BOOST_ON_AC = 1;
-      PLATFORM_PROFILE_ON_AC = "balanced";
+      PLATFORM_PROFILE_ON_AC = "performance";
       PCIE_ASPM_ON_AC = "performance";
       SATA_LINKPWR_ON_AC = "max_performance";
       AHCI_RUNTIME_PM_ON_AC = "on";
@@ -98,17 +108,17 @@ in
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
       CPU_DRIVER_OPMODE_ON_BAT = "active";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;
-      CPU_SCALING_MAX_FREQ_ON_BAT = 2000000;        # 2 GHz cap
-      CPU_BOOST_ON_BAT = 0;
-      PLATFORM_PROFILE_ON_BAT = "low-power";
+      CPU_SCALING_MAX_FREQ_ON_BAT = 4500000;        # no cap — use lap mode for that
+      CPU_BOOST_ON_BAT = 1;
+      PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 1;                    # scx_lavd handles responsiveness
       PCIE_ASPM_ON_BAT = "powersupersave";
       SATA_LINKPWR_ON_BAT = "min_power";
       AHCI_RUNTIME_PM_ON_BAT = "auto";
       RUNTIME_PM_ON_BAT = "auto";
-      WIFI_PWR_ON_BAT = "on";
+      WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive — latency spikes tank browser perf
       SOUND_POWER_SAVE_ON_BAT = 60;
       SOUND_POWER_SAVE_CONTROLLER = "Y";
 
