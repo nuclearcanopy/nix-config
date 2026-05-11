@@ -110,7 +110,7 @@ in
       CPU_DRIVER_OPMODE_ON_BAT = "active";
       CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;
-      CPU_SCALING_MAX_FREQ_ON_BAT = 4500000;        # no cap — use lap mode for that
+      CPU_SCALING_MAX_FREQ_ON_BAT = 3500000;        # soft cap — use lap for battery saver, spd for full turbo
       CPU_BOOST_ON_BAT = 1;
       PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 1;                    # scx_lavd handles responsiveness

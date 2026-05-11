@@ -1,24 +1,6 @@
 { lib, pkgs, ... }:
 
 {
-  # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
-  # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's linkGeneration
-  # can't mkdir through a broken symlink, so restore from PSD's backup first.
-  home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
-    for profile in default compat; do
-      link="$HOME/.mozilla/firefox/$profile"
-      backup="$HOME/.mozilla/firefox/''${profile}-backup"
-      if [ -L "$link" ] && [ ! -e "$link" ]; then
-        $DRY_RUN_CMD rm "$link"
-        if [ -d "$backup" ]; then
-          $DRY_RUN_CMD cp -a "$backup" "$link"
-        else
-          $DRY_RUN_CMD mkdir "$link"
-        fi
-      fi
-    done
-  '';
-
   # Laptop-specific Firefox overrides
   programs.firefox.profiles.default = {
     extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [

@@ -5,7 +5,7 @@ _tpm_reenroll() {
   [[ "$NIX_FLAKE_HOST" != "nidhoggr" ]] && return 0
   echo "󰌋 Re-enrolling TPM2 LUKS key..."
   elevate systemd-cryptenroll --wipe-slot=tpm2 --tpm2-device=auto \
-    --tpm2-pcrs=0+2+7+12 \
+    --tpm2-pcrs=0+7 \
     /dev/disk/by-uuid/5fa02f65-e4a4-4e4c-b277-f5395f566d78
 }
 
@@ -41,7 +41,6 @@ nix-commit() {
     git -C "$NIX_FLAKE_DIR" push origin main --quiet > /dev/null 2>&1
     git -C "$NIX_FLAKE_DIR" push github main --quiet > /dev/null 2>&1
 
-    _tpm_reenroll
     echo " Done. (Gen $GEN_NUM)"
   else
     echo "󰚌 Build Failed"
@@ -56,7 +55,6 @@ nix-clone() {
   echo "󱄅 Rebuilding..."
   if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
-    _tpm_reenroll
     echo " Done. (Gen $GEN_NUM)"
   else
     echo "󰚌 Build Failed"
@@ -82,7 +80,6 @@ nix-upd() {
   if [ "$BUILD_SUCCESS" = true ]; then
     GEN=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1 " (" $2 " " $3 ")"}')
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
-    _tpm_reenroll
     echo " Done. (Gen $GEN_NUM)"
   else
     echo "󰚌 Build Failed"

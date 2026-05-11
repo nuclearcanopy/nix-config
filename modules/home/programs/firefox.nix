@@ -1,5 +1,43 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
+  # Pre-warm Firefox at login so opening it feels instant.
+  # firefox --headless loads the full engine into memory; when you click the
+  # icon the CLI connects to the existing process via the remote protocol and
+  # just asks it to open a new window (~instant vs. cold 3-5 s start).
+  systemd.user.services.firefox-preload = {
+    Unit = {
+      Description = "Firefox headless prelauncher";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.firefox}/bin/firefox --headless";
+      Restart = "on-failure";
+      RestartSec = "10";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
+  # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
+  # linkGeneration can't mkdir through a broken symlink, so restore from
+  # PSD's backup first.
+  home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+    for profile in default compat; do
+      link="$HOME/.mozilla/firefox/$profile"
+      backup="$HOME/.mozilla/firefox/''${profile}-backup"
+      if [ -L "$link" ] && [ ! -e "$link" ]; then
+        $DRY_RUN_CMD rm "$link"
+        if [ -d "$backup" ]; then
+          $DRY_RUN_CMD cp -a "$backup" "$link"
+        else
+          $DRY_RUN_CMD mkdir "$link"
+        fi
+      fi
+    done
+  '';
+
   home.packages = [
     (pkgs.writeShellScriptBin "firefox-compat" ''
       exec firefox --no-remote -P compat "$@"
