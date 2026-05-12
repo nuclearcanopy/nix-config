@@ -485,6 +485,9 @@
         "devtools.debugger.remote-enabled" = false;
         "devtools.console.stdout.chrome" = false;
         "browser.dom.window.dump.enabled" = false;
+
+        # Spoof the most common user agent (Chrome on Windows) to blend in with the crowd.
+        "general.useragent.override" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
       };
     };
 
