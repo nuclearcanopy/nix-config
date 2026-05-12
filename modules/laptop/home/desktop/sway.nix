@@ -31,8 +31,8 @@
       };
 
       startup = [
-        { command = "waybar"; }
         { command = "autotiling-rs"; }
+        { command = "swaymsg workspace 1"; }
       ];
     };
   };

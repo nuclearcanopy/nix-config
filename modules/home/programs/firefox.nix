@@ -1,22 +1,56 @@
 { lib, pkgs, ... }:
 {
   # Pre-warm Firefox at login so opening it feels instant.
-  # firefox --headless loads the full engine into memory; when you click the
-  # icon the CLI connects to the existing process via the remote protocol and
-  # just asks it to open a new window (~instant vs. cold 3-5 s start).
+  # Starts firefox with about:blank, waits for the window to appear in sway,
+  # then moves it to the scratchpad. When the user opens firefox, the existing
+  # process handles the request and opens a new window instantly.
+  # Uses sway-session.target so SWAYSOCK is available.
   systemd.user.services.firefox-preload = {
     Unit = {
-      Description = "Firefox headless prelauncher";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
+      Description = "Firefox scratchpad prelauncher";
+      After = [ "sway-session.target" ];
+      PartOf = [ "sway-session.target" ];
+      X-StopOnReconfiguration = false;
     };
     Service = {
       Type = "simple";
-      ExecStart = "${pkgs.firefox}/bin/firefox --headless";
+      ExecStart = "${pkgs.writeShellScript "firefox-preload" ''
+        # If firefox is already running (e.g. service restarted by a rebuild mid-session),
+        # don't open a new window into the user's existing browser — just wait until
+        # all firefox processes are gone, then exit so systemd restarts us cleanly.
+        if ${pkgs.procps}/bin/pgrep -u "$(id -u)" -f "${pkgs.firefox}/bin/firefox" >/dev/null 2>&1; then
+          while ${pkgs.procps}/bin/pgrep -u "$(id -u)" -f "${pkgs.firefox}/bin/firefox" >/dev/null 2>&1; do
+            sleep 3
+          done
+          exit 0
+        fi
+
+        # Poll the sway tree every 250ms until firefox's window appears, then
+        # immediately move it to scratchpad. sway does not reliably emit a
+        # "window:new" IPC event for firefox's initial surface, so event
+        # subscription doesn't work here. Polling is simple and correct:
+        # firefox takes several seconds to start so the 250ms interval means
+        # at most one frame of visible flash before it's hidden.
+        i=0
+        while [ $i -lt 60 ]; do
+          sleep 0.25
+          ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null \
+            | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"' \
+          && {
+            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move scratchpad' 2>/dev/null || true
+            break
+          }
+          i=$((i + 1))
+        done &
+
+        exec ${pkgs.firefox}/bin/firefox about:blank
+      ''}";
+      Nice = 19;
+      CPUWeight = 1;
       Restart = "on-failure";
-      RestartSec = "10";
+      RestartSec = "5";
     };
-    Install.WantedBy = [ "graphical-session.target" ];
+    Install.WantedBy = [ "sway-session.target" ];
   };
 
   # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to

@@ -24,28 +24,6 @@
     defaultSession = "sway";
   };
 
-  # Cold boot protection: wipe LUKS key from kernel before sleep, re-unlock via TPM2 on resume.
-  # ExecStart: luksSuspend flushes I/O and zeroes the in-kernel key while keeping the dm-crypt
-  # device node alive (cached pages keep the running system functional through the suspend).
-  # ExecStop: runs on sleep.target stop (i.e. after S3 resume). cryptsetup luksResume tries
-  # enrolled tokens (TPM2) first; if PCRs shifted, falls back to systemd-ask-password prompt.
-  # Note: TPM2 PCR values are preserved across S3 on this platform, so token unlock should work.
-  systemd.services.cryptsetup-suspend = {
-    description = "Wipe LUKS key before sleep, re-unlock via TPM2 on resume";
-    before = [ "sleep.target" ];
-    wantedBy = [ "sleep.target" ];
-    unitConfig = {
-      DefaultDependencies = false;
-      StopWhenUnneeded = true;
-    };
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${pkgs.cryptsetup}/bin/cryptsetup luksSuspend cryptroot";
-      ExecStop = "${pkgs.cryptsetup}/bin/cryptsetup luksResume cryptroot";
-    };
-  };
-
   # TPM2 for LUKS auto-unlock — enroll after first rebuild with:
   #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7 /dev/nvme0n1p2
   # PCRs 0 (BIOS firmware) + 7 (Secure Boot state) are stable across kernel/initrd updates.
