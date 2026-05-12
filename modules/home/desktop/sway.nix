@@ -48,7 +48,6 @@
       };
 
       startup = [
-        { command = "waybar"; }
         { command = "easyeffects -w"; }
         { command = "autotiling-rs"; }
       ];

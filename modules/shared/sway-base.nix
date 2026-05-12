@@ -23,7 +23,10 @@ in
 {
   wayland.windowManager.sway = {
     enable = true;
-    systemd.enable = true;
+    systemd = {
+      enable = true;
+      variables = [ "--all" ];
+    };
 
     config = {
       terminal = "alacritty";
@@ -132,6 +135,7 @@ in
         followMouse = true;
         mouseWarping = "container";
       };
+
     };
   };
 }

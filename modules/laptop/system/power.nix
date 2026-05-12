@@ -3,47 +3,28 @@
 let
   setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
     set -euo pipefail
+
+    cpu_write() { # field value [optional-ignore-errors]
+      for f in /sys/devices/system/cpu/cpu*/cpufreq/"$1"; do
+        printf '%s' "$2" > "$f" ''${3+2>/dev/null} || ''${3+true}
+      done
+    }
+    no_turbo() { printf '%s' "$1" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true; }
+
     case "''${1:-}" in
-      spd)
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-          printf 'performance' > "$f"
-        done
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
-          printf 'performance' > "$f" 2>/dev/null || true
-        done
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-          cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
-        done
-        printf '0' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
-        ;;
-      bal)
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-          printf 'powersave' > "$f"
-        done
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
-          printf 'balance_performance' > "$f" 2>/dev/null || true
-        done
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-          cat /sys/devices/system/cpu/"$(basename "$(dirname "$f")")/cpufreq/cpuinfo_max_freq" > "$f" 2>/dev/null || true
-        done
-        printf '0' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
-        ;;
-      lap)
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-          printf 'powersave' > "$f"
-        done
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
-          printf 'power' > "$f" 2>/dev/null || true
-        done
-        printf '1' > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-          printf '2000000' > "$f"
-        done
-        ;;
-      *)
-        printf 'Usage: set-cpu-mode {spd|bal|lap}\n' >&2
-        exit 1
-        ;;
+      spd) cpu_write scaling_governor performance
+           cpu_write energy_performance_preference performance ignore
+           cpu_write scaling_max_freq 3600000 ignore
+           no_turbo 0 ;;
+      bal) cpu_write scaling_governor powersave
+           cpu_write energy_performance_preference power ignore
+           cpu_write scaling_max_freq 3000000 ignore
+           no_turbo 1 ;;
+      lap) cpu_write scaling_governor powersave
+           cpu_write energy_performance_preference power ignore
+           cpu_write scaling_max_freq 2000000
+           no_turbo 1 ;;
+      *)   printf 'Usage: set-cpu-mode {spd|bal|lap}\n' >&2; exit 1 ;;
     esac
   '';
 in
@@ -180,8 +161,21 @@ in
     IdleActionSec = "15min";
   };
 
-  systemd.sleep.extraConfig = ''
-    AllowSuspendThenHibernate=yes
-    HibernateDelaySec=1800
+  # XHC (USB xHCI controller, 0000:00:14.0) is enabled as a S3 wakeup source
+  # by firmware. Any USB event (trackpad, keyboard, internal hub) causes an
+  # immediate spurious resume after lid-close suspend, draining the battery.
+  # Disable it at boot and re-disable after every resume (firmware re-enables it).
+  systemd.services.disable-xhc-wakeup = {
+    description = "Disable USB xHCI S3 wakeup to prevent spurious resume";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udevd.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
+    '';
+  };
+
+  powerManagement.resumeCommands = ''
+    echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
   '';
 }
