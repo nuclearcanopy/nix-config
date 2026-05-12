@@ -31,17 +31,26 @@
         # subscription doesn't work here. Polling is simple and correct:
         # firefox takes several seconds to start so the 250ms interval means
         # at most one frame of visible flash before it's hidden.
-        i=0
-        while [ $i -lt 60 ]; do
-          sleep 0.25
-          ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null \
-            | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"' \
-          && {
-            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move scratchpad' 2>/dev/null || true
-            break
-          }
-          i=$((i + 1))
-        done &
+        # Switch to workspace 10 so firefox opens there — never visible on ws1.
+        # Immediately schedule a switch back to ws1 in the background, then
+        # poll until firefox appears and hide it to scratchpad.
+        ${pkgs.sway}/bin/swaymsg workspace 10 2>/dev/null || true
+
+        (
+          sleep 0.2
+          ${pkgs.sway}/bin/swaymsg workspace 1 2>/dev/null || true
+          i=0
+          while [ $i -lt 60 ]; do
+            sleep 0.25
+            ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null \
+              | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"' \
+            && {
+              ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move scratchpad' 2>/dev/null || true
+              break
+            }
+            i=$((i + 1))
+          done
+        ) &
 
         exec ${pkgs.firefox}/bin/firefox about:blank
       ''}";
