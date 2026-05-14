@@ -25,7 +25,7 @@ let
       bal) cpu_write scaling_governor powersave ignore
            cpu_write energy_performance_preference power ignore
            cpu_write scaling_max_freq 3000000 ignore
-           no_turbo 1 ;;
+           no_turbo 0 ;;
       lap) cpu_write scaling_governor powersave ignore
            cpu_write energy_performance_preference power ignore
            cpu_write scaling_max_freq 2000000 ignore
