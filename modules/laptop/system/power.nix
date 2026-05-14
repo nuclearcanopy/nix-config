@@ -5,7 +5,7 @@ let
     set -euo pipefail
 
     cpu_write() { # field value [ignore?]
-      local field="$1" value="$2" ignore="${3:-}"
+      local field="$1" value="$2" ignore="''${3:-}"
       for f in /sys/devices/system/cpu/cpu*/"cpufreq/$field"; do
         if [ -n "$ignore" ]; then
           printf '%s' "$value" > "$f" 2>/dev/null || true
