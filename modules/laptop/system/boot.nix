@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   zramSwap = {
@@ -35,6 +35,22 @@
   };
 
   boot.initrd.systemd.enable = true;
+
+  # Cut the "Stop job for Rule-based device manager" delay at initrd→root handoff.
+  # systemd-udevd in the initrd lingers a few seconds by default; cap it at 1s.
+  boot.initrd.systemd.services."systemd-udevd".serviceConfig.TimeoutStopSec = "1";
+
+  # ── Boot time optimisations ──────────────────────────────────────────────────
+  # mullvad-autoconnect is WantedBy=multi-user.target and runs a blocking
+  # `mullvad connect` that takes ~5 s, delaying graphical.target by that amount.
+  # mullvad-daemon already restores the previous connection state on startup,
+  # so the autoconnect unit is redundant in the critical path. Drop it.
+  systemd.services.mullvad-autoconnect.wantedBy = lib.mkForce [];
+
+  # docker.socket sits in sockets.target → basic.target → critical chain and
+  # adds 756 ms before dbus/wpa_supplicant can start. Moving it to
+  # multi-user.target keeps socket-activation intact but removes the delay.
+  systemd.sockets.docker.wantedBy = lib.mkForce [ "multi-user.target" ];
 
   boot = {
     loader = {
@@ -80,6 +96,7 @@
 
     blacklistedKernelModules = [
       "dccp" "sctp" "rds" "tipc"
+      "intel_sgx"   # SGX disabled in ThinkPad BIOS — suppress "not available" message
     ];
 
     kernel.sysctl = {
