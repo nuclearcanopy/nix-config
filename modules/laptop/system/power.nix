@@ -57,7 +57,7 @@ in
   systemd.services.cpu-freq-perms = {
     description = "Allow wheel group to write CPU frequency sysfs files";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-udevd.service" ];
+    after = [ "systemd-udevd.service" "tlp.service" ];
     serviceConfig.Type = "oneshot";
     script = ''
       for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor \
@@ -86,7 +86,7 @@ in
       CPU_DRIVER_OPMODE_ON_AC = "active";
       CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;
-      CPU_SCALING_MAX_FREQ_ON_AC = 4500000;
+      CPU_SCALING_MAX_FREQ_ON_AC = 3600000;        # i5-8350U turbo max — don't exceed or TLP write fails
       CPU_BOOST_ON_AC = 1;
       PLATFORM_PROFILE_ON_AC = "performance";
       PCIE_ASPM_ON_AC = "performance";
