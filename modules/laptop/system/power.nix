@@ -144,9 +144,9 @@ in
   # WARNING: if system crashes/freezes, reduce offsets and rebuild.
   services.undervolt = {
     enable = true;
-    coreOffset    = -120;  # CPU cores
-    gpuOffset     = -50;   # Intel UHD 620
-    uncoreOffset  = -120;  # CPU cache / ring bus
+    coreOffset    = -115;  # CPU cores
+    gpuOffset     = -45;   # Intel UHD 620
+    uncoreOffset  = -115;  # CPU cache / ring bus
     analogioOffset = 0;    # leave alone
   };
 
