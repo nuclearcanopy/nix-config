@@ -210,6 +210,7 @@
           exec = "${./scripts/thermal_mode.sh}";
           interval = 5;
           on-click = "${./scripts/thermal_toggle.sh}";
+          on-click-middle = "set-cpu-mode god && pkill -RTMIN+3 waybar";
           signal = 3;
           tooltip = false;
         };
