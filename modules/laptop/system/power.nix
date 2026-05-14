@@ -4,28 +4,33 @@ let
   setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
     set -euo pipefail
 
-    cpu_write() { # field value [optional-ignore-errors]
-      for f in /sys/devices/system/cpu/cpu*/cpufreq/"$1"; do
-        printf '%s' "$2" > "$f" ''${3+2>/dev/null} || ''${3+true}
+    cpu_write() { # field value [ignore?]
+      local field="$1" value="$2" ignore="${3:-}"
+      for f in /sys/devices/system/cpu/cpu*/"cpufreq/$field"; do
+        if [ -n "$ignore" ]; then
+          printf '%s' "$value" > "$f" 2>/dev/null || true
+        else
+          printf '%s' "$value" > "$f"
+        fi
       done
     }
     no_turbo() { printf '%s' "$1" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true; }
     rapl_write() { printf '%s' "$2" > /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/"$1" 2>/dev/null || true; }
 
     case "''${1:-}" in
-      spd) cpu_write scaling_governor performance
+      spd) cpu_write scaling_governor performance ignore
            cpu_write energy_performance_preference performance ignore
            cpu_write scaling_max_freq 3600000 ignore
            no_turbo 0 ;;
-      bal) cpu_write scaling_governor powersave
+      bal) cpu_write scaling_governor powersave ignore
            cpu_write energy_performance_preference power ignore
            cpu_write scaling_max_freq 3000000 ignore
            no_turbo 1 ;;
-      lap) cpu_write scaling_governor powersave
+      lap) cpu_write scaling_governor powersave ignore
            cpu_write energy_performance_preference power ignore
-           cpu_write scaling_max_freq 2000000
+           cpu_write scaling_max_freq 2000000 ignore
            no_turbo 1 ;;
-      god) cpu_write scaling_governor performance
+      god) cpu_write scaling_governor performance ignore
            cpu_write energy_performance_preference performance ignore
            cpu_write scaling_max_freq 3600000 ignore
            no_turbo 0
