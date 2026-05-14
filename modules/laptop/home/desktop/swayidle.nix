@@ -70,6 +70,19 @@
     settings = {
       color = "000000";
       show-failed-attempts = true;
+      indicator-idle-visible = true;
+      indicator-radius = 60;
+      indicator-thickness = 4;
+      ring-color = "444444ff";
+      inside-color = "00000000";
+      line-color = "00000000";
+      key-hl-color = "ffffffff";
+      bs-hl-color = "ff4444ff";
+      text-color = "00000000";
+      ring-ver-color = "4488ffff";
+      ring-wrong-color = "ff4444ff";
+      inside-ver-color = "00000000";
+      inside-wrong-color = "00000000";
     };
   };
 }

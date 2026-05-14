@@ -22,7 +22,10 @@
       enabledPlugins = {
         "rust-analyzer-lsp@claude-plugins-official" = true;
       };
-      gitCoAuthoredBy = false;
+      attribution = {
+        commit = "";
+        pr = "";
+      };
     };
   };
 
