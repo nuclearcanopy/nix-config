@@ -20,6 +20,8 @@
     signal-desktop
     qbittorrent
 
+    bitwarden-desktop
+
     picard
     asunder
     feishin

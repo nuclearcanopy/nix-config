@@ -105,6 +105,9 @@
         "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
           allowed_private_browsing = true;
         };
+        "mullvad-extension@mullvad.net" = {
+          allowed_private_browsing = true;
+        };
       };
       # allow ublock on mozilla pages
       "3rdparty".Extensions."uBlock0@raymondhill.net".adminSettings = {
@@ -121,6 +124,7 @@
         bitwarden
         sponsorblock
         violentmonkey
+        mullvad
       ];
 
       # stricter filters
