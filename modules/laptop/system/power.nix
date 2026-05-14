@@ -197,12 +197,12 @@ in
     enable = true;
     levels = [
       # [ level  low  high ]
-      [ 0    0   68 ]   # off until 68°C
-      [ 1   65   73 ]   # barely audible
-      [ 2   70   78 ]
-      [ 3   75   83 ]
-      [ 5   80   87 ]
-      [ 7   84   32767 ] # full speed above 84°C
+      [ 0    0   65 ]   # off until 65°C
+      [ 1   62   72 ]   # barely audible, slow creep in
+      [ 2   70   75 ]
+      [ 3   73   79 ]
+      [ 5   77   83 ]
+      [ 7   81   32767 ] # full speed above 81°C
     ];
   };
 }
