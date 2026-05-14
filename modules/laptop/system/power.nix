@@ -178,4 +178,19 @@ in
   powerManagement.resumeCommands = ''
     echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
   '';
+
+  # Relaxed fan curve — fans stay off until 68°C, then ramp up gradually.
+  # The module auto-enables thinkpad_acpi fan_control=1.
+  services.thinkfan = {
+    enable = true;
+    levels = [
+      # [ level  low  high ]
+      [ 0    0   68 ]   # off until 68°C
+      [ 1   65   73 ]   # barely audible
+      [ 2   70   78 ]
+      [ 3   75   83 ]
+      [ 5   80   87 ]
+      [ 7   84   32767 ] # full speed above 84°C
+    ];
+  };
 }
