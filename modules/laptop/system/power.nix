@@ -10,6 +10,7 @@ let
       done
     }
     no_turbo() { printf '%s' "$1" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true; }
+    rapl_write() { printf '%s' "$2" > /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/"$1" 2>/dev/null || true; }
 
     case "''${1:-}" in
       spd) cpu_write scaling_governor performance
@@ -24,7 +25,14 @@ let
            cpu_write energy_performance_preference power ignore
            cpu_write scaling_max_freq 2000000
            no_turbo 1 ;;
-      *)   printf 'Usage: set-cpu-mode {spd|bal|lap}\n' >&2; exit 1 ;;
+      god) cpu_write scaling_governor performance
+           cpu_write energy_performance_preference performance ignore
+           cpu_write scaling_max_freq 3600000 ignore
+           no_turbo 0
+           rapl_write constraint_0_power_limit_uw 45000000
+           rapl_write constraint_1_power_limit_uw 60000000
+           printf 'GOD MODE: turbo on, 3.6GHz, PL1=45W PL2=60W\n' ;;
+      *)   printf 'Usage: set-cpu-mode {spd|bal|lap|god}\n' >&2; exit 1 ;;
     esac
   '';
 in
@@ -61,6 +69,10 @@ in
         chgrp wheel /sys/devices/system/cpu/intel_pstate/no_turbo
         chmod g+w /sys/devices/system/cpu/intel_pstate/no_turbo
       fi
+      for f in /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw \
+               /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_power_limit_uw; do
+        [ -f "$f" ] && chgrp wheel "$f" && chmod g+w "$f" || true
+      done
     '';
   };
 
