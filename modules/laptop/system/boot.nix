@@ -46,7 +46,7 @@
 
   # Not used on this laptop.
   services.flatpak.enable = lib.mkForce false;
-  services.modemmanager.enable = false;
+  systemd.services.ModemManager.enable = false;
 
   # Disable OBEX (BT file transfer). Masks the session-bus service so it
   # never activates, and drops the obex-data-server blueman pulls in.
