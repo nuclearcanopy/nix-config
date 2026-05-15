@@ -40,10 +40,6 @@
   # systemd-udevd in the initrd lingers a few seconds by default; cap it at 1s.
   boot.initrd.systemd.services."systemd-udevd".serviceConfig.TimeoutStopSec = "1";
 
-  # nscd is a name-service cache for LDAP/NIS lookups — not needed on a
-  # standalone laptop with only local users. Saves ~1s of parallel boot work.
-  services.nscd.enable = false;
-
   # Not used on this laptop.
   services.flatpak.enable = lib.mkForce false;
   systemd.services.ModemManager.enable = false;
