@@ -44,7 +44,6 @@
           "custom/sep"
           "custom/cpu"
           "custom/battery"
-          "custom/chg"
           "custom/mouse"
           "custom/sep"
           "custom/firmware"
@@ -182,12 +181,6 @@
           tooltip = false;
         };
 
-        "custom/chg" = {
-          format = "CHG";
-          on-click-middle = "${./scripts/charge_once.sh}";
-          tooltip = false;
-        };
-
         "custom/mouse" = {
           exec = "${../../../../home/desktop/waybar/scripts/mouse_battery.sh}";
           interval = 60;
@@ -208,7 +201,7 @@
 
         "custom/thermalmode" = {
           exec = "${./scripts/thermal_mode.sh}";
-          interval = 5;
+          interval = 2;
           on-click = "${./scripts/thermal_toggle.sh}";
           on-click-middle = "set-cpu-mode god && pkill -RTMIN+3 waybar";
           signal = 3;

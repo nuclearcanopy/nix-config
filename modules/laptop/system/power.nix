@@ -153,15 +153,6 @@ in
     };
   };
 
-  # Allow wheel users to run tlp chargeonce without a password (waybar CHG button)
-  security.sudo.extraRules = [{
-    groups = [ "wheel" ];
-    commands = [{
-      command = "${pkgs.tlp}/bin/tlp chargeonce *";
-      options = [ "NOPASSWD" ];
-    }];
-  }];
-
   # CPU undervolting — i5-8350U (Kaby Lake-R), BIOS N24ET81W 1.56
   # Start conservative; go deeper if stable under stress-ng.
   # WARNING: if system crashes/freezes, reduce offsets and rebuild.

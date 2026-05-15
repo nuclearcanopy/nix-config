@@ -12,4 +12,4 @@ else
   set-cpu-mode spd
 fi
 
-pkill -RTMIN+3 waybar 2>/dev/null || true
+pkill -SIGRTMIN+3 waybar 2>/dev/null || true
