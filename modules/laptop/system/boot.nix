@@ -90,8 +90,8 @@
       efi.canTouchEfiVariables = true;
     };
 
-    initrd.compressor = "lz4";
-    initrd.compressorArgs = [ "-9" ];
+    initrd.compressor = "zstd";
+    initrd.compressorArgs = [ "-6" "--threads=0" ];
 
     tmp = {
       useTmpfs = true;
