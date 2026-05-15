@@ -6,8 +6,8 @@
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
     after = [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wants = [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wantedBy = [ "multi-user.target" ];
+    wants = [ "NetworkManager.service" ];
+    wantedBy = [ "mullvad-daemon.service" ];
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = 180;

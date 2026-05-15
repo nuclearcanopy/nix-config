@@ -1,4 +1,4 @@
-{ pkgs, unstable, ... }:
+{ pkgs, unstable, lib, ... }:
 
 {
   programs.nixvim = {
@@ -27,6 +27,15 @@
       (nvim-treesitter.withAllGrammars)
       gitsigns-nvim
       unstable.vimPlugins.render-markdown-nvim
+      (pkgs.vimUtils.buildVimPlugin {
+        name = "high-str-nvim";
+        src = pkgs.fetchFromGitHub {
+          owner = "Pocco81";
+          repo = "high-str.nvim";
+          rev = "1cb5e030bb16df52c8428b53dc235466a4eb1d01";
+          hash = "sha256-oyCCYgFckG3F9OKOeajLrLsby2Z+4zJ1RtwEzJo9JIk=";
+        };
+      })
     ];
 
     extraConfigLua = ''
@@ -235,6 +244,25 @@
       if ok_render_markdown then
         render_markdown.setup({})
       end
+
+      require("high-str").setup({
+        verbosity = 0,
+        saving_path = vim.fn.expand("~/.local/share/nvim/highstr/"),
+        highlight_colors = {
+          color_1 = {"#c0392b", "smart"},  -- red
+          color_2 = {"#1e8449", "smart"},  -- green
+          color_3 = {"#1a5276", "smart"},  -- blue
+          color_4 = {"#117a65", "smart"},  -- cyan
+          color_5 = {"#8e44ad", "smart"},  -- magenta
+          color_6 = {"#ffeb3b", "smart"},  -- yellow
+          color_7 = {"#d5d8dc", "smart"},  -- white
+        },
+      })
+      -- visual mode: <leader>1-7 to highlight, <leader>- to remove
+      for i = 1, 7 do
+        vim.api.nvim_set_keymap("v", "<leader>" .. i, ":<c-u>HSHighlight " .. i .. "<CR>", { noremap = true, silent = true })
+      end
+      vim.api.nvim_set_keymap("v", "<leader>-", ":<c-u>HSRmHighlight<CR>", { noremap = true, silent = true })
 
       require("gitsigns").setup({
         signs = {
