@@ -128,10 +128,7 @@
 
     kernelModules = [ "uvcvideo" ];
 
-    blacklistedKernelModules = [
-      "dccp" "sctp" "rds" "tipc"
-      "intel_sgx"   # SGX disabled in ThinkPad BIOS — suppress "not available" message
-    ];
+    blacklistedKernelModules = [ "dccp" "sctp" "rds" "tipc" ];
 
     kernel.sysctl = {
       # Network hardening
