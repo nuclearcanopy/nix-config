@@ -40,24 +40,62 @@
   # systemd-udevd in the initrd lingers a few seconds by default; cap it at 1s.
   boot.initrd.systemd.services."systemd-udevd".serviceConfig.TimeoutStopSec = "1";
 
-  # ── Boot time optimisations ──────────────────────────────────────────────────
-  # mullvad-autoconnect is WantedBy=multi-user.target and runs a blocking
-  # `mullvad connect` that takes ~5 s, delaying graphical.target by that amount.
-  # mullvad-daemon already restores the previous connection state on startup,
-  # so the autoconnect unit is redundant in the critical path. Drop it.
-  systemd.services.mullvad-autoconnect.wantedBy = lib.mkForce [];
+  # nscd is a name-service cache for LDAP/NIS lookups — not needed on a
+  # standalone laptop with only local users. Saves ~1s of parallel boot work.
+  services.nscd.enable = false;
 
-  # docker.socket sits in sockets.target → basic.target → critical chain and
-  # adds 756 ms before dbus/wpa_supplicant can start. Moving it to
-  # multi-user.target keeps socket-activation intact but removes the delay.
+  # Not used on this laptop.
+  services.flatpak.enable = lib.mkForce false;
+  services.modemmanager.enable = false;
+
+  # Disable OBEX (BT file transfer). Masks the session-bus service so it
+  # never activates, and drops the obex-data-server blueman pulls in.
+  systemd.services.obex.enable = false;
+  systemd.user.services.obex.enable = false;
+
+  # ── Boot time optimisations ──────────────────────────────────────────────────
+
+  # Run mullvad-autoconnect after the graphical session is up so it doesn't
+  # block the critical boot path. The daemon's own state restoration covers
+  # the gap before this fires.
+  systemd.services.mullvad-autoconnect = {
+    after    = lib.mkForce [ "graphical.target" "NetworkManager.service" "mullvad-daemon.service" ];
+    wantedBy = lib.mkForce [ "graphical.target" ];
+  };
+
+  # fwupd-refresh fires at OnBootSec=0 by default, burning 2-3 s of IO at
+  # boot. Delay it and make it low-priority.
+  systemd.timers.fwupd-refresh.timerConfig = {
+    OnBootSec          = lib.mkForce "10min";
+    OnUnitActiveSec    = "1d";
+    RandomizedDelaySec = "30min";
+  };
+  systemd.services.fwupd-refresh.serviceConfig = {
+    Nice            = 19;
+    IOSchedulingClass = "idle";
+  };
+
+  # ananicy takes 1.6 s to start and competes with critical-path services.
+  # Delay it to after the graphical session is up — users get snappy scheduling
+  # once the desktop is drawn, which is what matters.
+  systemd.services.ananicy = {
+    after    = lib.mkForce [ "graphical.target" ];
+    wantedBy = lib.mkForce [ "graphical.target" ];
+  };
+
+  # docker.socket sits in sockets.target → basic.target → critical chain.
+  # Moving it to multi-user.target keeps socket-activation intact.
   systemd.sockets.docker.wantedBy = lib.mkForce [ "multi-user.target" ];
 
   boot = {
     loader = {
       systemd-boot.enable = true;
-      timeout = 1;
+      timeout = 0;  # hold Space at power-on to get the menu
       efi.canTouchEfiVariables = true;
     };
+
+    initrd.compressor = "lz4";
+    initrd.compressorArgs = [ "-9" ];
 
     tmp = {
       useTmpfs = true;
