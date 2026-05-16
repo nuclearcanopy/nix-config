@@ -30,6 +30,7 @@
       done
 
       ${pkgs.mullvad}/bin/mullvad lan set allow || true
+      ${pkgs.mullvad}/bin/mullvad tunnel set ipv6 on || true
       ${pkgs.mullvad}/bin/mullvad relay set location ro || true
       ${pkgs.mullvad}/bin/mullvad dns set default --block-ads --block-malware --block-trackers || true
       ${pkgs.mullvad}/bin/mullvad connect

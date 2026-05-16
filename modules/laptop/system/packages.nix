@@ -6,7 +6,13 @@
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "claude-code"
     "unrar"
+    "steam"
+    "steam-original"
+    "steam-run"
+    "steam-unwrapped"
   ];
+
+  programs.steam.enable = true;
 
   programs.zsh.enable = true;
 

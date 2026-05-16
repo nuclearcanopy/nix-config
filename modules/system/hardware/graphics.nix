@@ -3,9 +3,11 @@
 {
   hardware = {
     cpu.amd.updateMicrocode = true;
-    cpu.intel.updateMicrocode = false;
 
-    amdgpu.overdrive.enable = true;
+    amdgpu.overdrive = {
+      enable = true;
+      ppfeaturemask = "0xffffffff";  # enable all overdrive features for LACT
+    };
 
     graphics = {
       enable = true;

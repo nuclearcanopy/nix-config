@@ -1,7 +1,13 @@
-{ config, username, ... }:
+{ config, pkgs, username, ... }:
 
 {
   programs.home-manager.enable = true;
+
+  home.packages = [
+    (pkgs.writeShellScriptBin "bolt-launcher" ''
+      exec mullvad-exclude ${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
+    '')
+  ];
 
   xdg = {
     enable = true;

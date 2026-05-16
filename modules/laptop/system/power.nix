@@ -1,4 +1,4 @@
-{ pkgs, username, ... }:
+{ pkgs, ... }:
 
 let
   setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
@@ -53,18 +53,10 @@ in
   # AC: full performance. Battery: maximum power savings.
   services.power-profiles-daemon.enable = false;
 
-  # Profile Sync Daemon: keeps browser profiles in RAM (tmpfs),
-  # reducing SSD writes and improving responsiveness
-  services.psd = {
-    enable = true;
-    resyncTimer = "30min";
-  };
-
   environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
   # Make CPU freq sysfs files group-writable by wheel at boot so the waybar
   # thermal toggle can write directly without sudo.
-  users.users.${username}.extraGroups = [ "wheel" ];
   systemd.services.cpu-freq-perms = {
     description = "Allow wheel group to write CPU frequency sysfs files";
     wantedBy = [ "multi-user.target" ];

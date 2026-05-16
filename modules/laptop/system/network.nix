@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  imports = [ ../../system/network/base.nix ];
+
   services.mullvad-vpn.enable = true;
 
   # saves ~5.5s on boot; mullvad-autoconnect handles its own nm readiness check
@@ -8,9 +10,9 @@
 
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
-    after = [ "NetworkManager.service" "mullvad-daemon.service" ];
+    after = [ "graphical.target" "NetworkManager.service" "mullvad-daemon.service" ];
     wants = [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "graphical.target" ];
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = 180;
@@ -33,59 +35,18 @@
       done
 
       ${pkgs.mullvad}/bin/mullvad lan set allow || true
+      ${pkgs.mullvad}/bin/mullvad tunnel set ipv6 on || true
       ${pkgs.mullvad}/bin/mullvad relay set location ro || true
       ${pkgs.mullvad}/bin/mullvad dns set default --block-ads --block-malware --block-trackers || true
       ${pkgs.mullvad}/bin/mullvad connect
     '';
   };
 
-  services.resolved = {
-    enable = true;
-    dnssec = "true";
-    dnsovertls = "opportunistic";
-    llmnr = "false";
-    extraConfig = ''
-      MulticastDNS=no
-    '';
-  };
-
   networking = {
     hostName = "nidhoggr";
-
     networkmanager = {
-      enable = true;
-      # WiFi power saving for battery life
       wifi.powersave = true;
       wifi.scanRandMacAddress = true;
-      # WiFi is managed interactively via nmtui/nmcli or the NM applet.
-      # Wired auto-connects below; wireless profiles added post-install.
-      ensureProfiles.profiles = {
-        "Wired connection 1" = {
-          connection = {
-            id = "Wired connection 1";
-            type = "ethernet";
-            autoconnect = true;
-          };
-          ethernet = {
-            auto-negotiate = true;
-          };
-          ipv4.method = "auto";
-          ipv6.method = "auto";
-        };
-      };
-    };
-
-    firewall = {
-      enable = true;
-      checkReversePath = false;  # Required for WireGuard-based VPNs
-
-      allowedUDPPorts = [
-        51820  # WireGuard
-      ];
-      allowedTCPPorts = [
-        10206  # Local webdev server
-      ];
-
     };
   };
 }

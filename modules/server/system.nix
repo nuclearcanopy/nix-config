@@ -126,11 +126,6 @@
     LC_TIME = "ro_RO.UTF-8";
   };
 
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
   fileSystems."/mnt/nas" = {
     device = "//192.168.0.123/nuclearcanopy";
     fsType = "cifs";

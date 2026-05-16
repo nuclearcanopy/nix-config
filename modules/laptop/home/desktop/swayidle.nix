@@ -43,8 +43,6 @@
         resumeCommand = "${pkgs.sway}/bin/swaymsg 'output * power on'";
       }
       # 10min: suspend (both AC and battery).
-      # The luks-suspend systemd service wipes the LUKS key before sleep,
-      # and before-sleep locks the screen so userspace is also protected.
       {
         timeout = 600;
         command = "${pkgs.systemd}/bin/systemctl suspend";
@@ -53,7 +51,6 @@
 
     events = [
       # Lock screen before any suspend so the session is protected on wake.
-      # The LUKS key is wiped separately by the luks-suspend systemd service.
       {
         event = "before-sleep";
         command = "${pkgs.swaylock}/bin/swaylock -f -c 000000";

@@ -88,7 +88,7 @@
 
         "custom/vpn" = {
           exec = "${./scripts/vpn_status.sh}";
-          interval = "once";
+          interval = 10;
           signal = 9;
           on-click = "${./scripts/vpn_cycle.sh} next";
           on-click-right = "${./scripts/vpn_cycle.sh} prev";

@@ -25,8 +25,6 @@
 
     libinput.enable = true;
 
-    dbus.enable = true;
-
     flatpak.enable = true;
 
     avahi.enable = false;

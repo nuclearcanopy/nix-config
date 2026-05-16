@@ -97,8 +97,6 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d /var/lib/lidarr 0755 root root -"
-    "d /var/lib/prowlarr 0755 root root -"
     "d /var/lib/filebrowser 0755 root root -"
     "d /var/lib/vaultwarden 0755 root root -"
     "d /var/lib/navidrome 0755 root root -"
