@@ -3,13 +3,13 @@
 {
   disko.devices = {
     disk = {
-      main = {
+      nidhoggr = {
         type = "disk";
         device = device;
         content = {
           type = "gpt";
           partitions = {
-            bios = {
+            grub = {
               size = "1M";
               type = "EF02";  # BIOS boot partition — GRUB embeds core.img here (no filesystem)
             };
@@ -21,7 +21,7 @@
                 mountpoint = "/boot";
               };
             };
-            root = {
+            luks = {
               size = "100%";
               content = {
                 type = "luks";
