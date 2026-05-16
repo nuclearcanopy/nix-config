@@ -711,7 +711,9 @@ do_install() {
   fi
   success "Disk partitioned"
 
-  # Generate hardware config
+  # Generate hardware config — detects kernel modules, CPU, and hardware changes.
+  # Disk/filesystem config is handled separately in disk.nix using stable partlabels,
+  # so the generated UUIDs here are overridden and don't cause drift across reinstalls.
   run_task "Generating hardware config..." nixos-generate-config --root /mnt
   cp /mnt/etc/nixos/hardware-configuration.nix "./hosts/${HOST}/hardware-configuration.nix"
   success "Hardware config generated"
