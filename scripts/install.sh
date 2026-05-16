@@ -63,24 +63,23 @@ declare -A HOST_DESCRIPTIONS=()
 # ═══════════════════════════════════════════════════════════════════════════════
 
 discover_config() {
-  # Get nix-config directory (parent of scripts/)
-  local script_dir
+  # Get nix-config directory (parent of scripts/) — set as global SCRIPT_DIR
   if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
   else
     # Fallback: assume we're in nix-config or it's in pwd
-    script_dir="$(pwd)"
-    [ -d "$script_dir/hosts" ] || script_dir="$(dirname "$(pwd)")"
+    SCRIPT_DIR="$(pwd)"
+    [ -d "$SCRIPT_DIR/hosts" ] || SCRIPT_DIR="$(dirname "$(pwd)")"
   fi
 
   # Validate we found the right directory
-  if [ ! -f "$script_dir/flake.nix" ]; then
+  if [ ! -f "$SCRIPT_DIR/flake.nix" ]; then
     echo -e "${RED}Error:${NC} Cannot find flake.nix. Run from nix-config directory."
     exit 1
   fi
 
   # Discover hosts from hosts/*/configuration.nix
-  for host_dir in "$script_dir"/hosts/*/; do
+  for host_dir in "$SCRIPT_DIR"/hosts/*/; do
     if [ -f "${host_dir}configuration.nix" ]; then
       local host_name
       host_name=$(basename "$host_dir")
@@ -103,14 +102,14 @@ discover_config() {
 
   # Get default username from flake.nix
   local flake_username
-  flake_username=$(grep -oP '^\s*username\s*=\s*"\K[^"]+' "$script_dir/flake.nix" 2>/dev/null | head -1)
+  flake_username=$(grep -oP '^\s*username\s*=\s*"\K[^"]+' "$SCRIPT_DIR/flake.nix" 2>/dev/null | head -1)
 
   # Assign usernames - check if host has its own username in specialArgs
   for host in "${HOSTS[@]}"; do
     # Check if this host has a different username in flake.nix
     # Look for specialArgs in the host's nixosSystem block
     local host_user
-    host_user=$(awk "/nixosConfigurations\.$host|$host = nixpkgs.lib.nixosSystem/,/};/" "$script_dir/flake.nix" 2>/dev/null | \
+    host_user=$(awk "/nixosConfigurations\.$host|$host = nixpkgs.lib.nixosSystem/,/};/" "$SCRIPT_DIR/flake.nix" 2>/dev/null | \
       grep -oP 'username\s*=\s*"\K[^"]+' | head -1)
 
     if [ -n "$host_user" ]; then
@@ -609,6 +608,9 @@ do_install() {
   header
   gum style --foreground 6 --bold "Installing NixOS"
   echo ""
+
+  # All relative paths (./secrets, ./hosts, .#flake refs) require CWD = repo root
+  cd "$SCRIPT_DIR"
 
   local START_ALL
   START_ALL=$(now_s)
