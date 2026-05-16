@@ -3,25 +3,23 @@
 {
   disko.devices = {
     disk = {
-      nidhoggr = {
+      main = {
         type = "disk";
         device = device;
         content = {
           type = "gpt";
           partitions = {
-            grub = {
-              size = "1M";
-              type = "EF02";  # BIOS boot partition — GRUB embeds core.img here (no filesystem)
-            };
-            boot = {
+            ESP = {
               size = "512M";
+              type = "EF00";
               content = {
                 type = "filesystem";
-                format = "ext4";
+                format = "vfat";
                 mountpoint = "/boot";
+                mountOptions = [ "fmask=0022" "dmask=0022" ];
               };
             };
-            luks = {
+            root = {
               size = "100%";
               content = {
                 type = "luks";
