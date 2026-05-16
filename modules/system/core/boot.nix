@@ -21,7 +21,6 @@
       "init_on_alloc=1"
       "slab_nomerge"
       "page_alloc.shuffle=1"
-      "amdgpu.ppfeaturemask=0xffffffff"
       "preempt=full"
       "amd_pstate=active"
     ];

@@ -113,6 +113,10 @@
         "custom/vpn" = {
           exec = "${./scripts/vpn_status.sh}";
           interval = 10;
+          signal = 9;
+          on-click = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} next";
+          on-click-right = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} prev";
+          on-click-middle = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} last";
           tooltip = false;
         };
 

@@ -24,16 +24,6 @@
     defaultSession = "sway";
   };
 
-  # TPM2 for LUKS auto-unlock — enroll after first rebuild with:
-  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7 /dev/nvme0n1p2
-  # PCRs 0 (BIOS firmware) + 7 (Secure Boot state) are stable across kernel/initrd updates.
-  # Avoid PCR 4/8/9/12 — those change with every rebuild and will break auto-unlock.
-  security.tpm2 = {
-    enable = true;
-    pkcs11.enable = true;
-    tctiEnvironment.enable = true;
-  };
-
   boot.initrd.systemd.enable = true;
 
   # Cut the "Stop job for Rule-based device manager" delay at initrd→root handoff.
@@ -50,14 +40,6 @@
   systemd.user.services.obex.enable = false;
 
   # ── Boot time optimisations ──────────────────────────────────────────────────
-
-  # Run mullvad-autoconnect after the graphical session is up so it doesn't
-  # block the critical boot path. The daemon's own state restoration covers
-  # the gap before this fires.
-  systemd.services.mullvad-autoconnect = {
-    after    = lib.mkForce [ "graphical.target" "NetworkManager.service" "mullvad-daemon.service" ];
-    wantedBy = lib.mkForce [ "graphical.target" ];
-  };
 
   # fwupd-refresh fires at OnBootSec=0 by default, burning 2-3 s of IO at
   # boot. Delay it and make it low-priority.
@@ -84,10 +66,10 @@
   systemd.sockets.docker.wantedBy = lib.mkForce [ "multi-user.target" ];
 
   boot = {
-    loader = {
-      systemd-boot.enable = true;
-      timeout = 0;  # hold Space at power-on to get the menu
-      efi.canTouchEfiVariables = true;
+    loader.grub = {
+      enable = true;
+      device = "/dev/nvme0n1";
+      efiSupport = false;
     };
 
     initrd.compressor = "zstd";

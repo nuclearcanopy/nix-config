@@ -9,14 +9,16 @@
         content = {
           type = "gpt";
           partitions = {
-            ESP = {
+            bios = {
+              size = "1M";
+              type = "EF02";  # BIOS boot partition — GRUB embeds core.img here (no filesystem)
+            };
+            boot = {
               size = "512M";
-              type = "EF00";
               content = {
                 type = "filesystem";
-                format = "vfat";
+                format = "ext4";
                 mountpoint = "/boot";
-                mountOptions = [ "fmask=0022" "dmask=0022" ];
               };
             };
             root = {

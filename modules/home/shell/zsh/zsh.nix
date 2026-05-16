@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 
 {
   programs.zsh = {
@@ -19,7 +19,6 @@
     history = {
       size = 10000;
       save = 10000;
-      path = "${config.home.homeDirectory}/.zsh_history";
     };
 
     shellAliases = {
