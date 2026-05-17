@@ -305,6 +305,14 @@
         .browserContainer {
           background-color: #000000 !important;
         }
+
+        /* Lock vertical tab launcher to icon-only — no hover expansion.
+           Only active when sidebar.visibility = "expand-on-hover" (laptop). */
+        @media -moz-pref("sidebar.visibility", "expand-on-hover") {
+          #sidebar-main {
+            max-width: 56px !important;
+          }
+        }
       '';
 
       userContent = ''
