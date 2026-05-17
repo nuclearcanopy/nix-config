@@ -24,6 +24,13 @@
       # Tab unloading for memory/battery
       "browser.tabs.unloadOnLowMemory" = lib.mkForce true;
       "browser.sessionstore.interval" = lib.mkForce 120000;  # 2min sessionstore writes
+
+      # Keep vertical tab launcher in icon-only mode by default.
+      # sidebar.backupState doesn't work — new windows inherit state from the
+      # preload window (sourceController), bypassing backup state entirely.
+      # sidebar.visibility is a real pref (not session state) so it persists
+      # reliably. "expand-on-hover" = icons only, expands when hovered.
+      "sidebar.visibility" = lib.mkForce "expand-on-hover";
     };
   };
 }

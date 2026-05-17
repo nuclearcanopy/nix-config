@@ -17,7 +17,7 @@
     xivlauncher
     prismlauncher
 
-    onlyoffice-desktopeditors
+    libreoffice
     calibre
     lyx
     texlive.combined.scheme-full
