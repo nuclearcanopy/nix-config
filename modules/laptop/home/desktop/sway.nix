@@ -21,6 +21,11 @@
           pointer_accel = "-0.5";
         };
 
+        "2:10:TPPS/2_IBM_TrackPoint" = {
+          accel_profile = "adaptive";
+          pointer_accel = "0.5";
+        };
+
         "type:touchpad" = {
           natural_scroll = "enabled";
           tap = "enabled";

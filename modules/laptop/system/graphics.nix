@@ -27,7 +27,7 @@
     trackpoint = {
       enable = true;
       emulateWheel = true;
-      sensitivity = 200;
+      sensitivity = 255;
       speed = 97;
     };
   };
