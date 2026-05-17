@@ -29,6 +29,10 @@
     };
   };
 
+  home.file.".claude/CLAUDE.md".text = ''
+    You are working on a NixOS system. Fixes, changes, patches etc. must ALL be done declaratively or in a Nix-native, reproducible way. Imperative management is discouraged due to how often I reinstall. I use 2-3 devices, always ask me what device I am on before doing something specific. You may also just check if I'm on the laptop, PC or server, but never assume.
+  '';
+
   home.file.".codex/config.toml" = {
     force = true;
     text = ''

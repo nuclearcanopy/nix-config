@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -sI \"https://github.com/catgoose/nvim-colorizer.lua/archive/81e676d3203c9eb6e4c0ccf1eba1679296ef923f.tar.gz\")"
+      "Bash(curl -sI \"https://github.com/catgoose/nvim-colorizer.lua/archive/81e676d3203c9eb6e4c0ccf1eba1679296ef923f.tar.gz\")",
+      "Bash(systemctl --user status psd)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja modules/SidebarManager.sys.mjs)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja modules/SidebarController.sys.mjs)",
+      "Bash(unzip -l /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja chrome/browser/content/browser/sidebar/browser-sidebar.js)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja chrome/browser/content/browser/sidebar/sidebar-main.mjs)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/browser/omni.ja browser/components/sidebar/SidebarManager.sys.mjs)",
+      "Bash(unzip -l /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/omni.ja)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/omni.ja moz-src/browser/components/sidebar/SidebarManager.sys.mjs)",
+      "Bash(unzip -p /nix/store/i401dnmm8nyrfkxqxhvpnvfw3818rl45-firefox-150.0.2/lib/firefox/omni.ja moz-src/browser/components/sidebar/SidebarState.sys.mjs)",
+      "WebFetch(domain:firefox-source-docs.mozilla.org)",
+      "WebFetch(domain:www.askvg.com)",
+      "WebSearch",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(unzip:*)",
+      "Bash(sudo libinput:*)",
+      "Bash(git add:*)",
+      "Bash(GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git -c trailer.coAuthoredBy.ifexists=doNothing commit --no-edit -m \"$\\(cat <<''EOF'':*)"
     ]
   }
 }
