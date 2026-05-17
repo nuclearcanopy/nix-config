@@ -60,7 +60,7 @@ in
   systemd.services.cpu-freq-perms = {
     description = "Allow wheel group to write CPU frequency sysfs files";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-udevd.service" "tlp.service" ];
+    after = [ "systemd-udevd.service" ];
     serviceConfig.Type = "oneshot";
     script = ''
       for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor \
