@@ -24,10 +24,13 @@
     defaultSession = "sway";
   };
 
-  # TPM2 for LUKS auto-unlock — enroll after first rebuild with:
-  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7 /dev/nvme0n1p2
-  # PCRs 0 (BIOS firmware) + 7 (Secure Boot state) are stable across kernel/initrd updates.
-  # Avoid PCR 4/8/9/12 — those change with every rebuild and will break auto-unlock.
+  # TPM2 for LUKS auto-unlock.
+  # After Libreboot: PCR 0 (firmware) changed, PCR 7 (Secure Boot) gone.
+  # Existing enrollment is invalidated — you'll get a password prompt.
+  # Re-enroll once Libreboot is stable:
+  #   sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p2
+  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0 /dev/nvme0n1p2
+  # Only PCR 0 — no Secure Boot with Libreboot, so PCR 7 is useless.
   security.tpm2 = {
     enable = true;
     pkcs11.enable = true;
@@ -76,10 +79,22 @@
   systemd.sockets.docker.wantedBy = lib.mkForce [ "multi-user.target" ];
 
   boot = {
+    # Libreboot (T480 via Deguard): firmware GRUB payload reads
+    # /boot/grub/grub.cfg from the ESP. NixOS GRUB writes that file.
+    # EFI support kept as contingency — if Libreboot flash fails, the
+    # original UEFI firmware can still boot the EFI GRUB binary on the ESP.
+    # After confirming Libreboot works:
+    #   - set efi.canTouchEfiVariables = false
+    #   - optionally drop efiSupport = true
     loader = {
-      systemd-boot.enable = true;
-      timeout = 0;  # hold Space at power-on to get the menu
+      systemd-boot.enable = false;
+      timeout = 0;
       efi.canTouchEfiVariables = true;
+      grub = {
+        enable = true;
+        device = "nodev";
+        efiSupport = true;
+      };
     };
 
     initrd.compressor = "zstd";
