@@ -94,6 +94,9 @@
         enable = true;
         device = "/dev/nvme0n1";
         efiSupport = false;
+        # Switch to text mode before handing off to kernel so the
+        # initrd LUKS prompt renders as clean text, not a broken framebuffer.
+        extraConfig = "set gfxpayload=text";
       };
     };
 

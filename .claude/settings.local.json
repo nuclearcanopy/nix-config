@@ -26,7 +26,11 @@
       "Bash(undervolt:*)",
       "Bash(systemctl status:*)",
       "Bash(lsmod)",
-      "Bash(sudo rdmsr:*)"
+      "Bash(sudo rdmsr:*)",
+      "Bash(lsblk -o NAME,TYPE,FSTYPE,SIZE,MOUNTPOINT)",
+      "Read(//sys/devices/pci0000:00/0000:00:1d.2/0000:03:00.0/nvme/nvme0/nvme0n1/queue/**)",
+      "Read(//sys/devices/pci0000:00/0000:00:14.0/usb2/2-3/2-3:1.0/host0/target0:0:0/0:0:0:0/block/sda/queue/**)",
+      "mcp__nixos__nixos_search"
     ]
   }
 }
