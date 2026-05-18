@@ -32,9 +32,9 @@
   #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0 /dev/nvme0n1p2
   # Only PCR 0 — no Secure Boot with Libreboot, so PCR 7 is useless.
   security.tpm2 = {
-    enable = true;
-    pkcs11.enable = true;
-    tctiEnvironment.enable = true;
+    enable = false;
+    pkcs11.enable = false;
+    tctiEnvironment.enable = false;
   };
 
   boot.initrd.systemd.enable = true;
@@ -89,11 +89,11 @@
     loader = {
       systemd-boot.enable = false;
       timeout = 0;
-      efi.canTouchEfiVariables = true;
+      efi.canTouchEfiVariables = false;
       grub = {
         enable = true;
-        device = "nodev";
-        efiSupport = true;
+        device = "/dev/nvme0n1";
+        efiSupport = false;
       };
     };
 
