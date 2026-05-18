@@ -28,5 +28,6 @@
     zsteg
     scalpel
     hexedit
+    gnupg
   ];
 }
