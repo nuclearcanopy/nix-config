@@ -185,18 +185,17 @@ in
     echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
   '';
 
-  # Relaxed fan curve — fans stay off until 68°C, then ramp up gradually.
+  # Aggressive fan curve — spins up at 60°C, steps at 66/70/75.
   # The module auto-enables thinkpad_acpi fan_control=1.
   services.thinkfan = {
     enable = true;
     levels = [
       # [ level  low  high ]
-      [ 0    0   65 ]   # off until 65°C
-      [ 1   62   72 ]   # barely audible, slow creep in
-      [ 2   70   75 ]
-      [ 3   73   79 ]
-      [ 5   77   83 ]
-      [ 7   81   32767 ] # full speed above 81°C
+      [ 0    0   60 ]   # off until 60°C
+      [ 2   57   66 ]   # low spin at 60, steps up at 66
+      [ 4   63   70 ]   # medium at 66, steps up at 70
+      [ 6   67   75 ]   # higher at 70, steps up at 75
+      [ 7   72   32767 ] # full speed at 75°C
     ];
   };
 }
