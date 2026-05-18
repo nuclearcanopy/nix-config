@@ -38,5 +38,7 @@
     brightnessctl
     networkmanagerapplet
     acpi
+
+    flashprog  # internal firmware flashing (Libreboot updates)
   ];
 }
