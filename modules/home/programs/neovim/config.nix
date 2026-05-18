@@ -20,10 +20,8 @@
     extraPlugins = with pkgs.vimPlugins; [
       lackluster-nvim
       nvim-colorizer-lua
-      neo-tree-nvim
-      plenary-nvim
+      oil-nvim
       nvim-web-devicons
-      nui-nvim
       (nvim-treesitter.withAllGrammars)
       gitsigns-nvim
       unstable.vimPlugins.render-markdown-nvim
@@ -81,27 +79,6 @@
       })
       vim.cmd("colorscheme lackluster")
 
-      local function apply_ui_highlights()
-        -- Neo-tree "selection" is the window cursorline highlight group.
-        -- Set it explicitly so it doesn't fall back to a bright/terminal-default CursorLine.
-        vim.api.nvim_set_hl(0, "NeoTreeNormal", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "NeoTreeNormalNC", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "NeoTreeCursorLine", { bg = "#1a1a1a" })
-      end
-
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = apply_ui_highlights,
-      })
-      apply_ui_highlights()
-
-      -- Keep cursorline highlight for editing buffers (e.g. markdown), but disable it in Neo-tree.
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "neo-tree",
-        callback = function()
-          vim.wo.cursorline = false
-        end,
-      })
-
       -- Make emphasis visible even when the terminal can't do "real" bold/italic fonts.
       -- (Still sets bold/italic attrs when available.)
       vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#f0f0f0", bg = "#1a1a1a", bold = true })
@@ -129,97 +106,59 @@
         buftypes = {},
       })
 
-      local function smart_open(node)
-        if not node then return end
-        local ext = node.name:match("^.+(%..+)$")
+      local function oil_smart_open()
+        local oil = require("oil")
+        local entry = oil.get_cursor_entry()
+        local dir = oil.get_current_dir()
+        if not entry or not dir then return end
+        local path = dir .. entry.name
+        local ext = entry.name:match("^.+(%..+)$")
         if ext then
           ext = ext:lower()
           local video_exts = {".mp4", ".mkv", ".mov", ".webm", ".avi"}
           local image_exts = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"}
           if vim.tbl_contains(video_exts, ext) then
-            vim.fn.jobstart({"mpv", node.path}, {detach = true})
+            vim.fn.jobstart({"mpv", path}, {detach = true})
           elseif vim.tbl_contains(image_exts, ext) then
-            vim.fn.jobstart({"firefox", node.path}, {detach = true})
+            vim.fn.jobstart({"firefox", path}, {detach = true})
           else
-            vim.fn.jobstart({"xdg-open", node.path}, {detach = true})
+            vim.fn.jobstart({"xdg-open", path}, {detach = true})
           end
         end
       end
 
-      local function is_in_home(path)
-        local home = vim.fn.expand("~")
-        return path:sub(1, #home) == home
-      end
-
-      require("neo-tree").setup({
-        filesystem = {
-          filtered_items = { hide_dotfiles = false, hide_gitignored = false },
-          follow_current_file = { enabled = true },
-          use_default_mappings = true,
-
-          commands = {
-            delete = function(state)
-              local node = state.tree:get_node()
-              if not node then return end
-              local path = node.path
-              if not is_in_home(path) then
-                vim.ui.input({prompt = "Delete permanently? (y/N): "}, function(input)
-                  if input ~= "y" then
-                    vim.notify("Cancelled deletion")
-                    return
-                  end
-                  local ok = vim.fn.delete(path, "rf")
-                  if ok == 0 then
-                    vim.notify("Deleted: " .. path)
-                    state.commands.refresh(state)
-                  else
-                    vim.notify("Failed to delete: " .. path, vim.log.levels.ERROR)
-                  end
-                end)
-                return
-              end
-              vim.ui.input({prompt = "Move to trash? (y/N): "}, function(input)
-                if input ~= "y" then
-                  vim.notify("Cancelled deletion")
-                  return
-                end
-                local ok = os.execute("trash-put " .. vim.fn.shellescape(path))
-                if ok then
-                  vim.notify("Moved to trash: " .. path)
-                  state.commands.refresh(state)
-                else
-                  vim.notify("Failed to move to trash: " .. path, vim.log.levels.ERROR)
-                end
-              end)
-            end,
-          },
+      require("oil").setup({
+        delete_to_trash = true,
+        trash_command = "trash-put %s",
+        view_options = {
+          show_hidden = true,
         },
-        window = {
-          mappings = {
-            ["q"] = function(state)
-              local node = state.tree:get_node()
-              smart_open(node)
+        keymaps = {
+          ["q"] = { callback = oil_smart_open, desc = "Open with external app" },
+          ["y"] = {
+            callback = function()
+              local oil = require("oil")
+              local entry = oil.get_cursor_entry()
+              local dir = oil.get_current_dir()
+              if not entry or not dir then return end
+              local path = dir .. entry.name
+              vim.fn.setreg("+", path)
+              vim.notify("Copied absolute path: " .. path)
             end,
-            ["y"] = function(state)
-              local node = state.tree:get_node()
-              if not node then return end
-              vim.fn.setreg("+", node.path)
-              vim.notify("Copied absolute path: " .. node.path)
+            desc = "Copy absolute path",
+          },
+          ["Y"] = {
+            callback = function()
+              local entry = require("oil").get_cursor_entry()
+              if not entry then return end
+              vim.fn.setreg("+", entry.name)
+              vim.notify("Copied filename: " .. entry.name)
             end,
-            ["Y"] = function(state)
-              local node = state.tree:get_node()
-              if not node then return end
-              vim.fn.setreg("+", node.name)
-              vim.notify("Copied filename: " .. node.name)
-            end,
-            ["d"] = function(state)
-              if state.commands and state.commands.delete then
-                state.commands.delete(state)
-              end
-            end,
+            desc = "Copy filename",
           },
         },
       })
+      vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory in oil" })
 
       vim.opt.tabstop = 2
       vim.opt.shiftwidth = 2
