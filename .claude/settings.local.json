@@ -19,7 +19,10 @@
       "Bash(unzip:*)",
       "Bash(sudo libinput:*)",
       "Bash(git add:*)",
-      "Bash(GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git -c trailer.coAuthoredBy.ifexists=doNothing commit --no-edit -m \"$\\(cat <<''EOF'':*)"
+      "Bash(GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git -c trailer.coAuthoredBy.ifexists=doNothing commit --no-edit -m \"$\\(cat <<''EOF'':*)",
+      "WebFetch(domain:libreboot.org)",
+      "WebFetch(domain:ezntek.com)",
+      "WebFetch(domain:libreboot.runxiyu.org)"
     ]
   }
 }
