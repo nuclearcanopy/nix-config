@@ -128,7 +128,8 @@
       "nowatchdog"
       "workqueue.power_efficient=1"
       "pcie_aspm.policy=default"    # don't force ASPM — Libreboot ACPI tables don't fully describe capabilities
-      "ahci.mobile_lpm_policy=3"
+      "intel_idle.max_cstate=7"    # cap at C7s — prevents C8/C9/C10 VR switching noise (coil whine)
+      "i915.enable_dc=1"           # limit GPU display C-states — less aggressive power gating, reduces coil whine
       "snd_hda_intel.power_save=1"
       "snd_hda_intel.power_save_controller=Y"
       # Suspend
