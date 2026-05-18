@@ -109,7 +109,7 @@ in
       CPU_SCALING_MAX_FREQ_ON_BAT = 3500000;        # soft cap — use lap for battery saver, spd for full turbo
       CPU_BOOST_ON_BAT = 1;
       PLATFORM_PROFILE_ON_BAT = "balanced";
-      SCHED_POWERSAVE_ON_BAT = 1;                    # scx_lavd handles responsiveness
+      SCHED_POWERSAVE_ON_BAT = 0;                    # scx_lavd handles scheduling; don't consolidate cores (worse with HT disabled)
       PCIE_ASPM_ON_BAT = "powersupersave";
       SATA_LINKPWR_ON_BAT = "min_power";
       AHCI_RUNTIME_PM_ON_BAT = "auto";

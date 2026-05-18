@@ -118,14 +118,13 @@
       # Intel
       "intel_pstate=active"
       "i915.enable_fbc=1"           # framebuffer compression — saves power
-      "i915.enable_psr=1"           # panel self-refresh — reduces display power
+      "i915.enable_psr=0"           # PSR disabled — causes display stutter with Libreboot ACPI tables
       "i915.enable_guc=3"           # GuC/HuC firmware — better GPU scheduling
       # Power saving
       "nmi_watchdog=0"
       "nowatchdog"
       "workqueue.power_efficient=1"
-      "pcie_aspm=force"
-      "pcie_aspm.policy=powersupersave"
+      "pcie_aspm.policy=default"    # don't force ASPM — Libreboot ACPI tables don't fully describe capabilities
       "ahci.mobile_lpm_policy=3"
       "snd_hda_intel.power_save=1"
       "snd_hda_intel.power_save_controller=Y"
@@ -158,7 +157,7 @@
       "fs.protected_fifos" = 2;
 
       # Memory tuning (32GB RAM)
-      "vm.swappiness" = 60;                   # zram as overflow safety net; prefer physical RAM
+      "vm.swappiness" = 10;                   # 32GB RAM — only swap under real pressure
       "vm.vfs_cache_pressure" = 40;           # keep dentries/inodes cached longer
       "vm.dirty_ratio" = 20;                  # batch writes — fewer disk wakeups
       "vm.dirty_background_ratio" = 10;       # batch background writeback
