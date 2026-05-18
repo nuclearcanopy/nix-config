@@ -139,7 +139,7 @@ in
       DISK_APM_LEVEL_ON_AC = "254";
       DISK_APM_LEVEL_ON_BAT = "128";
       DISK_SPINDOWN_TIMEOUT_ON_BAT = "1";
-      DISK_IOSCHED = "mq-deadline";
+      DISK_IOSCHED = "none mq-deadline";  # none for NVMe (has own NCQ), mq-deadline for any SATA
 
       WOL_DISABLE = "Y";
     };
