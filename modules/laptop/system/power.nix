@@ -183,19 +183,21 @@ in
 
   powerManagement.resumeCommands = ''
     echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
+
+    # Re-suspend if the lid is still closed 30 s after waking.
+    # The T480 lid Hall-effect sensor can fire a spurious "lid opened" ACPI
+    # event from bag pressure/movement, waking the machine while the lid is
+    # physically closed or quickly settles back closed. Without this, the
+    # machine can run hot in a bag for hours if a Wayland idle inhibitor
+    # (e.g. Steam) is also preventing swayidle's 10-min fallback.
+    ( sleep 30
+      if grep -q "closed" /proc/acpi/button/lid/LID/state 2>/dev/null; then
+        systemctl suspend
+      fi
+    ) &
   '';
 
-  # Aggressive fan curve — spins up at 60°C, steps at 66/70/75.
-  # The module auto-enables thinkpad_acpi fan_control=1.
-  services.thinkfan = {
-    enable = true;
-    levels = [
-      # [ level  low  high ]
-      [ 0    0   60 ]   # off until 60°C
-      [ 2   57   66 ]   # low spin at 60, steps up at 66
-      [ 4   63   70 ]   # medium at 66, steps up at 70
-      [ 6   67   75 ]   # higher at 70, steps up at 75
-      [ 7   72   32767 ] # full speed at 75°C
-    ];
-  };
+  # thinkfan disabled: thinkpad_acpi refuses to load under Libreboot (no OEM DMI).
+  # The EC handles fan control autonomously as a hardware fallback.
+  services.thinkfan.enable = false;
 }

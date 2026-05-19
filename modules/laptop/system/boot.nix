@@ -97,9 +97,18 @@
         # Switch to text mode before handing off to kernel so the
         # initrd LUKS prompt renders as clean text, not a broken framebuffer.
         # timeout_style=hidden suppresses the menu flash even with timeout=0.
-        extraConfig = "set gfxpayload=text\nset timeout_style=hidden";
+        # gfxpayload=keep: coreboot has no VGA BIOS so "text" is a no-op and
+        # leaves the deer framebuffer active. "keep" passes the coreboot FB to
+        # the kernel; i915 in initrd then takes it over and clears it before
+        # the LUKS prompt appears.
+        extraConfig = "set gfxpayload=keep\nset timeout_style=hidden";
       };
     };
+
+    # i915 in initrd: takes over the coreboot framebuffer early (before the
+    # LUKS password prompt), clearing the Libreboot deer graphic and making
+    # the password prompt visible.
+    initrd.kernelModules = [ "i915" ];
 
     initrd.compressor = "zstd";
     initrd.compressorArgs = [ "-6" "--threads=0" ];
@@ -133,6 +142,8 @@
       "i915.enable_dc=1"           # limit GPU display C-states — less aggressive power gating, reduces coil whine
       "snd_hda_intel.power_save=1"
       "snd_hda_intel.power_save_controller=Y"
+      # ThinkPad ACPI
+      "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot); needed for fan control
       # Suspend
       "mem_sleep_default=deep"
     ];

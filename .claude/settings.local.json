@@ -34,7 +34,17 @@
       "Read(//sys/bus/platform/drivers/thinkpad_acpi/thinkpad_acpi/**)",
       "Read(//sys/devices/virtual/dmi/id/**)",
       "Bash(modinfo thinkpad_acpi)",
-      "Bash(sudo modprobe:*)"
+      "Bash(sudo modprobe:*)",
+      "Bash(journalctl:*)",
+      "Bash(dmesg)",
+      "Bash(doas modprobe:*)",
+      "Bash(sudo -n modprobe thinkpad_acpi)",
+      "Bash(git:*)",
+      "Bash(timeout 60 udevadm monitor --subsystem-match=usb 2>&1)",
+      "Read(//nix/store/**)",
+      "Read(//run/**)",
+      "Read(//proc/acpi/button/lid/LID/**)",
+      "Bash(systemd-inhibit:*)"
     ]
   }
 }
