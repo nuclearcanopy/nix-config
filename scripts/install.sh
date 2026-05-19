@@ -739,6 +739,13 @@ do_install() {
   chown -R "${TARGET_UID}:${TARGET_GID}" "/mnt/home/${USERNAME}"
   success "Config copied to ~/nix-config"
 
+  # Set up git remotes in the copied repo
+  git -C "$DEST" remote set-url origin git@codeberg.org:nuclearcanopy/nix-config.git 2>/dev/null || \
+    git -C "$DEST" remote add origin git@codeberg.org:nuclearcanopy/nix-config.git
+  git -C "$DEST" remote set-url github git@github.com:nuclearcanopy/nix-config.git 2>/dev/null || \
+    git -C "$DEST" remote add github git@github.com:nuclearcanopy/nix-config.git
+  success "Git remotes configured (origin=Codeberg, github=GitHub)"
+
   echo ""
 
   # Done!
