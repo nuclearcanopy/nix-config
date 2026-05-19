@@ -62,14 +62,33 @@ in
   # 2. XHC (USB xHCI, 0000:00:14.0) wakeup disable: fires on device appearance
   #    (boot + resume), replacing both the boot service and the resumeCommands entry.
   # 3. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode works
-  #    without root from waybar.
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}=="?*", ATTR{charge_control_start_threshold}="20", ATTR{charge_control_end_threshold}="80"
-    SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
-    ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="/bin/sh -c 'for f in scaling_governor scaling_max_freq energy_performance_preference; do p=/sys%p/cpufreq/$f; [ -f $p ] && chgrp wheel $p && chmod g+w $p; done 2>/dev/null || true'"
-    ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="/bin/sh -c 'f=/sys/devices/system/cpu/intel_pstate/no_turbo; [ -f $f ] && chgrp wheel $f && chmod g+w $f || true'"
-    ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="/bin/sh -c 'for f in constraint_0_power_limit_uw constraint_1_power_limit_uw; do p=/sys%p/$f; [ -f $p ] && chgrp wheel $p && chmod g+w $p; done 2>/dev/null || true'"
-  '';
+  #    without root from waybar. Shell logic lives in store scripts — udev's rule
+  #    validator rejects $VAR inside RUN strings (treats them as property refs).
+  services.udev.extraRules =
+    let
+      cpuFreqPerms = pkgs.writeShellScript "cpu-freq-perms" ''
+        for field in scaling_governor scaling_max_freq energy_performance_preference; do
+          p="/sys$1/cpufreq/$field"
+          [ -f "$p" ] && chgrp wheel "$p" && chmod g+w "$p" || true
+        done
+      '';
+      intelPstatePerms = pkgs.writeShellScript "intel-pstate-perms" ''
+        f=/sys/devices/system/cpu/intel_pstate/no_turbo
+        [ -f "$f" ] && chgrp wheel "$f" && chmod g+w "$f" || true
+      '';
+      raplPerms = pkgs.writeShellScript "rapl-perms" ''
+        for field in constraint_0_power_limit_uw constraint_1_power_limit_uw; do
+          p="/sys$1/$field"
+          [ -f "$p" ] && chgrp wheel "$p" && chmod g+w "$p" || true
+        done
+      '';
+    in ''
+      ACTION=="add", SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}=="?*", ATTR{charge_control_start_threshold}="20", ATTR{charge_control_end_threshold}="80"
+      SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
+      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${cpuFreqPerms} %p"
+      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${intelPstatePerms}"
+      ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${raplPerms} %p"
+    '';
 
   services.tlp = {
     enable = true;
