@@ -1,14 +1,14 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 let
   gitconfig = pkgs.writeText "gitconfig" ''
     [user]
-      name = homeserver
-      email = homeserver@nix-config.git
+      name = ${username}
+      email = ${username}@nix-config.git
   '';
 in
 {
   systemd.tmpfiles.rules = [
-    "L+ /home/homeserver/.gitconfig - - - - ${gitconfig}"
+    "L+ /home/${username}/.gitconfig - - - - ${gitconfig}"
   ];
 }

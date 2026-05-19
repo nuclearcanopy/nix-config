@@ -1,14 +1,9 @@
-{ unstable, pkgs, lib, ... }:
+{ unstable, pkgs, lib, allowedUnfree, ... }:
 
 {
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "steam"
-    "steam-original"
-    "steam-run"
-    "steam-unwrapped"
-    "claude-code"
-    "unrar"
-  ];
+  imports = [ ../../shared/packages.nix ];
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) allowedUnfree;
 
   programs = {
     zsh.enable = true;
@@ -22,25 +17,8 @@
   };
 
   environment.systemPackages = with pkgs; [
-    wireguard-tools
-    dnsutils
-
-    unzip
-    zip
-    unrar
-    p7zip
-    wget
-    git
-    rsync
     tree
-    usbutils
-    pciutils
-
     cifs-utils
-
-    systemd-manager-tui
-
-    linux-firmware
     ethtool
   ];
 }

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, unstable, ... }:
+{ config, pkgs, lib, unstable, username, allowedUnfree, ... }:
 
 {
   system.stateVersion = "25.11";
@@ -101,7 +101,7 @@
     hybrid-sleep.enable = false;
   };
 
-  services.getty.autologinUser = "homeserver";
+  services.getty.autologinUser = username;
 
   services.logind.settings = {
     Login = {
@@ -136,14 +136,12 @@
         [
           "${automount_opts}"
           "credentials=${config.age.secrets.nas-credentials.path}"
-          "uid=1000"
+          "uid=${toString config.users.users.${username}.uid}"
           "gid=100"
         ];
   };
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "claude-code"
-  ];
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) allowedUnfree;
 
   environment.systemPackages = with pkgs; [
     zsh
@@ -171,7 +169,7 @@
         action.id === "org.freedesktop.systemd1.manage-units" &&
         action.lookup("unit") === "navidrome-sync-from-nas.service" &&
         action.lookup("verb") === "start" &&
-        subject.user === "homeserver"
+        subject.user === "${username}"
       ) {
         return polkit.Result.YES;
       }

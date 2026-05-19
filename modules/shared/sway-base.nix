@@ -7,7 +7,7 @@ let
   mod = "Mod4";
   alt = "Mod1";
   caffeineToggle = pkgs.writeShellScript "caffeine-toggle" ''
-    PIDFILE="/tmp/waybar-caffeine.pid"
+    PIDFILE="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/waybar-caffeine.pid"
     if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
       kill "$(cat "$PIDFILE")"
       rm -f "$PIDFILE"
@@ -137,5 +137,12 @@ in
       };
 
     };
+
+    # Move any new firefox window whose title is still "about:blank" to the
+    # scratchpad immediately. This hides the prelaunched instance without
+    # polling sway IPC — sway applies this rule at window-creation time.
+    extraConfig = ''
+      for_window [app_id="firefox" title="about:blank"] move scratchpad
+    '';
   };
 }

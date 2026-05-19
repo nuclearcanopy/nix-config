@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
 let
   dockerNet = "cloudflared-net";
@@ -26,7 +26,7 @@ in
         ports = [ "4533:4533" ];
         volumes = [
           "/var/lib/navidrome/data:/data"
-          "/home/homeserver/Navidrome/music:/music:ro"
+          "/home/${username}/Navidrome/music:/music:ro"
         ];
         environment = {
           ND_SCANSCHEDULE = "1h";
@@ -102,11 +102,14 @@ in
     "d /var/lib/navidrome 0755 root root -"
     "d /var/lib/portainer 0755 root root -"
     "d /var/lib/searxng 0755 root root -"
+    # Declaratively deploy SearXNG config on each boot; replaces ExecStartPre cp/chmod.
+    # C+ copies (overwriting) so the container gets a writable file, not a store symlink.
+    "C+ /var/lib/searxng/settings.yml 0644 root root - ${searxngConfig}"
     # Local Navidrome music library on SSD for fast access
-    "d /home/homeserver/Navidrome 0755 homeserver users -"
-    "d /home/homeserver/Navidrome/music 0755 homeserver users -"
-    "d /home/homeserver/Navidrome/music/Web 0755 homeserver users -"
-    "d /home/homeserver/Navidrome/music/Bought 0755 homeserver users -"
+    "d /home/${username}/Navidrome 0755 homeserver users -"
+    "d /home/${username}/Navidrome/music 0755 homeserver users -"
+    "d /home/${username}/Navidrome/music/Web 0755 homeserver users -"
+    "d /home/${username}/Navidrome/music/Bought 0755 homeserver users -"
   ];
 
   systemd.services.init-docker-network = {
@@ -126,12 +129,7 @@ in
       "init-docker-network.service"
     ];
     wants = [ "network-online.target" ];
-    serviceConfig.ExecStartPre = [
-      "${pkgs.coreutils}/bin/sleep 10"
-      # Copy settings.yml to writable volume (SearXNG needs write access to /etc/searxng)
-      "${pkgs.coreutils}/bin/cp -f ${searxngConfig} /var/lib/searxng/settings.yml"
-      "${pkgs.coreutils}/bin/chmod 644 /var/lib/searxng/settings.yml"
-    ];
+    serviceConfig.ExecStartPre = [ "${pkgs.coreutils}/bin/sleep 10" ];
   };
 
   systemd.services.mscd-api = {
@@ -140,7 +138,7 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
-      User = "homeserver";
+      User = username;
       EnvironmentFile = [ config.age.secrets.homeserver-mscd-api-hash.path ];
       ExecStart = "${pkgs.python3.withPackages (ps: [ ps.mutagen ps.flask ])}/bin/python3 ${mscdApi}";
       Restart = "on-failure";
@@ -181,23 +179,23 @@ in
     after = [ "mnt-nas.mount" ];
     serviceConfig = {
       Type = "oneshot";
-      User = "homeserver";
+      User = username;
     };
     script = ''
       set -e
 
       # Ensure local directories exist
-      mkdir -p /home/homeserver/Navidrome/music/Web
-      mkdir -p /home/homeserver/Navidrome/music/Bought
+      mkdir -p /home/${username}/Navidrome/music/Web
+      mkdir -p /home/${username}/Navidrome/music/Bought
 
       # Sync NAS → local (--delete keeps them identical)
       ${pkgs.rsync}/bin/rsync -a --delete \
         /mnt/nas/Navidrome/music/ \
-        /home/homeserver/Navidrome/music/
+        /home/${username}/Navidrome/music/
 
       # Copy cookies file if it exists on NAS
       if [[ -f /mnt/nas/Navidrome/cookies.txt ]]; then
-        cp /mnt/nas/Navidrome/cookies.txt /home/homeserver/Navidrome/cookies.txt
+        cp /mnt/nas/Navidrome/cookies.txt /home/${username}/Navidrome/cookies.txt
       fi
 
       echo "Navidrome sync from NAS completed at $(date)"
@@ -216,14 +214,6 @@ in
     };
   };
 
-  systemd.services.scheduled-reboot = {
-    description = "Scheduled system reboot";
-    serviceConfig.Type = "oneshot";
-    script = ''
-      ${pkgs.systemd}/bin/systemctl reboot
-    '';
-  };
-
   systemd.timers.backup-to-nas = {
     description = "Timer for automated NAS backups";
     wantedBy = [ "timers.target" ];
@@ -234,8 +224,9 @@ in
     };
   };
 
-  systemd.timers.scheduled-reboot = {
-    description = "Timer for daily system reboot at 5 AM";
+  # Trigger the built-in systemd-reboot.target directly — no wrapper service needed.
+  systemd.timers.systemd-reboot = {
+    description = "Daily system reboot at 5 AM";
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "*-*-* 05:00:00";

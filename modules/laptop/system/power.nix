@@ -55,29 +55,21 @@ in
 
   environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
-  # Make CPU freq sysfs files group-writable by wheel at boot so the waybar
-  # thermal toggle can write directly without sudo.
-  systemd.services.cpu-freq-perms = {
-    description = "Allow wheel group to write CPU frequency sysfs files";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-udevd.service" ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor \
-               /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq \
-               /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
-        chgrp wheel "$f" && chmod g+w "$f" || true
-      done
-      if [ -f /sys/devices/system/cpu/intel_pstate/no_turbo ]; then
-        chgrp wheel /sys/devices/system/cpu/intel_pstate/no_turbo
-        chmod g+w /sys/devices/system/cpu/intel_pstate/no_turbo
-      fi
-      for f in /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw \
-               /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_power_limit_uw; do
-        [ -f "$f" ] && chgrp wheel "$f" && chmod g+w "$f" || true
-      done
-    '';
-  };
+  # udev rules replace three boot services:
+  # 1. Battery charge thresholds 20–80%: TLP can't apply them because Libreboot
+  #    sets DMI product_version="1.0" (not "ThinkPad ..."), so TLP falls back to
+  #    the generic plugin which doesn't support threshold management.
+  # 2. XHC (USB xHCI, 0000:00:14.0) wakeup disable: fires on device appearance
+  #    (boot + resume), replacing both the boot service and the resumeCommands entry.
+  # 3. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode works
+  #    without root from waybar.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}=="?*", ATTR{charge_control_start_threshold}="20", ATTR{charge_control_end_threshold}="80"
+    SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
+    ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="/bin/sh -c 'for f in scaling_governor scaling_max_freq energy_performance_preference; do p=/sys%p/cpufreq/$f; [ -f $p ] && chgrp wheel $p && chmod g+w $p; done 2>/dev/null || true'"
+    ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="/bin/sh -c 'f=/sys/devices/system/cpu/intel_pstate/no_turbo; [ -f $f ] && chgrp wheel $f && chmod g+w $f || true'"
+    ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="/bin/sh -c 'for f in constraint_0_power_limit_uw constraint_1_power_limit_uw; do p=/sys%p/$f; [ -f $p ] && chgrp wheel $p && chmod g+w $p; done 2>/dev/null || true'"
+  '';
 
   services.tlp = {
     enable = true;
@@ -121,12 +113,6 @@ in
       # ═══════════════════════════════════════════════════════════════════
       # SHARED / BATTERY HEALTH
       # ═══════════════════════════════════════════════════════════════════
-      # T480 has dual batteries (external BAT0 + internal BAT1)
-      START_CHARGE_THRESH_BAT0 = 20;
-      STOP_CHARGE_THRESH_BAT0 = 80;
-      START_CHARGE_THRESH_BAT1 = 20;
-      STOP_CHARGE_THRESH_BAT1 = 80;
-
       # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;
       USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
@@ -167,29 +153,14 @@ in
     IdleActionSec = "15min";
   };
 
-  # XHC (USB xHCI controller, 0000:00:14.0) is enabled as a S3 wakeup source
-  # by firmware. Any USB event (trackpad, keyboard, internal hub) causes an
-  # immediate spurious resume after lid-close suspend, draining the battery.
-  # Disable it at boot and re-disable after every resume (firmware re-enables it).
-  systemd.services.disable-xhc-wakeup = {
-    description = "Disable USB xHCI S3 wakeup to prevent spurious resume";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-udevd.service" ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
-    '';
-  };
-
+  # Re-suspend if the lid is still closed 30 s after waking.
+  # The T480 lid Hall-effect sensor can fire a spurious "lid opened" ACPI
+  # event from bag pressure/movement, waking the machine while the lid is
+  # physically closed or quickly settles back closed. Without this, the
+  # machine can run hot in a bag for hours if a Wayland idle inhibitor
+  # (e.g. Steam) is also preventing swayidle's 10-min fallback.
+  # XHC wakeup is handled declaratively via services.udev.extraRules above.
   powerManagement.resumeCommands = ''
-    echo disabled > /sys/bus/pci/devices/0000:00:14.0/power/wakeup || true
-
-    # Re-suspend if the lid is still closed 30 s after waking.
-    # The T480 lid Hall-effect sensor can fire a spurious "lid opened" ACPI
-    # event from bag pressure/movement, waking the machine while the lid is
-    # physically closed or quickly settles back closed. Without this, the
-    # machine can run hot in a bag for hours if a Wayland idle inhibitor
-    # (e.g. Steam) is also preventing swayidle's 10-min fallback.
     ( sleep 30
       if grep -q "closed" /proc/acpi/button/lid/LID/state 2>/dev/null; then
         systemctl suspend

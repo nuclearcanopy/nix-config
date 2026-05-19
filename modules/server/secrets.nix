@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, username, ... }:
 
 {
   age = {
@@ -13,9 +13,9 @@
 
       ssh-git = {
         file = ../../secrets/ssh-codeberg.age;
-        path = "/home/homeserver/.ssh/id_git";
+        path = "/home/${username}/.ssh/id_git";
         mode = "600";
-        owner = "homeserver";
+        owner = username;
       };
 
       homeserver-user-password = {

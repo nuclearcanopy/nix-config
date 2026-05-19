@@ -4,9 +4,15 @@
   programs.home-manager.enable = true;
 
   home.packages = [
-    (pkgs.writeShellScriptBin "bolt-launcher" ''
-      exec mullvad-exclude ${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
-    '')
+    (pkgs.symlinkJoin {
+      name = "bolt-launcher";
+      paths = [ pkgs.bolt-launcher ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/bolt-launcher \
+          --run 'exec mullvad-exclude "$0" "$@"'
+      '';
+    })
   ];
 
   xdg = {
@@ -30,16 +36,6 @@
       _JAVA_AWT_WM_NONREPARENTING = "1"; # bolt launcher fix
     };
 
-    activation.setNixConfigRemote = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-      if [ -d "$HOME/nix-config/.git" ]; then
-        ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote set-url origin git@codeberg.org:nuclearcanopy/nix-config.git 2>/dev/null || true
-        if ! ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote get-url github &>/dev/null; then
-          ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote add github git@github.com:nuclearcanopy/nix-config.git
-        else
-          ${config.home.profileDirectory}/bin/git -C "$HOME/nix-config" remote set-url github git@github.com:nuclearcanopy/nix-config.git
-        fi
-      fi
-    '';
   };
 
   systemd.user.services.trash-empty = {

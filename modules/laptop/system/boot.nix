@@ -1,6 +1,8 @@
 { pkgs, lib, ... }:
 
 {
+  imports = [ ../../shared/hardening.nix ];
+
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -121,13 +123,6 @@
     kernelPackages = pkgs.linuxPackages_latest;
 
     kernelParams = [
-      # Security
-      "pti=on"
-      "vsyscall=none"
-      "init_on_alloc=1"
-      "slab_nomerge"
-      "page_alloc.shuffle=1"
-      "preempt=full"
       # Intel
       "intel_pstate=active"
       "i915.enable_fbc=1"           # framebuffer compression — saves power
@@ -140,8 +135,6 @@
       "pcie_aspm.policy=default"    # don't force ASPM — Libreboot ACPI tables don't fully describe capabilities
       "intel_idle.max_cstate=7"    # cap at C7s — prevents C8/C9/C10 VR switching noise (coil whine)
       "i915.enable_dc=1"           # limit GPU display C-states — less aggressive power gating, reduces coil whine
-      "snd_hda_intel.power_save=1"
-      "snd_hda_intel.power_save_controller=Y"
       # ThinkPad ACPI
       "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot); needed for fan control
       # Suspend
@@ -150,28 +143,7 @@
 
     kernelModules = [ "uvcvideo" ];
 
-    blacklistedKernelModules = [ "dccp" "sctp" "rds" "tipc" ];
-
     kernel.sysctl = {
-      # Network hardening
-      "net.ipv4.conf.all.rp_filter" = 2;
-      "net.ipv4.conf.default.rp_filter" = 2;
-      "net.ipv4.conf.all.accept_redirects" = 0;
-      "net.ipv4.conf.default.accept_redirects" = 0;
-      "net.ipv6.conf.all.accept_redirects" = 0;
-      "net.ipv6.conf.default.accept_redirects" = 0;
-      "net.ipv4.conf.all.accept_source_route" = 0;
-      "net.ipv4.conf.default.accept_source_route" = 0;
-      "net.ipv6.conf.all.accept_source_route" = 0;
-      "net.ipv6.conf.default.accept_source_route" = 0;
-      "net.ipv4.conf.all.log_martians" = 0;
-      "net.ipv4.conf.all.send_redirects" = 0;
-      "net.ipv4.conf.default.send_redirects" = 0;
-      "fs.protected_symlinks" = 1;
-      "fs.protected_hardlinks" = 1;
-      "fs.protected_regular" = 2;
-      "fs.protected_fifos" = 2;
-
       # Memory tuning (32GB RAM)
       "vm.swappiness" = 10;                   # 32GB RAM — only swap under real pressure
       "vm.vfs_cache_pressure" = 40;           # keep dentries/inodes cached longer
@@ -181,7 +153,6 @@
 
       # Power saving
       "vm.laptop_mode" = 5;
-      "kernel.nmi_watchdog" = 0;
       "vm.dirty_writeback_centisecs" = 6000;  # 60s writeback interval
       "vm.dirty_expire_centisecs" = 6000;
     };
