@@ -44,7 +44,9 @@
       "Read(//nix/store/**)",
       "Read(//run/**)",
       "Read(//proc/acpi/button/lid/LID/**)",
-      "Bash(systemd-inhibit:*)"
+      "Bash(systemd-inhibit:*)",
+      "Bash(head -20 grep -rn \"for_window\\\\|extraConfig\" /home/nuclearcanopy/nix-config/modules/laptop/home/desktop/ --include=\"*.nix\")",
+      "Bash(nix flake:*)"
     ]
   }
 }

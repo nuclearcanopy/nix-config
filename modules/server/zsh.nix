@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
 let
   mscdScript = pkgs.writeTextFile {
@@ -25,7 +25,7 @@ in
       }
 
       export NIX_FLAKE_DIR="$HOME/nix-config"
-      export NIX_FLAKE_HOST="homeserver"
+      export NIX_FLAKE_HOST="${username}"
       source ~/nix-config/scripts/nix-commit.zsh
 
       sync() {

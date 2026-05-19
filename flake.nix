@@ -39,6 +39,8 @@
 
     allowedUnfree = [
       "steam"
+      "steam-original"
+      "steam-run"
       "steam-unwrapped"
       "claude-code"
       "unrar"
@@ -54,7 +56,7 @@
       inherit system;
       specialArgs = {
         unstable = unstable-pkgs;
-        inherit username;
+        inherit username allowedUnfree;
       };
 
       modules = [
@@ -95,6 +97,8 @@
         inherit system;
         specialArgs = {
           unstable = unstable-pkgs;
+          username = "homeserver";
+          inherit allowedUnfree;
         };
 
         modules = [

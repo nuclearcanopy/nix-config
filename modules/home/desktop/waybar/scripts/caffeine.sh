@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Toggle caffeine mode: prevent swayidle from dimming/sleeping the screen.
 # Uses systemd-inhibit to block idle/sleep while active.
-PIDFILE="/tmp/waybar-caffeine.pid"
+PIDFILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/waybar-caffeine.pid"
 
 toggle() {
   if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then

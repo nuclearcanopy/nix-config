@@ -111,7 +111,7 @@
         };
 
         "custom/vpn" = {
-          exec = "${./scripts/vpn_status.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/vpn_status.sh}";
           interval = 10;
           signal = 9;
           on-click = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} next";

@@ -1,17 +1,17 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, username, ... }:
 
 {
   programs.git = {
     enable = true;
     config = {
-      user.name = "nuclearcanopy";
+      user.name = username;
       user.email = "nuclearcanopy@local";
     };
   };
 
-  users.users.homeserver = {
+  users.users.${username} = {
     isNormalUser = true;
-    description = "homeserver";
+    description = username;
     extraGroups = [ "networkmanager" "wheel" "docker" ];
 
     openssh.authorizedKeys.keys = [
@@ -21,7 +21,7 @@
     hashedPasswordFile = config.age.secrets.homeserver-user-password.path;
 
     shell = pkgs.zsh;
-    packages = with pkgs; [];
+    packages = [];
   };
 
   users.defaultUserShell = pkgs.zsh;
@@ -33,7 +33,7 @@
   programs.ssh.extraConfig = ''
     Host codeberg.org
       User git
-      IdentityFile /home/homeserver/.ssh/id_git
+      IdentityFile /home/${username}/.ssh/id_git
       IdentitiesOnly yes
   '';
 }
