@@ -96,7 +96,8 @@
         efiSupport = false;
         # Switch to text mode before handing off to kernel so the
         # initrd LUKS prompt renders as clean text, not a broken framebuffer.
-        extraConfig = "set gfxpayload=text";
+        # timeout_style=hidden suppresses the menu flash even with timeout=0.
+        extraConfig = "set gfxpayload=text\nset timeout_style=hidden";
       };
     };
 
@@ -108,7 +109,7 @@
       tmpfsSize = "16G";
     };
 
-    kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.linuxPackages_latest;
 
     kernelParams = [
       # Security
