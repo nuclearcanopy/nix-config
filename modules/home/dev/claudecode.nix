@@ -31,6 +31,8 @@
 
   home.file.".claude/CLAUDE.md".text = ''
     You are working on a NixOS system. Fixes, changes, patches etc. must ALL be done declaratively or in a Nix-native, reproducible way. Imperative management is discouraged due to how often I reinstall. I use 2-3 devices, always ask me what device I am on before doing something specific. You may also just check if I'm on the laptop, PC or server, but never assume.
+
+    You do NOT have sudo permissions. If a diagnostic or fix requires sudo, stop and ask the user to run that specific command. Do not attempt workarounds or retry the same blocked command in different ways — state the issue clearly and ask.
   '';
 
   home.file.".codex/config.toml" = {
