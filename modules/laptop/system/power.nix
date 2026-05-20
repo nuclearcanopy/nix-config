@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 let
   setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
@@ -83,6 +83,7 @@ in
         done
       '';
     in ''
+      SUBSYSTEM=="leds", KERNEL=="platform::fnlock", ACTION=="add", ATTR{brightness}="0"
       ACTION=="add", SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}=="?*", ATTR{charge_control_start_threshold}="20", ATTR{charge_control_end_threshold}="80"
       SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${cpuFreqPerms} %p"
@@ -185,9 +186,28 @@ in
         systemctl suspend
       fi
     ) &
+    pkill -u ${username} --signal 43 waybar || true
   '';
 
-  # thinkfan disabled: thinkpad_acpi refuses to load under Libreboot (no OEM DMI).
-  # The EC handles fan control autonomously as a hardware fallback.
-  services.thinkfan.enable = false;
+  services.thinkfan = {
+    enable = true;
+    settings = {
+      sensors = [
+        {
+          hwmon = "/sys/class/hwmon";
+          name = "coretemp";
+          indices = [ 0 1 2 3 4 ];
+        }
+      ];
+      fans = [ { tpacpi = "/proc/acpi/ibm/fan"; } ];
+      levels = [
+        [ 0   0  55 ]
+        [ 1  52  60 ]
+        [ 2  57  65 ]
+        [ 3  62  70 ]
+        [ 5  67  75 ]
+        [ 7  72 255 ]
+      ];
+    };
+  };
 }

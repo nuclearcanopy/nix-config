@@ -136,7 +136,8 @@
       "intel_idle.max_cstate=7"    # cap at C7s — prevents C8/C9/C10 VR switching noise (coil whine)
       "i915.enable_dc=1"           # limit GPU display C-states — less aggressive power gating, reduces coil whine
       # ThinkPad ACPI
-      "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot); needed for fan control
+      "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot)
+      "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
       # Suspend
       "mem_sleep_default=deep"
     ];
