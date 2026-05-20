@@ -46,7 +46,9 @@
       "Read(//proc/acpi/button/lid/LID/**)",
       "Bash(systemd-inhibit:*)",
       "Bash(head -20 grep -rn \"for_window\\\\|extraConfig\" /home/nuclearcanopy/nix-config/modules/laptop/home/desktop/ --include=\"*.nix\")",
-      "Bash(nix flake:*)"
+      "Bash(nix flake:*)",
+      "Read(//sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:06/PNP0C09:00/PNP0C0A:01/power_supply/BAT1/**)",
+      "Read(//sys/class/power_supply/BAT1/**)"
     ]
   }
 }

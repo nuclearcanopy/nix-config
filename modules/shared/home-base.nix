@@ -4,15 +4,9 @@
   programs.home-manager.enable = true;
 
   home.packages = [
-    (pkgs.symlinkJoin {
-      name = "bolt-launcher";
-      paths = [ pkgs.bolt-launcher ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/bolt-launcher \
-          --run 'exec mullvad-exclude "$0" "$@"'
-      '';
-    })
+    (pkgs.writeShellScriptBin "bolt-launcher" ''
+      exec mullvad-exclude ${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
+    '')
   ];
 
   xdg = {
