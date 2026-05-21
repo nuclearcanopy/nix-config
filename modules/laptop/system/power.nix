@@ -194,9 +194,8 @@ in
     settings = {
       sensors = [
         {
-          hwmon = "/sys/class/hwmon";
-          name = "coretemp";
-          indices = [ 0 1 2 3 4 ];
+          hwmon = "/sys/devices/platform/coretemp.0";
+          indices = [ 1 2 3 4 5 ];
         }
       ];
       fans = [ { tpacpi = "/proc/acpi/ibm/fan"; } ];
