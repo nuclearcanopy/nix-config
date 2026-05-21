@@ -147,7 +147,8 @@
     kernel.sysctl = {
       # Memory tuning (32GB RAM)
       "vm.swappiness" = 10;                   # 32GB RAM — only swap under real pressure
-      "vm.vfs_cache_pressure" = 40;           # keep dentries/inodes cached longer
+      "vm.vfs_cache_pressure" = 10;            # keep dentries/inodes cached longer; 32GB RAM, no pressure
+      "vm.watermark_scale_factor" = 125;       # larger kswapd headroom (~400MB); fewer wake-up cycles on 32GB
       "vm.dirty_ratio" = 20;                  # batch writes — fewer disk wakeups
       "vm.dirty_background_ratio" = 10;       # batch background writeback
       "vm.page-cluster" = 0;                  # no swap readahead (zram is fast)

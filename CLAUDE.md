@@ -75,6 +75,30 @@ scripts/install.sh      → disko-based install flow (fresh installs)
 - Dev tools: `modules/home/dev/packages.nix`
 - Unfree allowlist: `modules/system/core/packages.nix`
 
+## Libreboot Custom Build (nidhoggr / T480)
+
+The T480 (`nidhoggr`) runs a custom Libreboot build, not a stock upstream ROM. Base is **Libreboot 26.01** (`git tag 26.01`) with the following changes applied as `0001-t480-personal-customizations.patch` in `~/libreboot/lbmk/`:
+
+| Change | File(s) | Detail |
+|--------|---------|--------|
+| Fn/Ctrl swap | `config/coreboot/t480_vfsp_16mb/config/libgfxinit_{corebootfb,txtmode}` | `CONFIG_H8_FN_CTRL_SWAP=y` — EC-level swap, affects all OSes including GRUB |
+| TPM 2.0 enabled | same configs | `CONFIG_NO_TPM` disabled, `CONFIG_TPM2=y` — required for TPM2 LUKS enrollment |
+| GRUB+SeaBIOS payload | `config/coreboot/t480_vfsp_16mb/target.cfg` | `payload_grubsea="y"` replaces `payload_seabios="y"`; GRUB is primary, SeaBIOS available as `seabios.elf` from GRUB menu |
+| Zero boot timeout | `config/grub/xhci_nvme/config/payload` | `set timeout=0` — instant boot, no menu delay |
+
+**Not yet applied (future):** `CONFIG_FSP_HYPERTHREADING=y` (8 threads on i5/i7-8xxx; disabled upstream for Spectre/Meltdown mitigation).
+
+**Hardware context:**
+- Flash: Winbond W25Q128.V (16MB SPI NOR)
+- Programmer: Raspberry Pi Pico H running `serprog_pico.uf2`
+- Prerequisite BIOS before flashing: Lenovo `n24ur39w` (v1.52) for correct EC firmware (v1.22)
+- Thunderbolt firmware updated via Lenovo Vantage prior to first flash
+- Internal re-flash after initial install requires `iomem=relaxed` kernel param
+
+**Build environment:** NixOS `buildFHSUserEnv` nix-shell (`shell.nix` in `~/libreboot/lbmk/`).
+
+**TPM2 re-enrollment:** After any ROM reflash, PCR 0 changes — re-enroll with PCR 0 only (`systemd-cryptenroll --tpm2-pcrs=0`).
+
 ## AI Maintenance Reminder (Mandatory)
 - If you change behavior, modules, packages, or workflow, update `CLAUDE.md`, `AGENTS.md`, and `README.md` in the same PR.
 - Keep summaries precise and concrete (paths, commands, ports, services, modules).
