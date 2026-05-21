@@ -55,15 +55,16 @@ in
 
   environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
-  # udev rules replace three boot services:
-  # 1. Battery charge thresholds 20–80%: TLP can't apply them because Libreboot
-  #    sets DMI product_version="1.0" (not "ThinkPad ..."), so TLP falls back to
-  #    the generic plugin which doesn't support threshold management.
-  # 2. XHC (USB xHCI, 0000:00:14.0) wakeup disable: fires on device appearance
-  #    (boot + resume), replacing both the boot service and the resumeCommands entry.
-  # 3. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode works
+  # udev rules:
+  # 1. XHC (USB xHCI, 0000:00:14.0) wakeup disable: fires on device appearance
+  #    (boot + resume).
+  # 2. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode works
   #    without root from waybar. Shell logic lives in store scripts — udev's rule
   #    validator rejects $VAR inside RUN strings (treats them as property refs).
+  # Battery thresholds are managed by TLP after the Libreboot coreboot fix that
+  # sets CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME="ThinkPad T480". TLP 1.8 has explicit
+  # Libreboot support: when product_version lacks "ThinkPad" it falls back to
+  # product_name. With the correct name, TLP uses its thinkpad plugin + natacpi.
   services.udev.extraRules =
     let
       cpuFreqPerms = pkgs.writeShellScript "cpu-freq-perms" ''
@@ -84,7 +85,6 @@ in
       '';
     in ''
       SUBSYSTEM=="leds", KERNEL=="platform::fnlock", ACTION=="add", ATTR{brightness}="0"
-      ACTION=="add", SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}=="?*", ATTR{charge_control_start_threshold}="20", ATTR{charge_control_end_threshold}="80"
       SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${cpuFreqPerms} %p"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${intelPstatePerms}"
@@ -131,7 +131,16 @@ in
       SOUND_POWER_SAVE_CONTROLLER = "Y";
 
       # ═══════════════════════════════════════════════════════════════════
-      # SHARED / BATTERY HEALTH
+      # BATTERY HEALTH — thresholds for BAT1 (SANYO 01AV425, the only
+      # battery on this machine). TLP uses thinkpad plugin + natacpi after
+      # SMBIOS product_name was fixed to "ThinkPad T480" in Libreboot config.
+      # Default without these would be 96/100 which is no protection at all.
+      # ═══════════════════════════════════════════════════════════════════
+      START_CHARGE_THRESH_BAT1 = 20;
+      STOP_CHARGE_THRESH_BAT1 = 80;
+
+      # ═══════════════════════════════════════════════════════════════════
+      # SHARED / OTHER
       # ═══════════════════════════════════════════════════════════════════
       # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;

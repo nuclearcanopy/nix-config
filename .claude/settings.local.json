@@ -52,7 +52,10 @@
       "Read(//home/nuclearcanopy/libreboot/lbmk/bin/t480_vfsp_16mb/**)",
       "Read(//home/nuclearcanopy/libreboot/lbmk/bin/**)",
       "Read(//home/nuclearcanopy/libreboot/lbmk/util/**)",
-      "Bash(xargs cat)"
+      "Bash(xargs cat)",
+      "Read(//sys/devices/platform/thinkpad_acpi/**)",
+      "Read(//sys/class/power_supply/**)",
+      "Read(//sys/class/power_supply/BAT0/**)"
     ]
   }
 }
