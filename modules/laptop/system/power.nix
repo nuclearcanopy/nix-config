@@ -25,11 +25,11 @@ let
            rapl_write constraint_0_power_limit_uw 25000000
            rapl_write constraint_1_power_limit_uw 29000000 ;;
       bal) cpu_write scaling_governor powersave ignore
-           cpu_write energy_performance_preference power ignore
-           cpu_write scaling_max_freq 3000000 ignore
+           cpu_write energy_performance_preference balance_performance ignore
+           cpu_write scaling_max_freq 3600000 ignore
            no_turbo 0
            rapl_write constraint_0_power_limit_uw 25000000
-           rapl_write constraint_1_power_limit_uw 29000000 ;;
+           rapl_write constraint_1_power_limit_uw 35000000 ;;
       lap) cpu_write scaling_governor powersave ignore
            cpu_write energy_performance_preference power ignore
            cpu_write scaling_max_freq 2000000 ignore
@@ -95,11 +95,12 @@ in
     enable = true;
     settings = {
       # ═══════════════════════════════════════════════════════════════════
-      # AC MODE — full performance, no limits
+      # AC MODE — adaptive: bursts to full turbo on demand, backs off at idle
+      # Use set-cpu-mode spd/god for explicit high-performance work.
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_AC = "powersave";
       CPU_DRIVER_OPMODE_ON_AC = "active";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;
       CPU_SCALING_MAX_FREQ_ON_AC = 3600000;        # i5-8350U turbo max — don't exceed or TLP write fails
       CPU_BOOST_ON_AC = 1;
