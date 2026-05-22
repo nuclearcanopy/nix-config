@@ -5,7 +5,17 @@
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) allowedUnfree;
 
-  programs.steam.enable = true;
+  programs.gamemode.enable = true;
+
+  programs.steam = {
+    enable = true;
+    package = pkgs.steam.override {
+      extraProfile = ''
+        LD_PRELOAD="${pkgs.gamemode.lib}/lib/libgamemodeauto.so''${LD_PRELOAD:+:$LD_PRELOAD}"
+        export LD_PRELOAD
+      '';
+    };
+  };
   programs.zsh.enable = true;
 
   environment.systemPackages = with pkgs; [
