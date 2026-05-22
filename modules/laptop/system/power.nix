@@ -122,10 +122,14 @@ in
       CPU_BOOST_ON_BAT = 1;
       PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 0;                    # scx_lavd handles scheduling; don't consolidate cores (worse with HT disabled)
-      PCIE_ASPM_ON_BAT = "powersupersave";
+      PCIE_ASPM_ON_BAT = "powersave";
       SATA_LINKPWR_ON_BAT = "min_power";
       AHCI_RUNTIME_PM_ON_BAT = "auto";
       RUNTIME_PM_ON_BAT = "auto";
+      # Thunderbolt controller and its downstream xHCI (0000:04:00.0 / 0000:06:00.0)
+      # enter D3cold under runtime PM and fail to resume, killing USB. Exclude their
+      # drivers so these devices stay in D0 at runtime.
+      RUNTIME_PM_DRIVER_DENYLIST = "thunderbolt xhci_hcd";
       WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive — latency spikes tank browser perf
       SOUND_POWER_SAVE_ON_BAT = 60;
       SOUND_POWER_SAVE_CONTROLLER = "Y";
