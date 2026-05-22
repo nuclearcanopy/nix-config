@@ -317,6 +317,7 @@
           { name = "GitHub"; url = "https://github.com/"; keyword = "gh"; }
           { name = "Codeberg"; url = "https://codeberg.org/"; keyword = "cb"; }
           { name = "NYT Crossword"; url = "https://www.nytimes.com/crosswords"; keyword = "nyt"; }
+          { name = "TryHackMe"; url = "https://tryhackme.com/dashboard"; keyword = "thm"; }
         ];
       };
 
