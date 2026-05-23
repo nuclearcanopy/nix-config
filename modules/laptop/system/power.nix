@@ -150,6 +150,7 @@ in
       # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;
       USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
+      USB_DENYLIST = "046d:c547";  # Logitech G502X wireless receiver — autosuspend breaks scroll state
       USB_EXCLUDE_BTUSB = 1;
       USB_EXCLUDE_AUDIO = 1;
       USB_EXCLUDE_PHONE = 1;
@@ -201,6 +202,7 @@ in
       fi
     ) &
     pkill -u ${username} --signal 43 waybar || true
+    echo 0 > /sys/class/leds/platform::fnlock/brightness 2>/dev/null || true
   '';
 
   services.thinkfan = {
