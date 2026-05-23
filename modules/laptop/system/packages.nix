@@ -7,15 +7,7 @@
 
   programs.gamemode.enable = true;
 
-  programs.steam = {
-    enable = true;
-    package = pkgs.steam.override {
-      extraProfile = ''
-        LD_PRELOAD="${pkgs.gamemode.lib}/lib/libgamemodeauto.so''${LD_PRELOAD:+:$LD_PRELOAD}"
-        export LD_PRELOAD
-      '';
-    };
-  };
+  programs.steam.enable = true;
   programs.zsh.enable = true;
 
   environment.systemPackages = with pkgs; [
