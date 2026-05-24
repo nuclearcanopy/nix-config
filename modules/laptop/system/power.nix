@@ -49,6 +49,9 @@ let
 in
 
 {
+  # Logitech receiver default is 1ms (1000Hz); 8ms ≈ 125Hz saves USB interrupt overhead.
+  boot.extraModprobeConfig = "options usbhid mousepoll=8";
+
   # TLP manages CPU frequency governors per AC/BAT state.
   # AC: full performance. Battery: maximum power savings.
   services.power-profiles-daemon.enable = false;
