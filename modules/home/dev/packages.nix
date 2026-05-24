@@ -14,6 +14,7 @@
     codex
 
     ghidra
+    wireshark
     ffuf
     nmap
     netcat-gnu
