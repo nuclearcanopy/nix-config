@@ -12,6 +12,7 @@
     ./network.nix
     ./packages.nix
     ./power.nix
+    ./virtualisation.nix
     ../../system/core/nix.nix
     ../../system/desktop
     ../../system/services
