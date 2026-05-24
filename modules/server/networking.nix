@@ -21,6 +21,8 @@
 
   services.mullvad-vpn.enable = true;
 
+  systemd.services.mullvad-daemon.serviceConfig.TimeoutStopSec = 15;
+
   services.openssh = {
     enable = true;
     ports = [ 1208 ];

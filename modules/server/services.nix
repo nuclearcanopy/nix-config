@@ -159,14 +159,31 @@ in
     script = ''
       set -e
 
+      SNAPSHOT_DIR="/mnt/nas/homeserver/snapshots/$(date +%Y-%m-%d)"
+
       mkdir -p /mnt/nas/homeserver/etc
       mkdir -p /mnt/nas/homeserver/var/lib
+      mkdir -p "$SNAPSHOT_DIR"
 
-      ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' /home/homeserver/nix-config /mnt/nas/homeserver/etc/
-      ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
-      ${pkgs.rsync}/bin/rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
+      ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' \
+        --backup --backup-dir="$SNAPSHOT_DIR/nix-config" \
+        /home/homeserver/nix-config /mnt/nas/homeserver/etc/
+      ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' \
+        --backup --backup-dir="$SNAPSHOT_DIR/navidrome" \
+        /var/lib/navidrome /mnt/nas/homeserver/var/lib/
+      ${pkgs.rsync}/bin/rsync -av --delete \
+        --backup --backup-dir="$SNAPSHOT_DIR/filebrowser" \
+        /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
+      ${pkgs.rsync}/bin/rsync -av --delete \
+        --backup --backup-dir="$SNAPSHOT_DIR/portainer" \
+        /var/lib/portainer /mnt/nas/homeserver/var/lib/
+      ${pkgs.rsync}/bin/rsync -av --delete \
+        --backup --backup-dir="$SNAPSHOT_DIR/vaultwarden" \
+        /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
+
+      # prune snapshots older than 7 days
+      ${pkgs.findutils}/bin/find /mnt/nas/homeserver/snapshots \
+        -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
 
       echo "Backup completed successfully at $(date)"
     '';
