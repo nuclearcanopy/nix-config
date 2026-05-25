@@ -1,6 +1,7 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
+    # programming
     gnumake
     gcc
     (python313.withPackages (ps: [ ps.pip ]))
@@ -10,10 +11,13 @@
     clippy
     rustfmt
 
+    # ai slop tools
     mcp-nixos
     codex
 
+    # cybersec stuff
     ghidra
+    tcpdump
     wireshark
     ffuf
     nmap
