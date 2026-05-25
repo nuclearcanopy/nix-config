@@ -57,7 +57,9 @@
       "Read(//sys/class/power_supply/**)",
       "Read(//sys/class/power_supply/BAT0/**)",
       "Read(//dev/**)",
-      "Read(//sys/module/kvm_intel/parameters/**)"
+      "Read(//sys/module/kvm_intel/parameters/**)",
+      "Bash(mkdir -p ~/.local/share/fonts)",
+      "Bash(fc-cache -fv ~/.local/share/fonts/)"
     ]
   }
 }
