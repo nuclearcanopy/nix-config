@@ -70,7 +70,7 @@
 
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
-    after = [ "network-online.target" "mullvad-daemon.service" "tailscale-exit-routing.service" ];
+    after = [ "network-online.target" "mullvad-daemon.service" "tailscale-exit-routing.service" "tailscaled.service" ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
@@ -78,9 +78,13 @@
       RemainAfterExit = true;
     };
     script = ''
-      # wait for daemon
       sleep 2
       ${pkgs.mullvad}/bin/mullvad lan set allow
+      # exclude tailscaled from the vpn tunnel so it can reach coordination servers
+      # and so exit node traffic uses the physical interface
+      ${pkgs.mullvad}/bin/mullvad split-tunnel set on
+      TAILSCALE_PID=$(${pkgs.procps}/bin/pgrep -x tailscaled)
+      ${pkgs.mullvad}/bin/mullvad split-tunnel pid add "$TAILSCALE_PID"
       ${pkgs.mullvad}/bin/mullvad connect
     '';
   };
