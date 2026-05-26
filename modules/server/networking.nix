@@ -27,10 +27,6 @@
     '';
   };
 
-  networking.iproute2.rttablesExtraConfig = ''
-    100 bypass-vpn
-  '';
-
   # capture the physical default route before mullvad-autoconnect replaces it,
   # then install a policy rule so marked (tailscale-forwarded) packets bypass the vpn tunnel
   systemd.services.tailscale-exit-routing = {
@@ -74,7 +70,7 @@
 
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
-    after = [ "network-online.target" "mullvad-daemon.service" ];
+    after = [ "network-online.target" "mullvad-daemon.service" "tailscale-exit-routing.service" ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
