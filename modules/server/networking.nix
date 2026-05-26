@@ -7,7 +7,7 @@
 
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "docker0" ];
+    trustedInterfaces = [ "docker0" "tailscale0" ];
     allowedTCPPorts = [
       1208  # ssh
       4533  # navidrome
@@ -16,7 +16,45 @@
       9000  # portainer
       8090  # mscd api
     ];
-    allowedUDPPorts = [];
+    allowedUDPPorts = [
+      41641  # tailscale
+    ];
+    checkReversePath = "loose";
+    # mark packets forwarded from tailscale0 so policy routing sends them via physical iface
+    extraCommands = ''
+      iptables -t mangle -C FORWARD -i tailscale0 -j MARK --set-mark 0x1 2>/dev/null || \
+        iptables -t mangle -A FORWARD -i tailscale0 -j MARK --set-mark 0x1
+    '';
+  };
+
+  networking.iproute2.rttablesExtraConfig = ''
+    100 bypass-vpn
+  '';
+
+  # capture the physical default route before mullvad-autoconnect replaces it,
+  # then install a policy rule so marked (tailscale-forwarded) packets bypass the vpn tunnel
+  systemd.services.tailscale-exit-routing = {
+    description = "Policy routing bypass for Tailscale exit node";
+    after = [ "network-online.target" ];
+    before = [ "mullvad-autoconnect.service" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    path = [ pkgs.iproute2 ];
+    script = ''
+      GW=$(ip route show default | head -1 | awk '{print $3}')
+      DEV=$(ip route show default | head -1 | awk '{print $5}')
+      ip route replace default via $GW dev $DEV table bypass-vpn
+      ip rule add fwmark 0x1 lookup bypass-vpn priority 100 2>/dev/null || true
+    '';
+  };
+
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
   };
 
   services.mullvad-vpn.enable = true;

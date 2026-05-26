@@ -33,7 +33,6 @@
 
     firewall = {
       enable = true;
-      checkReversePath = false;  # Required for WireGuard-based VPNs (Mullvad)
 
       allowedUDPPorts = [
         51820  # WireGuard
