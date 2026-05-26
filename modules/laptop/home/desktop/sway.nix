@@ -16,9 +16,13 @@
       input = {
         "*" = {
           xkb_layout = "us";
-          xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";
           accel_profile = "flat";
           pointer_accel = "-0.5";
+        };
+
+        # xkb_options only on the internal keyboard — keeps HHKB unaffected
+        "1:2:AT_Raw_Set_2_keyboard" = {
+          xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";
         };
 
         "2:10:TPPS/2_IBM_TrackPoint" = {
