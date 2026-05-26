@@ -47,8 +47,8 @@
     script = ''
       GW=$(ip route show default | head -1 | awk '{print $3}')
       DEV=$(ip route show default | head -1 | awk '{print $5}')
-      ip route replace default via $GW dev $DEV table bypass-vpn
-      ip rule add fwmark 0x1 lookup bypass-vpn priority 100 2>/dev/null || true
+      ip route replace default via $GW dev $DEV table 100
+      ip rule add fwmark 0x1 lookup 100 priority 100 2>/dev/null || true
     '';
   };
 
