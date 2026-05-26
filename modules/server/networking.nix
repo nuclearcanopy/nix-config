@@ -43,7 +43,7 @@
       Type = "oneshot";
       RemainAfterExit = true;
     };
-    path = [ pkgs.iproute2 ];
+    path = [ pkgs.iproute2 pkgs.gawk ];
     script = ''
       GW=$(ip route show default | head -1 | awk '{print $3}')
       DEV=$(ip route show default | head -1 | awk '{print $5}')
