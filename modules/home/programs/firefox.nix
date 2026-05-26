@@ -381,9 +381,10 @@
         "signon.firefoxRelay.feature" = "disabled";
         "signon.management.page.breach-alerts.enabled" = false;
 
-        # kill telemetry
+        # kill telemetry + usage pings
         "datareporting.healthreport.uploadEnabled" = false;
         "datareporting.policy.dataSubmissionEnabled" = false;
+        "datareporting.usage.uploadEnabled" = false;
         "toolkit.telemetry.enabled" = false;
         "toolkit.telemetry.unified" = false;
         "toolkit.telemetry.archive.enabled" = false;
@@ -426,8 +427,8 @@
         "browser.newtabpage.activity-stream.showSponsoredCheckboxes" = false;
         "browser.toolbars.bookmarks.visibility" = "never";
 
-        # "strict" can break some auth flows (missing/invalid session tokens).
-        "browser.contentblocking.category" = "standard";
+        # compat profile exists for fragile auth flows — use strict here
+        "browser.contentblocking.category" = "strict";
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
         "privacy.trackingprotection.emailtracking.enabled" = true;
