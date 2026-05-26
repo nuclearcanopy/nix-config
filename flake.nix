@@ -44,6 +44,7 @@
       "steam-unwrapped"
       "claude-code"
       "unrar"
+      "wappalyzer"
     ];
 
     unstable-pkgs = import unstable {

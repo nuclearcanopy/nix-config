@@ -106,6 +106,8 @@
         sponsorblock
         violentmonkey
         mullvad
+        user-agent-string-switcher
+        wappalyzer
       ];
 
       # stricter filters
