@@ -59,7 +59,8 @@
       "Read(//dev/**)",
       "Read(//sys/module/kvm_intel/parameters/**)",
       "Bash(mkdir -p ~/.local/share/fonts)",
-      "Bash(fc-cache -fv ~/.local/share/fonts/)"
+      "Bash(fc-cache -fv ~/.local/share/fonts/)",
+      "Bash(chmod +x *)"
     ]
   }
 }

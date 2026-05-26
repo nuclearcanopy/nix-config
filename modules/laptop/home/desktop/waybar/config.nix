@@ -46,6 +46,8 @@
           "custom/battery"
           "custom/mouse"
           "custom/sep"
+          "custom/kbd"
+          "custom/sep"
           "custom/firmware"
           "custom/reboot"
           "custom/sleep"
@@ -209,6 +211,14 @@
           on-click = "${./scripts/thermal_toggle.sh}";
           on-click-middle = "set-cpu-mode god && pkill -RTMIN+3 waybar";
           signal = 3;
+          tooltip = false;
+        };
+
+        "custom/kbd" = {
+          exec = "${./scripts/kbd_mode.sh}";
+          interval = "once";
+          signal = 6;
+          on-click = "${./scripts/kbd_toggle.sh}";
           tooltip = false;
         };
       };
