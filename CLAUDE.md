@@ -86,6 +86,7 @@ The T480 (`nidhoggr`) runs a custom Libreboot build, not a stock upstream ROM. B
 | SMBIOS product name | same configs | `CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME="ThinkPad T480"` — was `"T480"`; required for TLP 1.8+ Libreboot detection path to work (battery thresholds) |
 | GRUB+SeaBIOS payload | `config/coreboot/t480_vfsp_16mb/target.cfg` | `payload_grubsea="y"` replaces `payload_seabios="y"`; GRUB is primary, SeaBIOS available as `seabios.elf` from GRUB menu |
 | Zero boot timeout | `config/grub/xhci_nvme/config/payload` | `set timeout=0` — instant boot, no menu delay |
+| FnLock default OFF | `config/coreboot/default/patches/0052-ec-h8-default-f1_to_f12_as_primary-to-0-hotkeys-primary.patch` (applied as commit in `src/coreboot/default/`) | `get_uint_option("f1_to_f12_as_primary", 0)` — CMOS does not persist this on T480/Libreboot so the fallback was always 1 (FnLock ON); changed to 0 (multimedia hotkeys primary) |
 
 **Hardware context:**
 - Flash: Winbond W25Q128.V (16MB SPI NOR)

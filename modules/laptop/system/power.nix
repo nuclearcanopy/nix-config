@@ -87,7 +87,6 @@ in
         done
       '';
     in ''
-      SUBSYSTEM=="leds", KERNEL=="platform::fnlock", ACTION=="add", ATTR{brightness}="0"
       SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${cpuFreqPerms} %p"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${intelPstatePerms}"
@@ -205,7 +204,19 @@ in
       fi
     ) &
     pkill -u ${username} --signal 43 waybar || true
-    echo 0 > /sys/class/leds/platform::fnlock/brightness 2>/dev/null || true
+    for b in /sys/class/backlight/*/brightness; do
+      [ -f "$b" ] && val=$(cat "$b") && echo "$val" > "$b" 2>/dev/null || true
+    done
+    for devdir in /sys/bus/usb/devices/*/; do
+      v=$(cat "$devdir/idVendor" 2>/dev/null)
+      p=$(cat "$devdir/idProduct" 2>/dev/null)
+      if [ "$v" = "046d" ] && [ "$p" = "c547" ]; then
+        echo 0 > "$devdir/authorized" 2>/dev/null || true
+        sleep 0.5
+        echo 1 > "$devdir/authorized" 2>/dev/null || true
+        break
+      fi
+    done
   '';
 
   services.thinkfan = {
