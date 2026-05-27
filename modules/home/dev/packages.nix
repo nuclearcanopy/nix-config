@@ -30,6 +30,7 @@
     wfuzz
     cyberchef
     john
+    hashcat
     zsteg
     scalpel
     hexedit

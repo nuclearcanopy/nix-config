@@ -12,6 +12,7 @@
 
       extraPackages = [
         pkgs.intel-media-driver   # iHD VA-API (Broadwell / Gen 8+)
+        pkgs.intel-compute-runtime
         pkgs.libva
         pkgs.libva-utils
         pkgs.vulkan-loader
