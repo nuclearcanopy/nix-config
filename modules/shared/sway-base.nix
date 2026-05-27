@@ -139,8 +139,8 @@ in
     };
 
     extraConfig = ''
-      bindsym --no-repeat Mod1+space exec pkill -SIGUSR1 waybar
-      bindsym --release Mod1+space exec pkill -SIGUSR1 waybar
+      bindsym --no-repeat Control+space exec pkill -SIGUSR1 waybar
+      bindsym --release Control+space exec pkill -SIGUSR1 waybar
     '';
   };
 }
