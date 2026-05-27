@@ -1,14 +1,5 @@
 { lib, pkgs, ... }:
 {
-  # Pre-warm Firefox at login so opening it feels instant.
-  # Starts firefox with about:blank, waits for the window to appear in sway,
-  # then moves it to the scratchpad. When the user opens firefox, the existing
-  # process handles the request and opens a new window instantly.
-  # Uses sway-session.target so SWAYSOCK is available.
-  # Pre-warm Firefox at login so opening it feels instant.
-  # The for_window rule in sway-base.nix handles window placement declaratively:
-  # any new firefox window with title "about:blank" is immediately moved to
-  # scratchpad by sway itself — no IPC polling needed here.
   systemd.user.services.firefox-preload = {
     Unit = {
       Description = "Firefox scratchpad prelauncher";
@@ -17,8 +8,6 @@
     };
     Service = {
       Type = "simple";
-      # If firefox is already running (e.g. service restarted by a rebuild
-      # mid-session), wait for it to exit before spawning a new instance.
       ExecStart = "${pkgs.writeShellScript "firefox-preload" ''
         if ${pkgs.procps}/bin/pgrep -u "$(id -u)" firefox >/dev/null 2>&1; then
           while ${pkgs.procps}/bin/pgrep -u "$(id -u)" firefox >/dev/null 2>&1; do
@@ -26,7 +15,20 @@
           done
           exit 0
         fi
-        exec ${pkgs.firefox}/bin/firefox about:blank
+
+        ${pkgs.firefox}/bin/firefox about:blank &
+        FIREFOX_PID=$!
+
+        for i in $(seq 1 40); do
+          sleep 0.5
+          if ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"'; then
+            sleep 0.2
+            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move scratchpad' 2>/dev/null
+            break
+          fi
+        done
+
+        wait $FIREFOX_PID
       ''}";
       Nice = 19;
       CPUWeight = 1;

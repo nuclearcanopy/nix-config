@@ -21,24 +21,6 @@ let
   '';
 in
 {
-  systemd.user.services.waybar-hide = {
-    Unit = {
-      Description = "hide waybar after it initializes";
-      After = [ "waybar.service" ];
-      PartOf = [ "waybar.service" ];
-    };
-    Service = {
-      Type = "oneshot";
-      TimeoutStartSec = "15";
-      ExecStart = toString (pkgs.writeShellScript "waybar-hide" ''
-        ${pkgs.systemd}/bin/journalctl --user -u waybar.service -f -n 50 | \
-          ${pkgs.gnugrep}/bin/grep -m1 "Bar configured"
-        ${pkgs.procps}/bin/pkill -SIGUSR1 waybar
-      '');
-    };
-    Install.WantedBy = [ "waybar.service" ];
-  };
-
   wayland.windowManager.sway = {
     enable = true;
     systemd = {
@@ -156,11 +138,7 @@ in
 
     };
 
-    # Move any new firefox window whose title is still "about:blank" to the
-    # scratchpad immediately. This hides the prelaunched instance without
-    # polling sway IPC — sway applies this rule at window-creation time.
     extraConfig = ''
-      for_window [app_id="firefox" title="about:blank"] move scratchpad
       bindsym --no-repeat Mod4+space exec pkill -SIGUSR1 waybar
       bindsym --release Mod4+space exec pkill -SIGUSR1 waybar
     '';
