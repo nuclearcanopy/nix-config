@@ -1,41 +1,5 @@
 { lib, pkgs, ... }:
 {
-  systemd.user.services.firefox-preload = {
-    Unit = {
-      Description = "Firefox scratchpad prelauncher";
-      After = [ "sway-session.target" ];
-      PartOf = [ "sway-session.target" ];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.writeShellScript "firefox-preload" ''
-        if ${pkgs.procps}/bin/pgrep -u "$(id -u)" firefox >/dev/null 2>&1; then
-          while ${pkgs.procps}/bin/pgrep -u "$(id -u)" firefox >/dev/null 2>&1; do
-            sleep 5
-          done
-          exit 0
-        fi
-
-        ${pkgs.firefox}/bin/firefox about:blank &
-        FIREFOX_PID=$!
-
-        for i in $(seq 1 40); do
-          sleep 0.5
-          if ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"'; then
-            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move to workspace number 10' 2>/dev/null
-            break
-          fi
-        done
-
-        wait $FIREFOX_PID
-      ''}";
-      Nice = 19;
-      CPUWeight = 1;
-      Restart = "on-failure";
-      RestartSec = "5";
-    };
-    Install.WantedBy = [ "sway-session.target" ];
-  };
 
   # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
   # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
