@@ -10,7 +10,7 @@
       {
         timeout = 60;
         command = toString (pkgs.writeShellScript "swayidle-dim" ''
-          if [ "$(cat /sys/class/power_supply/AC0/online 2>/dev/null || cat /sys/class/power_supply/ACAD/online 2>/dev/null || echo 0)" = "1" ]; then
+          if [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)" = "1" ]; then
             true
           else
             ${pkgs.brightnessctl}/bin/brightnessctl -s set 10%
@@ -22,7 +22,7 @@
       {
         timeout = 120;
         command = toString (pkgs.writeShellScript "swayidle-screenoff-bat" ''
-          if [ "$(cat /sys/class/power_supply/AC0/online 2>/dev/null || cat /sys/class/power_supply/ACAD/online 2>/dev/null || echo 0)" = "1" ]; then
+          if [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)" = "1" ]; then
             true
           else
             ${pkgs.sway}/bin/swaymsg 'output * power off'
@@ -34,7 +34,7 @@
       {
         timeout = 300;
         command = toString (pkgs.writeShellScript "swayidle-screenoff-ac" ''
-          if [ "$(cat /sys/class/power_supply/AC0/online 2>/dev/null || cat /sys/class/power_supply/ACAD/online 2>/dev/null || echo 0)" = "1" ]; then
+          if [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)" = "1" ]; then
             ${pkgs.sway}/bin/swaymsg 'output * power off'
           else
             true
@@ -53,11 +53,16 @@
       # Lock screen before any suspend so the session is protected on wake.
       {
         event = "before-sleep";
-        command = "${pkgs.swaylock}/bin/swaylock -f -c 000000";
+        command = "${pkgs.brightnessctl}/bin/brightnessctl -s; ${pkgs.swaylock}/bin/swaylock -f -c 000000";
       }
       {
         event = "after-resume";
-        command = "${pkgs.sway}/bin/swaymsg 'output * power on'";
+        command = toString (pkgs.writeShellScript "swayidle-after-resume" ''
+          ${pkgs.sway}/bin/swaymsg 'output * power on'
+          ${pkgs.brightnessctl}/bin/brightnessctl -r
+          val=$(${pkgs.brightnessctl}/bin/brightnessctl g)
+          ${pkgs.brightnessctl}/bin/brightnessctl s "$val"
+        '');
       }
     ];
   };
