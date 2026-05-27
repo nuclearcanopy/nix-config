@@ -14,6 +14,7 @@
         output = [ "DP-1" "DP-2" ];
         position = "top";
         height = 39;
+        start_hidden = true;
         spacing = 0;
 
         modules-left = [

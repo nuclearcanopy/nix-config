@@ -20,6 +20,7 @@
         layer = "top";
         position = "top";
         height = 39;
+        start_hidden = true;
         spacing = 0;
 
         modules-left = [
