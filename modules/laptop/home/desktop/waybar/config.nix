@@ -64,7 +64,6 @@
 
         "custom/vis" = {
           exec = "${./scripts/vis_mode.sh}";
-          return-type = "json";
           interval = "once";
           signal = 7;
           on-click = "${./scripts/vis_toggle.sh}";
