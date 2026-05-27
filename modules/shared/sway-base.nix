@@ -133,7 +133,7 @@ in
 
       startup = [
         # hide waybar on session start — visible only while Meta+Space is held
-        { command = "sh -c 'while ! pgrep -x waybar > /dev/null; do sleep 0.1; done; pkill -SIGUSR1 waybar'"; }
+        { command = "sh -c 'while ! pgrep -x waybar > /dev/null; do sleep 0.1; done; sleep 0.5; pkill -SIGUSR1 waybar'"; }
       ];
 
       floating.modifier = mod;
