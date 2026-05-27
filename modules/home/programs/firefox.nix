@@ -347,9 +347,15 @@
 
         "sidebar.verticalTabs" = true;
 
+        # Session restore — disabled; Firefox re-enables via prefs.js on ungraceful
+        # shutdown, user.js always wins at startup so these stick permanently
+        "browser.sessionstore.resume_from_crash" = false;
+        "browser.sessionstore.resume_session_once" = false;
+        "browser.startup.page" = 1;
+
         # Fast startup optimizations
         "browser.startup.homepage.abouthome_cache.enabled" = true;
-        "browser.sessionstore.interval" = 60000;  # 60s instead of 15s
+        "browser.sessionstore.interval" = 60000;
         "browser.sessionstore.idleDelay" = 10000;
         "browser.startup.preXulSkeletonUI" = false;  # skip skeleton (faster cold start)
         "browser.tabs.animate" = false;
