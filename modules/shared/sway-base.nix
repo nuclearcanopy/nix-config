@@ -21,6 +21,24 @@ let
   '';
 in
 {
+  systemd.user.services.waybar-hide = {
+    Unit = {
+      Description = "hide waybar after it initializes";
+      After = [ "waybar.service" ];
+      PartOf = [ "waybar.service" ];
+    };
+    Service = {
+      Type = "oneshot";
+      TimeoutStartSec = "15";
+      ExecStart = toString (pkgs.writeShellScript "waybar-hide" ''
+        ${pkgs.systemd}/bin/journalctl --user -u waybar.service -f -n 50 | \
+          ${pkgs.gnugrep}/bin/grep -m1 "Bar configured"
+        ${pkgs.procps}/bin/pkill -SIGUSR1 waybar
+      '');
+    };
+    Install.WantedBy = [ "waybar.service" ];
+  };
+
   wayland.windowManager.sway = {
     enable = true;
     systemd = {
@@ -130,11 +148,6 @@ in
         "XF86AudioPlay" = "exec playerctl play-pause";
         "XF86AudioPrev" = "exec playerctl previous";
       };
-
-      startup = [
-        # hide waybar on session start — visible only while Meta+Space is held
-        { command = "sh -c 'while ! pgrep -x waybar > /dev/null; do sleep 0.1; done; sleep 0.5; pkill -SIGUSR1 waybar'"; }
-      ];
 
       floating.modifier = mod;
 
