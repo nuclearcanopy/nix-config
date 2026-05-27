@@ -24,6 +24,8 @@
         spacing = 0;
 
         modules-left = [
+          "custom/vis"
+          "custom/sep"
           "clock#date"
           "custom/time"
           "custom/sep"
@@ -57,6 +59,15 @@
 
         "custom/sep" = {
           format = "|";
+          tooltip = false;
+        };
+
+        "custom/vis" = {
+          exec = "${./scripts/vis_mode.sh}";
+          return-type = "json";
+          interval = "once";
+          signal = 7;
+          on-click = "${./scripts/vis_toggle.sh}";
           tooltip = false;
         };
 
