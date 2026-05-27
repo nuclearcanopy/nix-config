@@ -132,8 +132,6 @@ in
         "${mod}+Shift+w" = "move up";
         "${mod}+Shift+s" = "move down";
 
-        "${mod}+space" = "exec pkill -SIGUSR1 waybar";
-
         "${mod}+t" = "split toggle";
 
         "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+5 waybar";
@@ -163,6 +161,7 @@ in
     # polling sway IPC — sway applies this rule at window-creation time.
     extraConfig = ''
       for_window [app_id="firefox" title="about:blank"] move scratchpad
+      bindsym --no-repeat Mod4+space exec pkill -SIGUSR1 waybar
       bindsym --release Mod4+space exec pkill -SIGUSR1 waybar
     '';
   };
