@@ -22,8 +22,7 @@
         for i in $(seq 1 40); do
           sleep 0.5
           if ${pkgs.sway}/bin/swaymsg -t get_tree 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"app_id": "firefox"'; then
-            sleep 0.2
-            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move scratchpad' 2>/dev/null
+            ${pkgs.sway}/bin/swaymsg '[app_id="firefox"] move to workspace number 10' 2>/dev/null
             break
           fi
         done
