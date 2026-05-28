@@ -12,7 +12,7 @@
 
       extraPackages = [
         pkgs.intel-media-driver   # iHD VA-API (Broadwell / Gen 8+)
-        pkgs.intel-compute-runtime
+        pkgs.pocl                 # CPU OpenCL (NEO 25+ dropped Gen 9/KBL support)
         pkgs.libva
         pkgs.libva-utils
         pkgs.vulkan-loader
@@ -36,6 +36,5 @@
   environment.variables = {
     LIBVA_DRIVER_NAME = "iHD";
     VDPAU_DRIVER = "va_gl";       # VDPAU via VA-API (no native Intel VDPAU)
-    OCL_ICD_VENDORS = "/run/opengl-driver/etc/OpenCL/vendors";
   };
 }
