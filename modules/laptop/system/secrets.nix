@@ -21,10 +21,15 @@
         mode = "600";
       };
 
-      # Reuses kuraokami's user-password secret (same age key, same password hash).
-      # See note above if you want a separate password.
       user-password = {
         file = ../../../secrets/user-password.age;
+      };
+
+      nas-credentials = {
+        file = ../../../secrets/nas-credentials.age;
+        owner = username;
+        group = "users";
+        mode = "640";
       };
     };
   };

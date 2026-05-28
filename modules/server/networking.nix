@@ -51,7 +51,7 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "server";
-    extraSetFlags = [ "--accept-dns=false" ];
+    extraSetFlags = [ "--accept-dns=false" "--advertise-routes=192.168.0.123/32" ];
   };
 
   services.resolved = {

@@ -175,6 +175,8 @@
           signal = 5;
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
           on-click-middle = "pavucontrol";
+          on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+5 waybar";
+          on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+5 waybar";
         };
 
         wireplumber = {
@@ -189,6 +191,8 @@
           exec = "${./scripts/brightness.sh}";
           interval = "once";
           signal = 4;
+          on-scroll-up = "brightnessctl set 10%+ && pkill -SIGRTMIN+4 waybar";
+          on-scroll-down = "brightnessctl set 10%- && pkill -SIGRTMIN+4 waybar";
           tooltip = false;
         };
 

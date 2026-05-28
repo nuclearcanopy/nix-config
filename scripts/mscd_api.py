@@ -85,7 +85,10 @@ def download_music():
 
     zsh_path = '/run/current-system/sw/bin/zsh'
     if command == 'mscd':
-        cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd "{url}"']
+        if force:
+            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && FORCE_DOWNLOAD=1 mscd "{url}"']
+        else:
+            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd "{url}"']
     elif command == 'mscd_add':
         if force:
             cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add --force "{url}"']
@@ -174,7 +177,9 @@ input::placeholder{color:var(--dim)}
 select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 select option{background:var(--bg);color:var(--text)}
 .checkbox-group{display:flex;align-items:center;gap:12px;margin:16px 0;min-height:44px}
-.checkbox-group input[type="checkbox"]{width:24px;height:24px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.checkbox-group input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2px solid var(--accent-dim);border-radius:4px;background:var(--bg);cursor:pointer;flex-shrink:0;position:relative;transition:background 0.15s,border-color 0.15s}
+.checkbox-group input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.checkbox-group input[type="checkbox"]:checked::after{content:'';position:absolute;left:5px;top:1px;width:6px;height:12px;border:2px solid var(--bg);border-top:none;border-left:none;transform:rotate(45deg)}
 .checkbox-group label{margin:0;font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .btn{width:100%;padding:16px;background:var(--accent);border:none;color:var(--bg);font-family:inherit;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;border-radius:8px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .btn:active{transform:scale(0.98);opacity:0.9}
@@ -1141,6 +1146,11 @@ const dupeMatch=data.line.match(/\[download\]\s+(.+)\s+has already been download
 if(dupeMatch&&!params.force){
 dupeDetected=true;
 dupeFilename=dupeMatch[1];
+}
+const skipMatch=data.line.match(/\[SKIP\]\s+Already exists:\s*(.+)/i);
+if(skipMatch&&!params.force){
+dupeDetected=true;
+dupeFilename=skipMatch[1];
 }
 }else if(data.type==='complete'){
 if(dupeDetected){

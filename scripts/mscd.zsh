@@ -234,7 +234,7 @@ clean_artist() {
 }
 
 song_exists() {
-  local artist="$1" title="$2"
+  local artist="$1" title="$2" year="${3:-}"
   [[ -z "$title" ]] && return 1
 
   local match_title match_artist
@@ -263,7 +263,7 @@ print(t)
   for dir in "$MUSIC_BASE" "$MUSIC_BASE_BOUGHT" "$MUSIC_BASE_LOCAL" "$MUSIC_BASE_BOUGHT_LOCAL"; do
     [[ -d "$dir" ]] || continue
     found=$("$MSCD_PYTHON" -c "
-import os, sys, re, unicodedata
+import os, sys, re, unicodedata, subprocess
 
 def norm(s):
     s = s.lower()
@@ -271,9 +271,28 @@ def norm(s):
     s = re.sub(r'[^a-z0-9 ]', '', s)
     return ' '.join(s.split())
 
+def read_file_tags(filepath):
+    try:
+        r = subprocess.run(
+            ['ffprobe', '-v', 'error', '-show_entries',
+             'format_tags=title,artist,albumartist,date,year',
+             '-of', 'default=noprint_wrappers=1', filepath],
+            capture_output=True, text=True, timeout=5)
+        tags = {}
+        for line in r.stdout.splitlines():
+            if line.startswith('TAG:') and '=' in line:
+                k, v = line[4:].split('=', 1)
+                tags[k.lower()] = v.strip()
+        return tags
+    except Exception:
+        return {}
+
 target_title = sys.argv[1]
 target_artist = sys.argv[2]
 search_dir = sys.argv[3]
+target_year = sys.argv[4] if len(sys.argv) > 4 else ''
+
+audio_exts = ('.opus', '.m4a', '.ogg', '.mp3', '.flac', '.webm')
 
 for root, dirs, files in os.walk(search_dir):
     rel = os.path.relpath(root, search_dir)
@@ -282,13 +301,27 @@ for root, dirs, files in os.walk(search_dir):
     if target_artist and target_artist not in artist_dir:
         continue
     for f in files:
+        if not any(f.lower().endswith(ext) for ext in audio_exts):
+            continue
         name = os.path.splitext(f)[0]
         name = re.sub(r'^\d+\s*-\s*', '', name)
-        if norm(name) == target_title:
-            print(os.path.join(root, f))
+        if norm(name) != target_title:
+            continue
+        filepath = os.path.join(root, f)
+        tags = read_file_tags(filepath)
+        file_title = tags.get('title', '')
+        file_artist = tags.get('artist', '') or tags.get('albumartist', '')
+        raw_date = tags.get('date', '') or tags.get('year', '')
+        file_year = raw_date[:4] if raw_date else ''
+        title_ok = not file_title or norm(file_title) == target_title
+        artist_ok = not file_artist or not target_artist or target_artist in norm(file_artist)
+        year_ok = not target_year or not file_year or file_year == target_year
+        if title_ok and artist_ok and year_ok:
+            print(filepath)
             sys.exit(0)
+
 sys.exit(1)
-" "$match_title" "$match_artist" "$dir" 2>/dev/null)
+" "$match_title" "$match_artist" "$dir" "$year" 2>/dev/null)
 
     if [[ $? -eq 0 && -n "$found" ]]; then
       echo "[SKIP] Already exists: $found"
@@ -593,7 +626,9 @@ for k in ('artist', 'uploader', 'creator', 'channel', 'album', 'track', 'title',
   local title_file="${title_ascii//\//-}"
   title_file="${title_file//\"/}"
 
-  if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii"; then
+  local single_year
+  single_year=$(resolve_year "$file")
+  if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii" "$single_year"; then
     echo "[DEBUG] Skipping single (already exists)"
     return 0
   fi
@@ -812,7 +847,7 @@ fi
     title_file="${title_ascii//\//-}"
     title_file="${title_file//\"/}"
 
-    if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii"; then
+    if [[ -z "$FORCE_DOWNLOAD" ]] && song_exists "$album_artist" "$title_ascii" "$album_year"; then
       echo "[DEBUG] Skipping track $track_padded (already exists)"
       continue
     fi
