@@ -54,6 +54,16 @@
     extraSetFlags = [ "--accept-dns=false" ];
   };
 
+  services.resolved = {
+    enable = true;
+    dnssec = "allow-downgrade";
+    dnsovertls = "opportunistic";
+    llmnr = "false";
+    extraConfig = ''
+      MulticastDNS=no
+    '';
+  };
+
   services.mullvad-vpn.enable = true;
 
   systemd.services.mullvad-daemon.serviceConfig.TimeoutStopSec = 15;
