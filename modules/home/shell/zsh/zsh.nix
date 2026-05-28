@@ -19,6 +19,7 @@
     history = {
       size = 10000;
       save = 10000;
+      ignoreSpace = true;
     };
 
     shellAliases = {
