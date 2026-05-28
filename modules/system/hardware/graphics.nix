@@ -4,9 +4,12 @@
   hardware = {
     cpu.amd.updateMicrocode = true;
 
-    amdgpu.overdrive = {
-      enable = true;
-      ppfeaturemask = "0xffffffff";  # enable all overdrive features for LACT
+    amdgpu = {
+      overdrive = {
+        enable = true;
+        ppfeaturemask = "0xffffffff";  # enable all overdrive features for LACT
+      };
+      opencl.enable = true;
     };
 
     graphics = {
@@ -15,7 +18,6 @@
 
       extraPackages = [
         pkgs.vulkan-loader
-        pkgs.rocmPackages.clr.icd
       ];
     };
   };
