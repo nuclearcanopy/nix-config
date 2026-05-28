@@ -15,6 +15,7 @@
 
       extraPackages = [
         pkgs.vulkan-loader
+        pkgs.rocmPackages.clr.icd
       ];
     };
   };
