@@ -7,7 +7,7 @@
 
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "docker0" "tailscale0" ];
+    trustedInterfaces = [ "docker0" ];
     allowedTCPPorts = [
       1208  # ssh
       4533  # navidrome
@@ -16,42 +16,8 @@
       9000  # portainer
       8090  # mscd api
     ];
-    allowedUDPPorts = [
-      41641  # tailscale
-    ];
+    allowedUDPPorts = [];
     checkReversePath = "loose";
-    # mark packets forwarded from tailscale0 so policy routing sends them via physical iface
-    extraCommands = ''
-      iptables -t mangle -C FORWARD -i tailscale0 -j MARK --set-mark 0x1 2>/dev/null || \
-        iptables -t mangle -A FORWARD -i tailscale0 -j MARK --set-mark 0x1
-    '';
-  };
-
-  # capture the physical default route before mullvad-autoconnect replaces it,
-  # then install a policy rule so marked (tailscale-forwarded) packets bypass the vpn tunnel
-  systemd.services.tailscale-exit-routing = {
-    description = "Policy routing bypass for Tailscale exit node";
-    after = [ "network-online.target" ];
-    before = [ "mullvad-autoconnect.service" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-    path = [ pkgs.iproute2 pkgs.gawk ];
-    script = ''
-      GW=$(ip route show default | awk 'NR==1{print $3; exit}')
-      DEV=$(ip route show default | awk 'NR==1{print $5; exit}')
-      ip route replace default via $GW dev $DEV table 100
-      ip rule add fwmark 0x1 lookup 100 priority 100 2>/dev/null || true
-    '';
-  };
-
-  services.tailscale = {
-    enable = true;
-    useRoutingFeatures = "server";
-    extraSetFlags = [ "--accept-dns=false" "--advertise-routes=192.168.0.123/32" ];
   };
 
   services.resolved = {
@@ -68,6 +34,21 @@
 
   systemd.services.mullvad-daemon.serviceConfig.TimeoutStopSec = 15;
 
+  systemd.services.mullvad-autoconnect = {
+    description = "Auto-connect Mullvad VPN on boot";
+    after = [ "network-online.target" "mullvad-daemon.service" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      ${pkgs.mullvad}/bin/mullvad lan set allow
+      ${pkgs.mullvad}/bin/mullvad connect
+    '';
+  };
+
   services.openssh = {
     enable = true;
     ports = [ 1208 ];
@@ -77,24 +58,5 @@
       PermitRootLogin = "no";
       ListenAddress = "0.0.0.0";
     };
-  };
-
-  systemd.services.mullvad-autoconnect = {
-    description = "Auto-connect Mullvad VPN on boot";
-    after = [ "network-online.target" "mullvad-daemon.service" "tailscale-exit-routing.service" "tailscaled.service" "tailscaled-set.service" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-    script = ''
-      ${pkgs.mullvad}/bin/mullvad lan set allow
-      # exclude tailscaled from the vpn tunnel so it can reach coordination servers
-      # and so exit node traffic uses the physical interface via policy routing
-      TAILSCALE_PID=$(${pkgs.systemd}/bin/systemctl show tailscaled.service --property=MainPID --value)
-      [ -n "$TAILSCALE_PID" ] && [ "$TAILSCALE_PID" != "0" ] && ${pkgs.mullvad}/bin/mullvad split-tunnel add "$TAILSCALE_PID" || true
-      ${pkgs.mullvad}/bin/mullvad connect
-    '';
   };
 }
