@@ -36,5 +36,6 @@
   environment.variables = {
     LIBVA_DRIVER_NAME = "iHD";
     VDPAU_DRIVER = "va_gl";       # VDPAU via VA-API (no native Intel VDPAU)
+    OCL_ICD_VENDORS = "/run/opengl-driver/etc/OpenCL/vendors";
   };
 }
