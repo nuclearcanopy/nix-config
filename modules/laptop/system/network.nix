@@ -9,6 +9,7 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
+    extraSetFlags = [ "--accept-dns=false" ];
   };
 
   # saves ~5.5s on boot; mullvad-autoconnect handles its own nm readiness check
@@ -24,7 +25,7 @@
   # wantedBy and after the same target creates a circular ordering that causes
   # systemd to silently drop the service at boot.
   systemd.services.mullvad-autoconnect = {
-    after    = lib.mkForce [ "NetworkManager.service" "mullvad-daemon.service" ];
+    after    = lib.mkForce [ "NetworkManager.service" "mullvad-daemon.service" "tailscaled-set.service" ];
     wants    = lib.mkForce [ "NetworkManager.service" "mullvad-daemon.service" ];
     wantedBy = lib.mkForce [ "graphical.target" ];
   };
