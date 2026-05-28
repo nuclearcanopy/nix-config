@@ -9,8 +9,10 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
-    extraSetFlags = [ "--accept-dns=false" ];
+    extraUpFlags  = [ "--accept-dns=false" "--accept-routes=true" ];
+    extraSetFlags = [ "--accept-dns=false" "--accept-routes=true" "--exit-node=" ];
   };
+
 
   # saves ~5.5s on boot; mullvad-autoconnect handles its own nm readiness check
   systemd.services.NetworkManager-wait-online.enable = false;
