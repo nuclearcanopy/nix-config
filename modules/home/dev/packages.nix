@@ -31,6 +31,7 @@
     cyberchef
     john
     hashcat
+    hash-identifier
     zsteg
     scalpel
     hexedit
