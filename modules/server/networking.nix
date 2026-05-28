@@ -53,7 +53,7 @@
     enable = true;
     ports = [ 1208 ];
     settings = {
-      PasswordAuthentication = true;
+      PasswordAuthentication = false;
       PubkeyAuthentication = true;
       PermitRootLogin = "no";
       ListenAddress = "0.0.0.0";
