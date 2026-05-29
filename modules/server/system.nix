@@ -161,6 +161,8 @@
     rsync
   ];
 
+  users.users.${username}.uid = 1000;
+
   security.sudo.wheelNeedsPassword = false;
 
   security.polkit.extraConfig = ''

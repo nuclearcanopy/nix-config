@@ -2,18 +2,16 @@ tunnel: 39d923ab-011e-4e9c-a933-c9884203b940
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  - hostname: dashboard.local
+  - hostname: portainer.local
     service: http://portainer:9000
-  - hostname: music.local
+  - hostname: navidrome.local
     service: http://navidrome:4533
-  - hostname: search.local
+  - hostname: searxng.local
     service: http://searxng:8080
-  - hostname: drive.local
+  - hostname: filebrowser.local
     service: http://filebrowser:80
   - hostname: vaultwarden.local
     service: http://vaultwarden:80
   - hostname: mscd.local
     service: http://172.18.0.1:8090
-  - hostname: preview.local
-    service: http://avocat-wordpress-1:80
   - service: http_status:404

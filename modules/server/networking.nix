@@ -42,9 +42,22 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      TimeoutStartSec = 180;
     };
     script = ''
-      ${pkgs.mullvad}/bin/mullvad lan set allow
+      set -euo pipefail
+
+      i=0
+      until ${pkgs.mullvad}/bin/mullvad status >/dev/null 2>&1; do
+        i=$((i + 1))
+        if [ "$i" -ge 60 ]; then
+          echo "mullvad-autoconnect: daemon not ready after 60s" >&2
+          exit 1
+        fi
+        sleep 1
+      done
+
+      ${pkgs.mullvad}/bin/mullvad lan set allow || true
       ${pkgs.mullvad}/bin/mullvad connect
     '';
   };
