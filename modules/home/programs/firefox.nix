@@ -293,7 +293,7 @@
         default = "ddg";
         engines = {
           "nuclearcanopy" = {
-            urls = [{ template = "https://search.local/?q={searchTerms}"; }];
+            urls = [{ template = "https://searxng.local/?q={searchTerms}"; }];
             definedAliases = [ "@a" ];
           };
           "ddg".metaData.alias = "@d";

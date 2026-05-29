@@ -55,7 +55,7 @@ in
         ports = [ "8080:8080" ];
         volumes = [ "/var/lib/searxng:/etc/searxng" ];
         environment = {
-          SEARXNG_BASE_URL = "https://search.nuclearcanopy.xyz/";
+          SEARXNG_BASE_URL = "https://searxng.local/";
           SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
         };
         environmentFiles = [
