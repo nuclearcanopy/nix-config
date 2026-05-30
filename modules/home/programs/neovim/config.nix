@@ -3,6 +3,7 @@
 {
   programs.nixvim = {
     enable = true;
+    nixpkgs.source = pkgs.path;
 
     # Typo detection for code
     plugins.nvim-autopairs.enable = true;

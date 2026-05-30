@@ -5,9 +5,9 @@
     enable = true;
     enableDefaultConfig = false;
 
-    matchBlocks = {
+    settings = {
       "*" = {
-        identitiesOnly = true;
+        IdentitiesOnly = "yes";
       };
       "homeserver" = {
         hostname = "homeserver";
@@ -16,14 +16,14 @@
         identityFile = "/run/agenix/ssh-git";
       };
       "codeberg.org" = {
-        hostname = "codeberg.org";
-        user = "git";
-        identityFile = "/run/agenix/ssh-git";
+        Hostname = "codeberg.org";
+        User = "git";
+        IdentityFile = "/run/agenix/ssh-git";
       };
       "github.com" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = "/run/agenix/ssh-git";
+        Hostname = "github.com";
+        User = "git";
+        IdentityFile = "/run/agenix/ssh-git";
       };
     };
   };

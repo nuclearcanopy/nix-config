@@ -3,12 +3,12 @@
 {
   services.resolved = {
     enable = true;
-    dnssec = "true";
-    dnsovertls = "opportunistic";
-    llmnr = "false";
-    extraConfig = ''
-      MulticastDNS=no
-    '';
+    settings.Resolve = {
+      DNSSEC = "true";
+      DNSOverTLS = "opportunistic";
+      LLMNR = "false";
+      MulticastDNS = "no";
+    };
   };
 
   networking = {

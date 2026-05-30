@@ -11,12 +11,10 @@
     libreoffice
     calibre
     lyx
-    texlive.combined.scheme-full
+    texliveFull
 
     signal-desktop
     qbittorrent
-
-    bitwarden-desktop
 
     picard
     asunder
