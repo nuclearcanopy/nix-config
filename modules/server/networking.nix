@@ -22,12 +22,12 @@
 
   services.resolved = {
     enable = true;
-    dnssec = "allow-downgrade";
-    dnsovertls = "opportunistic";
-    llmnr = "false";
-    extraConfig = ''
-      MulticastDNS=no
-    '';
+    settings.Resolve = {
+      DNSSEC = "allow-downgrade";
+      DNSOverTLS = "opportunistic";
+      LLMNR = "false";
+      MulticastDNS = "no";
+    };
   };
 
   services.mullvad-vpn.enable = true;
