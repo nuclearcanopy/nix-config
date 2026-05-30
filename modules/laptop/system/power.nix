@@ -76,7 +76,7 @@ in
         done
       '';
     in ''
-      SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", MODE="0664", GROUP="users"
       SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
