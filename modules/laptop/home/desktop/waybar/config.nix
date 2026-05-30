@@ -10,7 +10,7 @@
 {
   programs.waybar = {
     enable = true;
-    systemd = { enable = true; target = "sway-session.target"; };
+    systemd = { enable = true; targets = [ "sway-session.target" ]; };
     style = builtins.readFile ../../../../home/desktop/waybar/style.css;
 
     settings = {

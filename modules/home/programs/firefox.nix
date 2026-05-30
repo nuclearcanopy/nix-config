@@ -1,14 +1,14 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 {
 
-  # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
+  # PSD leaves a stale symlink at ~/.config/mozilla/firefox/<profile> pointing to
   # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
   # linkGeneration can't mkdir through a broken symlink, so restore from
   # PSD's backup first.
   home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     for profile in default compat; do
-      link="$HOME/.mozilla/firefox/$profile"
-      backup="$HOME/.mozilla/firefox/''${profile}-backup"
+      link="${config.xdg.configHome}/mozilla/firefox/$profile"
+      backup="${config.xdg.configHome}/mozilla/firefox/''${profile}-backup"
       if [ -L "$link" ] && [ ! -e "$link" ]; then
         $DRY_RUN_CMD rm "$link"
         if [ -d "$backup" ]; then
@@ -41,6 +41,7 @@
   };
 
   programs.firefox = {
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
     enable = true;
 
     policies = {

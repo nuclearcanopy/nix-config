@@ -3,7 +3,7 @@
 {
   services.swayidle = {
     enable = true;
-    systemdTarget = "sway-session.target";
+    systemdTargets = [ "sway-session.target" ];
 
     timeouts = [
       # 60s: dim on battery, nothing on AC
@@ -49,22 +49,16 @@
       }
     ];
 
-    events = [
-      # Lock screen before any suspend so the session is protected on wake.
-      {
-        event = "before-sleep";
-        command = "${pkgs.brightnessctl}/bin/brightnessctl -s; ${pkgs.swaylock}/bin/swaylock -f -c 000000";
-      }
-      {
-        event = "after-resume";
-        command = toString (pkgs.writeShellScript "swayidle-after-resume" ''
-          ${pkgs.sway}/bin/swaymsg 'output * power on'
-          ${pkgs.brightnessctl}/bin/brightnessctl -r
-          val=$(${pkgs.brightnessctl}/bin/brightnessctl g)
-          ${pkgs.brightnessctl}/bin/brightnessctl s "$val"
-        '');
-      }
-    ];
+    # Lock screen before any suspend so the session is protected on wake.
+    events = {
+      before-sleep = "${pkgs.brightnessctl}/bin/brightnessctl -s; ${pkgs.swaylock}/bin/swaylock -f -c 000000";
+      after-resume = toString (pkgs.writeShellScript "swayidle-after-resume" ''
+        ${pkgs.sway}/bin/swaymsg 'output * power on'
+        ${pkgs.brightnessctl}/bin/brightnessctl -r
+        val=$(${pkgs.brightnessctl}/bin/brightnessctl g)
+        ${pkgs.brightnessctl}/bin/brightnessctl s "$val"
+      '');
+    };
   };
 
   programs.swaylock = {
