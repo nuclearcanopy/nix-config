@@ -1,16 +1,17 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 # Shared Mullvad autoconnect service.
-# Waits for NM + daemon readiness, sets LAN/IPv6/relay/DNS, then connects.
-# Desktop imports this directly; laptop overrides wantedBy/after for graphical.target.
+# Defaults are wrapped in mkDefault so hosts can override the start trigger
+# without resorting to mkForce. Laptop overrides wantedBy/wants/after to
+# defer autoconnect to graphical.target (post-login).
 {
   services.mullvad-vpn.enable = true;
 
   systemd.services.mullvad-autoconnect = {
     description = "Auto-connect Mullvad VPN on boot";
-    after = [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wants = [ "NetworkManager.service" ];
-    wantedBy = [ "mullvad-daemon.service" ];
+    after = lib.mkDefault [ "NetworkManager.service" "mullvad-daemon.service" ];
+    wants = lib.mkDefault [ "NetworkManager.service" ];
+    wantedBy = lib.mkDefault [ "mullvad-daemon.service" ];
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = 180;

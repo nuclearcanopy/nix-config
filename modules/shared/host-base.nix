@@ -11,7 +11,7 @@
 
     users.${username} = {
       isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "docker" ];
+      extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "docker" "wireshark" ];
       hashedPasswordFile = config.age.secrets.user-password.path;
     };
 
