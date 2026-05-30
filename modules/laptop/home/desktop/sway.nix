@@ -9,8 +9,17 @@
         "Mod4+Mod1+4" = "exec ${./waybar/scripts/thermal_toggle.sh}";
       };
 
-      output."*" = {
-        bg = "#000000 solid_color";
+      output = {
+        "*" = {
+          bg = "#000000 solid_color";
+        };
+        # external HDMI sits on top, laptop panel directly below
+        "HDMI-A-2" = {
+          position = "0 0";
+        };
+        "eDP-1" = {
+          position = "0 1440";
+        };
       };
 
       input = {
