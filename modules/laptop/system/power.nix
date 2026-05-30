@@ -70,27 +70,17 @@ in
   # product_name. With the correct name, TLP uses its thinkpad plugin + natacpi.
   services.udev.extraRules =
     let
-      cpuFreqPerms = pkgs.writeShellScript "cpu-freq-perms" ''
-        for field in scaling_governor scaling_max_freq energy_performance_preference; do
-          p="/sys$1/cpufreq/$field"
-          [ -f "$p" ] && chgrp wheel "$p" && chmod g+w "$p" || true
-        done
-      '';
-      intelPstatePerms = pkgs.writeShellScript "intel-pstate-perms" ''
-        f=/sys/devices/system/cpu/intel_pstate/no_turbo
-        [ -f "$f" ] && chgrp wheel "$f" && chmod g+w "$f" || true
-      '';
-      raplPerms = pkgs.writeShellScript "rapl-perms" ''
-        for field in constraint_0_power_limit_uw constraint_1_power_limit_uw; do
-          p="/sys$1/$field"
-          [ -f "$p" ] && chgrp wheel "$p" && chmod g+w "$p" || true
+      makeWheelWritable = pkgs.writeShellScript "make-wheel-writable" ''
+        for f in "$@"; do
+          [ -f "$f" ] && chgrp wheel "$f" && chmod g+w "$f" || true
         done
       '';
     in ''
+      SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", TAG+="uaccess"
       SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
-      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${cpuFreqPerms} %p"
-      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${intelPstatePerms}"
-      ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${raplPerms} %p"
+      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference"
+      ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
+      ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${makeWheelWritable} /sys%p/constraint_0_power_limit_uw /sys%p/constraint_1_power_limit_uw"
     '';
 
   services.tlp = {
@@ -152,7 +142,7 @@ in
       # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;
       USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
-      USB_DENYLIST = "046d:c547";  # Logitech G502X wireless receiver — autosuspend breaks scroll state
+      USB_DENYLIST = "046d:c547 1949:9981";  # Logitech G502X wireless receiver; Kindle Scribe (MTP breaks under autosuspend)
       USB_EXCLUDE_BTUSB = 1;
       USB_EXCLUDE_AUDIO = 1;
       USB_EXCLUDE_PHONE = 1;

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ ... }:
 
 {
   imports = [
@@ -11,14 +11,13 @@
 
   systemd.services.mullvad-daemon.serviceConfig.TimeoutStopSec = "5";
 
-  # Laptop: start autoconnect as part of graphical.target activation.
-  # graphical.target intentionally absent from `after` — listing a unit in both
-  # wantedBy and after the same target creates a circular ordering that causes
-  # systemd to silently drop the service at boot.
+  # Laptop: defer autoconnect to graphical.target (after login) instead of the
+  # shared default of mullvad-daemon.service. graphical.target intentionally
+  # absent from `after` — listing a unit in both wantedBy and after the same
+  # target creates a circular ordering that systemd silently drops.
   systemd.services.mullvad-autoconnect = {
-    after    = lib.mkForce [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wants    = lib.mkForce [ "NetworkManager.service" "mullvad-daemon.service" ];
-    wantedBy = lib.mkForce [ "graphical.target" ];
+    wants    = [ "NetworkManager.service" "mullvad-daemon.service" ];
+    wantedBy = [ "graphical.target" ];
   };
 
   networking = {

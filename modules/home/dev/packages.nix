@@ -16,9 +16,10 @@
     codex
 
     # cybersec stuff
+    # NOTE: wireshark is enabled at the system level via programs.wireshark
+    # for dumpcap capabilities — not listed here.
     ghidra
     tcpdump
-    wireshark
     ffuf
     nmap
     netcat-gnu
