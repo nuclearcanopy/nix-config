@@ -1,6 +1,12 @@
 { pkgs, username, ... }:
 
 let
+  # State file records the last explicitly set mode. cpu-mode-restore.service
+  # re-applies it after any event that TLP also reacts to (boot, AC/BAT change,
+  # resume), so an explicit mode — especially god — survives TLP overwriting
+  # governor/EPP. Empty/missing state means "let TLP drive".
+  cpuModeStateFile = "/var/lib/cpu-mode/state";
+
   setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
     set -euo pipefail
 
@@ -17,7 +23,8 @@ let
     no_turbo() { printf '%s' "$1" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true; }
     rapl_write() { printf '%s' "$2" > /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/"$1" 2>/dev/null || true; }
 
-    case "''${1:-}" in
+    mode="''${1:-}"
+    case "$mode" in
       spd) cpu_write scaling_governor performance ignore
            cpu_write energy_performance_preference performance ignore
            cpu_write scaling_max_freq 3600000 ignore
@@ -43,8 +50,25 @@ let
            rapl_write constraint_0_power_limit_uw 45000000
            rapl_write constraint_1_power_limit_uw 60000000
            printf 'GOD MODE: turbo on, 3.6GHz, PL1=45W PL2=60W\n' ;;
-      *)   printf 'Usage: set-cpu-mode {spd|bal|lap|god}\n' >&2; exit 1 ;;
+      auto) : >${cpuModeStateFile}
+            printf 'CPU mode: auto (TLP-managed)\n'
+            exit 0 ;;
+      *)   printf 'Usage: set-cpu-mode {spd|bal|lap|god|auto}\n' >&2; exit 1 ;;
     esac
+
+    # Persist so cpu-mode-restore can put it back after TLP fires.
+    printf '%s\n' "$mode" > ${cpuModeStateFile}
+  '';
+
+  cpuModeRestore = pkgs.writeShellScript "cpu-mode-restore" ''
+    set -eu
+    [ -s ${cpuModeStateFile} ] || exit 0
+    mode="$(cat ${cpuModeStateFile})"
+    [ -n "$mode" ] || exit 0
+    # TLP reacts to the same udev event in parallel; let it settle before we
+    # overwrite governor/EPP. 0.5s is comfortable — TLP writes complete in ms.
+    sleep 0.5
+    exec ${setCpuMode}/bin/set-cpu-mode "$mode"
   '';
 in
 
@@ -81,7 +105,28 @@ in
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference"
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
       ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${makeWheelWritable} /sys%p/constraint_0_power_limit_uw /sys%p/constraint_1_power_limit_uw"
+      SUBSYSTEM=="power_supply", ACTION=="change", RUN+="${pkgs.systemd}/bin/systemctl start --no-block cpu-mode-restore.service"
     '';
+
+  # State dir must exist before set-cpu-mode (run by the user via waybar) tries
+  # to write to it. wheel-writable so user invocations succeed without root.
+  systemd.tmpfiles.rules = [
+    "d /var/lib/cpu-mode 0775 root wheel - -"
+    "f ${cpuModeStateFile} 0664 root wheel - -"
+  ];
+
+  # Re-asserts the last explicit CPU mode after events that TLP also reacts to:
+  # boot (After=tlp.service), AC/BAT change (udev rule above), resume from
+  # suspend (powerManagement.resumeCommands below). No-op if state is empty.
+  systemd.services.cpu-mode-restore = {
+    description = "Restore last explicit CPU performance mode";
+    after = [ "tlp.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${cpuModeRestore}";
+    };
+  };
 
   services.tlp = {
     enable = true;
@@ -193,6 +238,7 @@ in
         systemctl suspend
       fi
     ) &
+    systemctl start --no-block cpu-mode-restore.service || true
     pkill -u ${username} --signal 43 waybar || true
     for b in /sys/class/backlight/*/brightness; do
       [ -f "$b" ] && val=$(cat "$b") && echo "$val" > "$b" 2>/dev/null || true
