@@ -37,5 +37,6 @@
     scalpel
     hexedit
     gnupg
+    burpsuite
   ];
 }
