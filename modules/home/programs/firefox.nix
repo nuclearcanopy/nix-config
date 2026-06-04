@@ -97,6 +97,14 @@
             "adguard-cookies"
             "adguard-url-tracking-protection"
           ];
+          userFilters = ''
+            wikipedia.org##.nag-trigger
+            wikipedia.org###centralNotice
+            wikipedia.org##[id$="banner-nag"]
+            www.wikipedia.org##.overlay-banner-mini-message
+            www.wikipedia.org##.visible.overlay-banner-mini
+            wikipedia.org###frb-inline
+          '';
         };
       };
 
