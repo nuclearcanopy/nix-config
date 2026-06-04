@@ -40,6 +40,7 @@ window#waybar {
 #custom-thermalmode,
 #custom-vpn,
 #custom-caffeine,
+#custom-dock,
 #custom-firmware,
 #custom-reboot,
 #custom-power,
@@ -120,6 +121,10 @@ window#waybar {
 }
 
 #custom-caffeine.active {
+  color: #b96b6b;
+}
+
+#custom-dock.active {
   color: #b96b6b;
 }
 
