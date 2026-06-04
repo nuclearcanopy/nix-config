@@ -51,6 +51,7 @@
           "custom/sep"
           "custom/kbd"
           "custom/sep"
+          "custom/dock"
           "custom/firmware"
           "custom/reboot"
           "custom/sleep"
@@ -86,6 +87,15 @@
           format = "FRM";
           on-click-middle = "systemctl reboot --firmware-setup";
           tooltip = false;
+        };
+
+        "custom/dock" = {
+          exec = "${./scripts/dock_mode.sh}";
+          return-type = "json";
+          interval = "once";
+          signal = 10;
+          on-click = "${./scripts/dock_toggle.sh}";
+          tooltip = true;
         };
 
         "custom/reboot" = {
