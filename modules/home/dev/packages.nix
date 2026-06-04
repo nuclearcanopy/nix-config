@@ -19,6 +19,7 @@
     # NOTE: wireshark is enabled at the system level via programs.wireshark
     # for dumpcap capabilities — not listed here.
     ghidra
+    metasploit
     tcpdump
     ffuf
     nmap

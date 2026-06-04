@@ -45,6 +45,7 @@
       "claude-code"
       "unrar"
       "wappalyzer"
+      "burpsuite"
     ];
 
     unstable-pkgs = import unstable {
