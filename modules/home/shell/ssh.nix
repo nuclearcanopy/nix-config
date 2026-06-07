@@ -9,6 +9,12 @@
       "*" = {
         identitiesOnly = true;
       };
+      "homeserver" = {
+        hostname = "homeserver";
+        user = "homeserver";
+        port = 1208;
+        identityFile = "/run/agenix/ssh-git";
+      };
       "codeberg.org" = {
         hostname = "codeberg.org";
         user = "git";

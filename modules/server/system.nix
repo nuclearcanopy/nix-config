@@ -19,6 +19,15 @@
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
+    # Limit generations shown — fewer entries = less memory touched during early boot
+    # which reduces the chance of hitting a bad RAM region at the picker
+    loader.systemd-boot.configurationLimit = 5;
+    # Short timeout so we don't sit in the picker thrashing memory waiting for input
+    loader.timeout = 3;
+
+    # MCE: keep machine check exceptions enabled with recovery attempts.
+    # panic_on_oops forces a clean reboot instead of limping along with corrupted state.
+    kernelParams = [ "mce=1" "panic_on_oops=1" ];
   };
 
   console = {
@@ -92,6 +101,30 @@
     "net.core.wmem_max" = 16777216;
     "net.ipv4.tcp_rmem" = "4096 87380 16777216";
     "net.ipv4.tcp_wmem" = "4096 65536 16777216";
+    # Auto-reboot 30s after a kernel panic instead of hanging forever
+    "kernel.panic" = 30;
+    # Treat kernel oopses as panics — don't limp along with corrupted state
+    "kernel.panic_on_oops" = 1;
+  };
+
+  # Log hardware Machine Check Exceptions (memory/CPU errors) to a queryable DB.
+  # After boot run: rasdaemon -q (or journalctl -u rasdaemon) to see error history.
+  hardware.rasdaemon.enable = true;
+
+  # zram: compressed swap in RAM. Reduces pressure on physical RAM by keeping
+  # more live data compressed rather than paging out to disk or hitting bad regions.
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    # Use up to 50% of RAM as compressed swap
+    memoryPercent = 50;
+  };
+
+  # Hardware watchdog: if the kernel hard-locks and can't reboot itself,
+  # the watchdog timer fires and forces a hardware reset.
+  systemd.watchdog = {
+    runtimeTime = "60s";
+    rebootTime = "10m";
   };
 
   systemd.targets = {

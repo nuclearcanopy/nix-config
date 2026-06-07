@@ -15,7 +15,7 @@
     extraGroups = [ "networkmanager" "wheel" "docker" ];
 
     openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII36Xlq4Kisgp2YlSezcA3p5LSobE2PBnjiW3zCW+z9v nuclearcanopy@codeberg.org"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEw3uZ/5xY3VHdAJEcY9rGntIbXOUwA5yFWDx/wPGeNr nuclearcanopy"
     ];
 
     hashedPasswordFile = config.age.secrets.homeserver-user-password.path;
