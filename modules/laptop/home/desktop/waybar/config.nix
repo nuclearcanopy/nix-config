@@ -36,6 +36,7 @@
           "custom/caffeine"
           "custom/sep"
           "custom/vpn"
+          "custom/airgap"
           "custom/thermalmode"
           "group/expand"
         ];
@@ -140,6 +141,14 @@
           on-click = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} next";
           on-click-right = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} prev";
           on-click-middle = "${../../../../home/desktop/waybar/scripts/vpn_cycle.sh} last";
+          tooltip = false;
+        };
+
+        "custom/airgap" = {
+          exec = "${./scripts/airgap_mode.sh}";
+          interval = 5;
+          signal = 11;
+          on-click = "${./scripts/airgap_toggle.sh}";
           tooltip = false;
         };
 

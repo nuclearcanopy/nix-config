@@ -9,6 +9,7 @@
     ./bluetooth.nix
     ./cpu.nix
     ./graphics.nix
+    ./hardening.nix
     ./network.nix
     ./packages.nix
     ./power.nix
