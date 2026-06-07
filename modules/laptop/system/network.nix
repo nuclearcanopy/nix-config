@@ -25,6 +25,8 @@
     networkmanager = {
       wifi.powersave = true;
       wifi.scanRandMacAddress = true;
+      wifi.macAddress = "random";
+      ethernet.macAddress = "random";
     };
   };
 }
