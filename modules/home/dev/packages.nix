@@ -39,5 +39,6 @@
     hexedit
     gnupg
     burpsuite
+    exploitdb
   ];
 }
