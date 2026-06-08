@@ -51,7 +51,6 @@
       startup = [
         { command = "autotiling-rs"; }
         { command = "swaymsg workspace 1"; }
-        { command = "${./waybar/scripts/vis_init.sh}"; }
       ];
     };
   };
