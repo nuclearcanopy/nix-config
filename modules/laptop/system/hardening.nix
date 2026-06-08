@@ -42,7 +42,9 @@
     #     of the thunderbolt driver)
     # What's lost: TB3 docks, TB displays, eGPUs. Acceptable trade.
     # firewire-* defensively blacklisted even though T480 has no FW port.
-    blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" ];
+    # btusb blacklisted because bluetooth is disabled (bluetooth.nix); kills
+    # the kernel binding to the M.2 BT radio (Intel 8087:0032) outright.
+    blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" "btusb" "bluetooth" ];
   };
 
   # ── AppArmor ─────────────────────────────────────────────────────────────
@@ -57,39 +59,33 @@
 
   # ── USBGuard ─────────────────────────────────────────────────────────────
   # Block-by-default for newly inserted USB devices. Devices already plugged
-  # in at daemon start are allowed (so the internal webcam, fingerprint
-  # reader, and bluetooth dongle on the M.2 card keep working without
-  # bootstrap). New devices need explicit approval.
+  # in at daemon start are allowed (presentDevicePolicy=allow), so the
+  # internal webcam, card reader, fingerprint reader and a mouse plugged in
+  # at boot all work without listing.
   #
-  # Bootstrap (one-time, after the first rebuild that enables this):
-  #   sudo usbguard generate-policy | sudo tee /var/lib/usbguard/rules.conf
-  #   sudo systemctl restart usbguard
-  # That snapshot becomes the persistent allowlist.
+  # The allowlist for *new* inserts is declared here via services.usbguard.rules
+  # — this makes the policy nix-store-managed (immutable, reinstall-safe) and
+  # disables the IPC-driven `usbguard allow-device -p` workflow. To trust a
+  # new device, add an `allow id <vid>:<pid>` line below and rebuild.
   #
-  # Allow a new device:
-  #   sudo usbguard list-devices                 # find the id
-  #   sudo usbguard allow-device <id> -p         # -p = persist to rules.conf
-  #
-  # Note: rules.conf lives in /var/lib and does NOT survive a reinstall.
-  # Re-run the bootstrap after a fresh install.
+  # Find a device's id:
+  #   sudo usbguard list-devices
   services.usbguard = {
     enable = true;
     IPCAllowedUsers = [ username "root" ];
-    ruleFile = "/var/lib/usbguard/rules.conf";
+    rules = ''
+      # Yubico security keys — all models (FIDO, OTP, CCID, 5-series, etc).
+      # Vendor-wide so spare/replacement keys work without a rebuild.
+      allow id 1050:*
+    '';
     implicitPolicyTarget = "block";
     presentDevicePolicy = "allow";        # devices at daemon start: trust
     presentControllerPolicy = "allow";    # internal xHCI controllers: trust
-    insertedDevicePolicy = "apply-policy"; # new inserts: consult rules.conf
+    insertedDevicePolicy = "apply-policy"; # new inserts: consult rules above
     dbus.enable = true;
   };
 
-  # Ensure rules.conf exists empty so usbguard doesn't fail to start on a
-  # fresh system before the bootstrap command has been run.
-  systemd.tmpfiles.rules = [
-    "f /var/lib/usbguard/rules.conf 0600 root root - -"
-  ];
-
   environment.systemPackages = with pkgs; [
-    usbguard          # CLI for list-devices, allow-device, generate-policy
+    usbguard          # CLI for list-devices (finding vid:pid to declare)
   ];
 }
