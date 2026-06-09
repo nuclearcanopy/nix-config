@@ -1,5 +1,8 @@
 { config, pkgs, username, ... }:
 
+let
+  askpass = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+in
 {
   time.timeZone = "Europe/Bucharest";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -22,7 +25,13 @@
     enable = true;
     wheelNeedsPassword = true;
     execWheelOnly = true;
+    extraConfig = ''
+      Defaults env_keep += "WAYLAND_DISPLAY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS SUDO_ASKPASS"
+    '';
   };
+
+  environment.systemPackages = [ pkgs.lxqt.lxqt-openssh-askpass ];
+  environment.sessionVariables.SUDO_ASKPASS = askpass;
 
   environment.variables.EDITOR = "nvim";
 
