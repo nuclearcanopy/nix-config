@@ -208,6 +208,7 @@
         "custom/battery" = {
           exec = "${./scripts/battery.sh}";
           interval = 30;
+          signal = 7;
           tooltip = false;
         };
 

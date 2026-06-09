@@ -106,6 +106,7 @@ in
       ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
       ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${makeWheelWritable} /sys%p/constraint_0_power_limit_uw /sys%p/constraint_1_power_limit_uw"
       SUBSYSTEM=="power_supply", ACTION=="change", RUN+="${pkgs.systemd}/bin/systemctl start --no-block cpu-mode-restore.service"
+      SUBSYSTEM=="power_supply", ACTION=="change", RUN+="${pkgs.procps}/bin/pkill -u ${username} --signal 41 waybar"
     '';
 
   # State dir must exist before set-cpu-mode (run by the user via waybar) tries
