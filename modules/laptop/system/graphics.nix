@@ -1,6 +1,6 @@
 { pkgs, ... }:
 
-# Intel UHD 620 iGPU (ThinkPad T480 — no discrete GPU).
+# Intel UHD 620 iGPU (ThinkPad T480, no discrete GPU).
 # iHD VA-API driver (intel-media-driver) for hardware video decode on Gen 9+.
 # GuC/HuC firmware loaded via i915 kernel params in boot.nix.
 # intel.updateMicrocode is handled by hardware-configuration.nix.
@@ -24,7 +24,7 @@
       ];
     };
 
-    # ThinkPad TrackPoint — middle-button scroll wheel
+    # ThinkPad TrackPoint: middle-button scroll wheel
     trackpoint = {
       enable = true;
       emulateWheel = true;

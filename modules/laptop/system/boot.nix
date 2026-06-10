@@ -28,11 +28,11 @@
 
   # TPM2 for LUKS auto-unlock.
   # After Libreboot: PCR 0 (firmware) changed, PCR 7 (Secure Boot) gone.
-  # Existing enrollment is invalidated — you'll get a password prompt.
+  # Existing enrollment is invalidated; you'll get a password prompt.
   # Re-enroll once Libreboot is stable:
   #   sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p2
   #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0 /dev/nvme0n1p2
-  # Only PCR 0 — no Secure Boot with Libreboot, so PCR 7 is useless.
+  # Only PCR 0; no Secure Boot with Libreboot, so PCR 7 is useless.
   security.tpm2 = {
     enable = false;
     pkcs11.enable = false;
@@ -69,7 +69,7 @@
   };
 
   # ananicy takes 1.6 s to start and competes with critical-path services.
-  # Delay it to after the graphical session is up — users get snappy scheduling
+  # Delay it to after the graphical session is up; users get snappy scheduling
   # once the desktop is drawn, which is what matters.
   systemd.services.ananicy = {
     after    = lib.mkForce [ "graphical.target" ];
@@ -83,7 +83,7 @@
   boot = {
     # Libreboot (T480 via Deguard): firmware GRUB payload reads
     # /boot/grub/grub.cfg from the ESP. NixOS GRUB writes that file.
-    # EFI support kept as contingency — if Libreboot flash fails, the
+    # EFI support kept as contingency; if Libreboot flash fails, the
     # original UEFI firmware can still boot the EFI GRUB binary on the ESP.
     # After confirming Libreboot works:
     #   - set efi.canTouchEfiVariables = false
@@ -125,16 +125,15 @@
     kernelParams = [
       # Intel
       "intel_pstate=active"
-      "i915.enable_fbc=1"           # framebuffer compression — saves power
-      "i915.enable_psr=0"           # PSR disabled — causes display stutter with Libreboot ACPI tables
-      "i915.enable_guc=3"           # GuC/HuC firmware — better GPU scheduling
+      "i915.enable_fbc=1"           # framebuffer compression; saves power
+      "i915.enable_psr=0"           # PSR disabled; causes display stutter with Libreboot ACPI tables
+      "i915.enable_guc=3"           # GuC/HuC firmware; better GPU scheduling
       # Power saving
       "nmi_watchdog=0"
       "nowatchdog"
-      "workqueue.power_efficient=1"
-      "pcie_aspm.policy=default"    # don't force ASPM — Libreboot ACPI tables don't fully describe capabilities
-      "intel_idle.max_cstate=7"    # cap at C7s — prevents C8/C9/C10 VR switching noise (coil whine)
-      "i915.enable_dc=1"           # limit GPU display C-states — less aggressive power gating, reduces coil whine
+      "pcie_aspm.policy=default"    # don't force ASPM; Libreboot ACPI tables don't fully describe capabilities
+      "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine)
+      "i915.enable_dc=1"           # limit GPU display C-states; less aggressive power gating, reduces coil whine
       # ThinkPad ACPI
       "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot)
       "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
@@ -146,10 +145,10 @@
 
     kernel.sysctl = {
       # Memory tuning (32GB RAM)
-      "vm.swappiness" = 10;                   # 32GB RAM — only swap under real pressure
+      "vm.swappiness" = 10;                   # 32GB RAM; only swap under real pressure
       "vm.vfs_cache_pressure" = 10;            # keep dentries/inodes cached longer; 32GB RAM, no pressure
       "vm.watermark_scale_factor" = 125;       # larger kswapd headroom (~400MB); fewer wake-up cycles on 32GB
-      "vm.dirty_ratio" = 20;                  # batch writes — fewer disk wakeups
+      "vm.dirty_ratio" = 20;                  # batch writes; fewer disk wakeups
       "vm.dirty_background_ratio" = 10;       # batch background writeback
       "vm.page-cluster" = 0;                  # no swap readahead (zram is fast)
 

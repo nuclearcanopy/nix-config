@@ -1187,7 +1187,7 @@ return;
 // connection dropped, fall through to reconnect
 }
 if(running&&currentJobId===job_id){
-setStatus('Connection lost — reconnecting...','running');
+setStatus('Connection lost; reconnecting...','running');
 log('\\n↻ Connection lost, reconnecting...','info');
 reconnectNow=false;
 const start=Date.now();

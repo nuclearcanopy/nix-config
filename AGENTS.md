@@ -7,7 +7,7 @@ This repository is a NixOS flake providing system configurations for multiple ho
 - `flake.nix`, `flake.lock`: flake inputs and `nixosConfigurations` entrypoints.
 - `hosts/<host>/`: per-host configuration (e.g. `configuration.nix`, hardware config, `disko.nix`).
 - `modules/`: reusable NixOS + Home Manager modules, grouped by area:
-  - `modules/shared/` (sway-base, host-base, home-base — shared by desktop and laptop)
+  - `modules/shared/` (sway-base, host-base, home-base; shared by desktop and laptop)
   - `modules/system/` (base system, hardware, network, services, desktop)
   - `modules/home/` (user programs, shell, desktop config)
   - `modules/server/`, `modules/laptop/` (role-specific overrides)
@@ -22,7 +22,7 @@ This repository is a NixOS flake providing system configurations for multiple ho
 - `sudo nixos-rebuild switch --flake .#kuraokami`: build and activate a host configuration.
 - `sudo nixos-rebuild build --flake .#homeserver --show-trace`: build only (useful for CI and debugging).
 - `nix flake update`: update inputs; commit the resulting `flake.lock` change.
-- `./scripts/install.sh`: fresh-install workflow (Disko). Review `hosts/<host>/disko.nix` first—this will wipe the selected disk.
+- `./scripts/install.sh`: fresh-install workflow (Disko). Review `hosts/<host>/disko.nix` first; this will wipe the selected disk.
 
 ## Coding Style & Naming Conventions
 - Nix files use 2-space indentation; keep modules small and composable.

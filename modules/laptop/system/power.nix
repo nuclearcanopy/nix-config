@@ -3,7 +3,7 @@
 let
   # State file records the last explicitly set mode. cpu-mode-restore.service
   # re-applies it after any event that TLP also reacts to (boot, AC/BAT change,
-  # resume), so an explicit mode — especially god — survives TLP overwriting
+  # resume), so an explicit mode, especially god, survives TLP overwriting
   # governor/EPP. Empty/missing state means "let TLP drive".
   cpuModeStateFile = "/var/lib/cpu-mode/state";
 
@@ -66,7 +66,7 @@ let
     mode="$(cat ${cpuModeStateFile})"
     [ -n "$mode" ] || exit 0
     # TLP reacts to the same udev event in parallel; let it settle before we
-    # overwrite governor/EPP. 0.5s is comfortable — TLP writes complete in ms.
+    # overwrite governor/EPP. 0.5s is comfortable; TLP writes complete in ms.
     sleep 0.5
     exec ${setCpuMode}/bin/set-cpu-mode "$mode"
   '';
@@ -86,7 +86,7 @@ in
   # 1. XHC (USB xHCI, 0000:00:14.0) wakeup disable: fires on device appearance
   #    (boot + resume).
   # 2. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode works
-  #    without root from waybar. Shell logic lives in store scripts — udev's rule
+  #    without root from waybar. Shell logic lives in store scripts; udev's rule
   #    validator rejects $VAR inside RUN strings (treats them as property refs).
   # Battery thresholds are managed by TLP after the Libreboot coreboot fix that
   # sets CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME="ThinkPad T480". TLP 1.8 has explicit
@@ -133,14 +133,14 @@ in
     enable = true;
     settings = {
       # ═══════════════════════════════════════════════════════════════════
-      # AC MODE — adaptive: bursts to full turbo on demand, backs off at idle
+      # AC MODE: adaptive bursts to full turbo on demand, backs off at idle
       # Use set-cpu-mode spd/god for explicit high-performance work.
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_AC = "powersave";
       CPU_DRIVER_OPMODE_ON_AC = "active";
       CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
       CPU_SCALING_MIN_FREQ_ON_AC = 400000;
-      CPU_SCALING_MAX_FREQ_ON_AC = 3600000;        # i5-8350U turbo max — don't exceed or TLP write fails
+      CPU_SCALING_MAX_FREQ_ON_AC = 3600000;        # i5-8350U turbo max; don't exceed or TLP write fails
       CPU_BOOST_ON_AC = 1;
       PLATFORM_PROFILE_ON_AC = "performance";
       PCIE_ASPM_ON_AC = "performance";
@@ -151,13 +151,13 @@ in
       SOUND_POWER_SAVE_ON_AC = 0;
 
       # ═══════════════════════════════════════════════════════════════════
-      # BATTERY MODE — aggressive power savings
+      # BATTERY MODE: aggressive power savings
       # ═══════════════════════════════════════════════════════════════════
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
       CPU_DRIVER_OPMODE_ON_BAT = "active";
       CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       CPU_SCALING_MIN_FREQ_ON_BAT = 400000;
-      CPU_SCALING_MAX_FREQ_ON_BAT = 3500000;        # soft cap — use lap for battery saver, spd for full turbo
+      CPU_SCALING_MAX_FREQ_ON_BAT = 3500000;        # soft cap; use lap for battery saver, spd for full turbo
       CPU_BOOST_ON_BAT = 1;
       PLATFORM_PROFILE_ON_BAT = "balanced";
       SCHED_POWERSAVE_ON_BAT = 0;                    # scx_lavd handles scheduling; don't consolidate cores (worse with HT disabled)
@@ -169,12 +169,12 @@ in
       # enter D3cold under runtime PM and fail to resume, killing USB. Exclude their
       # drivers so these devices stay in D0 at runtime.
       RUNTIME_PM_DRIVER_DENYLIST = "thunderbolt xhci_hcd";
-      WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive — latency spikes tank browser perf
+      WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive; latency spikes tank browser perf
       SOUND_POWER_SAVE_ON_BAT = 60;
       SOUND_POWER_SAVE_CONTROLLER = "Y";
 
       # ═══════════════════════════════════════════════════════════════════
-      # BATTERY HEALTH — thresholds for BAT1 (SANYO 01AV425, the only
+      # BATTERY HEALTH: thresholds for BAT1 (SANYO 01AV425, the only
       # battery on this machine). TLP uses thinkpad plugin + natacpi after
       # SMBIOS product_name was fixed to "ThinkPad T480" in Libreboot config.
       # Default without these would be 96/100 which is no protection at all.
@@ -185,7 +185,7 @@ in
       # ═══════════════════════════════════════════════════════════════════
       # SHARED / OTHER
       # ═══════════════════════════════════════════════════════════════════
-      # USB autosuspend — enabled; internal keyboard is PS/2 (unaffected)
+      # USB autosuspend: enabled; internal keyboard is PS/2 (unaffected)
       USB_AUTOSUSPEND = 1;
       USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
       USB_DENYLIST = "046d:c547 1949:9981";  # Logitech G502X wireless receiver; Kindle Scribe (MTP breaks under autosuspend)
@@ -204,7 +204,7 @@ in
     };
   };
 
-  # CPU undervolting — i5-8350U (Kaby Lake-R), BIOS N24ET81W 1.56
+  # CPU undervolting: i5-8350U (Kaby Lake-R), BIOS N24ET81W 1.56
   # Start conservative; go deeper if stable under stress-ng.
   # WARNING: if system crashes/freezes, reduce offsets and rebuild.
   services.undervolt = {

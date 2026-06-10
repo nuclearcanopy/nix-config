@@ -12,7 +12,7 @@ let
       kill "$(cat "$PIDFILE")"
       rm -f "$PIDFILE"
     else
-      systemd-inhibit --what=idle:sleep --who=waybar-caffeine \
+      systemd-inhibit --what=idle:sleep:handle-lid-switch --who=waybar-caffeine \
         --why="Caffeine mode active" --mode=block \
         sleep infinity &
       echo $! > "$PIDFILE"

@@ -3,7 +3,7 @@
 # Laptop-only hardening for nidhoggr (T480, i5-8350U).
 # Threat model: physical attacker with brief unsupervised access (evil-maid,
 # bag snatcher), and untrusted USB/Thunderbolt peripherals at conferences /
-# cafés / borders. JOP/ROP defense is software-only here — the i5-8350U
+# cafés / borders. JOP/ROP defense is software-only here; the i5-8350U
 # predates Intel CET (Tiger Lake/11th gen), so hardware Shadow Stack and
 # Indirect Branch Tracking are unavailable. We compensate with stack
 # randomization, lockdown, and reduced attack surface.
@@ -12,7 +12,7 @@
     kernelParams = [
       # ── DMA protection ────────────────────────────────────────────────────
       # VT-d still works under Libreboot (the ME is neutered, not removed).
-      # iommu.strict=1 forces synchronous IOTLB invalidation — closes the
+      # iommu.strict=1 forces synchronous IOTLB invalidation; closes the
       # window where a freed DMA region is still mapped. passthrough=0 means
       # every device goes through the IOMMU (no fast-path bypass for trusted
       # devices, which is what we want when "trusted" can't be assumed).
@@ -27,7 +27,7 @@
       # ── Kernel lockdown ───────────────────────────────────────────────────
       # confidentiality blocks: /dev/mem, /dev/kmem, /dev/port, kexec_load,
       # PCI BAR access, MSR writes, hibernation-to-disk, unsigned module load,
-      # BPF tracing of kernel memory. Stronger than "integrity" — also denies
+      # BPF tracing of kernel memory. Stronger than "integrity"; also denies
       # *reads* of kernel memory by privileged processes.
       "lockdown=confidentiality"
     ];
@@ -48,7 +48,7 @@
   };
 
   # ── AppArmor ─────────────────────────────────────────────────────────────
-  # MAC framework — confines browsers and other userspace high-risk processes.
+  # MAC framework: confines browsers and other userspace high-risk processes.
   # killUnconfinedConfinables=true means: if a binary has a profile but starts
   # before AppArmor loads, kill it rather than let it run unconfined.
   security.apparmor = {
@@ -63,8 +63,8 @@
   # internal webcam, card reader, fingerprint reader and a mouse plugged in
   # at boot all work without listing.
   #
-  # The allowlist for *new* inserts is declared here via services.usbguard.rules
-  # — this makes the policy nix-store-managed (immutable, reinstall-safe) and
+  # The allowlist for *new* inserts is declared here via services.usbguard.rules;
+  # this makes the policy nix-store-managed (immutable, reinstall-safe) and
   # disables the IPC-driven `usbguard allow-device -p` workflow. To trust a
   # new device, add an `allow id <vid>:<pid>` line below and rebuild.
   #
@@ -74,7 +74,7 @@
     enable = true;
     IPCAllowedUsers = [ username "root" ];
     rules = ''
-      # Yubico security keys — all models (FIDO, OTP, CCID, 5-series, etc).
+      # Yubico security keys: all models (FIDO, OTP, CCID, 5-series, etc).
       # Vendor-wide so spare/replacement keys work without a rebuild.
       allow id 1050:*
     '';
