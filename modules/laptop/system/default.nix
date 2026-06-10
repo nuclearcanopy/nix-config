@@ -13,6 +13,7 @@
     ./network.nix
     ./packages.nix
     ./power.nix
+    ./trackpad.nix
     ./virtualisation.nix
     ./storage.nix
     ../../system/core/nix.nix

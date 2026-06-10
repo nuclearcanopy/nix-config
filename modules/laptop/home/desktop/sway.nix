@@ -40,11 +40,12 @@
         };
 
         "type:touchpad" = {
+          accel_profile = "adaptive";
+          pointer_accel = "-0.25";
           natural_scroll = "enabled";
           tap = "enabled";
           dwt = "enabled";
           middle_emulation = "enabled";
-          pointer_accel = "-0.3";
         };
       };
 
