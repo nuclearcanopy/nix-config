@@ -54,7 +54,7 @@ modules/                → NixOS + home-manager modules
     dev/                → toolchains, claude/codex setup
   server/               → homeserver modules
   laptop/               → laptop-specific system tweaks (nidhoggr)
-    system/             → TLP, boot tuning, keyboard debounce, power, network, hardening (IOMMU/lockdown/USBGuard/TB blacklist/AppArmor)
+    system/             → TLP, boot tuning, keyboard debounce, power, network, hardening (IOMMU/lockdown/USBGuard/TB blacklist/AppArmor), trackpad (Synaptics PS/2 rate=200 ~100Hz)
   laptop/home/          → laptop home-manager config
     desktop/            → sway, swayidle (AC-aware), waybar (battery + power profile)
 secrets/                → Encrypted secrets (*.age) and key mappings

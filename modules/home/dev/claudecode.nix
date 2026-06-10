@@ -1,4 +1,23 @@
 { pkgs, lib, ... }:
+let
+  sessionStartContext = pkgs.writeShellScript "claude-session-start-context" ''
+    set -u
+    proj="''${CLAUDE_PROJECT_DIR:-$PWD}"
+    cd "$proj" 2>/dev/null || exit 0
+    if ${pkgs.git}/bin/git rev-parse --git-dir > /dev/null 2>&1; then
+      printf '## recent commits\n'
+      ${pkgs.git}/bin/git log --oneline -5 2>/dev/null
+      printf '\n## uncommitted changes\n'
+      ${pkgs.git}/bin/git status -s 2>/dev/null | head -15
+      printf '\n## current branch\n'
+      ${pkgs.git}/bin/git branch --show-current 2>/dev/null
+    fi
+    printf '\n## files modified in last 24h\n'
+    ${pkgs.findutils}/bin/find . -type f -mtime -1 \
+      -not -path './.git/*' -not -path './result*' \
+      2>/dev/null | head -10
+  '';
+in
 {
   home.sessionVariables = {
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
@@ -25,6 +44,14 @@
       attribution = {
         commit = "";
         pr = "";
+      };
+      hooks = {
+        SessionStart = [{
+          hooks = [{
+            type = "command";
+            command = "${sessionStartContext}";
+          }];
+        }];
       };
     };
   };
