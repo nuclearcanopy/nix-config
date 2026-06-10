@@ -19,7 +19,7 @@
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    # Limit generations shown — fewer entries = less memory touched during early boot
+    # Limit generations shown; fewer entries = less memory touched during early boot
     # which reduces the chance of hitting a bad RAM region at the picker
     loader.systemd-boot.configurationLimit = 5;
     # Short timeout so we don't sit in the picker thrashing memory waiting for input
@@ -103,7 +103,7 @@
     "net.ipv4.tcp_wmem" = "4096 65536 16777216";
     # Auto-reboot 30s after a kernel panic instead of hanging forever
     "kernel.panic" = 30;
-    # Treat kernel oopses as panics — don't limp along with corrupted state
+    # Treat kernel oopses as panics; don't limp along with corrupted state
     "kernel.panic_on_oops" = 1;
   };
 

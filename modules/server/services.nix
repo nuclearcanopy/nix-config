@@ -241,7 +241,7 @@ in
     };
   };
 
-  # Trigger the built-in systemd-reboot.target directly — no wrapper service needed.
+  # Trigger the built-in systemd-reboot.target directly; no wrapper service needed.
   systemd.timers.systemd-reboot = {
     description = "Daily system reboot at 5 AM";
     wantedBy = [ "timers.target" ];

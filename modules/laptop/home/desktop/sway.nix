@@ -29,7 +29,7 @@
           pointer_accel = "-0.5";
         };
 
-        # xkb_options only on the internal keyboard — keeps HHKB unaffected
+        # xkb_options only on the internal keyboard; keeps HHKB unaffected
         "1:2:AT_Raw_Set_2_keyboard" = {
           xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";
         };

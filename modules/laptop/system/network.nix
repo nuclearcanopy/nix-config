@@ -13,7 +13,7 @@
 
   # Laptop: defer autoconnect to graphical.target (after login) instead of the
   # shared default of mullvad-daemon.service. graphical.target intentionally
-  # absent from `after` — listing a unit in both wantedBy and after the same
+  # absent from `after`; listing a unit in both wantedBy and after the same
   # target creates a circular ordering that systemd silently drops.
   systemd.services.mullvad-autoconnect = {
     wants    = [ "NetworkManager.service" "mullvad-daemon.service" ];

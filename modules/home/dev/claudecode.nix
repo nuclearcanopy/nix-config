@@ -34,12 +34,12 @@
 
     The NixOS configuration lives at ~/nix-config. Always look there for system config, home-manager, flake.nix, module definitions, etc.
 
-    You do NOT have sudo permissions. If a diagnostic or fix requires sudo, stop and ask the user to run that specific command. Do not attempt workarounds or retry the same blocked command in different ways — state the issue clearly and ask.
+    You do NOT have sudo permissions. If a diagnostic or fix requires sudo, stop and ask the user to run that specific command. Do not attempt workarounds or retry the same blocked command in different ways; state the issue clearly and ask.
 
-    For all other commands that don't require sudo, just run them directly — the Claude Code interface already prompts the user for approval when needed. Do not ask permission before running non-privileged commands.
+    For all other commands that don't require sudo, just run them directly; the Claude Code interface already prompts the user for approval when needed. Do not ask permission before running non-privileged commands.
 
     ## git remotes
-    The user maintains all repos on both Codeberg and GitHub simultaneously — they must always be in sync. Whenever you push, push to both. Codeberg is typically named "origin", GitHub is typically named "github". If a repo only has one remote set up, flag it before pushing. URL pattern: ssh://git@codeberg.org/nuclearcanopy/<repo>.git and git@github.com:nuclearcanopy/<repo>.git.
+    The user maintains all repos on both Codeberg and GitHub simultaneously; they must always be in sync. Whenever you push, push to both. Codeberg is typically named "origin", GitHub is typically named "github". If a repo only has one remote set up, flag it before pushing. URL pattern: ssh://git@codeberg.org/nuclearcanopy/<repo>.git and git@github.com:nuclearcanopy/<repo>.git.
 
     ## commit messages
     - all lowercase

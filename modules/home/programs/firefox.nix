@@ -321,7 +321,7 @@
 
         "sidebar.verticalTabs" = true;
 
-        # Session restore — disabled; Firefox re-enables via prefs.js on ungraceful
+        # Session restore: disabled; Firefox re-enables via prefs.js on ungraceful
         # shutdown, user.js always wins at startup so these stick permanently
         "browser.sessionstore.resume_from_crash" = false;
         "browser.sessionstore.resume_session_once" = false;
@@ -407,7 +407,7 @@
         "browser.newtabpage.activity-stream.showSponsoredCheckboxes" = false;
         "browser.toolbars.bookmarks.visibility" = "never";
 
-        # compat profile exists for fragile auth flows — use strict here
+        # compat profile exists for fragile auth flows; use strict here
         "browser.contentblocking.category" = "strict";
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;

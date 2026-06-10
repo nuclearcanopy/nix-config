@@ -63,7 +63,7 @@ declare -A HOST_DESCRIPTIONS=()
 # ═══════════════════════════════════════════════════════════════════════════════
 
 discover_config() {
-  # Get nix-config directory (parent of scripts/) — set as global SCRIPT_DIR
+  # Get nix-config directory (parent of scripts/); set as global SCRIPT_DIR
   if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
   else
@@ -711,7 +711,7 @@ do_install() {
   fi
   success "Disk partitioned"
 
-  # Generate hardware config — detects kernel modules, CPU, and hardware changes.
+  # Generate hardware config; detects kernel modules, CPU, and hardware changes.
   # Disk/filesystem config is handled separately in disk.nix using stable partlabels,
   # so the generated UUIDs here are overridden and don't cause drift across reinstalls.
   run_task "Generating hardware config..." nixos-generate-config --root /mnt

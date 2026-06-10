@@ -1,6 +1,6 @@
 { pkgs, ... }:
 
-# CPU governor is intentionally NOT set here — TLP (power.nix) manages it
+# CPU governor is intentionally NOT set here; TLP (power.nix) manages it
 # per AC/BAT state for best efficiency. scx_lavd adapts to power state automatically
 # and ananicy keeps interactive tasks snappy without pinning frequency up.
 {
