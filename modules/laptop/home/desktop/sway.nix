@@ -41,7 +41,7 @@
 
         "type:touchpad" = {
           accel_profile = "adaptive";
-          pointer_accel = "-0.25";
+          pointer_accel = "-0.1";
           natural_scroll = "enabled";
           tap = "enabled";
           dwt = "disabled";
