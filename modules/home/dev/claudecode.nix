@@ -79,6 +79,9 @@ in
     - minimal: only what someone needs to use the thing
     - no badges, no feature lists, no ai-sounding prose
     - functional over descriptive
+
+    ## writing
+    - NEVER use em dashes (—) anywhere. Not in chat, not in code comments, not in commit messages, not in docs. They are ugly. Semicolons are the superior grammar for the same job (joining related clauses, parenthetical asides). Use `;`, `:`, `.`, `,`, or parens instead. En dashes (–) also out; use hyphens or restructure.
   '';
 
   home.file.".codex/config.toml" = {
