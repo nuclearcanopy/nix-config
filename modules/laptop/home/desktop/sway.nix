@@ -44,7 +44,7 @@
           pointer_accel = "-0.25";
           natural_scroll = "enabled";
           tap = "enabled";
-          dwt = "enabled";
+          dwt = "disabled";
           middle_emulation = "enabled";
         };
       };

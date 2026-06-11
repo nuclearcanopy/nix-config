@@ -11,7 +11,7 @@ This repository is a NixOS flake providing system configurations for multiple ho
   - `modules/system/` (base system, hardware, network, services, desktop)
   - `modules/home/` (user programs, shell, desktop config)
   - `modules/server/`, `modules/laptop/` (role-specific overrides)
-  - `modules/laptop/system/` (TLP power, boot tuning, keyboard debounce, network, trackpad Synaptics PS/2 rate=200)
+  - `modules/laptop/system/` (TLP power, boot tuning, keyboard debounce, network, trackpad Synaptics PS/2 rate=200 with coreboot SMBus enable)
   - `modules/laptop/home/` (AC-aware swayidle, waybar with battery + power profile + airgap toggle, auto-tab-discard Firefox)
 - `configs/`: auxiliary config files consumed by modules (e.g. `configs/cloudflared.yml`).
 - `secrets/`: encrypted `.age` files and `secrets/secrets.nix` (agenix access map).

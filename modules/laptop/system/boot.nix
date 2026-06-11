@@ -96,6 +96,9 @@
         enable = true;
         device = "/dev/nvme0n1";
         efiSupport = false;
+        # ESP is 512M; each kernel+initrd is ~63M so >7 generations brings
+        # /boot to ~100% and the next rebuild fails to install bootloader.
+        configurationLimit = 7;
         # Switch to text mode before handing off to kernel so the
         # initrd LUKS prompt renders as clean text, not a broken framebuffer.
         # timeout_style=hidden suppresses the menu flash even with timeout=0.
@@ -139,6 +142,9 @@
       "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
       # Suspend
       "mem_sleep_default=deep"
+      # Transient — flashrom -p internal needs userspace access to the PCH
+      # SPI controller via /dev/mem. REMOVE after the SMBus ROM is flashed.
+      "iomem=relaxed"
     ];
 
     kernelModules = [ "uvcvideo" ];
