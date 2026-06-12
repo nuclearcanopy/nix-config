@@ -43,7 +43,7 @@
           accel_profile = "adaptive";
           pointer_accel = "-0.1";
           natural_scroll = "enabled";
-          tap = "enabled";
+          tap = "disabled";
           dwt = "disabled";
           middle_emulation = "enabled";
         };

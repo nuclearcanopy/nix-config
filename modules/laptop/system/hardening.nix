@@ -77,6 +77,8 @@
       # Yubico security keys: all models (FIDO, OTP, CCID, 5-series, etc).
       # Vendor-wide so spare/replacement keys work without a rebuild.
       allow id 1050:*
+      # Logitech Unifying / Bolt USB receiver (mouse + keyboard HID).
+      allow id 046d:c547
     '';
     implicitPolicyTarget = "block";
     presentDevicePolicy = "allow";        # devices at daemon start: trust
