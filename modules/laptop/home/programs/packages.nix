@@ -19,5 +19,7 @@
     picard
     asunder
     feishin
+
+    prismlauncher
   ];
 }
