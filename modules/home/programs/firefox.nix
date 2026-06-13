@@ -71,7 +71,6 @@
         sponsorblock
         violentmonkey
         mullvad
-        user-agent-string-switcher
       ];
 
       # stricter filters
