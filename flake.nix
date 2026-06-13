@@ -63,7 +63,11 @@
 
       modules = [
         hostConfig
-        { nixpkgs.overlays = [ nur.overlays.default ]; }
+        {
+          nixpkgs.overlays = [
+            nur.overlays.default
+          ];
+        }
         agenix.nixosModules.default
         home-manager.nixosModules.home-manager
         {

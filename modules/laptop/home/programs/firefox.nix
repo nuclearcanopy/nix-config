@@ -24,6 +24,9 @@
       # Tab unloading for memory/battery
       "browser.tabs.unloadOnLowMemory" = lib.mkForce true;
       "browser.sessionstore.interval" = lib.mkForce 120000;  # 2min sessionstore writes
+
+      # 4c/8t i5-8350U: 8 content procs is overkill, drops RAM use and context-switch overhead.
+      "dom.ipc.processCount" = lib.mkForce 4;
     };
   };
 }

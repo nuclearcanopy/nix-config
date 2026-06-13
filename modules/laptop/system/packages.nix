@@ -17,6 +17,8 @@
     networkmanagerapplet
     acpi
 
+    xkcdpass
+
     flashprog  # internal firmware flashing (Libreboot updates)
   ];
 }
