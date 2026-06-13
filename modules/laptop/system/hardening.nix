@@ -79,6 +79,10 @@
       allow id 1050:*
       # Logitech Unifying / Bolt USB receiver (mouse + keyboard HID).
       allow id 046d:c547
+      # PFU Happy Hacking Keyboard Professional HYBRID Type-S.
+      allow id 04fe:0021
+      # Razer DeathAdder V4 Pro.
+      allow id 1532:00bf
     '';
     implicitPolicyTarget = "block";
     presentDevicePolicy = "allow";        # devices at daemon start: trust

@@ -35,7 +35,7 @@
         "*" = {
           xkb_layout = "us";
           accel_profile = "flat";
-          pointer_accel = "-0.76";
+          pointer_accel = "-0.84";
         };
 
         "type:touchpad" = {

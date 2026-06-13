@@ -67,13 +67,11 @@
 
       extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
         ublock-origin
-        darkreader
         bitwarden
         sponsorblock
         violentmonkey
         mullvad
         user-agent-string-switcher
-        wappalyzer
       ];
 
       # stricter filters
@@ -343,6 +341,19 @@
         # Hardware video decode (benefits all systems)
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;
+
+        # Wayland GPU paths: EGL backend, dmabuf zero-copy, HW compositor.
+        # force-enabled bypasses probe failures on iGPUs where the auto-detect
+        # is too conservative (intel mesa on older HW).
+        "gfx.x11-egl.force-enabled" = true;
+        "widget.dmabuf.force-enabled" = true;
+        "gfx.webrender.compositor" = true;
+        "gfx.webrender.compositor.force-enabled" = true;
+
+        # Honor system dark theme so sites with prefers-color-scheme go dark
+        # without a per-page rewriter extension.
+        "ui.systemUsesDarkTheme" = 1;
+        "layout.css.prefers-color-scheme.content-override" = 0;
 
         "browser.ml.enable" = false;
         "browser.ml.chat.enabled" = false;
