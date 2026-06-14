@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-USED_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-FREE_KB=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
-USED_GB=$(awk "BEGIN {printf \"%.1f\", ($USED_KB - $FREE_KB) / 1048576}")
-printf "MEM %04.1fG\n" "$USED_GB"
+total=0; avail=0
+while read -r k v _; do
+  case "$k" in
+    MemTotal:)     total=$v ;;
+    MemAvailable:) avail=$v; break ;;
+  esac
+done < /proc/meminfo
+used_mb=$(( (total - avail) / 1024 ))
+printf 'MEM %02d.%dG\n' $((used_mb / 1024)) $(( (used_mb % 1024) * 10 / 1024 ))

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
+read -r _ vol rest < <(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 
-if [[ "$VOL" == *"MUTED"* ]]; then
+if [[ "$rest" == *"MUTED"* ]]; then
   echo '<span color="#B96B6B">VOL 00%</span>'
 else
-  VOL=$(echo "$VOL" | awk '{printf "%.0f", $2 * 100}')
-  ((VOL > 99)) && VOL=99
-  printf "VOL %02d%%\n" "$VOL"
+  pct=$(( 10#${vol/./} ))   # "0.45" -> 45
+  ((pct > 99)) && pct=99
+  printf 'VOL %02d%%\n' "$pct"
 fi

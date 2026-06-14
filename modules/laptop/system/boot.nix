@@ -123,7 +123,7 @@
       tmpfsSize = "16G";
     };
 
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-x86_64-v3;
 
     kernelParams = [
       # Intel

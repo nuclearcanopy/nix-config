@@ -45,13 +45,11 @@
           "custom/memory"
           "custom/sep"
           "custom/cpu"
-          "custom/battery"
           "custom/mouse"
           "custom/sep"
-          "custom/kbd"
+          "custom/battery"
           "custom/sep"
           "custom/dock"
-          "custom/firmware"
           "custom/reboot"
           "custom/sleep"
           "custom/power"
@@ -71,12 +69,6 @@
         "custom/power" = {
           format = "PWR";
           on-click-middle = "systemctl poweroff";
-          tooltip = false;
-        };
-
-        "custom/firmware" = {
-          format = "FRM";
-          on-click-middle = "systemctl reboot --firmware-setup";
           tooltip = false;
         };
 
@@ -136,7 +128,7 @@
 
         "custom/airgap" = {
           exec = "${./scripts/airgap_mode.sh}";
-          interval = 5;
+          interval = 10;
           signal = 11;
           on-click = "${./scripts/airgap_toggle.sh}";
           tooltip = false;
@@ -232,7 +224,7 @@
 
         "custom/thermalmode" = {
           exec = "${./scripts/thermal_mode.sh}";
-          interval = 2;
+          interval = 5;
           on-click = "${./scripts/thermal_toggle.sh} next";
           on-click-right = "${./scripts/thermal_toggle.sh} prev";
           on-click-middle = "set-cpu-mode god && pkill -RTMIN+3 waybar";
@@ -240,13 +232,6 @@
           tooltip = false;
         };
 
-        "custom/kbd" = {
-          exec = "${./scripts/kbd_mode.sh}";
-          interval = "once";
-          signal = 6;
-          on-click = "${./scripts/kbd_toggle.sh}";
-          tooltip = false;
-        };
       };
     };
   };

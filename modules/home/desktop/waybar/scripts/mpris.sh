@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
+line=$(playerctl metadata --format '{{status}}|{{artist}}' 2>/dev/null)
+[[ -z "$line" ]] && exit 0
 
-status=$(playerctl status 2>/dev/null)
-if [[ -z "$status" ]]; then
-  exit 0
-fi
+status="${line%%|*}"
+artist="${line#*|}"
 
-artist=$(playerctl metadata --format '{{artist}}' 2>/dev/null)
-
-if [[ -n "$artist" ]]; then
-  printf "[%s] %s\n" "$status" "$artist" | tr '[:lower:]' '[:upper:]' | cut -c 1-50
+if [[ -n "$artist" && "$artist" != "$status" ]]; then
+  out="[${status}] ${artist}"
 else
-  printf "[%s]\n" "$status" | tr '[:lower:]' '[:upper:]'
+  out="[${status}]"
 fi
+out="${out^^}"
+echo "${out:0:50}"

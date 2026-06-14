@@ -99,7 +99,7 @@
 
         "custom/mpris" = {
           exec = "${./scripts/mpris.sh}";
-          interval = 1;
+          interval = 5;
           tooltip = false;
         };
 

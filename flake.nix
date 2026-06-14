@@ -10,6 +10,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    cachyos-kernel = {
+       url = "github:xddxdd/nix-cachyos-kernel/release";
+    };
+
     nur = {
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,7 +36,7 @@
 
   };
 
-  outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, disko, nixvim, ... }:
+  outputs = { self, nixpkgs, unstable, home-manager, nur, agenix, disko, nixvim, cachyos-kernel, ... }:
   let
     system = "x86_64-linux";
     username = "nuclearcanopy";
@@ -65,6 +69,7 @@
         hostConfig
         {
           nixpkgs.overlays = [
+            cachyos-kernel.overlays.pinned
             nur.overlays.default
           ];
         }

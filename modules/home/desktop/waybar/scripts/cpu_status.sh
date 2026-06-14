@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# find k10temp (AMD) or coretemp (Intel) hwmon
+TEMP=0
 for hwmon in /sys/class/hwmon/hwmon*; do
-  name=$(cat "$hwmon/name" 2>/dev/null)
-  if [ "$name" = "k10temp" ] || [ "$name" = "coretemp" ]; then
-    TEMP=$(cat "$hwmon/temp1_input" 2>/dev/null)
+  { read -r name < "$hwmon/name"; } 2>/dev/null
+  if [[ "$name" == "k10temp" || "$name" == "coretemp" ]]; then
+    { read -r TEMP < "$hwmon/temp1_input"; } 2>/dev/null
     break
   fi
 done
-
-TEMP=${TEMP:-0}
 TEMP=$((TEMP / 1000))
-USAGE=$(awk '/^cpu / {usage=100-($5*100/($2+$3+$4+$5+$6+$7+$8))} END {printf "%.0f", usage}' /proc/stat)
+
+read -r _ u n s i io irq sirq _ < /proc/stat
+total=$((u + n + s + i + io + irq + sirq))
+USAGE=$(( 100 - (i * 100 / total) ))
 ((USAGE > 99)) && USAGE=99
-printf "CPU %02d° %02d%%\n" "$TEMP" "$USAGE"
+printf 'CPU %02d° %02d%%\n' "$TEMP" "$USAGE"
