@@ -2,6 +2,7 @@
 {
   home.packages = with pkgs; [
     # programming
+    lazygit
     gnumake
     gcc
     (python313.withPackages (ps: [ ps.pip ]))
