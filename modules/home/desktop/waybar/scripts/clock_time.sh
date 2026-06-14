@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-date "+%a %H:%M" | tr '[:lower:]' '[:upper:]'
+printf -v t '%(%a %H:%M)T' -1
+echo "${t^^}"

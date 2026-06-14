@@ -40,10 +40,17 @@ flag_colored() {
   esac
 }
 
-if echo "$status" | grep -q "^Connected"; then
-  relay=$(echo "$status" | awk '/Relay:/ { print $2 }')
-  cc=$(echo "$relay" | cut -d'-' -f1 | tr '[:upper:]' '[:lower:]')
-  code="${country_map[$cc]:-???}"
+if [[ "$status" == Connected* ]]; then
+  relay=""
+  while read -r key val _; do
+    if [[ "$key" == "Relay:" ]]; then
+      relay="$val"
+      break
+    fi
+  done <<< "$status"
+  cc="${relay%%-*}"
+  cc="${cc,,}"
+  code="${country_map[${cc:-xx}]:-???}"
   echo "VPN [$(flag_colored "$code")]"
 else
   echo "<span color='#B96B6B'>VPN [OFF]</span>"
