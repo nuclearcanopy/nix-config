@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
 {
   networking.hostName = "homeserver";
@@ -67,9 +67,20 @@
     ports = [ 1208 ];
     settings = {
       PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitEmptyPasswords = false;
       PubkeyAuthentication = true;
+      AuthenticationMethods = "publickey";
       PermitRootLogin = "no";
+      AllowUsers = username;
       ListenAddress = "0.0.0.0";
+      MaxAuthTries = 3;
+      LoginGraceTime = 20;
+      X11Forwarding = false;
+      AllowAgentForwarding = false;
+      AllowTcpForwarding = false;
+      ClientAliveInterval = 300;
+      ClientAliveCountMax = 2;
     };
   };
 }
