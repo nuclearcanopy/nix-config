@@ -39,7 +39,7 @@ in
         titlebar = false;
         commands = [
           {
-            criteria = { title = "^OpenSSH Authentication.*"; };
+            criteria = { app_id = "zenity"; };
             command = "floating enable, resize set 420 180, move position center";
           }
         ];
