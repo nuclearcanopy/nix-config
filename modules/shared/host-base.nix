@@ -1,7 +1,11 @@
 { config, pkgs, username, ... }:
 
 let
-  askpass = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+  askpass = pkgs.writeShellScript "askpass-zenity" ''
+    exec ${pkgs.systemd}/bin/systemd-run \
+      --user --pipe --quiet --wait --collect \
+      ${pkgs.zenity}/bin/zenity --password --title="Authentication"
+  '';
 in
 {
   time.timeZone = "Europe/Bucharest";
@@ -26,12 +30,12 @@ in
     wheelNeedsPassword = true;
     execWheelOnly = true;
     extraConfig = ''
-      Defaults env_keep += "WAYLAND_DISPLAY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS SUDO_ASKPASS"
+      Defaults env_keep += "XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS SUDO_ASKPASS"
     '';
   };
 
-  environment.systemPackages = [ pkgs.lxqt.lxqt-openssh-askpass ];
-  environment.sessionVariables.SUDO_ASKPASS = askpass;
+  environment.systemPackages = [ pkgs.zenity ];
+  environment.sessionVariables.SUDO_ASKPASS = "${askpass}";
 
   environment.variables.EDITOR = "nvim";
 
