@@ -34,7 +34,16 @@ in
       modifier = mod;
 
       gaps = { inner = 0; outer = 0; };
-      window = { border = 4; titlebar = false; };
+      window = {
+        border = 4;
+        titlebar = false;
+        commands = [
+          {
+            criteria = { title = "^OpenSSH Authentication.*"; };
+            command = "floating enable, resize set 420 180, move position center";
+          }
+        ];
+      };
       bars = [];
 
       colors = {

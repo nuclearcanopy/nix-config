@@ -201,6 +201,7 @@
           exec = "${./scripts/battery.sh}";
           interval = 30;
           signal = 7;
+          on-click-middle = "sudo -A tlp fullcharge BAT1 && pkill -RTMIN+7 waybar";
           tooltip = false;
         };
 
