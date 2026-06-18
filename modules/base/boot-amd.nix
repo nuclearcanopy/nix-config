@@ -1,8 +1,8 @@
 {
-  # Boot config for desktop hosts (kuraokami). Kernel choice is left to default
-  # NixOS LTS for now; amd_pstate=active is AMD-specific. Hardening kernel params
-  # live in the separate hardening bucket.
-  nixos.modules.boot-desktop = {
+  # Boot config for AMD CPU hosts. amd_pstate=active is the AMD scaling driver;
+  # tmpfs sizing and uvcvideo/btusb/intel_sgx blacklist are general kuraokami-flavored
+  # choices that happen to live alongside. Hardening kernel params are separate.
+  nixos.modules.boot-amd = {
     boot = {
       loader = {
         systemd-boot.enable = true;
