@@ -1,8 +1,8 @@
 {
   # Universal firefox profile: ublock filter list, telemetry kills, OLED userChrome,
   # privacy.clearOnShutdown, bookmarks, search engines, plus a "compat" profile
-  # for sites with fragile auth flows. devPixelsPerPx is set here for kuraokami;
-  # nidhoggr overrides it via the firefox-laptop bucket.
+  # for sites with fragile auth flows. devPixelsPerPx fixed at 1.35 (the laptop
+  # value) across hosts; kuraokami eats the slight compromise.
   homeManager.modules.firefox = { config, lib, pkgs, ... }: {
     # PSD leaves a stale symlink at ~/.config/mozilla/firefox/<profile> pointing to
     # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
@@ -312,7 +312,7 @@
         settings = {
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-          "layout.css.devPixelsPerPx" = "1.4";
+          "layout.css.devPixelsPerPx" = "1.35";
 
           "sidebar.verticalTabs" = true;
 
