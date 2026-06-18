@@ -127,10 +127,10 @@
         };
 
         "custom/airgap" = {
-          exec = "${./scripts/airgap_mode.sh}";
+          exec = "${../../../../home/desktop/waybar/scripts/airgap_mode.sh}";
           interval = 10;
           signal = 11;
-          on-click = "${./scripts/airgap_toggle.sh}";
+          on-click = "${../../../../home/desktop/waybar/scripts/airgap_toggle.sh}";
           tooltip = false;
         };
 

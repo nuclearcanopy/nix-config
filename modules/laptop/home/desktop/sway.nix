@@ -37,6 +37,7 @@
         "2:10:TPPS/2_IBM_TrackPoint" = {
           accel_profile = "flat";
           pointer_accel = "0.3";
+          scroll_factor = "0.25";
         };
 
         "type:touchpad" = {
