@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
   imports = [ ../../shared/hardening.nix ];
@@ -14,8 +14,6 @@
       useTmpfs = true;
       tmpfsSize = "8G";
     };
-
-    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-x86_64-v3;
 
     kernelParams = [
       "amd_pstate=active"
