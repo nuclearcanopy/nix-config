@@ -184,6 +184,7 @@
     btop
     wget
     git
+    gh
     mullvad
     deno
     nodejs
