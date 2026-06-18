@@ -25,7 +25,7 @@ nix-commit() {
 
   echo "󱄅 Rebuilding..."
 
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     BUILD_SUCCESS=true
   else
     BUILD_SUCCESS=false
@@ -53,7 +53,7 @@ nix-clone() {
   git -C "$NIX_FLAKE_DIR" pull origin main || { echo "󰚌 Pull failed"; return 1; }
 
   echo "󱄅 Rebuilding..."
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
     echo " Done. (Gen $GEN_NUM)"
   else
@@ -69,7 +69,7 @@ nix-upd() {
 
   echo "󱄅 Rebuilding..."
 
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     BUILD_SUCCESS=true
   else
     BUILD_SUCCESS=false

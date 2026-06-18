@@ -371,6 +371,18 @@ step_username() {
   USERNAME=$(gum input --placeholder "$DEFAULT_USERNAME" --prompt "Username: " --value "${USERNAME:-$DEFAULT_USERNAME}")
   USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
 
+  # Materialize the identity file at /etc/dendritic/identity.nix on the
+  # target system. Read by _plumbing/nixos.nix at flake eval (--impure
+  # required). The path is outside the repo so the tracked content never
+  # mentions the username.
+  if [ -d /mnt ]; then
+    mkdir -p /mnt/etc/dendritic
+    printf '{ username = "%s"; }\n' "$USERNAME" > /mnt/etc/dendritic/identity.nix
+  else
+    sudo mkdir -p /etc/dendritic
+    printf '{ username = "%s"; }\n' "$USERNAME" | sudo tee /etc/dendritic/identity.nix > /dev/null
+  fi
+
   echo ""
   success "Username: $USERNAME"
   echo ""
@@ -740,10 +752,10 @@ do_install() {
   success "Config copied to ~/nix-config"
 
   # Set up git remotes in the copied repo
-  git -C "$DEST" remote set-url origin git@codeberg.org:nuclearcanopy/nix-config.git 2>/dev/null || \
-    git -C "$DEST" remote add origin git@codeberg.org:nuclearcanopy/nix-config.git
-  git -C "$DEST" remote set-url github git@github.com:nuclearcanopy/nix-config.git 2>/dev/null || \
-    git -C "$DEST" remote add github git@github.com:nuclearcanopy/nix-config.git
+  git -C "$DEST" remote set-url origin "git@codeberg.org:${USERNAME}/nix-config.git" 2>/dev/null || \
+    git -C "$DEST" remote add origin "git@codeberg.org:${USERNAME}/nix-config.git"
+  git -C "$DEST" remote set-url github "git@github.com:${USERNAME}/nix-config.git" 2>/dev/null || \
+    git -C "$DEST" remote add github "git@github.com:${USERNAME}/nix-config.git"
   success "Git remotes configured (origin=Codeberg, github=GitHub)"
 
   echo ""

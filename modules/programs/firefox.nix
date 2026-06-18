@@ -296,7 +296,7 @@
           force = true;
           default = "ddg";
           engines = {
-            "nuclearcanopy" = {
+            "self" = {
               urls = [{ template = "https://searxng.local/?q={searchTerms}"; }];
               definedAliases = [ "@a" ];
             };

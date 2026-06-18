@@ -1,10 +1,10 @@
 {
-  homeManager.modules.git = {
+  homeManager.modules.git = { username, ... }: {
     programs.git = {
       enable = true;
       settings.user = {
-        name = "nuclearcanopy";
-        email = "nuclearcanopy@local";
+        name = username;
+        email = "${username}@local";
       };
     };
   };

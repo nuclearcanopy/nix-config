@@ -2,7 +2,6 @@
 
 {
   nixos.configurations.nidhoggr = {
-    username = "nuclearcanopy";
     module = { unstable, username, ... }: {
       imports = [
         ../../hosts/nidhoggr/hardware-configuration.nix

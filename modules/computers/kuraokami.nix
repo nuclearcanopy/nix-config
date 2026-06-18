@@ -2,7 +2,6 @@
 
 {
   nixos.configurations.kuraokami = {
-    username = "nuclearcanopy";
     module = { unstable, username, ... }: {
       imports = [
         ../../hosts/kuraokami/hardware-configuration.nix
