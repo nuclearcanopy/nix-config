@@ -1,0 +1,92 @@
+use_default_settings: True
+
+plugins:
+  searx.plugins.hostnames.SXNGPlugin:
+    active: true
+
+hostnames:
+  remove:
+    - '(.*\.)?grokipedia\.com$'
+
+general:
+  instance_name: "nuclearcanopy search"
+
+search:
+  categories: []
+  default_lang: ""
+  languages:
+    - all
+  safe_search: 0
+  autocomplete: "brave"
+  autocomplete_min: 4
+  favicon_resolver: "duckduckgo"
+  default_lang: "auto"
+  formats:
+    - html
+
+server:
+  secret_key: "placeholder"  # overwritten by SEARXNG_SECRET env var via agenix
+  image_proxy: true
+  http_protocol_version: "1.0"
+  method: "GET"
+  default_http_headers:
+    X-Content-Type-Options: nosniff
+    X-Download-Options: noopen
+    X-Robots-Tag: noindex, nofollow
+    Referrer-Policy: no-referrer
+
+engines:
+  # Search engines
+  - name: google
+    disabled: false
+
+  - name: bing
+    engine: bing
+    disabled: true
+
+  - name: brave
+    engine: brave
+    shortcut: br
+    disabled: false
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+
+  - name: startpage
+    engine: startpage
+    shortcut: sp
+    disabled: true
+
+  - name: wikidata
+    engine: wikidata
+    disabled: true
+
+  # Calculator and unit converter
+  - name: calculator
+    engine: calculator
+    shortcut: calc
+    disabled: false
+
+  - name: unit converter
+    engine: convert
+    shortcut: conv
+    disabled: false
+
+  # Translation engines
+  - name: lingva
+    engine: lingva
+    shortcut: lv
+    base_url: https://lingva.ml
+    disabled: false
+
+  - name: mymemory translated
+    engine: mymemory_translated
+    shortcut: tl
+    disabled: false
+
+ui:
+  static_f_cache: 1200
+  theme_args:
+    simple_style: auto
