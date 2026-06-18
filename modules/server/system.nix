@@ -135,7 +135,7 @@
     };
 
     fileSystems."/mnt/nas" = {
-      device = "//192.168.0.123/nuclearcanopy";
+      device = "//192.168.0.123/${username}";
       fsType = "cifs";
       options =
         let

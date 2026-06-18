@@ -9,7 +9,7 @@ hostnames:
     - '(.*\.)?grokipedia\.com$'
 
 general:
-  instance_name: "nuclearcanopy search"
+  instance_name: "self-hosted search"
 
 search:
   categories: []
