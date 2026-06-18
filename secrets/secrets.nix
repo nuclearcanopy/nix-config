@@ -18,5 +18,6 @@ in
   "homeserver-navidrome-env.age".publicKeys = kurai_only;
   "homeserver-searxng-env.age".publicKeys = kurai_only;
   "homeserver-cloudflared-credentials.age".publicKeys = kurai_only;
+  "homeserver-cloudflared-config.age".publicKeys = kurai_only;
   "homeserver-mscd-api-hash.age".publicKeys = kurai_only;
 }
