@@ -1,43 +1,47 @@
-{ config, pkgs, lib, username, ... }:
-
-let
-  mscdScript = pkgs.writeTextFile {
-    name = "mscd.zsh";
-    text = builtins.readFile ../../scripts/mscd.zsh;
-  };
-in
 {
-  programs.zsh = {
-    enable = true;
-    interactiveShellInit = ''
-      source ${mscdScript}
+  # Interactive zsh init: sources mscd.zsh, auto-launches btop on TTY1,
+  # exposes nix-commit + a `sync` shortcut for nas mirroring.
+  nixos.modules.server-zsh = { pkgs, username, ... }:
 
-      # Auto-start btop on TTY1 (outermost shell only, not nested or SSH)
-      if [[ $SHLVL -eq 1 && $(tty) == /dev/tty1 ]]; then
-        btop
-      fi
+    let
+      mscdScript = pkgs.writeTextFile {
+        name = "mscd.zsh";
+        text = builtins.readFile ./scripts/mscd.zsh;
+      };
+    in
+    {
+      programs.zsh = {
+        enable = true;
+        interactiveShellInit = ''
+          source ${mscdScript}
 
-      elevate() {
-        if command -v doas >/dev/null 2>&1; then
-          doas "$@"; return $?
-        fi
-        sudo -H "$@"
-      }
+          # Auto-start btop on TTY1 (outermost shell only, not nested or SSH)
+          if [[ $SHLVL -eq 1 && $(tty) == /dev/tty1 ]]; then
+            btop
+          fi
 
-      export NIX_FLAKE_DIR="$HOME/nix-config"
-      export NIX_FLAKE_HOST="${username}"
-      source ~/nix-config/scripts/nix-commit.zsh
+          elevate() {
+            if command -v doas >/dev/null 2>&1; then
+              doas "$@"; return $?
+            fi
+            sudo -H "$@"
+          }
 
-      sync() {
-        sudo mkdir -p /mnt/nas/homeserver/etc
-        sudo mkdir -p /mnt/nas/homeserver/var/lib
+          export NIX_FLAKE_DIR="$HOME/nix-config"
+          export NIX_FLAKE_HOST="${username}"
+          source ~/nix-config/scripts/nix-commit.zsh
 
-        sudo rsync -av --delete ~/nix-config /mnt/nas/homeserver/etc/
-        sudo rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
-        sudo rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
-        sudo rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
-        sudo rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
-      }
-    '';
-  };
+          sync() {
+            sudo mkdir -p /mnt/nas/homeserver/etc
+            sudo mkdir -p /mnt/nas/homeserver/var/lib
+
+            sudo rsync -av --delete ~/nix-config /mnt/nas/homeserver/etc/
+            sudo rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
+            sudo rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
+            sudo rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
+            sudo rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
+          }
+        '';
+      };
+    };
 }
