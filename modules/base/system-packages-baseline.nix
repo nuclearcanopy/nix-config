@@ -17,6 +17,7 @@
       p7zip
       wget
       git
+      tree
       rsync
       usbutils
       pciutils
