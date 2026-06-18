@@ -1,0 +1,86 @@
+{
+  # Laptop-only hardening on top of the shared hardening bucket.
+  # Threat model: physical attacker with brief unsupervised access (evil-maid,
+  # bag snatcher), untrusted USB/TB peripherals at conferences/cafes/borders.
+  # JOP/ROP defense is software-only here; the i5-8350U predates Intel CET
+  # (Tiger Lake/11th gen), so hardware Shadow Stack and IBT are unavailable.
+  # Compensated with stack randomization, lockdown, reduced attack surface.
+  nixos.modules.hardening-laptop = { pkgs, username, ... }: {
+    boot = {
+      kernelParams = [
+        # DMA protection. VT-d works under Libreboot (ME is neutered, not
+        # removed). iommu.strict=1 forces synchronous IOTLB invalidation;
+        # closes the window where a freed DMA region is still mapped.
+        # passthrough=0: every device goes through the IOMMU (no fast-path
+        # bypass for "trusted" devices when "trusted" can't be assumed).
+        "intel_iommu=on"
+        "iommu=force"
+        "iommu.strict=1"
+        "iommu.passthrough=0"
+        # No-op under Libreboot (no UEFI) but harmless if EFI fallback is taken.
+        "efi=disable_early_pci_dma"
+
+        # Kernel lockdown=confidentiality blocks: /dev/mem, /dev/kmem, /dev/port,
+        # kexec_load, PCI BAR access, MSR writes, hibernation-to-disk, unsigned
+        # module load, BPF tracing of kernel memory. Stronger than "integrity";
+        # also denies *reads* of kernel memory by privileged processes.
+        "lockdown=confidentiality"
+      ];
+
+      # Thunderbolt: PCIe-tunneled-over-USB-C is the dominant DMA attack
+      # surface. With the driver blacklisted the kernel never exposes the TB
+      # controller's PCIe tunnel, so a malicious TB device cannot establish
+      # a DMA channel. The USB-C port itself keeps working for:
+      #   - PD charging (handled by the EC, not the kernel)
+      #   - plain USB devices like YubiKey (USB-C → xHCI mux, independent
+      #     of the thunderbolt driver)
+      # What's lost: TB3 docks, TB displays, eGPUs. Acceptable trade.
+      # firewire-* defensively blacklisted even though T480 has no FW port.
+      # btusb blacklisted because bluetooth is disabled (bluetooth-disable bucket).
+      blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" "btusb" "bluetooth" ];
+    };
+
+    # MAC framework: confines browsers and other high-risk userspace processes.
+    # killUnconfinedConfinables=true: if a binary has a profile but starts
+    # before AppArmor loads, kill it rather than let it run unconfined.
+    security.apparmor = {
+      enable = true;
+      killUnconfinedConfinables = true;
+      packages = [ pkgs.apparmor-profiles ];
+    };
+
+    # USBGuard: block-by-default for newly inserted USB devices. Devices
+    # plugged in at daemon start are allowed (presentDevicePolicy=allow), so
+    # the internal webcam, card reader, fingerprint reader, and any mouse
+    # plugged in at boot all work without listing.
+    # The allowlist for new inserts is declared here in services.usbguard.rules;
+    # nix-store-managed (immutable, reinstall-safe) and disables the IPC-driven
+    # `usbguard allow-device -p` workflow. To trust a new device:
+    #   sudo usbguard list-devices  # find vid:pid
+    #   add `allow id <vid>:<pid>` here and rebuild.
+    services.usbguard = {
+      enable = true;
+      IPCAllowedUsers = [ username "root" ];
+      rules = ''
+        # Yubico security keys: all models (FIDO, OTP, CCID, 5-series).
+        # Vendor-wide so spare/replacement keys work without a rebuild.
+        allow id 1050:*
+        # Logitech Unifying / Bolt USB receiver (mouse + keyboard HID).
+        allow id 046d:c547
+        # PFU Happy Hacking Keyboard Professional HYBRID Type-S.
+        allow id 04fe:0021
+        # Razer DeathAdder V4 Pro.
+        allow id 1532:00bf
+      '';
+      implicitPolicyTarget = "block";
+      presentDevicePolicy = "allow";        # devices at daemon start: trust
+      presentControllerPolicy = "allow";    # internal xHCI controllers: trust
+      insertedDevicePolicy = "apply-policy"; # new inserts: consult rules above
+      dbus.enable = true;
+    };
+
+    environment.systemPackages = with pkgs; [
+      usbguard          # CLI for list-devices (finding vid:pid to declare)
+    ];
+  };
+}
