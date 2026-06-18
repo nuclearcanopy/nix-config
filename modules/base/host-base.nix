@@ -13,6 +13,8 @@
       i18n.defaultLocale = "en_US.UTF-8";
       console.keyMap = "us";
 
+      programs.zsh.enable = true;
+
       users = {
         defaultUserShell = pkgs.zsh;
         mutableUsers = true;

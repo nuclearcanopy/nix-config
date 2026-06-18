@@ -2,6 +2,8 @@
   # Core desktop services: polkit, logind, libinput, flatpak, plus profile-sync-daemon
   # for Firefox RAM-backed profiles and an rtl8111 NIC power-quirk fix.
   nixos.modules.services-core = { pkgs, ... }: {
+    environment.systemPackages = [ pkgs.ethtool ];
+
     security = {
       polkit.enable = true;
       protectKernelImage = true;

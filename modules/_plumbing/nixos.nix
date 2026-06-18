@@ -8,7 +8,6 @@ let
     "steam-unwrapped"
     "claude-code"
     "unrar"
-    "wappalyzer"
     "burpsuite"
   ];
 
