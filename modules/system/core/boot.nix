@@ -15,7 +15,7 @@
       tmpfsSize = "8G";
     };
 
-    kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-x86_64-v3;
 
     kernelParams = [
       "amd_pstate=active"

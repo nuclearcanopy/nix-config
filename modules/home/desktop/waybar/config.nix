@@ -24,6 +24,7 @@
           "wireplumber"
           "custom/caffeine"
           "custom/vpn"
+          "custom/airgap"
           "group/expand"
           "custom/mpris"
         ];
@@ -94,6 +95,14 @@
           on-click = "${./scripts/vpn_cycle.sh} next";
           on-click-right = "${./scripts/vpn_cycle.sh} prev";
           on-click-middle = "${./scripts/vpn_cycle.sh} last";
+          tooltip = false;
+        };
+
+        "custom/airgap" = {
+          exec = "${./scripts/airgap_mode.sh}";
+          interval = 10;
+          signal = 11;
+          on-click = "${./scripts/airgap_toggle.sh}";
           tooltip = false;
         };
 
