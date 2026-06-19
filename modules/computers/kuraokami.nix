@@ -10,7 +10,7 @@
 
         # ── system buckets ────────────────────────────────────────────
         config.nixos.modules.host-base
-        config.nixos.modules.hardening
+        config.nixos.modules.hardening-base
         config.nixos.modules.nix-settings
         config.nixos.modules.system-packages-baseline
         config.nixos.modules.mullvad-autoconnect
@@ -21,11 +21,11 @@
         config.nixos.modules.fonts
         config.nixos.modules.sway-system
         config.nixos.modules.xdg-portal
-        config.nixos.modules.audio
+        config.nixos.modules.audio-jack
         config.nixos.modules.cpu-scheduler
         config.nixos.modules.cpu-governor-performance
         config.nixos.modules.gpu-amd
-        config.nixos.modules.graphics
+        config.nixos.modules.graphics-amd
         config.nixos.modules.openrazer
         config.nixos.modules.networking-base
         config.nixos.modules.nas-mount

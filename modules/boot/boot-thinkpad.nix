@@ -4,7 +4,7 @@
   # EFI support kept as contingency until Libreboot is confirmed stable.
   # Intel-specific kernel params (pstate, i915 flags, ACPI quirks) and
   # 32GB-RAM-tuned sysctl live here too.
-  nixos.modules.boot-laptop = { lib, pkgs, ... }: {
+  nixos.modules.boot-thinkpad = { lib, pkgs, ... }: {
     boot = {
       initrd.systemd.enable = true;
 

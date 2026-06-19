@@ -1,7 +1,7 @@
 {
   # AMD microcode + overdrive enablement + 32-bit graphics + vulkan-loader.
   # Pairs with the gpu-amd bucket (LACT) for full AMD GPU control on kuraokami.
-  nixos.modules.graphics = { pkgs, ... }: {
+  nixos.modules.graphics-amd = { pkgs, ... }: {
     hardware = {
       cpu.amd.updateMicrocode = true;
 

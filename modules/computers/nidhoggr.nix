@@ -10,21 +10,21 @@
 
         # ── system buckets ────────────────────────────────────────────
         config.nixos.modules.host-base
-        config.nixos.modules.hardening
-        config.nixos.modules.hardening-laptop
+        config.nixos.modules.hardening-base
+        config.nixos.modules.hardening-physical
         config.nixos.modules.nix-settings
         config.nixos.modules.system-packages-baseline
         config.nixos.modules.system-packages-laptop
         config.nixos.modules.mullvad-autoconnect
         config.nixos.modules.allow-unfree
         config.nixos.modules.gaming
-        config.nixos.modules.boot-laptop
-        config.nixos.modules.boot-laptop-optimizations
+        config.nixos.modules.boot-thinkpad
+        config.nixos.modules.boot-optimizations
         config.nixos.modules.secrets
         config.nixos.modules.fonts
         config.nixos.modules.sway-system
         config.nixos.modules.xdg-portal
-        config.nixos.modules.audio-laptop
+        config.nixos.modules.audio-basic
         config.nixos.modules.cpu-scheduler
         config.nixos.modules.graphics-intel
         config.nixos.modules.trackpoint
@@ -99,7 +99,6 @@
             config.homeManager.modules.easyeffects
             config.homeManager.modules.easyeffects-service
             config.homeManager.modules.firefox
-            config.homeManager.modules.firefox-laptop
             config.homeManager.modules.neovim
             config.homeManager.modules.user-packages-laptop
             config.homeManager.modules.vesktop
