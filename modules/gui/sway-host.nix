@@ -80,7 +80,14 @@
               pointer_accel = "-0.5";
             };
 
-            # xkb_options only on the internal keyboard; HHKB unaffected
+            # xkb_options only on the internal keyboard; HHKB unaffected.
+            # Both identifiers covered: current kernel exposes Translated Set 2,
+            # older/alternate paths surfaced Raw Set 2. Sway silently no-ops
+            # whichever doesn't match, so listing both is safe.
+            "1:1:AT_Translated_Set_2_keyboard" = {
+              xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";
+            };
+
             "1:2:AT_Raw_Set_2_keyboard" = {
               xkb_options = "ctrl:nocaps,ctrl:swap_lalt_lctl";
             };

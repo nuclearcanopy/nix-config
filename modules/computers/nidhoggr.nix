@@ -22,7 +22,7 @@
         config.nixos.modules.mullvad-autoconnect
         config.nixos.modules.allow-unfree
         config.nixos.modules.gaming
-        config.nixos.modules.boot-thinkpad
+        config.nixos.modules.boot-t480
         config.nixos.modules.boot-optimizations
         config.nixos.modules.secrets
         config.nixos.modules.fonts
