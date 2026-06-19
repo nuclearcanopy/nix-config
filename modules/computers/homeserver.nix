@@ -8,6 +8,8 @@
         ../../hosts/homeserver/hardware-configuration.nix
         inputs.agenix.nixosModules.default
 
+        config.nixos.modules.allow-unfree
+        config.nixos.modules.state-version
         config.nixos.modules.server-system
         config.nixos.modules.server-networking
         config.nixos.modules.server-services
