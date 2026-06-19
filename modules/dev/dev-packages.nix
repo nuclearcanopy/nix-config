@@ -4,6 +4,7 @@
       # programming
       lazygit
       gh
+      age
       gnumake
       gcc
       (python313.withPackages (ps: [ ps.pip ]))

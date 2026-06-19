@@ -9,6 +9,18 @@ _tpm_reenroll() {
     /dev/disk/by-uuid/5fa02f65-e4a4-4e4c-b277-f5395f566d78
 }
 
+# Decrypts secrets/identity.age with the system age key and writes the result
+# to /etc/dendritic/identity.nix. The flake reads from that path under --impure;
+# the encrypted blob in the repo never exposes the username. Called before
+# every rebuild so the file is always fresh and matches the committed secret.
+_materialize_identity() {
+  local src="$NIX_FLAKE_DIR/secrets/identity.age"
+  local dst="/etc/dendritic/identity.nix"
+  [ -f "$src" ] || { echo "󰚌 secrets/identity.age missing"; return 1; }
+  elevate mkdir -p /etc/dendritic
+  age -d -i /etc/age/key.txt "$src" | elevate tee "$dst" > /dev/null
+}
+
 nix-commit() {
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
@@ -22,6 +34,9 @@ nix-commit() {
   fi
 
   git -C "$NIX_FLAKE_DIR" add .
+
+  echo " Decrypting identity..."
+  _materialize_identity || return 1
 
   echo "󱄅 Rebuilding..."
 
@@ -52,6 +67,9 @@ nix-clone() {
   echo "󰊢 Pulling latest from Codeberg..."
   git -C "$NIX_FLAKE_DIR" pull origin main || { echo "󰚌 Pull failed"; return 1; }
 
+  echo " Decrypting identity..."
+  _materialize_identity || return 1
+
   echo "󱄅 Rebuilding..."
   if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
@@ -66,6 +84,9 @@ nix-upd() {
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
 
   git -C "$NIX_FLAKE_DIR" add .
+
+  echo " Decrypting identity..."
+  _materialize_identity || return 1
 
   echo "󱄅 Rebuilding..."
 
