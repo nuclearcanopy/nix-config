@@ -44,7 +44,8 @@
     let
       inherit (inputs.nixpkgs) lib;
       moduleFiles = builtins.filter
-        (p: lib.hasSuffix ".nix" (toString p))
+        (p: let s = toString p; in
+          lib.hasSuffix ".nix" s && !lib.hasSuffix ".data.nix" s)
         (lib.filesystem.listFilesRecursive ./modules);
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {

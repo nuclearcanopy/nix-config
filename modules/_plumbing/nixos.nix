@@ -1,15 +1,7 @@
 { config, lib, inputs, ... }:
 
 let
-  allowedUnfree = [
-    "steam"
-    "steam-original"
-    "steam-run"
-    "steam-unwrapped"
-    "claude-code"
-    "unrar"
-    "burpsuite"
-  ];
+  allowedUnfree = import ../nix/allowed-unfree.data.nix;
 
   # Identity file lives at /etc/identity.nix on the real
   # filesystem (written by install.sh into /mnt/etc/.../identity.nix at

@@ -5,9 +5,7 @@
   # streaming, zramSwap, hardware watchdog, suspend/hibernate disabled, autologin,
   # lid switch ignored, Romanian locale, CIFS NAS mount, system packages, sudo
   # passwordless for wheel, polkit rule for user-triggered navidrome sync.
-  nixos.modules.server-system = { config, pkgs, lib, unstable, username, allowedUnfree, ... }: {
-    system.stateVersion = "25.11";
-
+  nixos.modules.server-system = { config, pkgs, lib, unstable, username, ... }: {
     nix = {
       settings = {
         experimental-features = [ "nix-command" "flakes" ];
@@ -148,8 +146,6 @@
             "gid=100"
           ];
     };
-
-    nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) allowedUnfree;
 
     environment.systemPackages = with pkgs; [
       zsh

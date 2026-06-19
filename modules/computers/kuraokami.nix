@@ -6,12 +6,15 @@
       imports = [
         ../../hosts/kuraokami/hardware-configuration.nix
         inputs.agenix.nixosModules.default
-        inputs.home-manager.nixosModules.home-manager
 
         # ── system buckets ────────────────────────────────────────────
         config.nixos.modules.host-base
         config.nixos.modules.hardening-base
         config.nixos.modules.nix-settings
+        config.nixos.modules.overlays
+        config.nixos.modules.state-version
+        config.nixos.modules.docker
+        config.nixos.modules.home-manager-wiring
         config.nixos.modules.system-packages-baseline
         config.nixos.modules.mullvad-autoconnect
         config.nixos.modules.allow-unfree
@@ -33,62 +36,45 @@
         config.nixos.modules.privacy
       ];
 
-      nixpkgs.overlays = [
-        inputs.cachyos-kernel.overlays.pinned
-        inputs.nur.overlays.default
-      ];
-
       # ── host-specific ────────────────────────────────────────────────
-      system.stateVersion = "25.11";
-
       zramSwap = {
         enable = true;
         algorithm = "zstd";
         memoryPercent = 33;
       };
 
-      virtualisation.docker.enable = true;
+      # ── home-manager users ───────────────────────────────────────────
+      home-manager.users.${username} = {
+        imports = [
+          config.homeManager.modules.home-base
+          config.homeManager.modules.sway-base
+          config.homeManager.modules.sway-host
+          config.homeManager.modules.sway-startup
+          config.homeManager.modules.mako
+          config.homeManager.modules.theme
+          config.homeManager.modules.gui-packages
+          config.homeManager.modules.waybar
+          config.homeManager.modules.zsh
+          config.homeManager.modules.shell-packages
+          config.homeManager.modules.environment
+          config.homeManager.modules.alacritty
+          config.homeManager.modules.ssh
+          config.homeManager.modules.asunder
+          config.homeManager.modules.btop
+          config.homeManager.modules.easyeffects
+          config.homeManager.modules.firefox
+          config.homeManager.modules.neovim
+          config.homeManager.modules.user-packages
+          config.homeManager.modules.steam-home
+          config.homeManager.modules.vesktop
+          config.homeManager.modules.vkbasalt
+          config.homeManager.modules.claudecode
+          config.homeManager.modules.git
+          config.homeManager.modules.gpg
+          config.homeManager.modules.dev-packages
+        ];
 
-      # ── home-manager wiring ──────────────────────────────────────────
-      home-manager = {
-        extraSpecialArgs = { inherit unstable username; };
-        sharedModules = [ inputs.nixvim.homeModules.nixvim ];
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        backupFileExtension = "backup";
-
-        users.${username} = {
-          imports = [
-            config.homeManager.modules.home-base
-            config.homeManager.modules.sway-base
-            config.homeManager.modules.sway-host
-            config.homeManager.modules.sway-startup
-            config.homeManager.modules.mako
-            config.homeManager.modules.theme
-            config.homeManager.modules.gui-packages
-            config.homeManager.modules.waybar
-            config.homeManager.modules.zsh
-            config.homeManager.modules.shell-packages
-            config.homeManager.modules.environment
-            config.homeManager.modules.alacritty
-            config.homeManager.modules.ssh
-            config.homeManager.modules.asunder
-            config.homeManager.modules.btop
-            config.homeManager.modules.easyeffects
-            config.homeManager.modules.firefox
-            config.homeManager.modules.neovim
-            config.homeManager.modules.user-packages
-            config.homeManager.modules.steam-home
-            config.homeManager.modules.vesktop
-            config.homeManager.modules.vkbasalt
-            config.homeManager.modules.claudecode
-            config.homeManager.modules.git
-            config.homeManager.modules.gpg
-            config.homeManager.modules.dev-packages
-          ];
-
-          waybar.profile = "kuraokami";
-        };
+        waybar.profile = "kuraokami";
       };
     };
   };
