@@ -61,9 +61,9 @@
         "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
         # Suspend
         "mem_sleep_default=deep"
-        # Transient: flashrom -p internal needs userspace /dev/mem access to the
-        # PCH SPI controller. REMOVE after the SMBus ROM is flashed.
-        "iomem=relaxed"
+        # Transient: flashrom -p internal needs userspace /dev/mem access to
+        # the PCH SPI controller. Uncomment before reflashing, re-comment after.
+        # "iomem=relaxed"
       ];
 
       kernelModules = [ "uvcvideo" ];
