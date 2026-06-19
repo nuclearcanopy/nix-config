@@ -10,14 +10,14 @@ _tpm_reenroll() {
 }
 
 # Decrypts secrets/identity.age with the system age key and writes the result
-# to /etc/dendritic/identity.nix. The flake reads from that path under --impure;
+# to /etc/identity.nix. The flake reads from that path under --impure;
 # the encrypted blob in the repo never exposes the username. Called before
 # every rebuild so the file is always fresh and matches the committed secret.
 _materialize_identity() {
   local src="$NIX_FLAKE_DIR/secrets/identity.age"
-  local dst="/etc/dendritic/identity.nix"
+  local dst="/etc/identity.nix"
   [ -f "$src" ] || { echo "󰚌 secrets/identity.age missing"; return 1; }
-  elevate mkdir -p /etc/dendritic
+  
   nix-shell -p age --run "age -d -i /etc/age/key.txt '$src'" | elevate tee "$dst" > /dev/null
 }
 

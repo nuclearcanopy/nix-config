@@ -43,13 +43,13 @@
   outputs = inputs:
     let
       inherit (inputs.nixpkgs) lib;
-      dendriticFiles = builtins.filter
+      moduleFiles = builtins.filter
         (p: lib.hasSuffix ".nix" (toString p))
-        (lib.filesystem.listFilesRecursive ./dendritic);
+        (lib.filesystem.listFilesRecursive ./modules);
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = dendriticFiles;
+      imports = moduleFiles;
 
       perSystem = { system, ... }: {
         packages.disko = inputs.disko.packages.${system}.disko;

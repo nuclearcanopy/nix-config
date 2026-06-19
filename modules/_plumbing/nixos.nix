@@ -11,13 +11,13 @@ let
     "burpsuite"
   ];
 
-  # Identity file lives at /etc/dendritic/identity.nix on the real
+  # Identity file lives at /etc/identity.nix on the real
   # filesystem (written by install.sh into /mnt/etc/.../identity.nix at
   # install time). Reading it requires --impure on rebuild/eval commands;
   # nix-commit.zsh sets that automatically. Falls back to "user" if the
   # file is missing (e.g. pure-eval inspection or a fresh clone before
   # install runs).
-  identityFile = /etc/dendritic/identity.nix;
+  identityFile = /etc/identity.nix;
   defaultUsername =
     let check = builtins.tryEval (builtins.pathExists identityFile);
     in if check.success && check.value
