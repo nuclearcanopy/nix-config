@@ -63,7 +63,7 @@
         "mem_sleep_default=deep"
         # Transient: flashrom -p internal needs userspace /dev/mem access to the
         # PCH SPI controller. REMOVE after the SMBus ROM is flashed.
-        # "iomem=relaxed"
+        "iomem=relaxed"
       ];
 
       kernelModules = [ "uvcvideo" ];
