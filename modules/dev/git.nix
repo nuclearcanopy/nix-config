@@ -8,7 +8,7 @@
       enable = true;
       settings.user = {
         name = "nuclearcanopy";
-        email = "nuclearcanopy@local";
+        email = "git_l7a153rj3z@proton.me";
       };
     };
   };
