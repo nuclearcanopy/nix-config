@@ -9,20 +9,6 @@ _tpm_reenroll() {
     /dev/disk/by-uuid/5fa02f65-e4a4-4e4c-b277-f5395f566d78
 }
 
-# Decrypts secrets/identity.age with the system age key and writes the result
-# to /etc/identity.nix. The flake reads from that path under --impure;
-# the encrypted blob in the repo never exposes the username. Called before
-# every rebuild so the file is always fresh and matches the committed secret.
-_materialize_identity() {
-  local src="$NIX_FLAKE_DIR/secrets/identity.age"
-  local dst="/etc/identity.nix"
-  [ -f "$src" ] || { echo "󰚌 secrets/identity.age missing"; return 1; }
-  # age must run as root to read /etc/age/key.txt (mode 600); the whole
-  # pipeline is sudo'd so the decrypt and the write to /etc/identity.nix
-  # happen under the same privileged shell.
-  elevate sh -c "nix-shell -p age --run 'age -d -i /etc/age/key.txt $src' > $dst"
-}
-
 nix-commit() {
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
@@ -37,12 +23,9 @@ nix-commit() {
 
   git -C "$NIX_FLAKE_DIR" add .
 
-  echo " Decrypting identity..."
-  _materialize_identity || return 1
-
   echo "󱄅 Rebuilding..."
 
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     BUILD_SUCCESS=true
   else
     BUILD_SUCCESS=false
@@ -69,11 +52,8 @@ nix-clone() {
   echo "󰊢 Pulling latest from Codeberg..."
   git -C "$NIX_FLAKE_DIR" pull origin main || { echo "󰚌 Pull failed"; return 1; }
 
-  echo " Decrypting identity..."
-  _materialize_identity || return 1
-
   echo "󱄅 Rebuilding..."
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     GEN_NUM=$(nixos-rebuild list-generations --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" | grep True | awk '{print $1}')
     echo " Done. (Gen $GEN_NUM)"
   else
@@ -87,12 +67,9 @@ nix-upd() {
 
   git -C "$NIX_FLAKE_DIR" add .
 
-  echo " Decrypting identity..."
-  _materialize_identity || return 1
-
   echo "󱄅 Rebuilding..."
 
-  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --impure --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
+  if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
     BUILD_SUCCESS=true
   else
     BUILD_SUCCESS=false

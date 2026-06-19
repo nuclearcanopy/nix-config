@@ -13,10 +13,6 @@ in
 
   "nas-credentials.age".publicKeys = desktop_systems;
 
-  # System identity (username). Decrypted by nix-commit/nix-upd wrappers
-  # before each rebuild and written to /etc/identity.nix.
-  "identity.age".publicKeys = desktop_systems;
-
   # homeserver (encrypted with kuraokami key; kuraokami manages homeserver secrets)
   "homeserver-user-password.age".publicKeys = kurai_only;
   "homeserver-navidrome-env.age".publicKeys = kurai_only;

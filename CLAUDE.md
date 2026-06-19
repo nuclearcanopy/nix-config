@@ -63,7 +63,7 @@ scripts/install.sh      → disko-based install flow (fresh installs)
 
 ## Conventions
 - Nix files use 2‑space indentation.
-- Username is set once in `flake.nix` and passed via `specialArgs`.
+- Username is hardcoded per host in `modules/computers/<host>.nix` (`nixos.configurations.<host>.username`) and passed via `specialArgs`. No `/etc/identity.nix`, no `--impure` flag.
 - Unstable packages are accessed as `pkgs.unstable.<name>` where needed.
 - Avoid hardcoding usernames in module bodies.
 - Prefer placing new configuration in the appropriate module rather than `hosts/<host>/system.nix`.

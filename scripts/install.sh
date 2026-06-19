@@ -96,15 +96,13 @@ discover_config() {
     fi
   done
 
-  # Username is owned by secrets/identity.age (decrypted into /etc/identity.nix
-  # at rebuild time). The installer prompts for it fresh; default is "user"
-  # for desktop/laptop hosts, hostname for server hosts.
+  # Username is hardcoded per host in modules/computers/<host>.nix as
+  # `nixos.configurations.<host>.username = "..."`. Read it from there;
+  # no prompt, no /etc/identity.nix indirection.
   for host in "${HOSTS[@]}"; do
-    if [[ "$host" == *"server"* ]]; then
-      HOST_USERNAMES["$host"]="$host"
-    else
-      HOST_USERNAMES["$host"]="user"
-    fi
+    local user
+    user=$(grep -oP 'username = "\K[^"]+' "$SCRIPT_DIR/modules/computers/${host}.nix" 2>/dev/null | head -1)
+    HOST_USERNAMES["$host"]="${user:-user}"
   done
 
   # If no hosts found, error out
@@ -321,6 +319,7 @@ step_host() {
   fi
 
   DEFAULT_USERNAME="${HOST_USERNAMES[$HOST]}"
+  USERNAME="$DEFAULT_USERNAME"
   DEFAULT_DISK="${HOST_DISKS[$HOST]}"
   export LOG="/tmp/${HOST}-install.log"
 
@@ -340,38 +339,10 @@ step_host() {
   return 0
 }
 
-step_username() {
-  header
-  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
-  step_header 2 "$total" "Configure User"
-  show_breadcrumb
-
-  info "Press Enter to accept default"
-  echo ""
-
-  USERNAME=$(gum input --placeholder "$DEFAULT_USERNAME" --prompt "Username: " --value "${USERNAME:-$DEFAULT_USERNAME}")
-  USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
-
-  # NOTE: The identity file write happens inside do_install, after disko
-  # has set up /mnt's filesystems. At this step /mnt is still empty.
-
-  echo ""
-  success "Username: $USERNAME"
-  echo ""
-
-  local nav
-  nav=$(nav_choice)
-  case "$nav" in
-    next) return 0 ;;
-    back) return 2 ;;
-    *) return 1 ;;
-  esac
-}
-
 step_age_key() {
   header
-  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
-  step_header 3 "$total" "Age Identity Key"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 5 || echo 4)
+  step_header 2 "$total" "Age Identity Key"
   show_breadcrumb
 
   gum style --foreground 8 --margin "0 0 1 0" \
@@ -461,8 +432,8 @@ step_age_key() {
 
 step_passphrase() {
   header
-  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
-  step_header 4 "$total" "Login Password$([ "$HOST_HAS_LUKS" -eq 1 ] && echo ' & LUKS Passphrase')"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 5 || echo 4)
+  step_header 3 "$total" "Login Password$([ "$HOST_HAS_LUKS" -eq 1 ] && echo ' & LUKS Passphrase')"
   show_breadcrumb
 
   if [ "$HOST_HAS_LUKS" -eq 1 ]; then
@@ -508,8 +479,8 @@ step_passphrase() {
 
 step_disk() {
   header
-  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
-  step_header 5 "$total" "Select Disk"
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 5 || echo 4)
+  step_header 4 "$total" "Select Disk"
   show_breadcrumb
 
   gum style --foreground 8 "Available disks:"
@@ -550,7 +521,7 @@ step_disk() {
 
 step_confirm() {
   header
-  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 6 || echo 5)
+  local total; total=$([ "$HOST_HAS_LUKS" -eq 1 ] && echo 5 || echo 4)
   step_header "$total" "$total" "Review & Install"
   echo ""
 
@@ -651,17 +622,10 @@ do_install() {
 
   local PREFLIGHT_LOG="/tmp/${HOST}-preflight.log"
   set +e
-  # Stage a temporary identity at /etc/identity.nix so the --impure flake
-  # eval uses the actual prompted USERNAME (instead of falling back to "user").
-  # Real install identity file gets written to /mnt/etc/identity.nix after disko.
-  mkdir -p /etc
-  printf '{ username = "%s"; }\n' "$USERNAME" > /etc/identity.nix
-
   nix build ".#nixosConfigurations.${HOST}.config.system.build.toplevel" \
     --dry-run \
     --quiet \
     --show-trace \
-    --impure \
     --extra-experimental-features "nix-command flakes" >"$PREFLIGHT_LOG" 2>&1
   PREFLIGHT_RC=$?
   set -e
@@ -715,15 +679,9 @@ do_install() {
   chmod 600 /mnt/etc/age/key.txt
   success "Age key staged"
 
-  # Stage identity file. The flake reads /etc/identity.nix under --impure
-  # for the username; nixos-install runs against /mnt as the new root, so
-  # the file goes to /mnt/etc/identity.nix.
-  printf '{ username = "%s"; }\n' "$USERNAME" > /mnt/etc/identity.nix
-  success "Identity file staged at /mnt/etc/identity.nix"
-
   # Install NixOS
   run_task_windowed "Installing NixOS" \
-    nixos-install --flake ".#${HOST}" --no-root-password --show-trace --impure
+    nixos-install --flake ".#${HOST}" --no-root-password --show-trace
   success "NixOS installed"
 
   # Copy config
@@ -805,7 +763,7 @@ while true; do
       fi
       ;;
     2)
-      step_username
+      step_age_key
       case $? in
         0) STEP=3 ;;
         2) STEP=1 ;;
@@ -813,7 +771,7 @@ while true; do
       esac
       ;;
     3)
-      step_age_key
+      step_passphrase
       case $? in
         0) STEP=4 ;;
         2) STEP=2 ;;
@@ -821,7 +779,7 @@ while true; do
       esac
       ;;
     4)
-      step_passphrase
+      step_disk
       case $? in
         0) STEP=5 ;;
         2) STEP=3 ;;
@@ -829,18 +787,10 @@ while true; do
       esac
       ;;
     5)
-      step_disk
-      case $? in
-        0) STEP=6 ;;
-        2) STEP=4 ;;
-        *) echo "Aborted."; exit 0 ;;
-      esac
-      ;;
-    6)
       step_confirm
       case $? in
         0) do_install; exit 0 ;;
-        2) STEP=5 ;;
+        2) STEP=4 ;;
         *) echo "Aborted."; exit 0 ;;
       esac
       ;;

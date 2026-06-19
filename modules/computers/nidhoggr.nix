@@ -2,6 +2,7 @@
 
 {
   nixos.configurations.nidhoggr = {
+    username = "loki";
     module = { unstable, username, ... }: {
       imports = [
         ../../hosts/nidhoggr/hardware-configuration.nix
