@@ -17,8 +17,10 @@ _materialize_identity() {
   local src="$NIX_FLAKE_DIR/secrets/identity.age"
   local dst="/etc/identity.nix"
   [ -f "$src" ] || { echo "󰚌 secrets/identity.age missing"; return 1; }
-  
-  nix-shell -p age --run "age -d -i /etc/age/key.txt '$src'" | elevate tee "$dst" > /dev/null
+  # age must run as root to read /etc/age/key.txt (mode 600); the whole
+  # pipeline is sudo'd so the decrypt and the write to /etc/identity.nix
+  # happen under the same privileged shell.
+  elevate sh -c "nix-shell -p age --run 'age -d -i /etc/age/key.txt $src' > $dst"
 }
 
 nix-commit() {
