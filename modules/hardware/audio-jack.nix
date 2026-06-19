@@ -1,7 +1,7 @@
 {
   # Low-latency PipeWire + JACK setup for desktop (kuraokami).
   # Laptop has a slimmer audio bucket since JACK/RT-priority limits aren't needed.
-  nixos.modules.audio = { pkgs, ... }: {
+  nixos.modules.audio-jack = { pkgs, ... }: {
     # keep rt after suspend
     security.rtkit.enable = true;
     systemd.services.rtkit-daemon.serviceConfig.ExecStart = [

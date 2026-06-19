@@ -1,7 +1,7 @@
 {
   # Boot-time optimizations: delay non-critical units off the critical path so
   # the desktop draws faster, then enable scheduling once the user is on it.
-  nixos.modules.boot-laptop-optimizations = { lib, ... }: {
+  nixos.modules.boot-optimizations = { lib, ... }: {
     # fwupd-refresh fires at OnBootSec=0 by default, burning 2-3s of IO.
     systemd.timers.fwupd-refresh.timerConfig = {
       OnBootSec          = lib.mkForce "10min";

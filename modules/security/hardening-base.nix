@@ -3,7 +3,7 @@
   # Host-specific kernel params (amd_pstate, intel_pstate, power-saving) live in
   # per-host boot buckets. Laptop-specific hardening (IOMMU, lockdown, USBGuard,
   # Thunderbolt blacklist, AppArmor) lives in the laptop-hardening bucket.
-  nixos.modules.hardening = {
+  nixos.modules.hardening-base = {
     boot = {
       kernelParams = [
         "pti=on"

@@ -5,7 +5,7 @@
   # JOP/ROP defense is software-only here; the i5-8350U predates Intel CET
   # (Tiger Lake/11th gen), so hardware Shadow Stack and IBT are unavailable.
   # Compensated with stack randomization, lockdown, reduced attack surface.
-  nixos.modules.hardening-laptop = { pkgs, username, ... }: {
+  nixos.modules.hardening-physical = { pkgs, username, ... }: {
     boot = {
       kernelParams = [
         # DMA protection. VT-d works under Libreboot (ME is neutered, not

@@ -1,8 +1,9 @@
 {
   # Universal firefox profile: ublock filter list, telemetry kills, OLED userChrome,
-  # privacy.clearOnShutdown, bookmarks, search engines, plus a "compat" profile
-  # for sites with fragile auth flows. devPixelsPerPx fixed at 1.35 (the laptop
-  # value) across hosts; kuraokami eats the slight compromise.
+  # privacy.clearOnShutdown, bookmarks, search engines, VA-API in RDD, battery
+  # savers, tab unloading on low memory, 4 content procs, devPixelsPerPx 1.35.
+  # The behavior matches what nidhoggr needs; kuraokami inherits the same defaults.
+  # Plus a "compat" profile for sites with fragile auth flows.
   homeManager.modules.firefox = { config, lib, pkgs, ... }: {
     # PSD leaves a stale symlink at ~/.config/mozilla/firefox/<profile> pointing to
     # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
@@ -69,6 +70,7 @@
           ublock-origin
           bitwarden
           sponsorblock
+          auto-tab-discard
         ];
 
         # stricter filters
@@ -322,9 +324,28 @@
           "browser.sessionstore.resume_session_once" = false;
           "browser.startup.page" = 1;
 
+          # VA-API in the sandboxed RDD media process (without this, VA-API is
+          # unused despite media.ffmpeg.vaapi.enabled below).
+          "media.rdd-ffmpeg.enabled" = true;
+
+          # Battery/CPU savers (also a perf win on desktop, so applied universally).
+          "media.av1.enabled" = false;          # AV1 software decode is brutal on CPU
+          "layout.frame_rate" = 60;              # cap at 60fps
+          "dom.battery.enabled" = false;         # don't expose battery to sites
+          "beacon.enabled" = false;              # no background analytics pings
+          "dom.push.enabled" = false;            # no push notifications
+          "dom.push.connection.enabled" = false;
+
+          # Tab unloading for memory/battery
+          "browser.tabs.unloadOnLowMemory" = true;
+
+          # 4 content procs: works well across both hosts (kuraokami runs more
+          # browser-adjacent stuff; nidhoggr's 4c/8t i5-8350U benefits from fewer).
+          "dom.ipc.processCount" = 4;
+
           # Fast startup optimizations
           "browser.startup.homepage.abouthome_cache.enabled" = true;
-          "browser.sessionstore.interval" = 60000;
+          "browser.sessionstore.interval" = 120000;  # 2min sessionstore writes
           "browser.sessionstore.idleDelay" = 10000;
           "browser.startup.preXulSkeletonUI" = false;  # skip skeleton (faster cold start)
           "browser.tabs.animate" = false;

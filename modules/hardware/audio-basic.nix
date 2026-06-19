@@ -2,7 +2,7 @@
   # Standard PipeWire setup for laptop: no JACK, no RT limits, no USB audio
   # keepalive, no wireplumber suspend-disable. Smaller quantum (64) for low
   # latency; can be raised if power becomes an issue.
-  nixos.modules.audio-laptop = {
+  nixos.modules.audio-basic = {
     security.rtkit.enable = true;
 
     services.pipewire = {
