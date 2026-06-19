@@ -1,8 +1,6 @@
 {
-  # Git author identity is decoupled from the system username. The live
-  # system runs as system username (via secrets/identity.age) for backwards
-  # compatibility with existing UIDs/paths, but every commit signs as
-  # the public nuclearcanopy identity instead.
+  # Git author identity comes from this module, not the system username
+  # (loaded from secrets/identity.age at install time).
   homeManager.modules.git = {
     programs.git = {
       enable = true;
