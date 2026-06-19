@@ -18,7 +18,7 @@ _materialize_identity() {
   local dst="/etc/dendritic/identity.nix"
   [ -f "$src" ] || { echo "󰚌 secrets/identity.age missing"; return 1; }
   elevate mkdir -p /etc/dendritic
-  age -d -i /etc/age/key.txt "$src" | elevate tee "$dst" > /dev/null
+  nix-shell -p age --run "age -d -i /etc/age/key.txt '$src'" | elevate tee "$dst" > /dev/null
 }
 
 nix-commit() {
