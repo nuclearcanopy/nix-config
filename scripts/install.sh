@@ -78,51 +78,32 @@ discover_config() {
     exit 1
   fi
 
-  # Discover hosts from hosts/*/configuration.nix
+  # Discover hosts: each host directory must contain disko.nix.
+  # Post-dendritic-refactor there's no per-host configuration.nix anymore;
+  # disko.nix is the only stable marker that lives in hosts/<host>/.
   for host_dir in "$SCRIPT_DIR"/hosts/*/; do
-    if [ -f "${host_dir}configuration.nix" ]; then
+    if [ -f "${host_dir}disko.nix" ]; then
       local host_name
       host_name=$(basename "$host_dir")
       HOSTS+=("$host_name")
 
-      # Get default disk from disko.nix (first line: { device ? "/dev/xxx", ... })
-      if [ -f "${host_dir}disko.nix" ]; then
-        local disk
-        disk=$(grep -oP 'device \? "\K[^"]+' "${host_dir}disko.nix" 2>/dev/null | head -1)
-        HOST_DISKS["$host_name"]="${disk:-/dev/sda}"
-      else
-        HOST_DISKS["$host_name"]="/dev/sda"
-      fi
+      # Default disk from disko.nix (first line: { device ? "/dev/xxx", ... })
+      local disk
+      disk=$(grep -oP 'device \? "\K[^"]+' "${host_dir}disko.nix" 2>/dev/null | head -1)
+      HOST_DISKS["$host_name"]="${disk:-/dev/sda}"
 
-      # Try to get description from configuration.nix comments or README
-      # For now, use host name as description; can be enhanced later
       HOST_DESCRIPTIONS["$host_name"]="$host_name"
     fi
   done
 
-  # Get default username from flake.nix
-  local flake_username
-  flake_username=$(grep -oP '^\s*username\s*=\s*"\K[^"]+' "$SCRIPT_DIR/flake.nix" 2>/dev/null | head -1)
-
-  # Assign usernames - check if host has its own username in specialArgs
+  # Username is owned by secrets/identity.age (decrypted into /etc/identity.nix
+  # at rebuild time). The installer prompts for it fresh; default is "user"
+  # for desktop/laptop hosts, hostname for server hosts.
   for host in "${HOSTS[@]}"; do
-    # Check if this host has a different username in flake.nix
-    # Look for specialArgs in the host's nixosSystem block
-    local host_user
-    host_user=$(awk "/nixosConfigurations\.$host|$host = nixpkgs.lib.nixosSystem/,/};/" "$SCRIPT_DIR/flake.nix" 2>/dev/null | \
-      grep -oP 'username\s*=\s*"\K[^"]+' | head -1)
-
-    if [ -n "$host_user" ]; then
-      HOST_USERNAMES["$host"]="$host_user"
-    elif [ -n "$flake_username" ]; then
-      HOST_USERNAMES["$host"]="$flake_username"
+    if [[ "$host" == *"server"* ]]; then
+      HOST_USERNAMES["$host"]="$host"
     else
-      # Fallback: use host name for servers, generic for others
-      if [[ "$host" == *"server"* ]]; then
-        HOST_USERNAMES["$host"]="$host"
-      else
-        HOST_USERNAMES["$host"]="user"
-      fi
+      HOST_USERNAMES["$host"]="user"
     fi
   done
 
@@ -371,17 +352,8 @@ step_username() {
   USERNAME=$(gum input --placeholder "$DEFAULT_USERNAME" --prompt "Username: " --value "${USERNAME:-$DEFAULT_USERNAME}")
   USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
 
-  # Materialize the identity file at /etc/identity.nix on the
-  # target system. Read by _plumbing/nixos.nix at flake eval (--impure
-  # required). The path is outside the repo so the tracked content never
-  # mentions the username.
-  if [ -d /mnt ]; then
-    
-    printf '{ username = "%s"; }\n' "$USERNAME" > /mnt/etc/identity.nix
-  else
-    
-    printf '{ username = "%s"; }\n' "$USERNAME" | sudo tee /etc/identity.nix > /dev/null
-  fi
+  # NOTE: The identity file write happens inside do_install, after disko
+  # has set up /mnt's filesystems. At this step /mnt is still empty.
 
   echo ""
   success "Username: $USERNAME"
@@ -679,10 +651,17 @@ do_install() {
 
   local PREFLIGHT_LOG="/tmp/${HOST}-preflight.log"
   set +e
+  # Stage a temporary identity at /etc/identity.nix so the --impure flake
+  # eval uses the actual prompted USERNAME (instead of falling back to "user").
+  # Real install identity file gets written to /mnt/etc/identity.nix after disko.
+  mkdir -p /etc
+  printf '{ username = "%s"; }\n' "$USERNAME" > /etc/identity.nix
+
   nix build ".#nixosConfigurations.${HOST}.config.system.build.toplevel" \
     --dry-run \
     --quiet \
     --show-trace \
+    --impure \
     --extra-experimental-features "nix-command flakes" >"$PREFLIGHT_LOG" 2>&1
   PREFLIGHT_RC=$?
   set -e
@@ -736,9 +715,15 @@ do_install() {
   chmod 600 /mnt/etc/age/key.txt
   success "Age key staged"
 
+  # Stage identity file. The flake reads /etc/identity.nix under --impure
+  # for the username; nixos-install runs against /mnt as the new root, so
+  # the file goes to /mnt/etc/identity.nix.
+  printf '{ username = "%s"; }\n' "$USERNAME" > /mnt/etc/identity.nix
+  success "Identity file staged at /mnt/etc/identity.nix"
+
   # Install NixOS
   run_task_windowed "Installing NixOS" \
-    nixos-install --flake ".#${HOST}" --no-root-password --show-trace
+    nixos-install --flake ".#${HOST}" --no-root-password --show-trace --impure
   success "NixOS installed"
 
   # Copy config
@@ -751,12 +736,10 @@ do_install() {
   chown -R "${TARGET_UID}:${TARGET_GID}" "/mnt/home/${USERNAME}"
   success "Config copied to ~/nix-config"
 
-  # Set up git remotes in the copied repo
-  git -C "$DEST" remote set-url origin "git@codeberg.org:${USERNAME}/nix-config.git" 2>/dev/null || \
-    git -C "$DEST" remote add origin "git@codeberg.org:${USERNAME}/nix-config.git"
-  git -C "$DEST" remote set-url github "git@github.com:${USERNAME}/nix-config.git" 2>/dev/null || \
-    git -C "$DEST" remote add github "git@github.com:${USERNAME}/nix-config.git"
-  success "Git remotes configured (origin=Codeberg, github=GitHub)"
+  # Git remotes were already correct in the source repo we just copied;
+  # don't rewrite them (the platform owner is unrelated to the system
+  # username and shouldn't be derived from it).
+  success "Git remotes preserved from source repo"
 
   echo ""
 
