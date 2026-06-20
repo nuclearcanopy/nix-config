@@ -14,5 +14,9 @@
       wifi.macAddress = "random";
       ethernet.macAddress = "random";
     };
+
+    # iPhone USB tethering: usbmuxd negotiates pairing and brings up the
+    # ethernet-over-USB interface that NetworkManager then picks up.
+    services.usbmuxd.enable = true;
   };
 }

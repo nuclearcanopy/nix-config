@@ -71,6 +71,8 @@
         allow id 04fe:0021
         # Razer DeathAdder V4 Pro.
         allow id 1532:00bf
+        # Apple iPhone (5/SE/6/7/8/X/XR family PID, for USB tethering via usbmuxd).
+        allow id 05ac:12a8
       '';
       implicitPolicyTarget = "block";
       presentDevicePolicy = "allow";        # devices at daemon start: trust
