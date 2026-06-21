@@ -10,7 +10,7 @@
     # linkGeneration can't mkdir through a broken symlink, so restore from
     # PSD's backup first.
     home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
-      for profile in default compat; do
+      for profile in default compat google; do
         link="${config.xdg.configHome}/mozilla/firefox/$profile"
         backup="${config.xdg.configHome}/mozilla/firefox/''${profile}-backup"
         if [ -L "$link" ] && [ ! -e "$link" ]; then
@@ -35,11 +35,28 @@
             --add-flags "--no-remote -P compat"
         '';
       })
+      (pkgs.symlinkJoin {
+        name = "firefox-google";
+        paths = [ pkgs.firefox ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          mv $out/bin/firefox $out/bin/firefox-google
+          wrapProgram $out/bin/firefox-google \
+            --add-flags "--no-remote -P google"
+        '';
+      })
     ];
 
     xdg.desktopEntries.firefox-compat = {
       name = "Firefox (Compat)";
       exec = "firefox-compat %U";
+      terminal = false;
+      categories = [ "Network" "WebBrowser" ];
+    };
+
+    xdg.desktopEntries.firefox-google = {
+      name = "Firefox (Google)";
+      exec = "firefox-google %U";
       terminal = false;
       categories = [ "Network" "WebBrowser" ];
     };
@@ -507,6 +524,173 @@
         extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
           bitwarden
         ];
+      };
+
+      # Locked-down profile for Google services. Cookies persist so login
+      # survives shutdown; everything else (cache/history/sessions/formdata)
+      # is wiped. Strict ETP + FPP fingerprinting + HTTPS-only + query
+      # stripping + bounce tracking blocked. Launch via `firefox-google`.
+      profiles.google = {
+        id = 2;
+        name = "google";
+
+        extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
+          ublock-origin
+          bitwarden
+        ];
+
+        extensions.force = true;
+        extensions.settings = {
+          "uBlock0@raymondhill.net".settings = {
+            selectedFilterLists = [
+              "user-filters"
+              "ublock-filters"
+              "ublock-badware"
+              "ublock-privacy"
+              "ublock-quick-fixes"
+              "ublock-unbreak"
+              "easylist"
+              "adguard-spyware-url"
+              "easyprivacy"
+              "urlhaus-1"
+              "ublock-cookies-easylist"
+              "ublock-cookies-adguard"
+              "easylist-cookies"
+              "adguard-cookies"
+              "adguard-url-tracking-protection"
+            ];
+          };
+        };
+
+        bookmarks = {
+          force = true;
+          settings = [
+            { name = "Gmail"; url = "https://mail.google.com/"; keyword = "gmail"; }
+            { name = "Drive"; url = "https://drive.google.com/"; keyword = "gdrive"; }
+            { name = "Docs"; url = "https://docs.google.com/"; keyword = "gdocs"; }
+            { name = "Calendar"; url = "https://calendar.google.com/"; keyword = "gcal"; }
+            { name = "Classroom"; url = "https://classroom.google.com/u/1/"; keyword = "class"; }
+            { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
+            { name = "YouTube Music"; url = "https://music.youtube.com/"; keyword = "ytm"; }
+          ];
+        };
+
+        search = {
+          force = true;
+          default = "ddg";
+          engines = {
+            "ddg".metaData.alias = "@d";
+            "google".metaData.alias = "@g";
+            "bing".metaData.hidden = true;
+            "amazondotcom-us".metaData.hidden = true;
+            "ebay".metaData.hidden = true;
+            "wikipedia".metaData.hidden = true;
+          };
+        };
+
+        settings = {
+          "browser.startup.page" = 1;
+
+          # Strict ETP plus the newer fingerprinting protection (FPP); RFP
+          # is off because it breaks too many Google-internal flows.
+          "browser.contentblocking.category" = "strict";
+          "privacy.trackingprotection.enabled" = true;
+          "privacy.trackingprotection.socialtracking.enabled" = true;
+          "privacy.trackingprotection.emailtracking.enabled" = true;
+          "privacy.trackingprotection.cryptomining.enabled" = true;
+          "privacy.trackingprotection.fingerprinting.enabled" = true;
+          "privacy.fingerprintingProtection" = true;
+          "privacy.resistFingerprinting" = false;
+          "privacy.resistFingerprinting.letterboxing" = false;
+          "privacy.query_stripping.enabled" = true;
+          "privacy.query_stripping.enabled.pbmode" = true;
+          "privacy.bounceTrackingProtection.mode" = 1;
+          "privacy.annotate_channels.strict_list.enabled" = true;
+          "privacy.partition.network_state" = true;
+          "privacy.firstparty.isolate" = false;
+
+          "dom.security.https_only_mode" = true;
+          "dom.security.https_only_mode_ever_enabled" = true;
+
+          # Keep cookies/storage so Google login persists; wipe the rest.
+          "privacy.sanitize.sanitizeOnShutdown" = true;
+          "privacy.clearOnShutdown.cookies" = false;
+          "privacy.clearOnShutdown_v2.cookiesAndStorage" = false;
+          "privacy.clearOnShutdown.cache" = true;
+          "privacy.clearOnShutdown.history" = true;
+          "privacy.clearOnShutdown.sessions" = true;
+          "privacy.clearOnShutdown.offlineApps" = false;
+          "privacy.clearOnShutdown.formdata" = true;
+          "privacy.clearOnShutdown.downloads" = true;
+          "privacy.clearOnShutdown.siteSettings" = false;
+
+          "extensions.formautofill.addresses.enabled" = false;
+          "extensions.formautofill.creditCards.enabled" = false;
+          "signon.rememberSignons" = false;
+          "signon.autofillForms" = false;
+          "signon.generation.enabled" = false;
+          "signon.firefoxRelay.feature" = "disabled";
+          "signon.management.page.breach-alerts.enabled" = false;
+
+          # Telemetry kills (mirror default profile).
+          "datareporting.healthreport.uploadEnabled" = false;
+          "datareporting.policy.dataSubmissionEnabled" = false;
+          "datareporting.usage.uploadEnabled" = false;
+          "toolkit.telemetry.enabled" = false;
+          "toolkit.telemetry.unified" = false;
+          "toolkit.telemetry.archive.enabled" = false;
+          "toolkit.telemetry.newProfilePing.enabled" = false;
+          "toolkit.telemetry.shutdownPingSender.enabled" = false;
+          "toolkit.telemetry.updatePing.enabled" = false;
+          "toolkit.telemetry.bhrPing.enabled" = false;
+          "toolkit.telemetry.firstShutdownPing.enabled" = false;
+          "toolkit.telemetry.dau.enabled" = false;
+          "toolkit.telemetry.reportingpolicy.firstRun" = false;
+          "dom.security.unexpected_system_load_telemetry_enabled" = false;
+          "toolkit.coverage.opt-out" = true;
+          "toolkit.coverage.endpoint.base" = "";
+          "app.shield.optoutstudies.enabled" = false;
+          "app.normandy.enabled" = false;
+          "app.normandy.api_url" = "";
+          "browser.discovery.enabled" = false;
+          "browser.newtabpage.activity-stream.feeds.telemetry" = false;
+          "browser.newtabpage.activity-stream.telemetry" = false;
+          "browser.ping-centre.telemetry" = false;
+          "browser.urlbar.eventTelemetry.enabled" = false;
+
+          "dom.battery.enabled" = false;
+          "beacon.enabled" = false;
+          "dom.push.enabled" = false;
+          "dom.push.connection.enabled" = false;
+
+          "network.prefetch-next" = false;
+          "network.http.speculative-parallel-limit" = 0;
+          "network.early-hints.preconnect.max_connections" = 0;
+          "network.captive-portal-service.enabled" = false;
+          "network.connectivity-service.enabled" = false;
+
+          "browser.safebrowsing.downloads.remote.enabled" = false;
+          "browser.safebrowsing.downloads.remote.block_potentially_unwanted" = false;
+          "browser.safebrowsing.downloads.remote.block_uncommon" = false;
+          "browser.safebrowsing.downloads.remote.url" = "";
+          "browser.safebrowsing.provider.google4.dataSharingURL" = "";
+
+          "browser.region.update.enabled" = false;
+          "browser.region.network.url" = "";
+          "captivedetect.canonicalURL" = "";
+
+          "security.tls.enable_0rtt_data" = false;
+
+          "browser.ml.enable" = false;
+          "browser.ml.chat.enabled" = false;
+          "browser.ml.chat.sidebar" = false;
+          "browser.ml.linkPreview.enabled" = false;
+
+          "browser.toolbars.bookmarks.visibility" = "never";
+          "layout.css.devPixelsPerPx" = "1.35";
+          "ui.systemUsesDarkTheme" = 1;
+          "layout.css.prefers-color-scheme.content-override" = 0;
+        };
       };
     };
   };
