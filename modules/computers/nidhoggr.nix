@@ -33,7 +33,7 @@
         config.nixos.modules.graphics-intel
         config.nixos.modules.trackpoint
         config.nixos.modules.trackpad-synaptics
-        config.nixos.modules.bluetooth-enable
+        config.nixos.modules.bluetooth-disable
         config.nixos.modules.networking-base
         config.nixos.modules.network-laptop
         config.nixos.modules.mullvad-graphical-target
