@@ -36,7 +36,8 @@
       #     of the thunderbolt driver)
       # What's lost: TB3 docks, TB displays, eGPUs. Acceptable trade.
       # firewire-* defensively blacklisted even though T480 has no FW port.
-      blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" ];
+      # btusb blacklisted because bluetooth is disabled (bluetooth-disable bucket).
+      blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" "btusb" "bluetooth" ];
     };
 
     # MAC framework: confines browsers and other high-risk userspace processes.
@@ -72,8 +73,6 @@
         allow id 1532:00bf
         # Apple iPhone (5/SE/6/7/8/X/XR family PID, for USB tethering via usbmuxd).
         allow id 05ac:12a8
-        # Intel AX210 Bluetooth radio (internal USB, needs allowlist post-boot).
-        allow id 8087:0032
       '';
       implicitPolicyTarget = "block";
       presentDevicePolicy = "allow";        # devices at daemon start: trust
