@@ -66,25 +66,55 @@ require("colorizer").setup({
   buftypes = {},
 })
 
+local mpv_exts = {
+  [".mp4"] = true, [".mkv"] = true, [".mov"] = true, [".webm"] = true,
+  [".avi"] = true, [".flv"] = true, [".m4v"] = true, [".wmv"] = true,
+  [".mpg"] = true, [".mpeg"] = true, [".ts"] = true, [".m2ts"] = true,
+  [".mp3"] = true, [".flac"] = true, [".wav"] = true, [".ogg"] = true,
+  [".opus"] = true, [".m4a"] = true, [".aac"] = true, [".wma"] = true,
+}
+local browser_exts = {
+  [".png"] = true, [".jpg"] = true, [".jpeg"] = true, [".gif"] = true,
+  [".bmp"] = true, [".webp"] = true, [".svg"] = true, [".avif"] = true,
+  [".pdf"] = true, [".html"] = true, [".htm"] = true, [".xhtml"] = true,
+  [".epub"] = true,
+}
+
 local function oil_smart_open()
   local oil = require("oil")
   local entry = oil.get_cursor_entry()
   local dir = oil.get_current_dir()
   if not entry or not dir then return end
+  if entry.type == "directory" then
+    require("oil.actions").select.callback()
+    return
+  end
   local path = dir .. entry.name
   local ext = entry.name:match("^.+(%..+)$")
+  local external_cmd = nil
   if ext then
     ext = ext:lower()
-    local video_exts = { ".mp4", ".mkv", ".mov", ".webm", ".avi" }
-    local image_exts = { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp" }
-    if vim.tbl_contains(video_exts, ext) then
-      vim.fn.jobstart({ "mpv", path }, { detach = true })
-    elseif vim.tbl_contains(image_exts, ext) then
-      vim.fn.jobstart({ "firefox", path }, { detach = true })
-    else
-      vim.fn.jobstart({ "xdg-open", path }, { detach = true })
+    if mpv_exts[ext] then
+      external_cmd = { "mpv", path }
+    elseif browser_exts[ext] then
+      external_cmd = { "firefox", path }
     end
   end
+  if not external_cmd then
+    require("oil.actions").select.callback()
+    return
+  end
+  vim.ui.select(
+    { "open externally", "edit in nvim" },
+    { prompt = "open " .. entry.name .. ":" },
+    function(choice)
+      if choice == "open externally" then
+        vim.fn.jobstart(external_cmd, { detach = true })
+      elseif choice == "edit in nvim" then
+        require("oil.actions").select.callback()
+      end
+    end
+  )
 end
 
 require("oil").setup({
@@ -93,6 +123,7 @@ require("oil").setup({
     show_hidden = true,
   },
   keymaps = {
+    ["<CR>"] = { callback = oil_smart_open, desc = "Open (mpv/firefox for media, nvim otherwise)" },
     ["q"] = { callback = oil_smart_open, desc = "Open with external app" },
     ["y"] = {
       callback = function()
