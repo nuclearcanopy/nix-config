@@ -64,12 +64,14 @@
             "*" = {
               bg = "#000000 solid_color";
             };
-            # external HDMI sits on top, laptop panel directly below
+            # external HDMI sits on top, laptop panel directly below.
+            # forced to 1080p@30 to reduce iGPU load (UHD 620 struggles at 1440p60).
             "HDMI-A-2" = {
+              mode = "1920x1080@30Hz";
               position = "0 0";
             };
             "eDP-1" = {
-              position = "0 1440";
+              position = "0 1080";
             };
           };
 
