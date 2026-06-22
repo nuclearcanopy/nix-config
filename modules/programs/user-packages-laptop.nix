@@ -21,6 +21,7 @@
       picard
       asunder
       feishin
+      termsonic
 
       prismlauncher
     ];
