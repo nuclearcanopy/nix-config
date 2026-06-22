@@ -73,6 +73,10 @@
         allow id 1532:00bf
         # Apple iPhone (5/SE/6/7/8/X/XR family PID, for USB tethering via usbmuxd).
         allow id 05ac:12a8
+        # Huawei USB-C audio dongle (USB-Audio class).
+        allow id 12d1:3a06
+        # FiiO KA11 USB-C DAC/headphone amp.
+        allow id 2972:0081
       '';
       implicitPolicyTarget = "block";
       presentDevicePolicy = "allow";        # devices at daemon start: trust
