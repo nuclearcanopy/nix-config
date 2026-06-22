@@ -68,7 +68,22 @@
           "support.dbus" = true;
           "rt.prio" = 88;
           "nice.level" = -11;
+          # Disable the default module-rt; the xdg-desktop-portal Realtime
+          # path fails on this host ("Could not get pidns ... Not a directory")
+          # and the fallback to rtkit gets wedged. We re-load module-rt below
+          # with rtportal.enabled = false so it talks to rtkit-daemon directly.
+          "module.rt" = false;
         };
+        "context.modules" = [{
+          name = "libpipewire-module-rt";
+          args = {
+            "nice.level" = -11;
+            "rt.prio" = 88;
+            "rtportal.enabled" = false;
+            "rtkit.enabled" = true;
+          };
+          flags = [ "ifexists" "nofail" ];
+        }];
       };
     };
   };
