@@ -130,8 +130,8 @@
             "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+5 waybar";
             "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
             "XF86AudioMicMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
-            "XF86MonBrightnessUp" = "exec brightnessctl -e4 -n2 set 5%+ && pkill -SIGRTMIN+4 waybar";
-            "XF86MonBrightnessDown" = "exec brightnessctl -e4 -n2 set 5%- && pkill -SIGRTMIN+4 waybar";
+            "XF86MonBrightnessUp" = "exec set-brightness 5%+ && pkill -SIGRTMIN+4 waybar";
+            "XF86MonBrightnessDown" = "exec set-brightness 5%- && pkill -SIGRTMIN+4 waybar";
 
             "XF86AudioNext" = "exec playerctl next";
             "XF86AudioPause" = "exec playerctl play-pause";

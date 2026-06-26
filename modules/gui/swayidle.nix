@@ -48,12 +48,22 @@
       ];
 
       events = {
-        before-sleep = "${pkgs.brightnessctl}/bin/brightnessctl -s; ${pkgs.swaylock}/bin/swaylock -f -c 000000";
+        # Do NOT call `brightnessctl -s` here. If the screen is already dimmed
+        # by the 60s idle handler, saving now would overwrite the pre-dim
+        # value with the dimmed value and after-resume would restore dim.
+        before-sleep = "${pkgs.swaylock}/bin/swaylock -f -c 000000";
         after-resume = toString (pkgs.writeShellScript "swayidle-after-resume" ''
           ${pkgs.sway}/bin/swaymsg 'output * power on'
-          ${pkgs.brightnessctl}/bin/brightnessctl -r
-          val=$(${pkgs.brightnessctl}/bin/brightnessctl g)
-          ${pkgs.brightnessctl}/bin/brightnessctl s "$val"
+          # Restore the user's persisted brightness, not the dim value.
+          f=/var/lib/screen-brightness/value
+          if [ -r "$f" ]; then
+            val=$(cat "$f")
+            if [ -n "$val" ] && [ "$val" -eq "$val" ] 2>/dev/null; then
+              ${pkgs.brightnessctl}/bin/brightnessctl set "''${val}%" >/dev/null || true
+            fi
+          else
+            ${pkgs.brightnessctl}/bin/brightnessctl -r >/dev/null || true
+          fi
         '');
       };
     };
