@@ -229,8 +229,8 @@
               exec = script "brightness.sh";
               interval = "once";
               signal = 4;
-              on-scroll-up = "brightnessctl set 10%+ && pkill -SIGRTMIN+4 waybar";
-              on-scroll-down = "brightnessctl set 10%- && pkill -SIGRTMIN+4 waybar";
+              on-scroll-up = "set-brightness 10%+ && pkill -SIGRTMIN+4 waybar";
+              on-scroll-down = "set-brightness 10%- && pkill -SIGRTMIN+4 waybar";
               tooltip = false;
             };
 

@@ -54,6 +54,7 @@
         config.nixos.modules.undervolt
         config.nixos.modules.fwupd
         config.nixos.modules.power-suspend
+        config.nixos.modules.brightness-persist
       ];
 
       # ── host-specific ────────────────────────────────────────────────
