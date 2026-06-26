@@ -83,13 +83,11 @@
 
             "custom/volume" = {
               exec = script "volume.sh";
-              interval = "once";
-              signal = 5;
-              on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
+              on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
               on-click-middle = "pavucontrol";
             } // lib.optionalAttrs isLaptop {
-              on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+5 waybar";
-              on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+5 waybar";
+              on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+";
+              on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
             };
 
             wireplumber = {
