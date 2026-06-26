@@ -9,7 +9,7 @@ gov=${gov:-?}; no_turbo=${no_turbo:-0}; pl1=${pl1:-0}
 case "$gov" in
   performance)
     if (( pl1 >= 45000000 )); then
-      echo "<span color='#FF3333'>GOD</span>"
+      echo "<span color='#B96B6B'>GOD</span>"
     else
       echo "SPD"
     fi ;;
