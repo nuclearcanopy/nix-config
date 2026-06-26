@@ -145,14 +145,14 @@
 
             --toolbarbutton-icon-fill-attention: #666666 !important;
 
-            --toolbar-color: rgb(117, 117, 117) !important;
-            --lwt-text-color: rgb(117, 117, 117) !important;
+            --toolbar-color: rgb(80, 80, 80) !important;
+            --lwt-text-color: rgb(80, 80, 80) !important;
             --toolbar-field-color: rgb(148, 148, 148) !important;
             --toolbar-field-focus-color: rgb(148, 148, 148) !important;
             --urlbar-popup-url-color: rgb(148, 148, 148) !important;
-            --urlbar-popup-action-color: rgb(117, 117, 117) !important;
-            --tab-text-color: rgb(117, 117, 117) !important;
-            --lwt-tab-text: rgb(117, 117, 117) !important;
+            --urlbar-popup-action-color: rgb(80, 80, 80) !important;
+            --tab-text-color: rgb(80, 80, 80) !important;
+            --lwt-tab-text: rgb(80, 80, 80) !important;
             --arrowpanel-color: rgb(129, 129, 129) !important;
             --panel-color: rgb(129, 129, 129) !important;
 
@@ -218,8 +218,9 @@
             fill: #666666 !important;
           }
 
-          #urlbar[focused] #urlbar-background,
-          #urlbar[open] #urlbar-background,
+          #urlbar .urlbar-background,
+          #urlbar[focused] .urlbar-background,
+          #urlbar[open] .urlbar-background,
           #searchbar:focus-within {
             background-color: #0a0a0a !important;
           }
