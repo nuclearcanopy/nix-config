@@ -17,6 +17,7 @@
 
       signal-desktop
       qbittorrent
+      rustdesk-flutter
 
       picard
       asunder
