@@ -33,6 +33,7 @@
         config.nixos.modules.graphics-intel
         config.nixos.modules.trackpoint
         config.nixos.modules.trackpad-synaptics
+        config.nixos.modules.keyd-internal-kbd
         config.nixos.modules.bluetooth-disable
         config.nixos.modules.networking-base
         config.nixos.modules.network-laptop
