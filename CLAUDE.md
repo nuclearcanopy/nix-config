@@ -32,6 +32,13 @@ The system uses agenix; do not commit plaintext secrets.
 
 Homeserver secrets are wired in `modules/server/secrets.nix` and include `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-searxng-env.age`, `homeserver-cloudflared-credentials.age`, and `homeserver-mscd-api-hash.age`.
 
+## Homeserver streaming reliability (`modules/server/services.nix`)
+Navidrome is configured for resilient Subsonic streaming: 5GB transcoding cache, 500MB image cache, opus default downsampling, 6h scan schedule, 168h sessions, downloads enabled, scan log lines remain at `info` level (the boost sidecar trigger needs them). The container's `environmentFiles` list reads `homeserver-navidrome-env.age` AND a local mode-600 file at `/var/lib/navidrome/lastfm.env` (the latter wins per docker env-file "last duplicate key wins" — it lets us rotate the Last.fm API key on-host without re-encrypting the agenix secret, which is only decryptable from `kuraokami`). `docker-navidrome.service` has `Restart=always` with 5s backoff.
+
+A sidecar systemd unit `navidrome-boost.service` (defined in the same file) tails the Navidrome container's journal for `Streaming file` / `GET /rest/stream` / `GET /rest/download` / `Scanner` lines and flips the CPU scaling governor between `powersave` (idle) and `performance` (active), with a 120s idle drop watchdog. State lives at `/run/navidrome-boost/last-activity`. This was added to keep the i5-5200U responsive under transcoding load without globally pinning the governor to performance.
+
+The `cloudflared` container runs with `--protocol quic --ha-connections 4`. Defaults (HTTP/2, single connection) were a streaming bottleneck that manifested as Subsonic skips and "song unavailable" errors.
+
 ## Architecture
 ```
 flake.nix               → Flake inputs and nixosConfigurations

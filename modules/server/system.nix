@@ -133,7 +133,7 @@
     };
 
     fileSystems."/mnt/nas" = {
-      device = "//192.168.0.123/${username}";
+      device = "//192.168.0.123/loki";
       fsType = "cifs";
       options =
         let
