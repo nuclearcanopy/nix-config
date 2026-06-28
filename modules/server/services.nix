@@ -36,12 +36,38 @@
               "/home/${username}/Navidrome/music:/music:ro"
             ];
             environment = {
-              ND_SCANSCHEDULE = "1h";
+              # 6h instead of 1h: hourly scans were contending with the SQLite
+              # cache and disk I/O during playback.
+              ND_SCANSCHEDULE = "6h";
               ND_LASTFM_ENABLED = "true";
-              ND_LASTFM_ISENABLED = "true";
+
+              # Keep at default "info": navidrome-boost.service watches for
+              # "Streaming file" log lines to flip the CPU governor, and those
+              # only appear at info level. The bulk of the old log volume was
+              # the suspended Last.fm error storm, not normal info output.
+              ND_LOGLEVEL = "info";
+
+              # On-disk transcoding cache so re-plays of the same opus encode are free.
+              ND_TRANSCODINGCACHESIZE = "5GB";
+              ND_IMAGECACHESIZE = "500MB";
+
+              # Default downsampling target when a client passes maxBitRate. Opus is
+              # the right call for cellular over cloudflared.
+              ND_DEFAULTDOWNSAMPLINGFORMAT = "opus";
+
+              # Long-lived sessions: flaky-network clients shouldn't re-auth mid-album.
+              ND_SESSIONTIMEOUT = "168h";
+
+              ND_ENABLEDOWNLOADS = "true";
             };
             environmentFiles = [
+              # Agenix env file still holds the OLD suspended Last.fm key.
               config.age.secrets.homeserver-navidrome-env.path
+              # Local override: docker reads --env-file args in order, last wins for dupes.
+              # File is root:root mode 600, written out-of-band so the new Last.fm key
+              # never leaks into the public repo. Migrate back into the agenix secret
+              # next time you rebuild from kuraokami (only kuraokami can decrypt it).
+              "/var/lib/navidrome/lastfm.env"
             ];
             extraOptions = [ "--network=${dockerNet}" ];
           };
@@ -97,7 +123,17 @@
               "${config.age.secrets.homeserver-cloudflared-config.path}:/etc/cloudflared/config.yml:ro"
               "${config.age.secrets.homeserver-cloudflared-credentials.path}:/etc/cloudflared/credentials.json:ro"
             ];
-            cmd = [ "tunnel" "--config" "/etc/cloudflared/config.yml" "run" ];
+            # --protocol=quic and 4 parallel tunnel connections: QUIC handles
+            # cellular packet loss much better than http2, and 4 conns lets
+            # navidrome streams parallelise instead of head-of-line blocking
+            # on a single HTTP/2 stream.
+            cmd = [
+              "tunnel"
+              "--config" "/etc/cloudflared/config.yml"
+              "--protocol" "quic"
+              "--ha-connections" "4"
+              "run"
+            ];
             extraOptions = [ "--network=${dockerNet}" ];
           };
         };
@@ -125,6 +161,89 @@
         script = ''
           ${pkgs.docker}/bin/docker network inspect ${dockerNet} >/dev/null 2>&1 || \
           ${pkgs.docker}/bin/docker network create ${dockerNet} || true
+        '';
+      };
+
+      # Force docker-navidrome to restart on any exit. The oci-containers default
+      # passes --rm and exits the systemd unit; without this, a crash takes the
+      # service down until the next boot.
+      systemd.services.docker-navidrome.serviceConfig = {
+        Restart = lib.mkForce "always";
+        RestartSec = "5s";
+      };
+
+      # CPU governor boost while navidrome is streaming. Tails journald for
+      # navidrome stream/scan activity; on each hit, sets every CPU to
+      # `performance` and refreshes a last-activity timestamp. A second loop
+      # drops back to `powersave` once 120s have passed with no activity.
+      #
+      # Why bother: the i5-5200U sits at 800 MHz under the `powersave` governor;
+      # initial HWP ramp-up adds tens of ms to first-byte on each range request,
+      # which is exactly when a client buffer-underruns and gives up.
+      systemd.services.navidrome-boost = {
+        description = "Boost CPU governor to performance while Navidrome is streaming";
+        after = [ "docker-navidrome.service" ];
+        wants = [ "docker-navidrome.service" ];
+        wantedBy = [ "multi-user.target" ];
+        path = [ pkgs.systemd pkgs.coreutils pkgs.gnugrep ];
+        serviceConfig = {
+          Type = "simple";
+          Restart = "always";
+          RestartSec = "10s";
+          # Needs root to write scaling_governor.
+          User = "root";
+        };
+        script = ''
+          set -u
+          STATE=/run/navidrome-boost/last-activity
+          TIMEOUT=120
+          BOOST=performance
+          IDLE=powersave
+
+          mkdir -p /run/navidrome-boost
+          # Seed timestamp far in the past so the watchdog drops to IDLE
+          # immediately if no activity arrives.
+          echo 0 > "$STATE"
+
+          set_gov() {
+            for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+              [ -w "$c" ] && echo "$1" > "$c" || true
+            done
+          }
+
+          # Start at IDLE; reader will boost on first activity.
+          set_gov "$IDLE"
+
+          # Reader: tail navidrome's journal and mark activity.
+          (
+            journalctl -fu docker-navidrome.service -n 0 --output=cat 2>&1 |
+            while IFS= read -r line; do
+              case "$line" in
+                *"Streaming file"*|*"GET /rest/stream"*|*"GET /rest/download"*|*"Scanner"*)
+                  date +%s > "$STATE"
+                  set_gov "$BOOST"
+                  ;;
+              esac
+            done
+          ) &
+          READER_PID=$!
+
+          # On shutdown, drop back to idle governor and stop the reader.
+          trap 'set_gov "$IDLE"; kill $READER_PID 2>/dev/null; exit 0' TERM INT
+
+          # Watchdog: drop to idle governor after TIMEOUT seconds of no activity.
+          while true; do
+            sleep 30
+            last=$(cat "$STATE" 2>/dev/null || echo 0)
+            now=$(date +%s)
+            if [ $((now - last)) -gt $TIMEOUT ]; then
+              set_gov "$IDLE"
+            fi
+            # If the reader died, restart the unit.
+            if ! kill -0 $READER_PID 2>/dev/null; then
+              exit 1
+            fi
+          done
         '';
       };
 

@@ -39,4 +39,9 @@ This repository is a NixOS flake providing system configurations for multiple ho
 
 ## Security & Configuration Tips
 - Never commit plaintext secrets. Add/edit secrets via agenix (`agenix -e secrets/<name>.age`) and update `secrets/secrets.nix` when changing recipients.
+- The public GitHub mirror means any pasted secret leaks; for on-`homeserver` rotations of secrets in `kurai_only` `.age` files, drop an override env file at `/var/lib/<service>/<purpose>.env` (mode 600, root:root) and append its path to the container's `environmentFiles` list after the agenix entry — docker resolves duplicate keys "last wins". Example in `services.nix`: `/var/lib/navidrome/lastfm.env`.
+
+## Homeserver streaming sidecar
+- `navidrome-boost.service` in `modules/server/services.nix` tails the Navidrome container journal and toggles the CPU governor between `powersave` and `performance` based on stream/scan activity (120s idle drop). If you lower `ND_LOGLEVEL` below `info`, the trigger lines stop being emitted and the boost stops working — keep it at `info`.
+- The homeserver `cloudflared` container runs with `--protocol quic --ha-connections 4`; don't drop the HA flag when changing the tunnel block.
 

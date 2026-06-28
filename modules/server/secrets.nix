@@ -1,26 +1,9 @@
 {
-  # Homeserver agenix secrets: nas-credentials (root-only since cifs runs as
-  # root), ssh-git (user-owned, lives in ~/.ssh for git push), homeserver
-  # user password, env files for navidrome/searxng, cloudflared credentials,
-  # mscd api token hash.
+  # Homeserver-specific agenix secrets. nas-credentials and ssh-git are
+  # declared once in modules/base/secrets.nix and shared via that module;
+  # the server imports both to avoid duplicating those declarations.
   nixos.modules.server-secrets = { username, ... }: {
-    age = {
-      identityPaths = [ "/etc/age/key.txt" ];
-
-      secrets = {
-        nas-credentials = {
-          file = ../../secrets/nas-credentials.age;
-          path = "/run/agenix/nas-credentials";
-          mode = "600";
-        };
-
-        ssh-git = {
-          file = ../../secrets/ssh-codeberg.age;
-          path = "/home/${username}/.ssh/id_git";
-          mode = "600";
-          owner = username;
-        };
-
+    age.secrets = {
         homeserver-user-password = {
           file = ../../secrets/homeserver-user-password.age;
         };
@@ -52,7 +35,6 @@
           path = "/run/agenix/homeserver-mscd-api-hash";
           mode = "600";
         };
-      };
     };
   };
 }
