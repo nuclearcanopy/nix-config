@@ -34,7 +34,7 @@
         config.nixos.modules.trackpoint
         config.nixos.modules.trackpad-synaptics
         config.nixos.modules.keyd-internal-kbd
-        config.nixos.modules.bluetooth-disable
+        config.nixos.modules.bluetooth
         config.nixos.modules.networking-base
         config.nixos.modules.network-laptop
         config.nixos.modules.mullvad-graphical-target
