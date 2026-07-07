@@ -46,7 +46,9 @@
         SOUND_POWER_SAVE_CONTROLLER = "Y";
 
         # Battery health thresholds (BAT1: SANYO 01AV425).
-        START_CHARGE_THRESH_BAT1 = 20;
+        # EC only initiates charge below START. 75/80 avoids micro-cycling
+        # while still resuming charge from anything under 75%.
+        START_CHARGE_THRESH_BAT1 = 75;
         STOP_CHARGE_THRESH_BAT1 = 80;
 
         # USB autosuspend (internal keyboard is PS/2; unaffected).
@@ -57,7 +59,9 @@
         USB_EXCLUDE_AUDIO = 1;
         USB_EXCLUDE_PHONE = 1;
 
-        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth wwan";
+        # Bluetooth is controlled by the waybar bt toggle, not TLP; don't let
+        # TLP flip it back when idle on battery.
+        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "wwan";
 
         DISK_APM_LEVEL_ON_AC = "254";
         DISK_APM_LEVEL_ON_BAT = "128";

@@ -48,6 +48,7 @@
               ++ [ "custom/caffeine" ]
               ++ lib.optional isLaptop "custom/sep"
               ++ [ "custom/vpn" "custom/airgap" ]
+              ++ lib.optional isLaptop "custom/bluetooth"
               ++ lib.optional isLaptop "custom/thermalmode"
               ++ [ "group/expand" ]
               ++ lib.optional isDesktop "custom/mpris";
@@ -216,6 +217,14 @@
             # ── Laptop-only modules ───────────────────────────────────────
             "custom/sep" = {
               format = "|";
+              tooltip = false;
+            };
+
+            "custom/bluetooth" = {
+              exec = script "bt_mode.sh";
+              interval = 10;
+              signal = 12;
+              on-click = script "bt_toggle.sh";
               tooltip = false;
             };
 
