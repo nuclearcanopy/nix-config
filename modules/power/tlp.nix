@@ -46,9 +46,8 @@
         SOUND_POWER_SAVE_CONTROLLER = "Y";
 
         # Battery health thresholds (BAT1: SANYO 01AV425).
-        # EC only initiates charge below START. 75/80 avoids micro-cycling
-        # while still resuming charge from anything under 75%.
-        START_CHARGE_THRESH_BAT1 = 75;
+        # EC only initiates charge below START; 20/80 for longevity.
+        START_CHARGE_THRESH_BAT1 = 20;
         STOP_CHARGE_THRESH_BAT1 = 80;
 
         # USB autosuspend (internal keyboard is PS/2; unaffected).
