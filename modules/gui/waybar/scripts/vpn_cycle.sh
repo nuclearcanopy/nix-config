@@ -32,17 +32,25 @@ esac
 
 echo "$idx" > "$STATE_FILE"
 
-# Show MOVING.. while connecting
+# Show yellow "MOVING.." while connecting; trap ensures flag is cleared even
+# if mullvad hangs or the script is killed.
+trap 'rm -f "$MOVING_FLAG"; pkill -SIGRTMIN+9 waybar 2>/dev/null || true' EXIT
+target="${COUNTRIES[$idx]}"
 touch "$MOVING_FLAG"
 pkill -SIGRTMIN+9 waybar
 
-mullvad relay set location "${COUNTRIES[$idx]}"
+mullvad relay set location "$target"
 
-# Wait for connection before clearing flag (up to 30s)
-for _ in $(seq 1 30); do
-  mullvad status | grep -q "^Connected" && break
-  sleep 1
+# Wait until mullvad reports Connected to the requested country. Checking
+# only "Connected" is racy: `relay set location` returns before the daemon
+# tears down the old tunnel, so status briefly still shows the old relay
+# and the loop would break instantly, clearing MOVING before waybar refreshes.
+for _ in $(seq 1 60); do
+  status=$(mullvad status 2>/dev/null)
+  if [[ "$status" == Connected* ]]; then
+    relay=$(awk '/Relay:/ {print $2; exit}' <<< "$status")
+    cc="${relay%%-*}"
+    [[ "${cc,,}" == "$target" ]] && break
+  fi
+  sleep 0.5
 done
-
-rm -f "$MOVING_FLAG"
-pkill -SIGRTMIN+9 waybar
