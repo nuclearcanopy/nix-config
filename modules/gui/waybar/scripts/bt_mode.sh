@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Waybar bluetooth state: "BTH" (default) when the hci radio is unblocked and
-# the adapter is powered, red "BTH" otherwise (blocked, no adapter, or off).
+# Waybar bluetooth state: green "BTH" (#71A671) when the hci radio is unblocked
+# and the adapter is powered, default white "BTH" otherwise (blocked, no
+# adapter, or off).
 # Ignore tpacpi_bluetooth_sw: on T480/Libreboot it reads hard-blocked
 # persistently but the hci device itself is what matters. bluetoothctl is
 # wrapped in `timeout` because it hangs when bluez has no controller.
@@ -9,7 +10,7 @@ soft=${state% *}
 hard=${state#* }
 powered=$(timeout 1 bluetoothctl show 2>/dev/null | awk -F': ' '/Powered:/ {print $2; exit}')
 if [ "$soft" = "unblocked" ] && [ "$hard" = "unblocked" ] && [ "$powered" = "yes" ]; then
-  echo "BTH"
+  echo "<span color='#71A671'>BTH</span>"
 else
-  echo "<span color='#B96B6B'>BTH</span>"
+  echo "BTH"
 fi
