@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 MOVING_FLAG="${XDG_STATE_HOME:-$HOME/.local/state}/vpn-moving"
 if [[ -f "$MOVING_FLAG" ]]; then
-  echo "MOVING.."
+  echo "<span color='#C6A857'>MOVING..</span>"
   exit 0
 fi
 
