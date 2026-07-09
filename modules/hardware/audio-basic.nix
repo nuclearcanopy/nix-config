@@ -16,19 +16,25 @@
       { domain = "@audio"; item = "nice"; type = "-"; value = "-19"; }
     ];
 
+    # LimitNICE uses systemd's scale form: value = 20 - nice. So 40 allows
+    # nice level -20 (max negative). Previously 19 = ceiling +1, which blocked
+    # mod.rt's request for nice=-11 and left the audio thread at nice 0. Any
+    # CPU spike then caused ~10ms xruns during video calls (staggered voice,
+    # micro-glitches). Symptom in journal: `mod.rt: could not set nice-level
+    # to -11: Permission denied` on every pipewire/wireplumber startup.
     systemd.user.services.pipewire.serviceConfig = {
       LimitRTPRIO = 95;
-      LimitNICE = 19;
+      LimitNICE = 40;
       LimitMEMLOCK = "infinity";
     };
     systemd.user.services.pipewire-pulse.serviceConfig = {
       LimitRTPRIO = 95;
-      LimitNICE = 19;
+      LimitNICE = 40;
       LimitMEMLOCK = "infinity";
     };
     systemd.user.services.wireplumber.serviceConfig = {
       LimitRTPRIO = 95;
-      LimitNICE = 19;
+      LimitNICE = 40;
       LimitMEMLOCK = "infinity";
     };
 
@@ -84,6 +90,20 @@
           };
           flags = [ "ifexists" "nofail" ];
         }];
+      };
+
+      # Firefox routes video-call audio through cubeb → pipewire-pulse, which
+      # has its own quantum independent of the native pipewire graph. Without
+      # a floor here it defaults to 128/48000 (~2.6ms), tiny buffer + shared
+      # laptop CPU = dropouts. Pin to 1024 (~21ms) to match the native graph.
+      extraConfig.pipewire-pulse."10-pulse-quantum" = {
+        "pulse.properties" = {
+          "pulse.min.quantum" = "1024/48000";
+          "pulse.default.quantum" = "1024/48000";
+        };
+        "stream.properties" = {
+          "resample.quality" = 10;
+        };
       };
     };
   };
