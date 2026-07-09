@@ -24,6 +24,19 @@
         }
         no_turbo() { printf '%s' "$1" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true; }
         rapl_write() { printf '%s' "$2" > /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/"$1" 2>/dev/null || true; }
+        # C-state gating. On this chip (Coffee Lake i5-8350U with
+        # intel_idle.max_cstate=7), cpuidle state indices are:
+        #   0=POLL 1=C1 2=C1E 3=C3 4=C6 5=C7s
+        # god mode disables 4+5 to pin idle at C3 (wake latency ~30us
+        # vs ~100us for C7s), for scroll/type responsiveness. Other
+        # modes re-enable them so the CPU can reach deep idle.
+        cstate_write() { # state_index value
+          for f in /sys/devices/system/cpu/cpu*/cpuidle/"state$1"/disable; do
+            printf '%s' "$2" > "$f" 2>/dev/null || true
+          done
+        }
+        cstates_deep_on()  { cstate_write 4 0; cstate_write 5 0; }
+        cstates_deep_off() { cstate_write 4 1; cstate_write 5 1; }
 
         mode="''${1:-}"
         case "$mode" in
@@ -32,27 +45,32 @@
                cpu_write scaling_max_freq 3600000 ignore
                no_turbo 0
                rapl_write constraint_0_power_limit_uw 25000000
-               rapl_write constraint_1_power_limit_uw 29000000 ;;
+               rapl_write constraint_1_power_limit_uw 29000000
+               cstates_deep_on ;;
           bal) cpu_write scaling_governor powersave ignore
                cpu_write energy_performance_preference balance_performance ignore
                cpu_write scaling_max_freq 3600000 ignore
                no_turbo 0
                rapl_write constraint_0_power_limit_uw 25000000
-               rapl_write constraint_1_power_limit_uw 35000000 ;;
+               rapl_write constraint_1_power_limit_uw 35000000
+               cstates_deep_on ;;
           lap) cpu_write scaling_governor powersave ignore
                cpu_write energy_performance_preference power ignore
                cpu_write scaling_max_freq 2000000 ignore
                no_turbo 1
                rapl_write constraint_0_power_limit_uw 15000000
-               rapl_write constraint_1_power_limit_uw 20000000 ;;
+               rapl_write constraint_1_power_limit_uw 20000000
+               cstates_deep_on ;;
           god) cpu_write scaling_governor performance ignore
                cpu_write energy_performance_preference performance ignore
                cpu_write scaling_max_freq 3600000 ignore
                no_turbo 0
                rapl_write constraint_0_power_limit_uw 45000000
                rapl_write constraint_1_power_limit_uw 60000000
-               printf 'GOD MODE: turbo on, 3.6GHz, PL1=45W PL2=60W\n' ;;
-          auto) : >${cpuModeStateFile}
+               cstates_deep_off
+               printf 'GOD MODE: turbo on, 3.6GHz, PL1=45W PL2=60W, C-state cap C3\n' ;;
+          auto) cstates_deep_on
+                : >${cpuModeStateFile}
                 printf 'CPU mode: auto (TLP-managed)\n'
                 exit 0 ;;
           *)   printf 'Usage: set-cpu-mode {spd|bal|lap|god|auto}\n' >&2; exit 1 ;;
@@ -94,7 +112,7 @@
         in ''
           SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", MODE="0664", GROUP="users"
           SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
-          ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference"
+          ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference /sys%p/cpuidle/state4/disable /sys%p/cpuidle/state5/disable"
           ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
           ACTION=="add", SUBSYSTEM=="powercap", KERNEL=="intel-rapl:0", RUN+="${makeWheelWritable} /sys%p/constraint_0_power_limit_uw /sys%p/constraint_1_power_limit_uw"
           SUBSYSTEM=="power_supply", ACTION=="change", RUN+="${pkgs.systemd}/bin/systemctl start --no-block cpu-mode-restore.service"
@@ -111,10 +129,15 @@
       # Re-asserts the last explicit CPU mode after events TLP also reacts to:
       # boot (After=tlp.service), AC/BAT change (udev rule above), resume from
       # suspend. No-op if state is empty.
+      # wantedBy=graphical.target (not multi-user.target) to escape a systemd
+      # ordering cycle: tlp.service is After=multi-user.target, so pulling
+      # cpu-mode-restore into multi-user while also After=tlp created a cycle
+      # that systemd silently dropped. graphical.target is downstream of
+      # multi-user, so the graph is now acyclic.
       systemd.services.cpu-mode-restore = {
         description = "Restore last explicit CPU performance mode";
         after = [ "tlp.service" ];
-        wantedBy = [ "multi-user.target" ];
+        wantedBy = [ "graphical.target" ];
         serviceConfig = {
           Type = "oneshot";
           ExecStart = "${cpuModeRestore}";
