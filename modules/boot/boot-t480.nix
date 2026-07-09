@@ -50,6 +50,14 @@
         "i915.enable_fbc=1"           # framebuffer compression; saves power
         "i915.enable_psr=0"           # PSR off; causes display stutter with Libreboot ACPI tables
         "i915.enable_guc=3"           # GuC/HuC firmware; better GPU scheduling
+        # Perf-for-security tradeoff: i5-8350U (Coffee Lake) mitigates Retbleed
+        # via software IBRS; branch-predictor flush on every kernel entry costs
+        # ~10-25% on JS/branch-heavy code. Meltdown (pti), Spectre v1, MDS,
+        # TSX-AA, MMIO stale data, SRBDS all remain mitigated.
+        "retbleed=off"
+        # T480 has no physical serial ports but the kernel enumerates 4
+        # phantom ttyS[0-3] from ISA/PNP and blocks udev ~15s per device.
+        "8250.nr_uarts=0"
         # Power saving
         "nmi_watchdog=0"
         "nowatchdog"

@@ -357,9 +357,10 @@
           # Tab unloading for memory/battery
           "browser.tabs.unloadOnLowMemory" = true;
 
-          # 4 content procs: works well across both hosts (kuraokami runs more
-          # browser-adjacent stuff; nidhoggr's 4c/8t i5-8350U benefits from fewer).
-          "dom.ipc.processCount" = 4;
+          # 8 content procs: 4c/8t with HT enabled (via Libreboot patch),
+          # 32GB RAM so headroom is not the constraint. More procs = tabs
+          # load in parallel and one heavy tab doesn't starve the others.
+          "dom.ipc.processCount" = 8;
 
           # Fast startup optimizations
           "browser.startup.homepage.abouthome_cache.enabled" = true;
@@ -385,6 +386,14 @@
           "widget.dmabuf.force-enabled" = true;
           "gfx.webrender.compositor" = true;
           "gfx.webrender.compositor.force-enabled" = true;
+          "gfx.canvas.accelerated.force-enabled" = true;  # canvas via GPU
+
+          # Perf: kill UI micro-animations, cap background tabs at 30fps,
+          # loosen vsync accounting, decode images off main thread.
+          "toolkit.cosmeticAnimations.enabled" = false;
+          "layout.throttled_frame_rate" = 30;
+          "layout.frame_rate.precise" = false;
+          "image.decode-immediately.enabled" = true;
 
           # Honor system dark theme so sites with prefers-color-scheme go dark
           # without a per-page rewriter extension.

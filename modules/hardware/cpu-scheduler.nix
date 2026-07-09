@@ -13,6 +13,10 @@
         enable = true;
         rulesProvider = pkgs.ananicy-rules-cachyos;
       };
+
+      # Spread IRQs across cores instead of piling on CPU0. Reduces lag
+      # spikes when USB / NVMe / network activity coincides.
+      irqbalance.enable = true;
     };
   };
 }

@@ -56,7 +56,7 @@
             modules-center = [ "sway/workspaces" ];
 
             modules-right =
-              [ "custom/mouse" "custom/memory" ]
+              [ "custom/mouse" "custom/memory" "custom/ssd" ]
               ++ lib.optional isLaptop "custom/sep"
               ++ [ "custom/cpu" ]
               ++ lib.optional isDesktop "custom/gpu"
@@ -160,6 +160,12 @@
             "custom/memory" = {
               exec = script "memory.sh";
               interval = if isLaptop then 10 else 5;
+              tooltip = false;
+            };
+
+            "custom/ssd" = {
+              exec = script "ssd.sh";
+              interval = 60;
               tooltip = false;
             };
 

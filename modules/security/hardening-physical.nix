@@ -42,6 +42,18 @@
       blacklistedKernelModules = [ "thunderbolt" "firewire-core" "firewire-ohci" "firewire-sbp2" ];
     };
 
+    # With the thunderbolt driver blacklisted the TB PCIe devices (Alpine
+    # Ridge NHI at 04:00.0 and TB USB controller at 06:00.0) have no driver
+    # to manage their runtime PM. The kernel still puts them into D3cold via
+    # PCI PM, but without the driver they can't return to D0, and any probe
+    # from userspace (libvirtd's PCI enumerator, lspci) sees garbage config
+    # space and reports errors like `PCI header type 127` or
+    # `xhci_hcd: HC died`. Pin them to D0 so probes read valid state.
+    services.udev.extraRules = ''
+      SUBSYSTEM=="pci", KERNEL=="0000:04:00.0", ATTR{power/control}="on"
+      SUBSYSTEM=="pci", KERNEL=="0000:06:00.0", ATTR{power/control}="on"
+    '';
+
     # MAC framework: confines browsers and other high-risk userspace processes.
     # killUnconfinedConfinables=true: if a binary has a profile but starts
     # before AppArmor loads, kill it rather than let it run unconfined.
