@@ -8,6 +8,7 @@
       brightnessctl
       networkmanagerapplet
       acpi
+      linuxPackages.turbostat
 
       xkcdpass
 
