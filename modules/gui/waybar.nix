@@ -6,7 +6,7 @@
   # profile flag controls layout, output pinning, start_hidden, intervals,
   # and which extras get added (gpu+firmware for kuraokami; battery, brightness,
   # thermalmode, dock, sleep, scroll-volume for laptop).
-  homeManager.modules.waybar = { config, lib, ... }:
+  homeManager.modules.waybar = { config, lib, pkgs, ... }:
 
     let
       profile = config.waybar.profile;
@@ -15,11 +15,39 @@
 
       scriptsDir = ./waybar/scripts;
       script = name: "${scriptsDir}/${name}";
+
+      # Waybar's layer-shell surface gets orphaned when an output blinks
+      # (DPMS blank, lid close, monitor sleep). Waybar doesn't rebind on
+      # output re-add, so the bar goes invisible until physical replug.
+      # This watcher restarts waybar on any sway output event, coalescing
+      # bursts so a plug event only triggers one restart.
+      outputWatcher = pkgs.writeShellScript "waybar-output-watcher" ''
+        set -eu
+        ${pkgs.sway}/bin/swaymsg -t subscribe -m '["output"]' | while read -r _; do
+          while read -r -t 1 _; do :; done
+          ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+        done
+      '';
     in
     {
       options.waybar.profile = lib.mkOption {
         type = lib.types.enum [ "kuraokami" "laptop" ];
         description = "Selects waybar layout and modules per host.";
+      };
+
+      config.systemd.user.services.waybar-output-watcher = {
+        Unit = {
+          Description = "Restart waybar when sway outputs change";
+          PartOf = [ "sway-session.target" ];
+          After = [ "sway-session.target" ];
+          ConditionEnvironment = "WAYLAND_DISPLAY";
+        };
+        Service = {
+          ExecStart = "${outputWatcher}";
+          Restart = "on-failure";
+          RestartSec = 3;
+        };
+        Install.WantedBy = [ "sway-session.target" ];
       };
 
       config.programs.waybar = {

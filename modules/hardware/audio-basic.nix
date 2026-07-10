@@ -70,26 +70,25 @@
           "default.clock.quantum" = 1024;
           "default.clock.min-quantum" = 256;
           "default.clock.max-quantum" = 2048;
-          "default.clock.allowed-rates" = [ 44100 48000 ];
+          # Lock to 48000 only. Allowing 44100 lets the graph switch rates
+          # dynamically, and WebRTC streams (Teams, Firefox VC) that opened
+          # at one rate keep producing at that rate while the graph runs at
+          # the other, so audio gets resampled wrong and comes out with a
+          # pitch shift (Teams "low pitch" bug that a pipewire restart fixed).
+          # Locking makes every stream resample once against a fixed rate.
+          "default.clock.allowed-rates" = [ 48000 ];
           "support.dbus" = true;
           "rt.prio" = 88;
           "nice.level" = -11;
-          # Disable the default module-rt; the xdg-desktop-portal Realtime
-          # path fails on this host ("Could not get pidns ... Not a directory")
-          # and the fallback to rtkit gets wedged. We re-load module-rt below
-          # with rtportal.enabled = false so it talks to rtkit-daemon directly.
-          "module.rt" = false;
         };
-        "context.modules" = [{
-          name = "libpipewire-module-rt";
-          args = {
-            "nice.level" = -11;
-            "rt.prio" = 88;
-            "rtportal.enabled" = false;
-            "rtkit.enabled" = true;
-          };
-          flags = [ "ifexists" "nofail" ];
-        }];
+        # No mod.rt override: earlier config disabled the default mod.rt
+        # and re-loaded it forcing rtkit-only, as a workaround for what was
+        # actually the LimitNICE=19 bug (blocking direct nice writes).
+        # With LimitNICE=40 the default mod.rt takes rt.prio direct via
+        # LimitRTPRIO (95) and reaches SCHED_FIFO 88 without rtkit.
+        # rtkit caps at prio 20, which is why the override left the
+        # daemon's data-loop at SCHED_OTHER while wireplumber, pipewire-pulse,
+        # and easyeffects (all default mod.rt) hit FIFO 83 cleanly.
       };
 
       # Firefox routes video-call audio through cubeb → pipewire-pulse, which
