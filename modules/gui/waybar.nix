@@ -16,25 +16,27 @@
       scriptsDir = ./waybar/scripts;
       script = name: "${scriptsDir}/${name}";
 
-      # Waybar's layer-shell surface gets orphaned when an output is
-      # destroyed and recreated (DPMS, replug); on 0.15 it does not rebind.
-      # This watcher restarts waybar only when a new output name appears
-      # (add events); removal is a no-op, so disconnecting HDMI doesn't
-      # flash the internal bar. Bursts of add events coalesce into one.
+      # Waybar 0.15 doesn't rebind its layer-shell surface when an output
+      # is destroyed and recreated (DPMS, replug, monitor swap on the same
+      # connector), so the bar goes invisible. Identity is name+make+model+
+      # serial so swapping a different monitor into the same HDMI port
+      # still counts as new. Only restart when an identity is added, not
+      # when one merely disappears; that keeps disconnects from flashing
+      # the internal bar. A 1s coalesce absorbs plug-event bursts.
       outputWatcher = pkgs.writeShellScript "waybar-output-watcher" ''
         set -eu
-        snapshot() { ${pkgs.sway}/bin/swaymsg -r -t get_outputs \
-          | ${pkgs.jq}/bin/jq -r '.[].name' | sort | tr '\n' ' '; }
+        snapshot() {
+          ${pkgs.sway}/bin/swaymsg -r -t get_outputs \
+            | ${pkgs.jq}/bin/jq -r '.[] | "\(.name)|\(.make)|\(.model)|\(.serial)"' \
+            | sort
+        }
         prev=$(snapshot)
         ${pkgs.sway}/bin/swaymsg -t subscribe -m '["output"]' | while read -r _; do
           while read -r -t 1 _; do :; done
           cur=$(snapshot)
-          added=0
-          for o in $cur; do
-            case " $prev " in *" $o "*) ;; *) added=1 ;; esac
-          done
+          added=$(${pkgs.coreutils}/bin/comm -13 <(printf '%s\n' "$prev") <(printf '%s\n' "$cur"))
           prev=$cur
-          [ $added -eq 1 ] && ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          [ -n "$added" ] && ${pkgs.systemd}/bin/systemctl --user restart waybar.service
         done
       '';
     in
