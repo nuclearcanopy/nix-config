@@ -100,6 +100,12 @@
               scroll_factor = "0.25";
             };
 
+            # Razer DeathAdder V4 Pro: match kuraokami's feel.
+            "5426:191:Razer_DeathAdder_V4_Pro" = {
+              accel_profile = "flat";
+              pointer_accel = "-0.84";
+            };
+
             "type:touchpad" = {
               accel_profile = "adaptive";
               pointer_accel = "-0.1";
