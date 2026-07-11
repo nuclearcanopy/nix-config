@@ -47,6 +47,7 @@
         config.nixos.modules.luks-initrd
         config.nixos.modules.virtualisation
         config.nixos.modules.openrazer
+        config.nixos.modules.thunar
 
         # ── power buckets ─────────────────────────────────────────────
         config.nixos.modules.tlp

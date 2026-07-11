@@ -18,5 +18,10 @@
     # iPhone USB tethering: usbmuxd negotiates pairing and brings up the
     # ethernet-over-USB interface that NetworkManager then picks up.
     services.usbmuxd.enable = true;
+
+    # VLC uses libmicrodns for Chromecast discovery; replies arrive as
+    # multicast on 5353 which the stateful firewall won't associate with
+    # the outbound query.
+    networking.firewall.allowedUDPPorts = [ 5353 ];
   };
 }

@@ -35,6 +35,7 @@
         config.nixos.modules.nas-mount
         config.nixos.modules.services-core
         config.nixos.modules.privacy
+        config.nixos.modules.thunar
       ];
 
       # ── host-specific ────────────────────────────────────────────────
