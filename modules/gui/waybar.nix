@@ -16,16 +16,25 @@
       scriptsDir = ./waybar/scripts;
       script = name: "${scriptsDir}/${name}";
 
-      # Waybar's layer-shell surface gets orphaned when an output blinks
-      # (DPMS blank, lid close, monitor sleep). Waybar doesn't rebind on
-      # output re-add, so the bar goes invisible until physical replug.
-      # This watcher restarts waybar on any sway output event, coalescing
-      # bursts so a plug event only triggers one restart.
+      # Waybar's layer-shell surface gets orphaned when an output is
+      # destroyed and recreated (DPMS, replug); on 0.15 it does not rebind.
+      # This watcher restarts waybar only when a new output name appears
+      # (add events); removal is a no-op, so disconnecting HDMI doesn't
+      # flash the internal bar. Bursts of add events coalesce into one.
       outputWatcher = pkgs.writeShellScript "waybar-output-watcher" ''
         set -eu
+        snapshot() { ${pkgs.sway}/bin/swaymsg -r -t get_outputs \
+          | ${pkgs.jq}/bin/jq -r '.[].name' | sort | tr '\n' ' '; }
+        prev=$(snapshot)
         ${pkgs.sway}/bin/swaymsg -t subscribe -m '["output"]' | while read -r _; do
           while read -r -t 1 _; do :; done
-          ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          cur=$(snapshot)
+          added=0
+          for o in $cur; do
+            case " $prev " in *" $o "*) ;; *) added=1 ;; esac
+          done
+          prev=$cur
+          [ $added -eq 1 ] && ${pkgs.systemd}/bin/systemctl --user restart waybar.service
         done
       '';
     in
