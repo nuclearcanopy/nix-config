@@ -91,6 +91,7 @@
             "${mod}+${alt}+2" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
             "${mod}+${alt}+3" = "exec ${caffeineToggle}";
             "${mod}+${alt}+Shift+p" = "exec systemctl suspend";
+            "${mod}+Shift+b" = "exec systemctl --user restart waybar.service";
 
             "${mod}+a" = "focus left";
             "${mod}+d" = "focus right";

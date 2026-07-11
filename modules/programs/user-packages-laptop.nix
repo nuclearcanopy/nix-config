@@ -23,6 +23,7 @@
       asunder
       feishin
       termsonic
+      vlc
 
       prismlauncher
     ];

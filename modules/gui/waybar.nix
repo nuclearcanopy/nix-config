@@ -16,27 +16,17 @@
       scriptsDir = ./waybar/scripts;
       script = name: "${scriptsDir}/${name}";
 
-      # Waybar 0.15 doesn't rebind its layer-shell surface when an output
-      # is destroyed and recreated (DPMS, replug, monitor swap on the same
-      # connector), so the bar goes invisible. Identity is name+make+model+
-      # serial so swapping a different monitor into the same HDMI port
-      # still counts as new. Only restart when an identity is added, not
-      # when one merely disappears; that keeps disconnects from flashing
-      # the internal bar. A 1s coalesce absorbs plug-event bursts.
+      # Waybar 0.15 silently loses its layer-shell surface on output events
+      # (mode change, refresh-rate change, DPMS, replug) and never rebinds.
+      # The reliable fix is to restart on any output event; a 2-second
+      # coalesce absorbs the burst of events that a single plug/unplug
+      # fires. Disconnecting HDMI briefly flashes the internal bar once,
+      # which is the deliberate trade for never having a silently-gone bar.
       outputWatcher = pkgs.writeShellScript "waybar-output-watcher" ''
         set -eu
-        snapshot() {
-          ${pkgs.sway}/bin/swaymsg -r -t get_outputs \
-            | ${pkgs.jq}/bin/jq -r '.[] | "\(.name)|\(.make)|\(.model)|\(.serial)"' \
-            | sort
-        }
-        prev=$(snapshot)
         ${pkgs.sway}/bin/swaymsg -t subscribe -m '["output"]' | while read -r _; do
-          while read -r -t 1 _; do :; done
-          cur=$(snapshot)
-          added=$(${pkgs.coreutils}/bin/comm -13 <(printf '%s\n' "$prev") <(printf '%s\n' "$cur"))
-          prev=$cur
-          [ -n "$added" ] && ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          while read -r -t 2 _; do :; done
+          ${pkgs.systemd}/bin/systemctl --user restart waybar.service
         done
       '';
     in
