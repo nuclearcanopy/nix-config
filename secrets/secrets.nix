@@ -13,6 +13,8 @@ in
 
   "nas-credentials.age".publicKeys = desktop_systems;
 
+  "home-wifi-ssid.age".publicKeys = desktop_systems;
+
   # homeserver (encrypted with kuraokami key; kuraokami manages homeserver secrets)
   "homeserver-user-password.age".publicKeys = kurai_only;
   "homeserver-navidrome-env.age".publicKeys = kurai_only;
