@@ -24,6 +24,16 @@
           mode = "640";
         };
 
+        # Home wifi SSID, kept out of the repo to avoid an OSINT leak. Used
+        # by swayidle to skip idle-suspend when connected to the home network.
+        home-wifi-ssid = {
+          file = ../../secrets/home-wifi-ssid.age;
+          path = "/run/agenix/home-wifi-ssid";
+          owner = username;
+          group = "users";
+          mode = "640";
+        };
+
         user-password = {
           file = ../../secrets/user-password.age;
         };

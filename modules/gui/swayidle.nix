@@ -49,7 +49,23 @@
         }
         {
           timeout = 600;
-          command = "${pkgs.systemd}/bin/systemctl suspend";
+          command = toString (pkgs.writeShellScript "swayidle-suspend" ''
+            # Skip idle-suspend when on AC at the home SSID: safe environment,
+            # no theft risk, no battery to save. The home SSID is agenix-
+            # encrypted at /run/agenix/home-wifi-ssid to keep it out of the
+            # repo. Explicit `systemctl suspend` and lid close still work;
+            # only the idle timer is inhibited.
+            on_ac=$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)
+            home_ssid=$(${pkgs.coreutils}/bin/tr -d '\n\r' < /run/agenix/home-wifi-ssid 2>/dev/null || true)
+            ssid=$(${pkgs.networkmanager}/bin/nmcli -t -f active,ssid dev wifi 2>/dev/null \
+              | ${pkgs.gnugrep}/bin/grep '^yes:' \
+              | ${pkgs.coreutils}/bin/cut -d: -f2- \
+              | ${pkgs.coreutils}/bin/head -n1)
+            if [ "$on_ac" = "1" ] && [ -n "$home_ssid" ] && [ "$ssid" = "$home_ssid" ]; then
+              exit 0
+            fi
+            ${pkgs.systemd}/bin/systemctl suspend
+          '');
         }
       ];
 
