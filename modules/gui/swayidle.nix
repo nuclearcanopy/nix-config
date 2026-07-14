@@ -28,7 +28,10 @@
               ${pkgs.sway}/bin/swaymsg 'output * power off'
             fi
           '');
-          resumeCommand = "${pkgs.sway}/bin/swaymsg 'output * power on'";
+          resumeCommand = toString (pkgs.writeShellScript "swayidle-screenon" ''
+            ${pkgs.sway}/bin/swaymsg 'output * power on'
+            ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          '');
         }
         {
           timeout = 300;
@@ -39,7 +42,10 @@
               true
             fi
           '');
-          resumeCommand = "${pkgs.sway}/bin/swaymsg 'output * power on'";
+          resumeCommand = toString (pkgs.writeShellScript "swayidle-screenon" ''
+            ${pkgs.sway}/bin/swaymsg 'output * power on'
+            ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          '');
         }
         {
           timeout = 600;
@@ -64,6 +70,11 @@
           else
             ${pkgs.brightnessctl}/bin/brightnessctl -r >/dev/null || true
           fi
+          # Waybar 0.15 loses its layer-shell surface across output-power-cycle
+          # and suspend/resume; sway does not fire output add/remove events
+          # for a power-cycle, so the output watcher can't catch it. Restart
+          # explicitly here.
+          ${pkgs.systemd}/bin/systemctl --user restart waybar.service
         '');
       };
     };

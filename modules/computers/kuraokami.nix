@@ -31,6 +31,7 @@
         config.nixos.modules.gpu-amd
         config.nixos.modules.graphics-amd
         config.nixos.modules.openrazer
+        config.nixos.modules.v4l2loopback
         config.nixos.modules.networking-base
         config.nixos.modules.nas-mount
         config.nixos.modules.services-core

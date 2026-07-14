@@ -3,7 +3,7 @@
 {
   nixos.configurations.nidhoggr = {
     username = "loki";
-    module = { unstable, username, ... }: {
+    module = { unstable, username, lib, ... }: {
       imports = [
         ../../hosts/nidhoggr/hardware-configuration.nix
         inputs.agenix.nixosModules.default
@@ -47,6 +47,7 @@
         config.nixos.modules.luks-initrd
         config.nixos.modules.virtualisation
         config.nixos.modules.openrazer
+        config.nixos.modules.v4l2loopback
         config.nixos.modules.thunar
 
         # ── power buckets ─────────────────────────────────────────────
@@ -99,6 +100,15 @@
         ];
 
         waybar.profile = "laptop";
+
+        # Kaby Lake iGPU + strict VT-d IOMMU stalls the forced Wayland dmabuf
+        # compositor path during scroll (every tile attach hits per-op IOMMU
+        # flushes). Let Firefox auto-detect the safer path here; kuraokami
+        # keeps the forced variants because AMD + iommu.strict is cheap.
+        programs.firefox.profiles.default.settings = {
+          "gfx.webrender.compositor.force-enabled" = lib.mkForce false;
+          "gfx.canvas.accelerated.force-enabled" = lib.mkForce false;
+        };
       };
     };
   };
