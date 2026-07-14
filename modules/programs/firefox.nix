@@ -508,6 +508,12 @@
           # streaming drm
           "media.eme.enabled" = true;
 
+          # WebRTC screensharing via xdg-desktop-portal-wlr + PipeWire so
+          # Teams/Meet/etc. can share the screen on Wayland. Without these
+          # the "Share Screen" prompt in Firefox shows no window options.
+          "media.webrtc.camera.allow-pipewire" = true;
+          "media.webrtc.desktop.allow-pipewire" = true;
+
           "devtools.debugger.remote-enabled" = false;
           "devtools.console.stdout.chrome" = false;
           "browser.dom.window.dump.enabled" = false;

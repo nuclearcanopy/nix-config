@@ -47,7 +47,7 @@
       kernelParams = [
         # Intel
         "intel_pstate=active"
-        "i915.enable_fbc=1"           # framebuffer compression; saves power
+        "i915.enable_fbc=0"           # off: FBC on Kaby Lake causes scroll stutter (Firefox/Chromium) for negligible power savings
         "i915.enable_psr=0"           # PSR off; causes display stutter with Libreboot ACPI tables
         "i915.enable_guc=3"           # GuC/HuC firmware; better GPU scheduling
         # Perf-for-security tradeoff: i5-8350U (Coffee Lake) mitigates Retbleed

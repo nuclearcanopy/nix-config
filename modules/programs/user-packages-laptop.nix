@@ -16,6 +16,7 @@
       texliveFull
 
       signal-desktop
+      teams-for-linux
       qbittorrent
       rustdesk-flutter
 
