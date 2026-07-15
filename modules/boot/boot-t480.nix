@@ -49,7 +49,7 @@
         "intel_pstate=active"
         "i915.enable_fbc=0"           # off: FBC on Kaby Lake causes scroll stutter (Firefox/Chromium) for negligible power savings
         "i915.enable_psr=0"           # PSR off; causes display stutter with Libreboot ACPI tables
-        "i915.enable_guc=3"           # GuC/HuC firmware; better GPU scheduling
+        "i915.enable_guc=2"           # HuC-only; Kaby Lake has no GuC submission (kernel warns at boot with =3)
         # Perf-for-security tradeoff: i5-8350U (Coffee Lake) mitigates Retbleed
         # via software IBRS; branch-predictor flush on every kernel entry costs
         # ~10-25% on JS/branch-heavy code. Meltdown (pti), Spectre v1, MDS,
@@ -63,12 +63,17 @@
         "nowatchdog"
         "pcie_aspm.policy=default"    # don't force ASPM; Libreboot ACPI tables incomplete
         "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine)
-        "i915.enable_dc=1"           # limit GPU display C-states; reduces coil whine
+        "i915.enable_dc=0"           # off: DC5/DC6 display power wells caused atomic-commit EBUSY deadlocks on multi-display + heavy GPU load (Kaby Lake i915 hazard)
         # ThinkPad ACPI
         "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot)
         "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
-        # Suspend
-        "mem_sleep_default=deep"
+        # Suspend: s2idle keeps the iGPU powered through "sleep" so it never
+        # transitions through D3cold. S3 (deep) resumes on this box progressively
+        # corrupt the i915 display state, and after 4-6 resumes a modeset
+        # returns EBUSY forever ("Atomic commit failed: Device or resource busy"
+        # loop in sway); enable_dc=0 alone didn't stop it. Costs ~1-2W more
+        # during actual suspend, irrelevant on AC.
+        "mem_sleep_default=s2idle"
         # Transient: flashrom -p internal needs userspace /dev/mem access to
         # the PCH SPI controller. Uncomment before reflashing, re-comment after.
         # "iomem=relaxed"
