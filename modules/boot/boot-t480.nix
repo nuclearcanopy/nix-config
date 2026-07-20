@@ -64,6 +64,13 @@
         "pcie_aspm.policy=default"    # don't force ASPM; Libreboot ACPI tables incomplete
         "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine)
         "i915.enable_dc=0"           # off: DC5/DC6 display power wells caused atomic-commit EBUSY deadlocks on multi-display + heavy GPU load (Kaby Lake i915 hazard)
+        # Belt-and-suspenders for the atomic-commit EBUSY hang while the real
+        # fix (correct KBL VBT in coreboot) is being prepared. RC6-off was
+        # tried but pins the iGPU at max freq, which via RAPL package-power
+        # budget starves CPU turbo enough to visibly hurt Minecraft/Java.
+        # pcie_port_pm=off blocks PCIe D-state transitions (a separate class
+        # of the EBUSY trigger) without touching GPU frequency; kept.
+        "pcie_port_pm=off"           # no PCIe port PM; iGPU never goes D3, kills D3->D0 modeset races
         # ThinkPad ACPI
         "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot)
         "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan

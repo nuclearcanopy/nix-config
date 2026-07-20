@@ -82,6 +82,23 @@ scripts/install.sh      → disko-based install flow (fresh installs)
 - Dev tools: `modules/home/dev/packages.nix`
 - Unfree allowlist: `modules/system/core/packages.nix`
 
+## Minecraft (Prism Launcher, nidhoggr)
+
+Prism is installed via `modules/programs/user-packages-laptop.nix` with `mangohud` alongside and the `jdks` list overridden to `[ jdk21 jdk25 jdk17 jdk8 ]` so Prism's `AutomaticJava` picks the LTS on any MC version that accepts both. Nixpkgs' `prismlauncher` wrapper already puts wayland-patched GLFW (`glfw3-minecraft`) and `gamemode.lib` into the game's `LD_LIBRARY_PATH` by default, and exposes all bundled JDKs via `PRISMLAUNCHER_JAVA_PATHS`; there is no `withWaylandGLFW` argument (common misconception).
+
+Per-instance perf is toggled in `~/.local/share/PrismLauncher/instances/<name>/instance.cfg`, not in nix. The switches worth setting for laptop iGPU performance:
+
+| Field | Purpose |
+|---|---|
+| `OverridePerformance=true` | Gate; the three below are ignored without it |
+| `UseNativeGLFW=true` | LWJGL loads system GLFW (wayland-patched) instead of the bundled X11 one |
+| `EnableFeralGamemode=true` | Prism launches java under `gamemoderun` (requires `programs.gamemode.enable`, which is on via `modules/programs/gaming.nix`) |
+| `EnableMangoHud=true` | Overlay via `mangohud` binary; toggle in-game with `Shift_R+F12` |
+| `OverrideJavaLocation=false` | Let Prism auto-pick from `PRISMLAUNCHER_JAVA_PATHS` instead of pinning a store path that dies at GC |
+| `OverrideJavaArgs=true` + `JvmArgs=…` | For Fabric on a 4G heap use Aikar's G1 flags without `-Xms/-Xmx` (Prism supplies those from `MinMemAlloc`/`MaxMemAlloc`); avoid `-Dfml.*` (Forge-only), avoid `ParallelGCThreads > CPU threads` |
+
+Edit `instance.cfg` only when Prism is closed; the app rewrites it on quit.
+
 ## Libreboot Custom Build (nidhoggr / T480)
 
 The T480 (`nidhoggr`) runs a custom Libreboot build, not a stock upstream ROM. Base is **Libreboot 26.01** (`git tag 26.01`) with the following changes applied as `0001-t480-personal-customizations.patch` in `~/libreboot/lbmk/`:

@@ -51,6 +51,32 @@
         Install.WantedBy = [ "sway-session.target" ];
       };
 
+      # xembedsniproxy owns the _NET_SYSTEM_TRAY_S0 X selection on
+      # XWayland and forwards XEmbed tray clients (java AWT, wine, older
+      # Qt/GTK) to any StatusNotifierWatcher on the session bus. This is
+      # what makes SystemTray.isSupported() return true for OpenJDK on
+      # sway. snixembed was the wrong direction (SNI->XEmbed). Comes from
+      # kdePackages.plasma-workspace; heavy closure but no lighter proxy
+      # exists in nixpkgs.
+      config.systemd.user.services.xembedsniproxy = {
+        Unit = {
+          Description = "XEmbed to StatusNotifierItem tray proxy";
+          PartOf = [ "sway-session.target" ];
+          After = [ "sway-session.target" "waybar.service" ];
+          ConditionEnvironment = "DISPLAY";
+        };
+        Service = {
+          # Force Qt xcb platform; on sway both DISPLAY and WAYLAND_DISPLAY
+          # are set and Qt6 defaults to Wayland, which leaves the proxy
+          # without an X11 connection and it never claims _NET_SYSTEM_TRAY_S0.
+          Environment = "QT_QPA_PLATFORM=xcb";
+          ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/xembedsniproxy";
+          Restart = "on-failure";
+          RestartSec = 3;
+        };
+        Install.WantedBy = [ "sway-session.target" ];
+      };
+
       config.programs.waybar = {
         enable = true;
         systemd = { enable = true; targets = [ "sway-session.target" ]; };
