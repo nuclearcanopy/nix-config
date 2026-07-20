@@ -149,8 +149,8 @@
         };
 
         extraConfig = ''
-          bindsym --no-repeat Control+space exec sh -c '[ "$(cat $HOME/.local/state/waybar-vis 2>/dev/null || echo HID)" = HID ] && pkill -SIGUSR1 waybar'
-          bindsym --release Control+space exec sh -c '[ "$(cat $HOME/.local/state/waybar-vis 2>/dev/null || echo HID)" = HID ] && pkill -SIGUSR1 waybar'
+          bindsym --no-repeat Control+space exec sh -c '[ "$(cat $HOME/.local/state/waybar-vis 2>/dev/null || echo SHW)" = HID ] && pkill -SIGUSR1 waybar'
+          bindsym --release Control+space exec sh -c '[ "$(cat $HOME/.local/state/waybar-vis 2>/dev/null || echo SHW)" = HID ] && pkill -SIGUSR1 waybar'
         '';
       };
     };

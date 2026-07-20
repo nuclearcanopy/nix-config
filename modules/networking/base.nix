@@ -1,12 +1,15 @@
 {
-  # systemd-resolved (DNSSEC + opportunistic DoT) + NetworkManager + firewall.
-  # Wired ethernet profile is declared here for kuraokami's default connection;
-  # nidhoggr has its own MAC-randomized base in laptop-network bucket.
+  # systemd-resolved (DNSSEC downgrade-friendly + opportunistic DoT) +
+  # NetworkManager + firewall. DNSSEC is "allow-downgrade" so captive portals
+  # (hotel/airport wifi that hijacks DNS to redirect the browser) can complete
+  # the login flow; real DNSSEC is still enforced against upstreams that support
+  # it. Wired ethernet profile is declared here for kuraokami's default
+  # connection; nidhoggr has its own MAC-randomized base in laptop-network.
   nixos.modules.networking-base = {
     services.resolved = {
       enable = true;
       settings.Resolve = {
-        DNSSEC = "true";
+        DNSSEC = "allow-downgrade";
         DNSOverTLS = "opportunistic";
         LLMNR = "false";
         MulticastDNS = "no";
