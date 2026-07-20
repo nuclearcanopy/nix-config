@@ -19,7 +19,8 @@
       };
       # cloudflared config holds the public hostnames (one per tunneled service);
       # encrypted as an agenix secret so the public repo never reveals them.
-      searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ./configs/searxng-settings.yml);
+      # searxng retired (2026-07-07) to free CPU/RAM; config kept for revive.
+      # searxngConfig = pkgs.writeText "searxng-settings.yml" (builtins.readFile ./configs/searxng-settings.yml);
     in
     {
       virtualisation.docker.enable = true;
@@ -72,30 +73,35 @@
             extraOptions = [ "--network=${dockerNet}" ];
           };
 
-          vaultwarden = {
-            image = "vaultwarden/server:latest";
-            ports = [ "127.0.0.1:8000:80" ];
-            volumes = [ "/var/lib/vaultwarden:/data" ];
-            environment = {
-              DOMAIN = "https://vaultwarden.local";
-              SIGNUPS_ALLOWED = "false";
-            };
-            extraOptions = [ "--network=${dockerNet}" ];
-          };
+          # vaultwarden retired (2026-07-07) to free CPU. /var/lib/vaultwarden
+          # is preserved. To revive: uncomment this block and rebuild.
+          # vaultwarden = {
+          #   image = "vaultwarden/server:latest";
+          #   ports = [ "127.0.0.1:8000:80" ];
+          #   volumes = [ "/var/lib/vaultwarden:/data" ];
+          #   environment = {
+          #     DOMAIN = "https://vaultwarden.local";
+          #     SIGNUPS_ALLOWED = "false";
+          #   };
+          #   extraOptions = [ "--network=${dockerNet}" ];
+          # };
 
-          searxng = {
-            image = "searxng/searxng:latest";
-            ports = [ "8080:8080" ];
-            volumes = [ "/var/lib/searxng:/etc/searxng" ];
-            environment = {
-              SEARXNG_BASE_URL = "https://searxng.local/";
-              SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
-            };
-            environmentFiles = [
-              config.age.secrets.homeserver-searxng-env.path
-            ];
-            extraOptions = [ "--network=${dockerNet}" ];
-          };
+          # searxng retired (2026-07-07) to free CPU. /var/lib/searxng is
+          # preserved. To revive: uncomment this block, the searxngConfig
+          # let-binding, the tmpfiles rules, and the docker-searxng override.
+          # searxng = {
+          #   image = "searxng/searxng:latest";
+          #   ports = [ "8080:8080" ];
+          #   volumes = [ "/var/lib/searxng:/etc/searxng" ];
+          #   environment = {
+          #     SEARXNG_BASE_URL = "https://searxng.local/";
+          #     SEARXNG_SETTINGS_PATH = "/etc/searxng/settings.yml";
+          #   };
+          #   environmentFiles = [
+          #     config.age.secrets.homeserver-searxng-env.path
+          #   ];
+          #   extraOptions = [ "--network=${dockerNet}" ];
+          # };
 
           filebrowser = {
             image = "filebrowser/filebrowser:latest";
@@ -141,13 +147,13 @@
 
       systemd.tmpfiles.rules = [
         "d /var/lib/filebrowser 0755 root root -"
-        "d /var/lib/vaultwarden 0755 root root -"
+        # "d /var/lib/vaultwarden 0755 root root -"
         "d /var/lib/navidrome 0755 root root -"
         "d /var/lib/portainer 0755 root root -"
-        "d /var/lib/searxng 0755 root root -"
+        # "d /var/lib/searxng 0755 root root -"
         # Declaratively deploy SearXNG config on each boot; replaces ExecStartPre cp/chmod.
         # C+ copies (overwriting) so the container gets a writable file.
-        "C+ /var/lib/searxng/settings.yml 0644 root root - ${searxngConfig}"
+        # "C+ /var/lib/searxng/settings.yml 0644 root root - ${searxngConfig}"
         "d /home/${username}/Navidrome 0755 homeserver users -"
         "d /home/${username}/Navidrome/music 0755 homeserver users -"
         "d /home/${username}/Navidrome/music/Web 0755 homeserver users -"
@@ -247,15 +253,16 @@
         '';
       };
 
-      systemd.services.docker-searxng = {
-        after = [
-          "network-online.target"
-          "mullvad-autoconnect.service"
-          "init-docker-network.service"
-        ];
-        wants = [ "network-online.target" ];
-        serviceConfig.ExecStartPre = [ "${pkgs.coreutils}/bin/sleep 10" ];
-      };
+      # docker-searxng service override retired alongside the searxng container.
+      # systemd.services.docker-searxng = {
+      #   after = [
+      #     "network-online.target"
+      #     "mullvad-autoconnect.service"
+      #     "init-docker-network.service"
+      #   ];
+      #   wants = [ "network-online.target" ];
+      #   serviceConfig.ExecStartPre = [ "${pkgs.coreutils}/bin/sleep 10" ];
+      # };
 
       systemd.services.mscd-api = {
         description = "MSCD Web API for remote music downloads";
@@ -302,9 +309,11 @@
           ${pkgs.rsync}/bin/rsync -av --delete \
             --backup --backup-dir="$SNAPSHOT_DIR/portainer" \
             /var/lib/portainer /mnt/nas/homeserver/var/lib/
-          ${pkgs.rsync}/bin/rsync -av --delete \
-            --backup --backup-dir="$SNAPSHOT_DIR/vaultwarden" \
-            /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
+          # vaultwarden backup retired alongside the container. Restore-time
+          # snapshots are in /mnt/nas/homeserver/var/lib/vaultwarden.
+          # ${pkgs.rsync}/bin/rsync -av --delete \
+          #   --backup --backup-dir="$SNAPSHOT_DIR/vaultwarden" \
+          #   /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
 
           # prune snapshots older than 7 days
           ${pkgs.findutils}/bin/find /mnt/nas/homeserver/snapshots \

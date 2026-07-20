@@ -2,7 +2,7 @@
 
 {
   nixos.configurations.kuraokami = {
-    username = "izanagi";
+    username = "user";
     module = { unstable, username, ... }: {
       imports = [
         ../../hosts/kuraokami/hardware-configuration.nix
@@ -57,6 +57,7 @@
           config.homeManager.modules.theme
           config.homeManager.modules.gui-packages
           config.homeManager.modules.waybar
+
           config.homeManager.modules.zsh
           config.homeManager.modules.shell-packages
           config.homeManager.modules.environment

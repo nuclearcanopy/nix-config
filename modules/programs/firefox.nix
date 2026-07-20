@@ -4,7 +4,7 @@
   # savers, tab unloading on low memory, 4 content procs, devPixelsPerPx 1.35.
   # The behavior matches what nidhoggr needs; kuraokami inherits the same defaults.
   # Plus a "compat" profile for sites with fragile auth flows.
-  homeManager.modules.firefox = { config, lib, pkgs, ... }: {
+  homeManager.modules.firefox = { config, lib, pkgs, pkgs-firefox, ... }: {
     # PSD leaves a stale symlink at ~/.config/mozilla/firefox/<profile> pointing to
     # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
     # linkGeneration can't mkdir through a broken symlink, so restore from
@@ -24,10 +24,18 @@
       done
     '';
 
+    # firefox's real profile root is ~/.mozilla/firefox, but our declarative
+    # profiles live at configPath (~/.config/mozilla/firefox). Bridge the two
+    # with an out-of-store symlink so both firefox and PSD read/write the
+    # managed profiles. Without it, firefox falls back to a fresh imperative
+    # profile in a real ~/.mozilla/firefox directory (unconfigured browser).
+    home.file.".mozilla/firefox".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/mozilla/firefox";
+
     home.packages = [
       (pkgs.symlinkJoin {
         name = "firefox-compat";
-        paths = [ pkgs.firefox ];
+        paths = [ pkgs-firefox.firefox ];
         nativeBuildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           mv $out/bin/firefox $out/bin/firefox-compat
@@ -37,7 +45,7 @@
       })
       (pkgs.symlinkJoin {
         name = "firefox-google";
-        paths = [ pkgs.firefox ];
+        paths = [ pkgs-firefox.firefox ];
         nativeBuildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           mv $out/bin/firefox $out/bin/firefox-google
@@ -64,6 +72,7 @@
     programs.firefox = {
       configPath = "${config.xdg.configHome}/mozilla/firefox";
       enable = true;
+      package = pkgs-firefox.firefox;
 
       policies = {
         ExtensionSettings = {
@@ -88,6 +97,7 @@
           bitwarden
           sponsorblock
           auto-tab-discard
+          violentmonkey
         ];
 
         # stricter filters
@@ -310,6 +320,7 @@
             { name = "NYT Crossword"; url = "https://www.nytimes.com/crosswords"; keyword = "nyt"; }
             { name = "TryHackMe"; url = "https://tryhackme.com/dashboard"; keyword = "thm"; }
             { name = "Teams"; url = "https://teams.microsoft.cloud/"; keyword = "teams"; }
+            { name = "Outlook"; url = "https://outlook.office365.com/"; keyword = "outlook"; }
           ];
         };
 

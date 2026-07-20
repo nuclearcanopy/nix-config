@@ -63,15 +63,15 @@
             layer = "top";
             position = "top";
             height = 39;
-            start_hidden = isDesktop;
+            start_hidden = false;
             spacing = 0;
           } // lib.optionalAttrs isDesktop {
-            output = [ "DP-1" "DP-2" ];
+            output = [ "DP-1" "HDMI-A-1" ];
           } // {
             modules-left =
               [ "clock#date" "custom/time" ]
               ++ lib.optional isLaptop "custom/sep"
-              ++ [ "custom/volume" "wireplumber" ]
+              ++ [ "custom/volume" "custom/mic" ]
               ++ lib.optional isLaptop "custom/sep"
               ++ lib.optional isLaptop "custom/brightness"
               ++ [ "custom/caffeine" ]
@@ -120,12 +120,13 @@
               on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
             };
 
-            wireplumber = {
-              node-type = "Audio/Source";
-              format = "MIC";
-              format-muted = "<span color='#B96B6B'>MTD</span>";
+            # Custom mic indicator (replaces the builtin wireplumber module,
+            # which races on EasyEffects' virtual source node: "Object 'N'
+            # not found"). Event-driven via mic.sh; MIC / red MTD when muted.
+            "custom/mic" = {
+              exec = script "mic.sh";
               on-click = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
-              tooltip-format = "{node_name}";
+              tooltip = false;
             };
 
             "custom/caffeine" = {

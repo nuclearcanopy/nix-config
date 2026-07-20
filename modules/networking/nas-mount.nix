@@ -6,7 +6,9 @@
     environment.systemPackages = [ pkgs.cifs-utils ];
 
     fileSystems."/mnt/nas" = {
-      device = "//192.168.0.123/${username}";
+      # Share name is the NAS account ("loki"), not the local OS user; on
+      # kuraokami the username is "user" so it must not be interpolated.
+      device = "//192.168.0.123/loki";
       fsType = "cifs";
 
       options = [

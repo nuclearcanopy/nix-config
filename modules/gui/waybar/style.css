@@ -30,7 +30,7 @@ window#waybar {
 #clock,
 #custom-time,
 #custom-volume,
-#wireplumber,
+#custom-mic,
 #expand,
 #custom-mpris,
 #custom-mouse,
@@ -118,7 +118,7 @@ window#waybar {
   color: #888888;
 }
 
-#wireplumber.muted {
+#custom-mic.muted {
   color: #b96b6b;
 }
 
@@ -145,6 +145,7 @@ window#waybar {
 #custom-memory:hover,
 #custom-ssd:hover,
 #wireplumber:hover,
+#custom-mic:hover,
 #custom-power:hover,
 #custom-reboot:hover,
 #custom-mouse:hover,

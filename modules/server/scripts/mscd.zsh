@@ -11,6 +11,22 @@ URLS_FILE_ALEXANDRA="/var/lib/navidrome/data/urls/urls_alexandra.txt"
 MSCD_COOKIES="/mnt/nas/Navidrome/cookies.txt"
 MSCD_ARCHIVE="/var/lib/navidrome/data/mscd_archive.txt"
 
+# Local download-to-device mode. When MSCD_LOCAL_ROOT is exported by the API
+# for a per-job "save to my phone/PC" job, every library path is rebased under
+# it and NAS→SSD sync is skipped. The tagging/thumbnail/mutagen pipeline stays
+# identical; only the destination changes.
+: "${MSCD_LOCAL_ROOT:=}"
+if [[ -n "$MSCD_LOCAL_ROOT" ]]; then
+  mkdir -p "$MSCD_LOCAL_ROOT/Web" "$MSCD_LOCAL_ROOT/Bought"
+  MUSIC_BASE="$MSCD_LOCAL_ROOT/Web"
+  MUSIC_BASE_BOUGHT="$MSCD_LOCAL_ROOT/Bought"
+  MUSIC_BASE_LOCAL="$MSCD_LOCAL_ROOT/Web"
+  MUSIC_BASE_BOUGHT_LOCAL="$MSCD_LOCAL_ROOT/Bought"
+  URLS_FILE="$MSCD_LOCAL_ROOT/.urls.txt"
+  URLS_FILE_ALEXANDRA="$MSCD_LOCAL_ROOT/.urls_alexandra.txt"
+  MSCD_ARCHIVE="$MSCD_LOCAL_ROOT/.archive.txt"
+fi
+
 mkdir -p ~/.local/bin
 curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
 chmod +x ~/.local/bin/yt-dlp
@@ -26,6 +42,8 @@ MSCD_GENRE_DEFAULT="Web"
 # Sync from NAS to local SSD (NAS is primary, SSD is fast cache)
 # This pulls new music from NAS to local for fast Navidrome streaming
 mscd_sync() {
+  # Local-mode jobs stay entirely off the library; nothing to sync.
+  [[ -n "$MSCD_LOCAL_ROOT" ]] && return 0
   echo "[SYNC] Syncing NAS → local SSD..."
   if command -v systemctl &>/dev/null; then
     systemctl start navidrome-sync-from-nas.service --no-block 2>/dev/null || {
@@ -677,9 +695,10 @@ mscd_album() {
   tmpdir=$(mktemp -d)
   echo "[DEBUG] Temporary directory: $tmpdir"
 
-  local -a archive_flag=() cookies_flag=()
+  local -a archive_flag=() cookies_flag=() quality_flag=()
   [[ -n "$MSCD_ARCHIVE" && -z "$FORCE_DOWNLOAD" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE")
   [[ -n "$MSCD_COOKIES" && -f "$MSCD_COOKIES" ]] && cookies_flag=(--cookies "$MSCD_COOKIES")
+  [[ -n "$MSCD_AUDIO_QUALITY" ]] && quality_flag=(--audio-quality "$MSCD_AUDIO_QUALITY")
 
   yt-dlp -f bestaudio \
     --extract-audio \
@@ -689,6 +708,7 @@ mscd_album() {
     --convert-thumbnails png \
     --ignore-errors \
     --extractor-args "youtube:player_client=default" \
+    "${quality_flag[@]}" \
     "${cookies_flag[@]}" \
     "${archive_flag[@]}" \
     -o "$tmpdir/%(playlist_index)02d - %(artist)s - %(album)s - %(title)s.%(ext)s" \
@@ -918,9 +938,10 @@ mscd_single() {
   tmpdir=$(mktemp -d)
   echo "[DEBUG] Temporary directory: $tmpdir"
 
-  local -a archive_flag=() cookies_flag=()
+  local -a archive_flag=() cookies_flag=() quality_flag=()
   [[ -n "$MSCD_ARCHIVE" && -z "$FORCE_DOWNLOAD" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE")
   [[ -n "$MSCD_COOKIES" && -f "$MSCD_COOKIES" ]] && cookies_flag=(--cookies "$MSCD_COOKIES")
+  [[ -n "$MSCD_AUDIO_QUALITY" ]] && quality_flag=(--audio-quality "$MSCD_AUDIO_QUALITY")
 
   yt-dlp -f bestaudio \
     --extract-audio \
@@ -931,6 +952,7 @@ mscd_single() {
     --no-playlist \
     --ignore-errors \
     --extractor-args "youtube:player_client=default" \
+    "${quality_flag[@]}" \
     "${cookies_flag[@]}" \
     "${archive_flag[@]}" \
     -o "$tmpdir/%(title)s.%(ext)s" \

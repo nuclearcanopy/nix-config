@@ -1,20 +1,38 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, send_file
 import subprocess
 import hashlib
 import hmac
 import os
+import io
 import json
+import pathlib
+import re
+import shutil
 import threading
 import uuid
 import time
+import zipfile
 
 app = Flask(__name__)
 
 API_HASH = os.environ.get("MSCD_API_HASH", "").strip()
 
-jobs = {}  # job_id -> {output, done, exit_code, lock, timestamp}
+# Per-job scratch space for "save to my device" downloads. Wiped after the
+# GET /local/<job_id>/download that serves the file(s), and swept by TTL.
+LOCAL_ROOT = "/tmp/mscd-local"
+LOCAL_TTL_SEC = 3600
+
+# Quality slider → yt-dlp --audio-quality value. "0" is best VBR.
+QUALITY_MAP = {
+    "low":  "96K",
+    "med":  "128K",
+    "high": "192K",
+    "max":  "0",
+}
+
+jobs = {}  # job_id -> {output, done, exit_code, lock, timestamp, [local_files], [local_dir], [local_zip_name]}
 
 def is_valid_url(url):
     return url.startswith(('http://', 'https://')) or 'youtube.com' in url or 'music.youtube.com' in url
@@ -28,15 +46,74 @@ def auth_ok(token):
     return hmac.compare_digest(hash_value(token), API_HASH)
 
 def cleanup_jobs():
-    cutoff = time.time() - 3600
+    cutoff = time.time() - LOCAL_TTL_SEC
     stale = [k for k, v in list(jobs.items()) if v['done'] and v['timestamp'] < cutoff]
     for k in stale:
+        cleanup_local(k)
         del jobs[k]
 
-def run_job(job_id, cmd):
+def cleanup_local(job_id):
+    job = jobs.get(job_id) or {}
+    local_dir = job.get('local_dir')
+    if local_dir and os.path.isdir(local_dir):
+        shutil.rmtree(local_dir, ignore_errors=True)
+    for k in ('local_files', 'local_dir', 'local_zip_name'):
+        job.pop(k, None)
+
+def _safe_name(s):
+    s = re.sub(r'[^\w\s.\-()]+', '_', s or '').strip()
+    s = re.sub(r'\s+', ' ', s)
+    return s or 'mscd'
+
+def _detect_zip_name(root, files):
+    # mscd's on-disk layout is <root>/<Genre>/<Artist>/<Album>/track.ext.
+    # Anchor on the last file (deepest tagged path) and derive artist/album.
+    for f in files:
+        try:
+            rel = f.relative_to(root)
+        except ValueError:
+            continue
+        parts = rel.parts
+        if len(parts) >= 4:
+            return f"{_safe_name(parts[-3])} - {_safe_name(parts[-2])}.zip"
+        if len(parts) >= 3:
+            return f"{_safe_name(parts[-2])}.zip"
+    return None
+
+def finalize_local_job(job_id, local_dir):
+    job = jobs.get(job_id)
+    if not job:
+        return
+    root = pathlib.Path(local_dir)
+    files = []
+    for pat in ('*.opus', '*.m4a', '*.webm', '*.ogg', '*.mp3', '*.flac'):
+        files.extend(root.rglob(pat))
+    files = sorted(f for f in files if f.is_file() and not f.name.startswith('.'))
+    if not files:
+        with job['lock']:
+            job['output'].append({'type': 'error', 'message': 'No audio files produced in local mode'})
+        return
+    if len(files) == 1:
+        display_name = files[0].name
+        zip_name = None
+    else:
+        display_name = _detect_zip_name(root, files) or f"mscd-{job_id[:8]}.zip"
+        zip_name = display_name
+    job['local_files'] = [str(f) for f in files]
+    job['local_dir'] = str(root)
+    job['local_zip_name'] = zip_name
+    with job['lock']:
+        job['output'].append({
+            'type': 'local_ready',
+            'url': f"/local/{job_id}/download",
+            'file_count': len(files),
+            'name': display_name,
+        })
+
+def run_job(job_id, cmd, env=None, local_dir=None):
     job = jobs[job_id]
     try:
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+        process = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
 
         def read_pipe(pipe, stream_type):
             for line in pipe:
@@ -56,6 +133,9 @@ def run_job(job_id, cmd):
             job['output'].append({'type': 'error', 'message': str(e)})
         exit_code = -1
 
+    if local_dir and exit_code == 0:
+        finalize_local_job(job_id, local_dir)
+
     with job['lock']:
         job['output'].append({'type': 'complete', 'exit_code': exit_code})
         job['done'] = True
@@ -73,6 +153,17 @@ def download_music():
     url = data.get('url') or request.form.get('url')
     command = data.get('command') or request.form.get('command') or 'mscd'
     force = data.get('force') == True or request.form.get('force') == 'true'
+    save_mode = (data.get('save_mode') or request.form.get('save_mode') or 'cloud').lower()
+    quality = (data.get('quality') or request.form.get('quality') or 'max').lower()
+
+    if save_mode not in ('cloud', 'local'):
+        return jsonify({'error': 'Invalid save_mode'}), 400
+
+    # Local mode always downloads immediately; queue/alexandra variants are
+    # library-organizational and don't apply when the destination is the user's
+    # own device.
+    if save_mode == 'local':
+        command = 'mscd'
 
     if not url:
         return jsonify({'error': 'Missing URL'}), 400
@@ -101,18 +192,73 @@ def download_music():
             cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add -a "{url}"']
 
     job_id = str(uuid.uuid4())
+
+    env = os.environ.copy()
+    local_dir = None
+    if save_mode == 'local':
+        local_dir = os.path.join(LOCAL_ROOT, job_id)
+        os.makedirs(local_dir, exist_ok=True)
+        env['MSCD_LOCAL_ROOT'] = local_dir
+        if quality in QUALITY_MAP:
+            env['MSCD_AUDIO_QUALITY'] = QUALITY_MAP[quality]
+
     jobs[job_id] = {
-        'output': [{'type': 'start', 'command': command, 'url': url}],
+        'output': [{'type': 'start', 'command': command, 'url': url, 'save_mode': save_mode}],
         'done': False,
         'exit_code': None,
         'lock': threading.Lock(),
-        'timestamp': time.time()
+        'timestamp': time.time(),
+        'save_mode': save_mode,
     }
 
-    t = threading.Thread(target=run_job, args=(job_id, cmd), daemon=True)
+    t = threading.Thread(target=run_job, args=(job_id, cmd, env, local_dir), daemon=True)
     t.start()
 
     return jsonify({'job_id': job_id})
+
+@app.route('/local/<job_id>/download', methods=['GET'])
+def local_download(job_id):
+    token = request.args.get('token', '')
+    if not auth_ok(token):
+        return jsonify({'error': 'Unauthorized'}), 401
+    job = jobs.get(job_id)
+    if not job or 'local_files' not in job or not job.get('local_dir'):
+        return jsonify({'error': 'Not found or expired'}), 404
+
+    root = pathlib.Path(job['local_dir'])
+    files = [pathlib.Path(f) for f in job['local_files'] if os.path.isfile(f)]
+    if not files:
+        return jsonify({'error': 'Files gone'}), 410
+
+    if len(files) == 1:
+        f = files[0]
+        resp = send_file(str(f), as_attachment=True, download_name=f.name, conditional=False)
+        resp.call_on_close(lambda: cleanup_local(job_id))
+        return resp
+
+    # Multi-file: build the zip on disk so we can stream it and cap memory. The
+    # temp dir gets wiped when the response closes.
+    zip_path = root.parent / f"{job_id}.zip"
+    if not zip_path.exists():
+        with zipfile.ZipFile(str(zip_path), 'w', zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
+            for f in files:
+                try:
+                    arc = str(f.relative_to(root))
+                except ValueError:
+                    arc = f.name
+                zf.write(str(f), arcname=arc)
+    download_name = job.get('local_zip_name') or f"mscd-{job_id[:8]}.zip"
+
+    def _cleanup():
+        try:
+            zip_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        cleanup_local(job_id)
+
+    resp = send_file(str(zip_path), as_attachment=True, download_name=download_name, conditional=False)
+    resp.call_on_close(_cleanup)
+    return resp
 
 @app.route('/stream/<job_id>', methods=['GET'])
 def stream_job(job_id):
@@ -248,6 +394,15 @@ select option{background:var(--bg);color:var(--text)}
 .modal-btn.yes:active{background:var(--accent-dim)}
 .modal-btn.no{background:var(--bg);border:1px solid var(--border);color:var(--dim)}
 .modal-btn.no:active{background:var(--border)}
+.hidden{display:none!important}
+input[type="range"]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;padding:12px 0;height:auto;border:none;cursor:pointer}
+input[type="range"]:focus{outline:none}
+input[type="range"]::-webkit-slider-runnable-track{height:6px;background:var(--border);border-radius:3px}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;background:var(--accent);border-radius:50%;margin-top:-8px;cursor:pointer;box-shadow:0 0 0 2px var(--bg)}
+input[type="range"]::-moz-range-track{height:6px;background:var(--border);border-radius:3px}
+input[type="range"]::-moz-range-thumb{width:22px;height:22px;background:var(--accent);border:none;border-radius:50%;cursor:pointer;box-shadow:0 0 0 2px var(--bg)}
+.range-ticks{display:flex;justify-content:space-between;margin-top:2px;font-size:0.6rem;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
+.range-ticks span.active{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -268,6 +423,17 @@ select option{background:var(--bg);color:var(--text)}
 <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
 </div>
 <div class="form-group">
+<div class="batch-toggle">
+<label>Destination</label>
+<button type="button" class="toggle-btn" id="saveToggle">CLOUD</button>
+</div>
+</div>
+<div class="form-group hidden" id="qualityGroup">
+<label>Quality <span id="qualityLabel" style="color:var(--accent)">Max</span></label>
+<input type="range" id="quality" min="0" max="3" step="1" value="3">
+<div class="range-ticks"><span>Low</span><span>Med</span><span>High</span><span>Max</span></div>
+</div>
+<div class="form-group" id="commandGroup">
 <label>Command</label>
 <select id="command">
 <option value="mscd">mscd</option>
@@ -291,7 +457,7 @@ select option{background:var(--bg);color:var(--text)}
 </div>
 <div class="batch-counter" id="batchCounter"></div>
 </div>
-<div class="checkbox-group">
+<div class="checkbox-group" id="forceGroup">
 <input type="checkbox" id="force">
 <label for="force">--force (re-download existing)</label>
 </div>
@@ -343,6 +509,16 @@ const urlSingle=document.getElementById('urlSingle');
 const urlBatch=document.getElementById('urlBatch');
 const batchCounter=document.getElementById('batchCounter');
 const batchProgress=document.getElementById('batchProgress');
+const saveToggle=document.getElementById('saveToggle');
+const qualityGroup=document.getElementById('qualityGroup');
+const qualityInput=document.getElementById('quality');
+const qualityLabel=document.getElementById('qualityLabel');
+const commandGroup=document.getElementById('commandGroup');
+const forceGroup=document.getElementById('forceGroup');
+const QUALITY_LABELS=['Low','Med','High','Max'];
+const QUALITY_KEYS=['low','med','high','max'];
+let saveMode='cloud';
+let pendingLocalDownload=null;
 let running=false;
 let currentPct=0;
 let currentParams=null;
@@ -469,6 +645,28 @@ updateBatchCounter();
 }
 
 batchToggle.onclick=toggleBatchMode;
+
+function updateQualityLabel(){
+const idx=parseInt(qualityInput.value,10);
+qualityLabel.textContent=QUALITY_LABELS[idx];
+const ticks=qualityGroup.querySelectorAll('.range-ticks span');
+ticks.forEach((s,i)=>s.className=i===idx?'active':'');
+}
+
+function toggleSaveMode(){
+saveMode=saveMode==='cloud'?'local':'cloud';
+saveToggle.textContent=saveMode.toUpperCase();
+saveToggle.className='toggle-btn'+(saveMode==='local'?' active':'');
+const localOn=saveMode==='local';
+qualityGroup.className='form-group'+(localOn?'':' hidden');
+commandGroup.className='form-group'+(localOn?' hidden':'');
+forceGroup.className='checkbox-group'+(localOn?' hidden':'');
+if(localOn)updateQualityLabel();
+}
+
+saveToggle.onclick=toggleSaveMode;
+qualityInput.oninput=updateQualityLabel;
+updateQualityLabel();
 
 function addUrlRow(){
 const row=document.createElement('div');
@@ -1152,6 +1350,9 @@ if(skipMatch&&!params.force){
 dupeDetected=true;
 dupeFilename=skipMatch[1];
 }
+}else if(data.type==='local_ready'){
+pendingLocalDownload={url:data.url+'?token='+encodeURIComponent(password),name:data.name};
+log(`\\n↓ Preparing local file: ${data.name} (${data.file_count} file${data.file_count>1?'s':''})`,'success');
 }else if(data.type==='complete'){
 if(dupeDetected){
 setStatus('Duplicate found','running');
@@ -1170,9 +1371,21 @@ log('\\n○ Skipped duplicate','info');
 setStatus('Complete','complete');
 log('\\n✓ Download complete','success');
 if(!params._batch)document.getElementById('url').value='';
+if(pendingLocalDownload){
+log(`\\n↓ Downloading to device: ${pendingLocalDownload.name}`,'success');
+const a=document.createElement('a');
+a.href=pendingLocalDownload.url;
+a.download=pendingLocalDownload.name;
+a.rel='noopener';
+document.body.appendChild(a);
+a.click();
+a.remove();
+pendingLocalDownload=null;
+}
 }else{
 setStatus('Failed','error');
 log(`\\n✗ Exit code: ${data.exit_code}`,'error');
+pendingLocalDownload=null;
 }
 return;
 }else if(data.type==='error'){
@@ -1238,7 +1451,7 @@ try{
 const startResp=await fetch('/download',{
 method:'POST',
 headers:{'Authorization':password,'Content-Type':'application/json'},
-body:JSON.stringify({command,url,force})
+body:JSON.stringify({command,url,force,save_mode:saveMode,quality:QUALITY_KEYS[parseInt(qualityInput.value,10)]})
 });
 if(!startResp.ok){
 const err=await startResp.json();
