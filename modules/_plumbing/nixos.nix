@@ -8,6 +8,12 @@ let
     config.allowUnfreePredicate =
       pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) allowedUnfree;
   };
+
+  mkFirefoxPkgs = system: import inputs.nixpkgs-firefox {
+    inherit system;
+    config.allowUnfreePredicate =
+      pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) allowedUnfree;
+  };
 in
 {
   options.nixos = {
@@ -44,6 +50,7 @@ in
         inherit inputs allowedUnfree;
         inherit (hostCfg) username;
         unstable = mkUnstable hostCfg.system;
+        pkgs-firefox = mkFirefoxPkgs hostCfg.system;
       };
       modules = [
         hostCfg.module

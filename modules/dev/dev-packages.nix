@@ -15,7 +15,7 @@
       rustfmt
 
       # ai slop tools
-      mcp-nixos
+      # mcp-nixos  # temporarily out: pulls cfn-lint whose tests fail upstream
       codex
 
       # cybersec stuff
