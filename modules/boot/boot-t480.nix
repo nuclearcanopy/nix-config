@@ -4,7 +4,7 @@
   # EFI support kept as contingency until Libreboot is confirmed stable.
   # Intel-specific kernel params (pstate, i915 flags, ACPI quirks) and
   # 32GB-RAM-tuned sysctl live here too.
-  nixos.modules.boot-t480 = { lib, pkgs, ... }: {
+  nixos.modules.boot-t480 = { pkgs, ... }: {
     boot = {
       initrd.systemd.enable = true;
 
@@ -104,8 +104,6 @@
       };
     };
 
-    # Not used on this laptop.
-    services.flatpak.enable = lib.mkForce false;
     systemd.services.ModemManager.enable = false;
 
     # Disable OBEX (BT file transfer). Masks the session-bus service so it
