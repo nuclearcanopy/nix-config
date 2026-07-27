@@ -16,17 +16,29 @@
       scriptsDir = ./waybar/scripts;
       script = name: "${scriptsDir}/${name}";
 
-      # Waybar 0.15 silently loses its layer-shell surface on output events
-      # (mode change, refresh-rate change, DPMS, replug) and never rebinds.
-      # The reliable fix is to restart on any output event; a 2-second
-      # coalesce absorbs the burst of events that a single plug/unplug
-      # fires. Disconnecting HDMI briefly flashes the internal bar once,
-      # which is the deliberate trade for never having a silently-gone bar.
+      # Waybar 0.15 silently loses its layer-shell surface when an output is
+      # reconfigured (mode/refresh change, replug) and never rebinds, so we
+      # restart it on real output changes. But sway also fires "output" events
+      # for DPMS blanking (swayidle screen-off/on) and transient resume events
+      # where nothing about the topology actually changed; restarting on those
+      # is what produced the duplicate/flashing bars. So we diff a topology
+      # signature (name, active, mode, refresh, transform, scale; DPMS excluded)
+      # and only restart when it genuinely changes. A 2-second coalesce absorbs
+      # the burst of events a single plug/unplug fires.
       outputWatcher = pkgs.writeShellScript "waybar-output-watcher" ''
         set -eu
+        sig() {
+          ${pkgs.sway}/bin/swaymsg -t get_outputs \
+            | ${pkgs.jq}/bin/jq -cS 'sort_by(.name) | map({name, active, transform, scale, m: (.current_mode // {} | {width, height, refresh})})'
+        }
+        last=$(sig || echo "")
         ${pkgs.sway}/bin/swaymsg -t subscribe -m '["output"]' | while read -r _; do
           while read -r -t 2 _; do :; done
-          ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          cur=$(sig || echo "$last")
+          if [ "$cur" != "$last" ]; then
+            last=$cur
+            ${pkgs.systemd}/bin/systemctl --user restart waybar.service
+          fi
         done
       '';
     in
@@ -95,14 +107,9 @@
             output = [ "DP-1" "HDMI-A-1" ];
           } // {
             modules-left =
-              [ "clock#date" "custom/time" ]
-              ++ lib.optional isLaptop "custom/sep"
-              ++ [ "custom/volume" "custom/mic" ]
-              ++ lib.optional isLaptop "custom/sep"
+              [ "clock#date" "custom/time" "custom/sep" "custom/volume" "custom/mic" "custom/sep" ]
               ++ lib.optional isLaptop "custom/brightness"
-              ++ [ "custom/caffeine" ]
-              ++ lib.optional isLaptop "custom/sep"
-              ++ [ "custom/vpn" "custom/airgap" ]
+              ++ [ "custom/caffeine" "custom/sep" "custom/vpn" "custom/airgap" ]
               ++ lib.optional isLaptop "custom/bluetooth"
               ++ lib.optional isLaptop "custom/thermalmode"
               ++ [ "group/expand" ]
@@ -111,17 +118,14 @@
             modules-center = [ "sway/workspaces" ];
 
             modules-right =
-              [ "custom/mouse" "custom/memory" "custom/ssd" ]
-              ++ lib.optional isLaptop "custom/sep"
-              ++ [ "custom/cpu" ]
+              [ "custom/mouse" "custom/memory" "custom/ssd" "custom/sep" "custom/cpu" ]
               ++ lib.optional isDesktop "custom/gpu"
-              ++ lib.optional isDesktop "custom/firmware"
               ++ lib.optional isLaptop "custom/battery"
-              ++ lib.optional isLaptop "custom/sep"
+              ++ [ "custom/sep" ]
               ++ lib.optional isLaptop "custom/dock"
               ++ [ "custom/reboot" ]
-              ++ lib.optional isLaptop "custom/sleep"
-              ++ [ "custom/power" ];
+              ++ lib.optional isDesktop "custom/firmware"
+              ++ [ "custom/sleep" "custom/power" ];
 
             # ── Common modules ────────────────────────────────────────────
             "clock#date" = {
@@ -141,7 +145,6 @@
               exec = script "volume.sh";
               on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
               on-click-middle = "pavucontrol";
-            } // lib.optionalAttrs isLaptop {
               on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+";
               on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
             };
@@ -239,7 +242,18 @@
 
             "custom/power" = {
               format = "PWR";
-              on-click-middle = if isLaptop then "systemctl poweroff" else "systemctl suspend";
+              on-click-middle = "systemctl poweroff";
+              tooltip = false;
+            };
+
+            "custom/sleep" = {
+              format = "SLP";
+              on-click-middle = "systemctl suspend";
+              tooltip = false;
+            };
+
+            "custom/sep" = {
+              format = "|";
               tooltip = false;
             };
 
@@ -277,22 +291,11 @@
             };
           } // lib.optionalAttrs isLaptop {
             # ── Laptop-only modules ───────────────────────────────────────
-            "custom/sep" = {
-              format = "|";
-              tooltip = false;
-            };
-
             "custom/bluetooth" = {
               exec = script "bt_mode.sh";
               interval = 10;
               signal = 12;
               on-click = script "bt_toggle.sh";
-              tooltip = false;
-            };
-
-            "custom/sleep" = {
-              format = "SLP";
-              on-click-middle = "systemctl suspend";
               tooltip = false;
             };
 
