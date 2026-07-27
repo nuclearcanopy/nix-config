@@ -10,6 +10,7 @@
       mangohud
       vkbasalt
       protontricks
+      gamescope
 
       bottles
       protonup-qt
@@ -20,6 +21,8 @@
       # calibre     # temporarily out: pulls onnxruntime which fails to build
       lyx
       texliveFull
+
+      brave
 
       signal-desktop
       qbittorrent
