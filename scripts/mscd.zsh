@@ -230,6 +230,14 @@ clean_artist() {
   setopt local_options extendedglob
   artist="${artist//[[:space:]][[:space:]]#/ }"
   artist="${artist%%, *}"
+
+  # Canonicalize artists whose metadata comes in with inconsistent casing so
+  # ListenBrainz scrobbles collapse to one entity. Match case-insensitively,
+  # emit the canonical spelling.
+  case "${artist:l}" in
+    bladee) artist="Bladee" ;;
+  esac
+
   printf '%s' "$artist"
 }
 
