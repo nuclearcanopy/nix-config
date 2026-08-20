@@ -10,6 +10,7 @@
     environment.systemPackages = with pkgs; [
       wireguard-tools
       dnsutils
+      python3Packages.scapy
 
       unzip
       zip
