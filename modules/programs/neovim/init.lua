@@ -9,12 +9,22 @@ vim.api.nvim_create_autocmd("VimLeave", {
   end,
 })
 
-vim.api.nvim_set_keymap(
-  "n",
-  "<F5>",
-  ":w<CR>:vsp | terminal g++ -std=c++17 % -o /tmp/%:t:r && /tmp/%:t:r<CR>",
-  { noremap = true }
-)
+-- <F5>: save and run the current file, dispatching on filetype.
+local function run_file()
+  vim.cmd("w")
+  local ft = vim.bo.filetype
+  local cmd
+  if ft == "python" then
+    cmd = "python3 %"
+  elseif ft == "cpp" then
+    cmd = "g++ -std=c++17 % -o /tmp/%:t:r && /tmp/%:t:r"
+  else
+    vim.notify("no run command for filetype: " .. ft, vim.log.levels.WARN)
+    return
+  end
+  vim.cmd("vsp | terminal " .. cmd)
+end
+vim.keymap.set("n", "<F5>", run_file, { noremap = true })
 
 require("lackluster").setup({
   tweak_color = {
