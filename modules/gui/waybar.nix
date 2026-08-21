@@ -181,7 +181,10 @@
               exec = script "airgap_mode.sh";
               interval = 10;
               signal = 11;
-              on-click = script "airgap_toggle.sh";
+              # middle-click only: a stray left-click here nukes all
+              # connectivity and persists across reboot, so require a
+              # deliberate press to arm airgap.
+              on-click-middle = script "airgap_toggle.sh";
               tooltip = false;
             };
 
