@@ -17,7 +17,7 @@
       xivlauncher
       prismlauncher
 
-      # libreoffice  # temporarily out: not yet cached for this nixpkgs commit + local build was hitting cc1plus segfaults
+      libreoffice
       # calibre     # temporarily out: pulls onnxruntime which fails to build
       lyx
       texliveFull
