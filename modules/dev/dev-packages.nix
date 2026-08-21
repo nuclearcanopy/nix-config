@@ -7,7 +7,7 @@
       age
       gnumake
       gcc
-      (python313.withPackages (ps: [ ps.pip ]))
+      (python313.withPackages (ps: [ ps.pip ps.scapy ]))
       rustc
       cargo
       rust-analyzer
