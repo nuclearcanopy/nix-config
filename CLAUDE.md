@@ -37,7 +37,15 @@ Navidrome is configured for resilient Subsonic streaming: 5GB transcoding cache,
 
 A sidecar systemd unit `navidrome-boost.service` (defined in the same file) tails the Navidrome container's journal for `Streaming file` / `GET /rest/stream` / `GET /rest/download` / `Scanner` lines and flips the CPU scaling governor between `powersave` (idle) and `performance` (active), with a 120s idle drop watchdog. State lives at `/run/navidrome-boost/last-activity`. This was added to keep the i5-5200U responsive under transcoding load without globally pinning the governor to performance.
 
-The `cloudflared` container runs with `--protocol quic --ha-connections 4`. Defaults (HTTP/2, single connection) were a streaming bottleneck that manifested as Subsonic skips and "song unavailable" errors.
+The `cloudflared` container runs with `--protocol quic --ha-connections 4`. Defaults (HTTP/2, single connection) were a streaming bottleneck that manifested as Subsonic skips and "song unavailable" errors. It also runs `--metrics 0.0.0.0:44483` and publishes that port to `127.0.0.1:44483` so the watchdog can poll `/ready` (200 = ≥1 tunnel connection up).
+
+## Homeserver failsafes (`modules/server/watchdog.nix`)
+The homeserver runs on aging laptop hardware and cuts out often, so `server-watchdog` (module `nixos.modules.server-watchdog`, imported in `modules/computers/homeserver.nix`) is a crash/hang recovery layer on top of the hard-failure defenses already in `server-system` (hardware watchdog `RuntimeWatchdogSec=60s`, `panic_on_oops=1`, `kernel.panic=30`, daily 05:00 reboot). It:
+- Forces `Restart=always` (`RestartSec=5s`) on the docker daemon and on every container unit. Previously only `docker-navidrome` restarted on crash (forced in `services.nix`); `docker-filebrowser`/`docker-portainer`/`docker-cloudflared` relied on the oci-containers default (no restart) and a crash stranded them until the next boot. The watchdog module adds the force for those three; navidrome keeps its own.
+- Enables `services.earlyoom` (freeMem 5%, freeSwap 10%, notifications off since headless) to kill the fattest process before the kernel OOM-killer hard-locks the box.
+- Runs `server-watchdog.timer` every 2 min (`OnBootSec=3min`, `OnUnitActiveSec=2min`) executing `modules/server/scripts/healthcheck.sh`.
+
+The health-check script curls `docker ps` plus navidrome `:4533/`, filebrowser `:8081/health`, portainer `:9000/api/status`, and cloudflared `:44483/ready`. Escalation ladder per target (checks ~2 min apart): **1 fail** → restart just that container unit; **≥2 fails** → bounce the whole docker stack (`docker.service` + `init-docker-network.service` + all container units); **≥6 fails** → `systemctl reboot`. The docker-daemon check is first and hardest: if `docker ps` times out (20s), it restarts `docker.service` immediately and reboots after 6 consecutive wedges. Failure counters live in `/run/server-watchdog` (tmpfs) on purpose so a reboot always starts from a clean slate and a permanently-broken service can never turn into a boot loop. To add a monitored service, append a `check <name> <url> <container-unit>` line and add the unit to `CONTAINERS`.
 
 ## Architecture
 ```
