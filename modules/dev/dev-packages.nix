@@ -14,6 +14,9 @@
       clippy
       rustfmt
 
+      # api testing
+      bruno
+
       # ai slop tools
       # mcp-nixos  # temporarily out: pulls cfn-lint whose tests fail upstream
       codex
