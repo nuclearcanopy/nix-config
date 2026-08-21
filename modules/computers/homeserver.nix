@@ -13,6 +13,7 @@
         config.nixos.modules.server-system
         config.nixos.modules.server-networking
         config.nixos.modules.server-services
+        config.nixos.modules.server-watchdog
         config.nixos.modules.server-users
         config.nixos.modules.server-zsh
         config.nixos.modules.secrets

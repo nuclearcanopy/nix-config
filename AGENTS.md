@@ -43,5 +43,10 @@ This repository is a NixOS flake providing system configurations for multiple ho
 
 ## Homeserver streaming sidecar
 - `navidrome-boost.service` in `modules/server/services.nix` tails the Navidrome container journal and toggles the CPU governor between `powersave` and `performance` based on stream/scan activity (120s idle drop). If you lower `ND_LOGLEVEL` below `info`, the trigger lines stop being emitted and the boost stops working — keep it at `info`.
-- The homeserver `cloudflared` container runs with `--protocol quic --ha-connections 4`; don't drop the HA flag when changing the tunnel block.
+- The homeserver `cloudflared` container runs with `--protocol quic --ha-connections 4` and publishes its metrics endpoint on `127.0.0.1:44483` (`--metrics 0.0.0.0:44483`) so the watchdog can poll `/ready`; don't drop the HA flag or the metrics port when changing the tunnel block.
+
+## Homeserver failsafes
+- `modules/server/watchdog.nix` (`server-watchdog`, imported in `modules/computers/homeserver.nix`) is the crash/hang recovery layer for the flaky laptop hardware. It forces `Restart=always` on the docker daemon and on every container unit (`docker-filebrowser`/`docker-portainer`/`docker-cloudflared`; navidrome already forces it in `services.nix`), enables `earlyoom` (notifications off, headless), and runs `server-watchdog.timer` every 2 min.
+- The timer runs `modules/server/scripts/healthcheck.sh`: curls navidrome `:4533/`, filebrowser `:8081/health`, portainer `:9000/api/status`, cloudflared `:44483/ready`, and `docker ps`. Escalation ladder per target (checks ~2 min apart): 1 fail → restart that container unit; ≥2 fails → bounce the whole docker stack (daemon + `init-docker-network` + all containers); ≥6 fails → `systemctl reboot`. Failure counters live in `/run/server-watchdog` (tmpfs) so a reboot always starts clean and a permanently-broken service can't boot-loop.
+- This sits on top of the existing hard-failure defenses in `server-system`: hardware watchdog (`RuntimeWatchdogSec=60s`), `panic_on_oops=1`, `kernel.panic=30`, and the daily 05:00 reboot.
 

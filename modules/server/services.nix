@@ -125,6 +125,9 @@
 
           cloudflared = {
             image = "cloudflare/cloudflared:latest";
+            # Publish the metrics port to host loopback so server-watchdog can
+            # poll /ready (200 = >=1 tunnel connection up, 503 = tunnel down).
+            ports = [ "127.0.0.1:44483:44483" ];
             volumes = [
               "${config.age.secrets.homeserver-cloudflared-config.path}:/etc/cloudflared/config.yml:ro"
               "${config.age.secrets.homeserver-cloudflared-credentials.path}:/etc/cloudflared/credentials.json:ro"
@@ -138,6 +141,7 @@
               "--config" "/etc/cloudflared/config.yml"
               "--protocol" "quic"
               "--ha-connections" "4"
+              "--metrics" "0.0.0.0:44483"
               "run"
             ];
             extraOptions = [ "--network=${dockerNet}" ];
