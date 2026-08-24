@@ -22,7 +22,7 @@
       lyx
       texliveFull
 
-      brave
+      helium
 
       signal-desktop
       qbittorrent
@@ -31,6 +31,8 @@
       asunder
       feishin
       qjackctl
+
+      stremio-linux-shell
     ];
   };
 }

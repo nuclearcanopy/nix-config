@@ -25,8 +25,9 @@
       feishin
       termsonic
       vlc
+      stremio-linux-shell
 
-      brave
+      helium
 
       # Minecraft. Prism ships wayland GLFW + gamemode.lib in its wrapper by
       # default; the actual perf switches (EnableFeralGamemode /
