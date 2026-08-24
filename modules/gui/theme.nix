@@ -1,5 +1,5 @@
 {
-  homeManager.modules.theme = { pkgs, ... }:
+  homeManager.modules.theme = { pkgs, lib, config, ... }:
 
     let
       # Pitch-black OLED palette, ported from firefox userChrome.
@@ -197,9 +197,44 @@
         };
       };
 
+      # Qt apps (and Chromium/Helium's "use Qt" appearance path) read the Qt
+      # palette, not the GTK3/4 OLED CSS above. adwaita-qt can't do pure black
+      # (hardcoded grey), so drive Qt with qt6ct + a Fusion custom palette that
+      # mirrors the GTK OLED colors exactly (black #000000, grey text #949494).
       qt = {
         enable = true;
-        platformTheme.name = "gtk";
+        platformTheme.name = "qtct";
+        qt6ctSettings.Appearance = {
+          style = "Fusion";
+          custom_palette = true;
+          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/oled.conf";
+          icon_theme = "Adwaita";
+          standard_dialogs = "default";
+        };
+        qt5ctSettings.Appearance = {
+          style = "Fusion";
+          custom_palette = true;
+          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/oled.conf";
+          icon_theme = "Adwaita";
+          standard_dialogs = "default";
+        };
       };
+
+      # Helium/Chromium is Qt6; the HM "qtct" preset points QT_QPA_PLATFORMTHEME
+      # at qt5ct, which Qt6 apps ignore. Force qt6ct so Helium picks up the OLED
+      # palette. Trade-off: Qt5-only apps (e.g. qjackctl) fall back to Fusion's
+      # default light palette; there is no single env value that themes both.
+      home.sessionVariables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
+      systemd.user.sessionVariables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
+
+      # qt6ct/qt5ct color scheme: 21 QPalette roles per state (active, disabled,
+      # inactive), #aarrggbb. Pure-black backgrounds, grey text, matching the
+      # oledCss above. inactive mirrors active so unfocused windows stay black.
+      xdg.configFile."qt6ct/colors/oled.conf".text = ''
+        [ColorScheme]
+        active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff272727, #ff949494, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
+        disabled_colors=#ff4d4d4d, #ff000000, #ff1c1c1c, #ff141414, #ff000000, #ff000000, #ff4d4d4d, #ffffffff, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff171717, #ff4d4d4d, #ff4d4d4d, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff4d4d4d, #ff333333
+        inactive_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff272727, #ff949494, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
+      '';
     };
 }

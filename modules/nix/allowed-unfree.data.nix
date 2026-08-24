@@ -6,4 +6,5 @@
   "claude-code"
   "unrar"
   "burpsuite"
+  "stremio-linux-shell"
 ]

@@ -8,6 +8,13 @@
     # (current channel wants 152.0.4 which isn't on hydra yet)
     nixpkgs-firefox.url = "github:NixOS/nixpkgs/3d46470bb3030020f7e1361f33514854f5bfa86d";
 
+    # helium browser is not in nixpkgs (ships only as a .deb); pulled from a
+    # community flake and injected as pkgs.helium via modules/nix/overlays.nix
+    helium = {
+      url = "github:amaanq/helium-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
