@@ -17,6 +17,15 @@
           mode = "600";
         };
 
+        # Separate key for github.com; ssh-git stays on codeberg + homeserver.
+        ssh-github = {
+          file = ../../secrets/ssh-github.age;
+          path = "/run/agenix/ssh-github";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
+
         nas-credentials = {
           file = ../../secrets/nas-credentials.age;
           owner = username;
