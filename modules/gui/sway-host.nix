@@ -58,6 +58,8 @@
         config = {
           keybindings = {
             "Mod4+Mod1+4" = "exec ${./waybar/scripts/thermal_toggle.sh}";
+            # helium is the daily browser here; sway-base binds firefox.
+            "Mod4+Tab" = lib.mkForce "exec helium";
           };
 
           output = {

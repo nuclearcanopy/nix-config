@@ -47,6 +47,11 @@
 
       virtualisation.docker.enableOnBoot = false; # socket-activated; starts on demand
 
+      # scx_lavd comes from the shared cpu-scheduler bucket (for the AMD desktop).
+      # Discarded here 2026-08-22: on a 4c/8t laptop its gains over stock EEVDF
+      # didn't justify a resident BPF scheduler. ananicy + irqbalance stay.
+      services.scx.enable = lib.mkForce false;
+
       # ── home-manager users ───────────────────────────────────────────
       home-manager.users.${username} = {
         imports = [
