@@ -40,7 +40,15 @@
         # Thunderbolt + downstream xHCI enter D3cold under runtime PM and
         # fail to resume, killing USB. Exclude their drivers so these devices
         # stay in D0 at runtime.
-        RUNTIME_PM_DRIVER_DENYLIST = "thunderbolt xhci_hcd";
+        #
+        # iwlwifi joined the list 2026-08-22 after the same failure mode hit
+        # the AX210: on the first S3 resume without pcie_port_pm=off the card
+        # came back inaccessible (MMIO reads all-0xff, AER Uncorrectable
+        # Fatal / Inaccessible). iwlwifi registers no error_detected AER
+        # callback, so the kernel cannot reset it; NetworkManager then spun
+        # in iwl_poll_bits_mask inside ieee80211_open while holding RTNL,
+        # which is unkillable and wedged shutdown into a force power-off.
+        RUNTIME_PM_DRIVER_DENYLIST = "thunderbolt xhci_hcd iwlwifi";
         WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive; latency spikes tank browser perf
         SOUND_POWER_SAVE_ON_BAT = 60;
         SOUND_POWER_SAVE_CONTROLLER = "Y";
@@ -62,9 +70,8 @@
         # TLP flip it back when idle on battery.
         DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "wwan";
 
-        DISK_APM_LEVEL_ON_AC = "254";
-        DISK_APM_LEVEL_ON_BAT = "128";
-        DISK_SPINDOWN_TIMEOUT_ON_BAT = "1";
+        # No DISK_APM_LEVEL / DISK_SPINDOWN: root is NVMe (no platters); ATA APM
+        # and spindown are HDD-only no-ops. NVMe PM rides RUNTIME_PM + ASPM above.
         DISK_IOSCHED = "none mq-deadline";  # none for NVMe (own NCQ), mq-deadline for any SATA
 
         WOL_DISABLE = "Y";

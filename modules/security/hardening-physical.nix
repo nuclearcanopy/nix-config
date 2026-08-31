@@ -20,11 +20,12 @@
         # No-op under Libreboot (no UEFI) but harmless if EFI fallback is taken.
         "efi=disable_early_pci_dma"
 
-        # Kernel lockdown=confidentiality blocks: /dev/mem, /dev/kmem, /dev/port,
-        # kexec_load, PCI BAR access, MSR writes, hibernation-to-disk, unsigned
-        # module load, BPF tracing of kernel memory. Stronger than "integrity";
-        # also denies *reads* of kernel memory by privileged processes.
-        "lockdown=confidentiality"
+        # NOTE: `lockdown=confidentiality` was removed 2026-08-22. It was a no-op:
+        # the stock kernel compiles the lockdown LSM but does not stack it unless
+        # named in `lsm=`, so the param was silently ignored (LSM list was
+        # capability,landlock,yama,apparmor,bpf,ima; /sys/kernel/security/lockdown
+        # absent). Enabling it for real (`lsm=...,lockdown,...`) would block MSR
+        # writes and kill the undervolt service, which we keep. Left off deliberately.
       ];
 
       # Thunderbolt: PCIe-tunneled-over-USB-C is the dominant DMA attack

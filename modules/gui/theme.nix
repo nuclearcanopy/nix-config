@@ -29,16 +29,16 @@
         @define-color scrollbar_outline_color #000000;
         @define-color borders               #000000;
 
-        @define-color accent_bg_color       #272727;
-        @define-color accent_fg_color       #949494;
-        @define-color accent_color          #949494;
+        @define-color accent_bg_color       #3a3a3a;
+        @define-color accent_fg_color       #ffffff;
+        @define-color accent_color          #b0b0b0;
 
         @define-color theme_bg_color        #000000;
         @define-color theme_fg_color        #949494;
         @define-color theme_base_color      #000000;
         @define-color theme_text_color      #949494;
-        @define-color theme_selected_bg_color #171717;
-        @define-color theme_selected_fg_color #949494;
+        @define-color theme_selected_bg_color #3a3a3a;
+        @define-color theme_selected_fg_color #ffffff;
         @define-color insensitive_bg_color  #000000;
         @define-color insensitive_fg_color  #4d4d4d;
 
@@ -66,9 +66,9 @@
           border-color: #000000;
           box-shadow: none;
         }
-        entry selection, textview selection {
-          background-color: #272727;
-          color: #949494;
+        entry selection, textview selection, selection, ::selection {
+          background-color: #3a3a3a;
+          color: #ffffff;
         }
 
         button, .button {
@@ -92,8 +92,8 @@
         }
 
         row:selected, row:selected:focus, .activatable:selected, list row:selected {
-          background-color: #171717;
-          color: #949494;
+          background-color: #3a3a3a;
+          color: #ffffff;
         }
         row:hover, .activatable:hover {
           background-color: #1c1c1c;
@@ -106,7 +106,8 @@
         }
         notebook tab:checked, tab:checked, tab:selected {
           background-color: #171717;
-          color: #949494;
+          color: #ffffff;
+          box-shadow: inset 0 -2px #4d4d4d;
         }
 
         scrollbar, scrollbar trough {
@@ -140,7 +141,7 @@
           background-color: #0a0a0a;
         }
         progressbar progress {
-          background-color: #272727;
+          background-color: #3a3a3a;
           background-image: none;
         }
 
@@ -149,9 +150,26 @@
           color: #949494;
         }
         switch:checked {
-          background-color: #272727;
+          background-color: #3a3a3a;
         }
         switch slider {
+          background-color: #4d4d4d;
+        }
+        switch:checked slider {
+          background-color: #ffffff;
+        }
+
+        check:checked, radio:checked, check:indeterminate, radio:indeterminate {
+          background-color: #3a3a3a;
+          border-color: #3a3a3a;
+          color: #ffffff;
+        }
+
+        button.suggested-action, .suggested-action {
+          background-color: #3a3a3a;
+          color: #ffffff;
+        }
+        button.suggested-action:hover, .suggested-action:hover {
           background-color: #4d4d4d;
         }
 
@@ -230,11 +248,31 @@
       # qt6ct/qt5ct color scheme: 21 QPalette roles per state (active, disabled,
       # inactive), #aarrggbb. Pure-black backgrounds, grey text, matching the
       # oledCss above. inactive mirrors active so unfocused windows stay black.
+      # Highlight/HighlightedText (roles 12/13) are #3a3a3a on white, mirroring
+      # accent_bg_color in the GTK CSS: light enough to read against the black
+      # background, still greyscale. Chromium's Qt path uses QPalette::Highlight
+      # for page + omnibox text selection *and* for the new-tab "+" button, so
+      # those two cannot be coloured separately (verified 2026-08-25 by running
+      # a scratch profile against a palette with Highlight/Window/Link set to
+      # three distinct debug colors). An accent blue was tried and reverted for
+      # that reason. Link (14) stays grey for the same reason.
+      #
+      # Note on Helium tabs: with the Qt theme active (extensions.theme
+      # .system_theme = 2) Chromium paints the frame, tab strip, inactive tabs,
+      # the *active* tab and the toolbar all from QPalette::Button. With
+      # Button = #000000 there is no color left to mark the selected tab, so a
+      # pure-black chrome and a visible active tab are mutually exclusive here.
+      # The two escapes, both declined: the Classic theme in
+      # helium://settings/appearance (frame #1e2020, active tab #3a3c3c), or a
+      # theme extension loaded via `--load-extension`, whose manifest separates
+      # `frame` from `toolbar` (measured black frame + #1a1a1a active tab) at
+      # the cost of dropping Helium off the Qt palette entirely, which turns its
+      # menus and omnibox dropdown chromium-grey. Black was chosen.
       xdg.configFile."qt6ct/colors/oled.conf".text = ''
         [ColorScheme]
-        active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff272727, #ff949494, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
+        active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
         disabled_colors=#ff4d4d4d, #ff000000, #ff1c1c1c, #ff141414, #ff000000, #ff000000, #ff4d4d4d, #ffffffff, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff171717, #ff4d4d4d, #ff4d4d4d, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff4d4d4d, #ff333333
-        inactive_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff272727, #ff949494, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
+        inactive_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
       '';
     };
 }

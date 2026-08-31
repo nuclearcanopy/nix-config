@@ -47,8 +47,12 @@
       kernelParams = [
         # Intel
         "intel_pstate=active"
-        "i915.enable_fbc=0"           # off: FBC on Kaby Lake causes scroll stutter (Firefox/Chromium) for negligible power savings
-        "i915.enable_psr=0"           # PSR off; causes display stutter with Libreboot ACPI tables
+        # FBC + PSR re-enabled 2026-08-22 to reclaim iGPU idle power (PSR alone
+        # is worth ~0.3-1W on a static screen). Both were disabled years ago for
+        # scroll stutter that i915 has since fixed. Rollback if Firefox/Chromium
+        # scroll stutter or panel flicker returns: set either/both back to 0.
+        "i915.enable_fbc=1"
+        "i915.enable_psr=1"
         "i915.enable_guc=2"           # HuC-only; Kaby Lake has no GuC submission (kernel warns at boot with =3)
         # Perf-for-security tradeoff: i5-8350U (Coffee Lake) mitigates Retbleed
         # via software IBRS; branch-predictor flush on every kernel entry costs
@@ -62,25 +66,30 @@
         "nmi_watchdog=0"
         "nowatchdog"
         "pcie_aspm.policy=default"    # don't force ASPM; Libreboot ACPI tables incomplete
-        "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine)
-        "i915.enable_dc=0"           # off: DC5/DC6 display power wells caused atomic-commit EBUSY deadlocks on multi-display + heavy GPU load (Kaby Lake i915 hazard)
-        # Belt-and-suspenders for the atomic-commit EBUSY hang while the real
-        # fix (correct KBL VBT in coreboot) is being prepared. RC6-off was
-        # tried but pins the iGPU at max freq, which via RAPL package-power
-        # budget starves CPU turbo enough to visibly hurt Minecraft/Java.
-        # pcie_port_pm=off blocks PCIe D-state transitions (a separate class
-        # of the EBUSY trigger) without touching GPU frequency; kept.
-        "pcie_port_pm=off"           # no PCIe port PM; iGPU never goes D3, kills D3->D0 modeset races
+        # If the AX210 falls off the PCIe bus (all-0xff MMIO reads after a
+        # failed S3 resume), tear it down and rescan instead of spinning on a
+        # dead device. iwlwifi has no error_detected AER callback, so without
+        # this the kernel cannot recover the card and any task in its ifup
+        # path (NetworkManager, `iw`) blocks forever holding RTNL, taking
+        # shutdown with it. Recovery path only; no effect when healthy.
+        "iwlwifi.remove_when_gone=1"
+        "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine). unrelated to i915/suspend.
+        # 2026-08-21: external monitors are out of the picture, so the two
+        # multi-display i915 EBUSY workarounds that were parked here
+        # ("i915.enable_dc=0" and "pcie_port_pm=off") were removed to reclaim
+        # awake-idle battery. Both only ever mattered under external-display +
+        # heavy GPU load. Rollback if the "Atomic commit failed: Device or
+        # resource busy" loop ever returns: re-add both lines.
         # ThinkPad ACPI
         "thinkpad_acpi.force_load=1"  # force-load on non-whitelisted firmware (Libreboot)
         "thinkpad_acpi.fan_control=1" # allow software fan control via /proc/acpi/ibm/fan
-        # Suspend: s2idle keeps the iGPU powered through "sleep" so it never
-        # transitions through D3cold. S3 (deep) resumes on this box progressively
-        # corrupt the i915 display state, and after 4-6 resumes a modeset
-        # returns EBUSY forever ("Atomic commit failed: Device or resource busy"
-        # loop in sway); enable_dc=0 alone didn't stop it. Costs ~1-2W more
-        # during actual suspend, irrelevant on AC.
-        "mem_sleep_default=s2idle"
+        # Suspend: S3 (deep), not s2idle. s2idle on this box never reaches deep
+        # package idle (kept warm, ~8-10%/h drain with the lid shut); S3 self-
+        # refreshes RAM and drops the SoC to ~0.5W. S3 resumes were previously
+        # seen to corrupt i915 display state after 4-6 cycles (permanent modeset
+        # EBUSY, needs reboot); accepted for the battery win now that no external
+        # display is attached. Rollback: "mem_sleep_default=s2idle".
+        "mem_sleep_default=deep"
         # Transient: flashrom -p internal needs userspace /dev/mem access to
         # the PCH SPI controller. Uncomment before reflashing, re-comment after.
         # "iomem=relaxed"
@@ -90,7 +99,7 @@
 
       kernel.sysctl = {
         # Memory tuning (32GB RAM)
-        "vm.swappiness" = 10;                   # only swap under real pressure
+        "vm.swappiness" = 120;                  # zram swap is RAM-speed + compressed, so lean on it (range extends past 100)
         "vm.vfs_cache_pressure" = 10;            # keep dentries/inodes cached longer
         "vm.watermark_scale_factor" = 125;       # larger kswapd headroom (~400MB)
         "vm.dirty_ratio" = 20;                  # batch writes; fewer disk wakeups
