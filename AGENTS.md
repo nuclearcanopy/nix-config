@@ -38,7 +38,8 @@ This repository is a NixOS flake providing system configurations for multiple ho
 - PRs should list affected host(s), relevant module paths, and the commands you ran (at least `nix flake check` and/or `nixos-rebuild build`).
 
 ## Security & Configuration Tips
-- Never commit plaintext secrets. Add/edit secrets via agenix (`agenix -e secrets/<name>.age`) and update `secrets/secrets.nix` when changing recipients.
+- Never commit plaintext secrets. The `agenix` CLI is not installed; add or rotate a secret by listing the filename in `secrets/secrets.nix` and encrypting directly with `age -r <recipient-from-secrets.nix> -o secrets/<name>.age <plaintext>`. New `.age` files must be `git add`-ed before the flake can see them.
+- Eval-time values (usernames) cannot be agenix secrets, because agenix decrypts at activation and the evaluator needs them sooner. They live in the private `identity` flake input (`git+ssh://git@github.com/nuclearcanopy/identity.git`), read as `inputs.identity.usernames.<host>`. Read access to that repo is required to evaluate this flake; without it every command below fails with a git fetch error.
 - The public GitHub mirror means any pasted secret leaks; for on-`homeserver` rotations of secrets in `kurai_only` `.age` files, drop an override env file at `/var/lib/<service>/<purpose>.env` (mode 600, root:root) and append its path to the container's `environmentFiles` list after the agenix entry — docker resolves duplicate keys "last wins". Example in `services.nix`: `/var/lib/navidrome/lastfm.env`.
 
 ## Homeserver streaming sidecar

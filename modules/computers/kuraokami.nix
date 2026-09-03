@@ -2,7 +2,7 @@
 
 {
   nixos.configurations.kuraokami = {
-    username = "user";
+    username = inputs.identity.usernames.kuraokami;
     module = { unstable, username, ... }: {
       imports = [
         ../../hosts/kuraokami/hardware-configuration.nix

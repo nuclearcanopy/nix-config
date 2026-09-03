@@ -189,6 +189,21 @@
         "type": "github"
       }
     },
+    "identity": {
+      "locked": {
+        "lastModified": 1788476024,
+        "narHash": "sha256-zcGty2lYF4gABohuPYIV8WOS6+OSphluP5gEAopDgpU=",
+        "ref": "refs/heads/main",
+        "rev": "d1b78236bc3980bf3b6d1bdafbce2f35b67299d6",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/nuclearcanopy/identity.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/nuclearcanopy/identity.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1787414105,
@@ -272,6 +287,7 @@
         "flake-parts": "flake-parts",
         "helium": "helium",
         "home-manager": "home-manager_2",
+        "identity": "identity",
         "nixpkgs": "nixpkgs",
         "nixpkgs-firefox": "nixpkgs-firefox",
         "nixvim": "nixvim",

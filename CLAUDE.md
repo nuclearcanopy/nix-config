@@ -34,6 +34,9 @@ Two SSH keys, split by purpose: `ssh-git.age` → `/run/agenix/ssh-git` is the h
 
 GitHub is the only forge. The repo lives at `github.com/nuclearcanopy/nix-config`, the remote is named `github`, and there is no second remote; `nix-commit`/`nix-clone` push and pull `github main`.
 
+## Private identity flake (eval-time values)
+Agenix decrypts at **activation** time, which is far too late for anything the Nix **evaluator** needs: `username` feeds `users.users.<name>`, home-manager paths, and agenix's own `owner =`. A username therefore cannot be an agenix secret; there is no version of that which works. Values in that class live in a separate private flake, `git+ssh://git@github.com/nuclearcanopy/identity.git`, wired as the `identity` input in `flake.nix` and read as `inputs.identity.usernames.<host>`. Currently it holds only `usernames.kuraokami`, since `nidhoggr` (`loki`) and `homeserver` are already public. Consequences: **read access to that repo is required to evaluate this flake at all** (a missing key surfaces as a git fetch error, not a Nix error), `flake.lock` pins its rev and URL but never its contents, and the fetched source does land world-readable in `/nix/store` on the machine itself, so this hides the value from the public repo, not from a local user. To rotate or add a value, commit to the identity repo and run `nix flake lock --update-input identity`.
+
 Homeserver secrets are wired in `modules/server/secrets.nix` and include `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-searxng-env.age`, `homeserver-cloudflared-credentials.age`, and `homeserver-mscd-api-hash.age`.
 
 ## Homeserver streaming reliability (`modules/server/services.nix`)
@@ -82,7 +85,7 @@ scripts/install.sh      → disko-based install flow (fresh installs)
 
 ## Conventions
 - Nix files use 2‑space indentation.
-- Username is hardcoded per host in `modules/computers/<host>.nix` (`nixos.configurations.<host>.username`) and passed via `specialArgs`. No `/etc/identity.nix`, no `--impure` flag.
+- Username is set per host in `modules/computers/<host>.nix` (`nixos.configurations.<host>.username`) and passed via `specialArgs`. `nidhoggr` and `homeserver` hardcode theirs; `kuraokami` reads `inputs.identity.usernames.kuraokami` from the private identity flake (see below). No `/etc/identity.nix`, no `--impure` flag.
 - Unstable packages are accessed as `pkgs.unstable.<name>` where needed.
 - Avoid hardcoding usernames in module bodies.
 - Prefer placing new configuration in the appropriate module rather than `hosts/<host>/system.nix`.
