@@ -8,7 +8,7 @@ let
 in
 {
   # Shared between kuraokami and nidhoggr
-  "ssh-codeberg.age".publicKeys = desktop_systems;
+  "ssh-git.age".publicKeys = desktop_systems;
   "ssh-github.age".publicKeys = desktop_systems;
   "user-password.age".publicKeys = desktop_systems;
 

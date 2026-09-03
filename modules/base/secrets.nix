@@ -9,15 +9,17 @@
       identityPaths = [ "/etc/age/key.txt" ];
 
       secrets = {
+        # Homeserver login key (laptop/desktop -> homeserver); the matching
+        # pubkey is in server-users authorizedKeys.
         ssh-git = {
-          file = ../../secrets/ssh-codeberg.age;
+          file = ../../secrets/ssh-git.age;
           path = "/run/agenix/ssh-git";
           owner = username;
           group = "users";
           mode = "600";
         };
 
-        # Separate key for github.com; ssh-git stays on codeberg + homeserver.
+        # Git forge key; the only remote is github.com/nuclearcanopy.
         ssh-github = {
           file = ../../secrets/ssh-github.age;
           path = "/run/agenix/ssh-github";

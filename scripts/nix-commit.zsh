@@ -38,8 +38,7 @@ nix-commit() {
     git -C "$NIX_FLAKE_DIR" commit -m "$COMMIT_MSG (Gen $GEN_NUM)" --quiet
 
     echo "󰊢 Syncing..."
-    git -C "$NIX_FLAKE_DIR" push origin main --quiet > /dev/null 2>&1
-    git -C "$NIX_FLAKE_DIR" push github main --quiet > /dev/null 2>&1
+      git -C "$NIX_FLAKE_DIR" push github main --quiet > /dev/null 2>&1
 
     echo " Done. (Gen $GEN_NUM)"
   else
@@ -49,8 +48,8 @@ nix-commit() {
 }
 
 nix-clone() {
-  echo "󰊢 Pulling latest from Codeberg..."
-  git -C "$NIX_FLAKE_DIR" pull origin main || { echo "󰚌 Pull failed"; return 1; }
+  echo "󰊢 Pulling latest from GitHub..."
+  git -C "$NIX_FLAKE_DIR" pull github main || { echo "󰚌 Pull failed"; return 1; }
 
   echo "󱄅 Rebuilding..."
   if elevate nixos-rebuild switch --flake "$NIX_FLAKE_DIR/#${NIX_FLAKE_HOST}" --show-trace --option warn-dirty false 2>&1 | tee /tmp/nix-build-log; then
