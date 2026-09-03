@@ -44,6 +44,11 @@
       url = "github:nix-community/nixvim/nixos-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Eval-time identity values (usernames). Private repo: read access is
+    # required to evaluate this flake. These cannot live in agenix, which
+    # decrypts at activation, long after the evaluator needs them.
+    identity.url = "git+ssh://git@github.com/nuclearcanopy/identity.git";
   };
 
   outputs = inputs:
