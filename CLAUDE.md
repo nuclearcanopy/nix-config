@@ -25,12 +25,14 @@ nix flake show ~/nix-config
 
 ## Secrets (Agenix)
 - Mapping file: `secrets/secrets.nix` (which keys can decrypt which secrets).
-- Encrypted secrets: `secrets/*.age` (e.g., `ssh-codeberg.age`, `ssh-github.age`, `nas-credentials.age`, `user-password.age`).
+- Encrypted secrets: `secrets/*.age` (e.g., `ssh-git.age`, `ssh-github.age`, `nas-credentials.age`, `user-password.age`).
 - Identity path: `/etc/age/key.txt` (provided by the user; wired in `modules/system/secrets.nix`).
 
 The system uses agenix; do not commit plaintext secrets.
 
-Git forge SSH keys are split: `ssh-codeberg.age` → `/run/agenix/ssh-git` serves `codeberg.org` and the homeserver, `ssh-github.age` → `/run/agenix/ssh-github` serves `github.com` only. Both are declared in `modules/base/secrets.nix` and routed per-host in `modules/shell/ssh.nix`; the matching public keys are materialized at `~/.ssh/id_ed25519_{codeberg,github}.pub`. `agenix` is not installed as a CLI; to add or rotate a secret, add the filename to `secrets/secrets.nix` and encrypt directly with `age -r <recipient-from-secrets.nix> -o secrets/<name>.age <plaintext>` (all three hosts share the one age recipient, so a single `-r` matches what agenix would emit). New `.age` files must be `git add`-ed before the flake can see them.
+Two SSH keys, split by purpose: `ssh-git.age` → `/run/agenix/ssh-git` is the homeserver login key (laptop/desktop → homeserver; the matching pubkey is in `modules/server/users.nix` `authorizedKeys` and is materialized locally at `~/.ssh/id_ed25519_homeserver.pub`), and `ssh-github.age` → `/run/agenix/ssh-github` is the git forge key for `github.com` (pubkey at `~/.ssh/id_ed25519_github.pub`). Both are declared in `modules/base/secrets.nix` and routed in `modules/shell/ssh.nix`; the homeserver gets `ssh-github` symlinked to `~/.ssh/id_github` by `modules/server/git.nix` so it can pull the flake. `agenix` is not installed as a CLI; to add or rotate a secret, add the filename to `secrets/secrets.nix` and encrypt directly with `age -r <recipient-from-secrets.nix> -o secrets/<name>.age <plaintext>` (all three hosts share the one age recipient, so a single `-r` matches what agenix would emit). New `.age` files must be `git add`-ed before the flake can see them.
+
+GitHub is the only forge. The repo lives at `github.com/nuclearcanopy/nix-config`, the remote is named `github`, and there is no second remote; `nix-commit`/`nix-clone` push and pull `github main`.
 
 Homeserver secrets are wired in `modules/server/secrets.nix` and include `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-searxng-env.age`, `homeserver-cloudflared-credentials.age`, and `homeserver-mscd-api-hash.age`.
 

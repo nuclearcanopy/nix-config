@@ -68,7 +68,7 @@
         For all other commands that don't require sudo, just run them directly; the Claude Code interface already prompts the user for approval when needed. Do not ask permission before running non-privileged commands.
 
         ## git remotes
-        The user maintains all repos on both Codeberg and GitHub simultaneously; they must always be in sync. Whenever you push, push to both. Codeberg is typically named "origin", GitHub is typically named "github". If a repo only has one remote set up, flag it before pushing. URL pattern: ssh://git@codeberg.org/<owner>/<repo>.git and git@github.com:<owner>/<repo>.git.
+        GitHub is the only forge; the account is nuclearcanopy and the remote is typically named "github". URL pattern: git@github.com:nuclearcanopy/<repo>.git. If a repo has no remote set up, flag it before pushing.
 
         ## commit messages
         - all lowercase

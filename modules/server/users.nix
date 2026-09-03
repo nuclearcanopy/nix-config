@@ -1,6 +1,6 @@
 {
   # Homeserver user, ssh authorized keys (desktop pubkey for remote shell), zsh
-  # shell, codeberg known_hosts + ssh config for git push.
+  # shell, github known_hosts + ssh config for git push.
   nixos.modules.server-users = { config, pkgs, username, ... }: {
     programs.git = {
       enable = true;
@@ -28,13 +28,13 @@
     users.defaultUserShell = pkgs.zsh;
 
     programs.ssh.knownHosts = {
-      "codeberg.org".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
+      "github.com".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
     };
 
     programs.ssh.extraConfig = ''
-      Host codeberg.org
+      Host github.com
         User git
-        IdentityFile /home/${username}/.ssh/id_git
+        IdentityFile /home/${username}/.ssh/id_github
         IdentitiesOnly yes
     '';
   };

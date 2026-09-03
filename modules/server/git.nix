@@ -13,7 +13,7 @@
     {
       systemd.tmpfiles.rules = [
         "L+ /home/${username}/.gitconfig - - - - ${gitconfig}"
-        "L+ /home/${username}/.ssh/id_git - - - - /run/agenix/ssh-git"
+        "L+ /home/${username}/.ssh/id_github - - - - /run/agenix/ssh-github"
       ];
     };
 }

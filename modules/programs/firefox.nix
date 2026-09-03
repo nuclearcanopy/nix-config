@@ -316,7 +316,6 @@
             { name = "WhatsApp"; url = "https://web.whatsapp.com/"; keyword = "wa"; }
             { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
             { name = "GitHub"; url = "https://github.com/"; keyword = "gh"; }
-            { name = "Codeberg"; url = "https://codeberg.org/"; keyword = "cb"; }
             { name = "NYT Crossword"; url = "https://www.nytimes.com/crosswords"; keyword = "nyt"; }
             { name = "TryHackMe"; url = "https://tryhackme.com/dashboard"; keyword = "thm"; }
             { name = "Teams"; url = "https://teams.microsoft.cloud/"; keyword = "teams"; }
