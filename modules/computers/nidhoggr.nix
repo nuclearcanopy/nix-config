@@ -55,6 +55,13 @@
       # a lockdown-mode Mullvad host. For the occasional SSD firmware check:
       #   nix shell nixpkgs#fwupd -c fwupdmgr get-updates
 
+      # Text-to-speech daemon. nixpkgs enables it by default; nothing here
+      # asks for it and it costs ~1.2GB of closure plus a resident user
+      # service. Turning it off loses Firefox "Read Aloud" and screen-reader
+      # support, and nothing else (it is output-only; the mic path is
+      # pipewire/wireplumber and is untouched).
+      services.speechd.enable = false;
+
       # scx_lavd comes from the shared cpu-scheduler bucket (for the AMD desktop).
       # Discarded here 2026-08-22: on a 4c/8t laptop its gains over stock EEVDF
       # didn't justify a resident BPF scheduler. ananicy + irqbalance stay.
