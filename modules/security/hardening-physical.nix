@@ -84,8 +84,6 @@
         allow id 046d:c547
         # PFU Happy Hacking Keyboard Professional HYBRID Type-S.
         allow id 04fe:0021
-        # Razer DeathAdder V4 Pro.
-        allow id 1532:00bf
         # Apple iPhone (5/SE/6/7/8/X/XR family PID, for USB tethering via usbmuxd).
         allow id 05ac:12a8
         # Intel AX210 Bluetooth (integrated with the Wi-Fi 6E card). Needed so
@@ -108,7 +106,8 @@
     # the daemon over IPC, which works unprivileged because the user is in
     # IPCAllowedUsers above; mako renders the notification.
     #
-    # To then allow the device, use the Mod+Shift+U picker (sway-base.nix).
+    # To then allow the device, use the Mod+Shift+U picker bound in the
+    # nidhoggr block of modules/gui/sway-host.nix.
     # That allow lasts until reboot: the ruleset is nix-store immutable, so a
     # device you want permanently must get an `allow id <vid>:<pid>` line in
     # the rules above followed by a rebuild.

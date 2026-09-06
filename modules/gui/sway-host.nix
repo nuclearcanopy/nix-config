@@ -111,12 +111,6 @@
               scroll_factor = "0.25";
             };
 
-            # Razer DeathAdder V4 Pro: flat profile (no accel), ~25% slower than kuraokami.
-            "5426:191:Razer_DeathAdder_V4_Pro" = {
-              accel_profile = "flat";
-              pointer_accel = "-0.88";
-            };
-
             "type:touchpad" = {
               accel_profile = "adaptive";
               pointer_accel = "-0.1";
