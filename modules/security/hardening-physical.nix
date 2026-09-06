@@ -103,8 +103,30 @@
       dbus.enable = true;
     };
 
+    # Desktop notification whenever USBGuard blocks a newly inserted device,
+    # so a rejected stick is visible instead of silently doing nothing. Reaches
+    # the daemon over IPC, which works unprivileged because the user is in
+    # IPCAllowedUsers above; mako renders the notification.
+    #
+    # To then allow the device, use the Mod+Shift+U picker (sway-base.nix).
+    # That allow lasts until reboot: the ruleset is nix-store immutable, so a
+    # device you want permanently must get an `allow id <vid>:<pid>` line in
+    # the rules above followed by a rebuild.
+    systemd.user.services.usbguard-notifier = {
+      description = "USBGuard block notifications";
+      after = [ "usbguard.service" ];
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.usbguard-notifier}/bin/usbguard-notifier";
+        Restart = "on-failure";
+        RestartSec = "5s";
+      };
+    };
+
     environment.systemPackages = with pkgs; [
       usbguard          # CLI for list-devices (finding vid:pid to declare)
+      usbguard-notifier
     ];
   };
 }
