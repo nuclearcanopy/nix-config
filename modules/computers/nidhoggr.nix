@@ -34,7 +34,6 @@
         config.nixos.modules.cpu-modes
         config.nixos.modules.thinkfan
         config.nixos.modules.undervolt
-        config.nixos.modules.fwupd
         config.nixos.modules.power-suspend
         config.nixos.modules.brightness-persist
       ];
@@ -47,6 +46,14 @@
       };
 
       virtualisation.docker.enableOnBoot = false; # socket-activated; starts on demand
+
+      # fwupd was dropped 2026-09-06. On this machine it could see exactly one
+      # updatable device (the WD SN720 NVMe): Libreboot has no UEFI capsule
+      # path so the BIOS/EC are not updatable through it, and the Thunderbolt
+      # controller is behind blacklisted modules. That left a resident daemon
+      # plus an fwupd-refresh timer making a periodic outbound LVFS request on
+      # a lockdown-mode Mullvad host. For the occasional SSD firmware check:
+      #   nix shell nixpkgs#fwupd -c fwupdmgr get-updates
 
       # scx_lavd comes from the shared cpu-scheduler bucket (for the AMD desktop).
       # Discarded here 2026-08-22: on a 4c/8t laptop its gains over stock EEVDF
