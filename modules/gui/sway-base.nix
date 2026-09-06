@@ -4,7 +4,7 @@
   homeManager.modules.sway-base = { pkgs, ... }:
 
     let
-      bemenuStyle = ''-i -c -l 5 -W 0.20 -B 0 -p "" --fn "monospace 16" --tb "#000000" --tf "#cccccc" --fb "#000000" --ff "#cccccc" --nb "#000000" --nf "#888888" --ab "#000000" --af "#888888" --hb "#000000" --hf "#ffffff" --sb "#000000" --sf "#ffffff" --scb "#000000" --scf "#888888"'';
+      bemenuStyle = import ./bemenu-style.data.nix;
       mod = "Mod4";
       alt = "Mod1";
       caffeineToggle = pkgs.writeShellScript "caffeine-toggle" ''

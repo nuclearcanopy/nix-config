@@ -2,7 +2,12 @@
   # Host-specific sway: monitor outputs, input devices, host-only keybindings,
   # adaptive-sync extraConfig. Selected by reading osConfig.networking.hostName
   # so computers/<host>.nix contains zero sway content.
-  homeManager.modules.sway-host = { osConfig, lib, ... }: {
+  homeManager.modules.sway-host = { osConfig, lib, ... }:
+
+    let
+      bemenuStyle = import ./bemenu-style.data.nix;
+    in
+    {
     wayland.windowManager.sway = lib.mkMerge [
       (lib.mkIf (osConfig.networking.hostName == "kuraokami") {
         config = {
@@ -60,6 +65,10 @@
             "Mod4+Mod1+4" = "exec ${./waybar/scripts/thermal_toggle.sh}";
             # helium is the daily browser here; sway-base binds firefox.
             "Mod4+Tab" = lib.mkForce "exec helium";
+            # USBGuard blocks unknown devices on insert; this picks a blocked
+            # one from a menu and authorizes it until reboot. nidhoggr only,
+            # since hardening-physical (and so usbguard) is laptop-only.
+            "Mod4+Shift+u" = "exec ${./waybar/scripts/usb_allow.sh} ${bemenuStyle}";
           };
 
           output = {
