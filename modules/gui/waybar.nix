@@ -204,6 +204,7 @@
                 "class<librewolf>" = "";
                 "class<Alacritty>" = "";
                 "class<thunar>" = "";
+                "class<[Pp]cmanfm>" = "";
                 "class<discord>" = "";
               } // lib.optionalAttrs isDesktop {
                 "class<steam>" = "";
