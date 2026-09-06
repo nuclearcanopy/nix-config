@@ -24,13 +24,16 @@
         fi
       ) &
       systemctl start --no-block cpu-mode-restore.service || true
-      pkill -u ${username} --signal 43 waybar || true
+      ${pkgs.procps}/bin/pkill -u ${username} --signal 43 waybar || true
       for b in /sys/class/backlight/*/brightness; do
         [ -f "$b" ] && val=$(cat "$b") && echo "$val" > "$b" 2>/dev/null || true
       done
       for devdir in /sys/bus/usb/devices/*/; do
-        v=$(cat "$devdir/idVendor" 2>/dev/null)
-        p=$(cat "$devdir/idProduct" 2>/dev/null)
+        # The glob also matches interface dirs (e.g. 1-0:1.0/) which have no
+        # idVendor. Without `|| continue` the failed assignment trips `set -e`
+        # in the generated script and aborts the whole resume hook.
+        v=$(cat "$devdir/idVendor" 2>/dev/null) || continue
+        p=$(cat "$devdir/idProduct" 2>/dev/null) || continue
         if [ "$v" = "046d" ] && [ "$p" = "c547" ]; then
           echo 0 > "$devdir/authorized" 2>/dev/null || true
           sleep 0.5
