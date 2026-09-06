@@ -5,6 +5,9 @@
   # kuraokami (AMD desktop) and nidhoggr (T480 laptop) both use. Hosts import
   # these and add only their hardware/role-specific deltas. The homeserver is
   # headless and does not use this profile.
+  #
+  # The file manager is deliberately NOT here: kuraokami imports `thunar`,
+  # nidhoggr imports the much smaller `pcmanfm`.
   nixos.modules.desktop-base = {
     imports = [
       # base
@@ -28,7 +31,6 @@
       config.nixos.modules.fonts
       config.nixos.modules.sway-system
       config.nixos.modules.xdg-portal
-      config.nixos.modules.thunar
 
       # hardware / misc
       config.nixos.modules.cpu-scheduler
