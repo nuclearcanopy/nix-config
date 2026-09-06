@@ -32,7 +32,6 @@
 
       # hardware / misc
       config.nixos.modules.cpu-scheduler
-      config.nixos.modules.openrazer
       config.nixos.modules.v4l2loopback
       config.nixos.modules.gaming
       config.nixos.modules.services-core

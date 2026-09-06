@@ -15,6 +15,7 @@
         config.nixos.modules.graphics-amd
         config.nixos.modules.cpu-governor-performance
         config.nixos.modules.audio-jack
+        config.nixos.modules.openrazer
       ];
 
       # ── host-specific ────────────────────────────────────────────────
