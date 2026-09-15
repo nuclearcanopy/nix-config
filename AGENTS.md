@@ -44,8 +44,26 @@ This repository is a NixOS flake providing system configurations for multiple ho
 
 ## Laptop software minimalism (nidhoggr)
 - `nidhoggr` is kept deliberately lean. Price anything new with `nix path-info -S` before adding it, and prefer the smaller option; see the "Laptop software minimalism" section in `CLAUDE.md` for what was removed on 2026-09-06 and why.
-- Consequences worth knowing: `lyx` has no TeX backend since `texliveFull` went, `EnableMangoHud=true` must not be set in a Prism `instance.cfg` here, the file manager is `pcmanfm` (kuraokami keeps `thunar`), and `openrazer` is kuraokami-only even though a Razer mouse is used on both.
+- Consequences worth knowing: `lyx` has no TeX backend since `texliveFull` went, `EnableMangoHud=true` must not be set in a Prism `instance.cfg` here, the file manager is `pcmanfm` (kuraokami keeps `thunar`), and `openrazer` is kuraokami-only even though a Razer mouse is used on both (nidhoggr's mouse battery comes from solaar instead; see below).
 - USBGuard blocks unknown devices on insert. `usbguard-notifier` raises a notification, and **Mod+Shift+U** opens a bemenu picker (`modules/gui/waybar/scripts/usb_allow.sh`) that authorizes a blocked device until reboot. Permanent trust still means adding `allow id <vid>:<pid>` to `modules/security/hardening-physical.nix` and rebuilding.
+
+## User services and session targets
+- Home-manager user services must hang off `sway-session.target`, never `graphical-session.target`. NixOS's `nixos-fake-graphical-session.target` activates `graphical-session.target` at login, before sway runs `systemctl --user import-environment`, so anything ordered on it starts with no `WAYLAND_DISPLAY`/`QT_PLUGIN_PATH`. `easyeffects` was the last service on the stock HM wiring and SIGABRTed every boot on Qt platform-plugin init; fixed 2026-09-15 in `modules/programs/easyeffects-service.nix`.
+- Overriding HM unit sections: list keys under `.Unit` merge by concatenation, so `After`/`PartOf`/`Install.WantedBy` need `lib.mkForce` or the old target stays wired alongside the new one. Keep the pipewire ordering on `easyeffects` regardless; without it it aborts on `No connection to PipeWire`.
+- A service with `Restart=on-failure` can crash on every boot and still read `active (running)` seconds later. `systemctl --failed` will not show it; check `coredumpctl list` when auditing.
+
+## Journal and PCIe AER noise
+- `modules/services/core.nix` caps journald at `SystemMaxUse=512M` / `SystemMaxFileSize=64M` / `MaxRetentionSec=1month`; the default is 10% of the root fs (~23G) and it had reached 2.1G.
+- Most of that volume is ~1000 correctable `RxErr` AER retries per boot from the WD PC SN720 NVMe (`0000:07:00.0`). They are harmless link-layer retries. **Do not disable AER** (`pci=noaer`, `pcie_ports=compat`) to quiet them; the AX210 resume failure is detected as a fatal AER event and would be hidden.
+
+## Mouse battery (waybar `custom/mouse`)
+- `mouse_battery.sh` tries openrazer sysfs, then `/sys/class/power_supply/hidpp_battery_0`, then `solaar show`. The first is kuraokami-only; the second never fires on nidhoggr, because its receiver (`046d:c547`, G502 X Lightspeed) is in no kernel HID++ id table, binds `hid-generic`, and so gets no power-supply node. There is no in-tree driver to load or bind; solaar reads it from userspace over hidraw.
+- `modules/hardware/logitech.nix` supplies `logitech-udev-rules` (uaccess ACL on `046d` hidraw nodes) and `solaar`. uaccess applies on device add, so the receiver must be replugged after a rebuild that first adds the rules. Don't swap this for `hardware.logitech.wireless.enable`; it drags in Unifying-only `ltunify`.
+- solaar costs ~3.5s wall / ~1.2s CPU per call and can't be made cheaper, so the laptop polls at 300s and relies on `signal = 13` (`pkill --signal 47 waybar`, fired from `resumeCommands` after the receiver is re-authorized) to refresh on resume. See the "Mouse battery" section in `CLAUDE.md`.
+
+## Neovim (nixvim)
+- Config is `modules/programs/neovim.nix` plus `modules/programs/neovim/init.lua` (`extraConfigLua`). `typos_lsp` is the only server, and because its lspconfig entry declares no `filetypes`, nvim 0.12 attaches it to every buffer with `buftype` `''` or `help`.
+- `extraOptions.flags.allow_incremental_sync = false` is deliberate: nvim 0.12's incremental sync asserts in `vim/lsp/sync.lua:136` (`compute_start_range`) when its cached line snapshot desyncs from the buffer (neovim#33224). The flag forces Full sync so `compute_diff` never runs. Don't remove it until upstream fixes the assert.
 
 ## Homeserver streaming sidecar
 - `navidrome-boost.service` in `modules/server/services.nix` tails the Navidrome container journal and toggles the CPU governor between `powersave` and `performance` based on stream/scan activity (120s idle drop). If you lower `ND_LOGLEVEL` below `info`, the trigger lines stop being emitted and the boost stops working — keep it at `info`.
