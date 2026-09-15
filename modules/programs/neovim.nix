@@ -10,7 +10,14 @@
         enable = true;
         servers.typos_lsp = {
           enable = true;
-          extraOptions.init_options.diagnosticSeverity = "Warning";
+          extraOptions = {
+            init_options.diagnosticSeverity = "Warning";
+            # Force full-text didChange. nvim 0.12's incremental sync asserts in
+            # sync.lua compute_start_range when its cached line snapshot desyncs
+            # from the buffer (neovim#33224). typos_lsp declares no filetypes, so
+            # it attaches to every buffer and hits that path constantly.
+            flags.allow_incremental_sync = false;
+          };
         };
       };
 
