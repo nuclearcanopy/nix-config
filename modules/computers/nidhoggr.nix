@@ -20,6 +20,7 @@
         config.nixos.modules.trackpad-synaptics
         config.nixos.modules.keyd-internal-kbd
         config.nixos.modules.bluetooth
+        config.nixos.modules.logitech
         config.nixos.modules.pcmanfm
         config.nixos.modules.network-laptop
         config.nixos.modules.mullvad-graphical-target

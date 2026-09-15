@@ -38,6 +38,13 @@
           echo 0 > "$devdir/authorized" 2>/dev/null || true
           sleep 0.5
           echo 1 > "$devdir/authorized" 2>/dev/null || true
+          # Re-authorizing is a USB remove+add, so waybar's mouse battery is
+          # unreadable for a moment and its own poll is 5 minutes away. Give
+          # the receiver time to re-enumerate and re-acquire its uaccess ACL,
+          # then poke custom/mouse (signal 13 = SIGRTMIN+13).
+          ( sleep 5
+            ${pkgs.procps}/bin/pkill -u ${username} --signal 47 waybar
+          ) >/dev/null 2>&1 &
           break
         fi
       done

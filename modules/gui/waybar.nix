@@ -234,7 +234,14 @@
 
             "custom/mouse" = {
               exec = script "mouse_battery.sh";
-              interval = 60;
+              # kuraokami reads openrazer sysfs (instant). nidhoggr has no
+              # kernel HID++ driver for its receiver and has to fork solaar,
+              # which costs ~3.5s wall / ~1.2s CPU per call, so poll it rarely;
+              # a mouse takes weeks to discharge. Signal 13 covers the one
+              # moment the value can go stale early: resume, where
+              # power-suspend.nix re-authorizes the receiver on the USB bus.
+              interval = if isLaptop then 300 else 60;
+              signal = 13;
               tooltip = false;
             };
 
