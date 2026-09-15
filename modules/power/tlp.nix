@@ -53,8 +53,20 @@
         SOUND_POWER_SAVE_ON_BAT = 60;
         SOUND_POWER_SAVE_CONTROLLER = "Y";
 
-        # Battery health thresholds (BAT1: SANYO 01AV425).
-        # EC only initiates charge below START; 20/80 for longevity.
+        # Battery health thresholds. Both packs are LGC: BAT0 is the internal
+        # 01AV420 (~24Wh Li-poly), BAT1 the removable Power Bridge 01AV427
+        # (~80Wh Li-ion). The EC only initiates charge below START, so a plug-in
+        # above START leaves the pack idle until it drops below it, then tops up
+        # to STOP.
+        #
+        # BAT0 was previously unmanaged and rode the EC default of 96/100, which
+        # holds the internal Li-poly at ~100% permanently; that is the worst
+        # state for calendar ageing, and it sits next to a CPU that idles in the
+        # 60s C. 75/80 costs ~5Wh of hot-swap reserve (still minutes of runtime,
+        # far more than a Power Bridge swap needs) and matches BAT1's stop point.
+        # Charge order is BAT0 first, then BAT1.
+        START_CHARGE_THRESH_BAT0 = 75;
+        STOP_CHARGE_THRESH_BAT0 = 80;
         START_CHARGE_THRESH_BAT1 = 20;
         STOP_CHARGE_THRESH_BAT1 = 80;
 
