@@ -56,6 +56,15 @@ This repository is a NixOS flake providing system configurations for multiple ho
 - `modules/services/core.nix` caps journald at `SystemMaxUse=512M` / `SystemMaxFileSize=64M` / `MaxRetentionSec=1month`; the default is 10% of the root fs (~23G) and it had reached 2.1G.
 - Most of that volume is ~1000 correctable `RxErr` AER retries per boot from the WD PC SN720 NVMe (`0000:07:00.0`). They are harmless link-layer retries. **Do not disable AER** (`pci=noaer`, `pcie_ports=compat`) to quiet them; the AX210 resume failure is detected as a fatal AER event and would be hidden.
 
+## Battery runtime estimation (nidhoggr)
+- `battery-model.service` (`modules/power/battery-model.nix` + `modules/power/scripts/battery_model.py`) samples ~35 power signals every 5s, keeps a long history under `/var/lib/battery-model`, and forecasts mean power over the next 5-480 min conditioned on cpu-mode/screen/power-band/workload-class/time-of-day. The ETA solves `integral(P) = usable energy`; it is not `charge / current_now`.
+- `battery.sh` is now only a relay: it `cat`s `waybar.json` when fresh (<120s) and otherwise falls back to the original sysfs arithmetic with `class: stale`. All formatting and the tooltip are built in Python. **Don't move formatting back into the shell script.**
+- The module is `return-type = "json"`, `tooltip = true`, `interval = 15`. The old plain-text `BAT 45% 07H` output is gone.
+- Runs as root because `intel-rapl` `energy_uj` is `0400 root`. It must **not** be stopped for suspend: it measures S3 drain by diffing `CLOCK_BOOTTIME` against `CLOCK_MONOTONIC` across the sleep.
+- The "empty" floor is the third-smallest observed run minimum, and `Trainer` keeps the 100 *deepest* minima. Do not turn this into a percentile over all runs: most runs end because the charger went in, so their minima are uninformative and a percentile lands above current charge and zeroes the ETA.
+- `writePython3Bin` flake8-checks the script at build time. `flakeIgnore` covers `W503`+`W504` (the mutually exclusive line-break pair) and `E265` (the shebang the writer prepends); if you add a genuine lint error the rebuild fails.
+- Check it is earning its keep with `battery-model report`, which prints per-horizon accuracy against the naive estimator it replaced. See the "Battery runtime estimation" section in `CLAUDE.md`.
+
 ## Mouse battery (waybar `custom/mouse`)
 - `mouse_battery.sh` tries openrazer sysfs, then `/sys/class/power_supply/hidpp_battery_0`, then `solaar show`. The first is kuraokami-only; the second never fires on nidhoggr, because its receiver (`046d:c547`, G502 X Lightspeed) is in no kernel HID++ id table, binds `hid-generic`, and so gets no power-supply node. There is no in-tree driver to load or bind; solaar reads it from userspace over hidraw.
 - `modules/hardware/logitech.nix` supplies `logitech-udev-rules` (uaccess ACL on `046d` hidraw nodes) and `solaar`. uaccess applies on device add, so the receiver must be replugged after a rebuild that first adds the rules. Don't swap this for `hardware.logitech.wireless.enable`; it drags in Unifying-only `ltunify`.
@@ -64,6 +73,7 @@ This repository is a NixOS flake providing system configurations for multiple ho
 ## Neovim (nixvim)
 - Config is `modules/programs/neovim.nix` plus `modules/programs/neovim/init.lua` (`extraConfigLua`). `typos_lsp` is the only server, and because its lspconfig entry declares no `filetypes`, nvim 0.12 attaches it to every buffer with `buftype` `''` or `help`.
 - `extraOptions.flags.allow_incremental_sync = false` is deliberate: nvim 0.12's incremental sync asserts in `vim/lsp/sync.lua:136` (`compute_start_range`) when its cached line snapshot desyncs from the buffer (neovim#33224). The flag forces Full sync so `compute_diff` never runs. Don't remove it until upstream fixes the assert.
+- `render_markdown.setup({ debounce = 200 })` (default 100) works around a separate, still-open core bug, `neovim#38303`: `vim/treesitter/query.lua` `_match_predicates` can throw `Index out of bounds` if the buffer mutates inside the debounce window. Cosmetic (error message only, no crash/corruption); widening the debounce just narrows the race. See the "Neovim (nixvim)" section in `CLAUDE.md`.
 
 ## Homeserver streaming sidecar
 - `navidrome-boost.service` in `modules/server/services.nix` tails the Navidrome container journal and toggles the CPU governor between `powersave` and `performance` based on stream/scan activity (120s idle drop). If you lower `ND_LOGLEVEL` below `info`, the trigger lines stop being emitted and the boost stops working — keep it at `info`.
