@@ -184,7 +184,15 @@ vim.api.nvim_create_autocmd("FileType", {
 
 local ok_render_markdown, render_markdown = pcall(require, "render-markdown")
 if ok_render_markdown then
-  render_markdown.setup({})
+  render_markdown.setup({
+    -- Wider window before re-querying the buffer's treesitter tree. Neovim
+    -- core has an open, unfixed race (neovim#38303) where vim.treesitter's
+    -- query iterator asserts "Index out of bounds" if the buffer mutates
+    -- between the debounce firing and the query running; a longer debounce
+    -- narrows that window. Cosmetic only (an error message, not a crash),
+    -- there is no real fix available from plugin config.
+    debounce = 200,
+  })
 end
 
 require("high-str").setup({
