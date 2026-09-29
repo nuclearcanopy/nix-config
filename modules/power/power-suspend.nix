@@ -3,7 +3,11 @@
   # powerDownCommands tears the AX210 driver down before S3; resumeCommands
   # brings it back and handles the spurious-wake mitigation, backlight redraw,
   # waybar refresh signal, and Logitech receiver re-auth.
-  nixos.modules.power-suspend = { pkgs, username, ... }: {
+  nixos.modules.power-suspend =
+    let
+      usbIds = import ../hardware/usb-ids.data.nix;
+    in
+    { pkgs, username, ... }: {
     services.logind.settings.Login = {
       HandleLidSwitch = "suspend";
       HandleLidSwitchExternalPower = "suspend";
@@ -83,7 +87,7 @@
         # in the generated script and aborts the whole resume hook.
         v=$(cat "$devdir/idVendor" 2>/dev/null) || continue
         p=$(cat "$devdir/idProduct" 2>/dev/null) || continue
-        if [ "$v" = "046d" ] && [ "$p" = "c547" ]; then
+        if [ "$v" = "${usbIds.logitechG502XReceiver.vendor}" ] && [ "$p" = "${usbIds.logitechG502XReceiver.product}" ]; then
           echo 0 > "$devdir/authorized" 2>/dev/null || true
           sleep 0.5
           echo 1 > "$devdir/authorized" 2>/dev/null || true

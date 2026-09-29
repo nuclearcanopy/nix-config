@@ -8,6 +8,7 @@
 
     let
       cpuModeStateFile = "/var/lib/cpu-mode/state";
+      usbIds = import ../hardware/usb-ids.data.nix;
 
       setCpuMode = pkgs.writeShellScriptBin "set-cpu-mode" ''
         set -euo pipefail
@@ -113,7 +114,7 @@
             done
           '';
         in ''
-          SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="9981", MODE="0664", GROUP="users"
+          SUBSYSTEM=="usb", ATTR{idVendor}=="${usbIds.kindleScribe.vendor}", ATTR{idProduct}=="${usbIds.kindleScribe.product}", MODE="0664", GROUP="users"
           SUBSYSTEM=="pci", KERNEL=="0000:00:14.0", ATTR{power/wakeup}="disabled"
           ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu[0-9]*", RUN+="${makeWheelWritable} /sys%p/cpufreq/scaling_governor /sys%p/cpufreq/scaling_max_freq /sys%p/cpufreq/energy_performance_preference /sys%p/cpuidle/state4/disable /sys%p/cpuidle/state5/disable"
           ACTION=="add", SUBSYSTEM=="cpu", KERNEL=="cpu0", RUN+="${makeWheelWritable} /sys/devices/system/cpu/intel_pstate/no_turbo"
