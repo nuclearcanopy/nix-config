@@ -1,10 +1,6 @@
 {
   homeManager.modules.user-packages = { pkgs, ... }: {
-    home.packages = with pkgs; [
-      obs-studio
-      audacity
-      gimp
-      xournalpp
+    home.packages = (import ./user-packages-common.data.nix pkgs) ++ (with pkgs; [
       kdePackages.kdenlive
 
       mangohud
@@ -17,22 +13,11 @@
       xivlauncher
       prismlauncher
 
-      libreoffice
       # calibre     # temporarily out: pulls onnxruntime which fails to build
-      lyx
       texliveFull
 
-      helium
-
-      signal-desktop
-      qbittorrent
-
-      picard
-      asunder
       feishin
       qjackctl
-
-      stremio-linux-shell
-    ];
+    ]);
   };
 }
