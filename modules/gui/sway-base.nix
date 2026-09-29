@@ -7,19 +7,6 @@
       bemenuStyle = import ./bemenu-style.data.nix;
       mod = "Mod4";
       alt = "Mod1";
-      caffeineToggle = pkgs.writeShellScript "caffeine-toggle" ''
-        PIDFILE="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/waybar-caffeine.pid"
-        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-          kill "$(cat "$PIDFILE")"
-          rm -f "$PIDFILE"
-        else
-          systemd-inhibit --what=idle:sleep:handle-lid-switch --who=waybar-caffeine \
-            --why="Caffeine mode active" --mode=block \
-            sleep infinity &
-          echo $! > "$PIDFILE"
-        fi
-        pkill -RTMIN+8 waybar
-      '';
     in
     {
       wayland.windowManager.sway = {
@@ -89,7 +76,7 @@
 
             "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
             "${mod}+${alt}+2" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
-            "${mod}+${alt}+3" = "exec ${caffeineToggle}";
+            "${mod}+${alt}+3" = "exec ${./waybar/scripts/caffeine.sh} toggle";
             "${mod}+${alt}+Shift+p" = "exec systemctl suspend";
             "${mod}+Shift+b" = "exec systemctl --user restart waybar.service";
 
