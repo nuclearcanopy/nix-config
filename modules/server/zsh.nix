@@ -39,7 +39,6 @@
             sudo rsync -av --delete --exclude='cache' /var/lib/navidrome /mnt/nas/homeserver/var/lib/
             sudo rsync -av --delete /var/lib/filebrowser /mnt/nas/homeserver/var/lib/
             sudo rsync -av --delete /var/lib/portainer /mnt/nas/homeserver/var/lib/
-            sudo rsync -av --delete /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
           }
         '';
       };
