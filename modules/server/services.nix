@@ -158,10 +158,10 @@
         # Declaratively deploy SearXNG config on each boot; replaces ExecStartPre cp/chmod.
         # C+ copies (overwriting) so the container gets a writable file.
         # "C+ /var/lib/searxng/settings.yml 0644 root root - ${searxngConfig}"
-        "d /home/${username}/Navidrome 0755 homeserver users -"
-        "d /home/${username}/Navidrome/music 0755 homeserver users -"
-        "d /home/${username}/Navidrome/music/Web 0755 homeserver users -"
-        "d /home/${username}/Navidrome/music/Bought 0755 homeserver users -"
+        "d /home/${username}/Navidrome 0755 ${username} users -"
+        "d /home/${username}/Navidrome/music 0755 ${username} users -"
+        "d /home/${username}/Navidrome/music/Web 0755 ${username} users -"
+        "d /home/${username}/Navidrome/music/Bought 0755 ${username} users -"
       ];
 
       systemd.services.init-docker-network = {
@@ -303,7 +303,7 @@
 
           ${pkgs.rsync}/bin/rsync -av --delete --exclude='.git' \
             --backup --backup-dir="$SNAPSHOT_DIR/nix-config" \
-            /home/homeserver/nix-config /mnt/nas/homeserver/etc/
+            /home/${username}/nix-config /mnt/nas/homeserver/etc/
           ${pkgs.rsync}/bin/rsync -av --delete --exclude='cache' \
             --backup --backup-dir="$SNAPSHOT_DIR/navidrome" \
             /var/lib/navidrome /mnt/nas/homeserver/var/lib/

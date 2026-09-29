@@ -96,13 +96,26 @@ discover_config() {
     fi
   done
 
-  # Username is hardcoded per host in modules/computers/<host>.nix as
-  # `nixos.configurations.<host>.username = "..."`. Read it from there;
-  # no prompt, no /etc/identity.nix indirection.
+  # Username is set per host in modules/computers/<host>.nix as either a
+  # literal string or (kuraokami) an expression reading the private identity
+  # flake. Grepping only handles the literal form and silently produced
+  # "user" for kuraokami, so ask nix to evaluate the actual normal user
+  # instead; this resolves correctly regardless of how the host sets it.
   for host in "${HOSTS[@]}"; do
     local user
-    user=$(grep -oP 'username = "\K[^"]+' "$SCRIPT_DIR/modules/computers/${host}.nix" 2>/dev/null | head -1)
-    HOST_USERNAMES["$host"]="${user:-user}"
+    user=$(nix eval --raw "$SCRIPT_DIR#nixosConfigurations.${host}.config.users.users" \
+      --apply 'u: builtins.head (builtins.filter (n: u.${n}.isNormalUser or false) (builtins.attrNames u))' \
+      --extra-experimental-features "nix-command flakes" 2>/dev/null)
+    if [ -z "$user" ]; then
+      # Offline/no-identity-access fallback; only correct for hosts with a
+      # literal `username = "...";`.
+      user=$(grep -oP 'username = "\K[^"]+' "$SCRIPT_DIR/modules/computers/${host}.nix" 2>/dev/null | head -1)
+    fi
+    if [ -z "$user" ]; then
+      warn "Could not determine username for $host; defaulting to 'user' -- verify before installing"
+      user="user"
+    fi
+    HOST_USERNAMES["$host"]="$user"
   done
 
   # If no hosts found, error out

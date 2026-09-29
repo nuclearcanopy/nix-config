@@ -47,12 +47,10 @@ window#waybar {
 #custom-power,
 #custom-brightness,
 #custom-battery,
-#custom-chg,
+#custom-bluetooth,
 #custom-sleep,
 #custom-sep,
-#custom-airgap,
-#custom-kbd,
-#battery {
+#custom-airgap {
   margin: 2px 11px;
   padding: 2px 0px;
   background: transparent;
@@ -144,13 +142,11 @@ window#waybar {
 #custom-time:hover,
 #custom-memory:hover,
 #custom-ssd:hover,
-#wireplumber:hover,
 #custom-mic:hover,
 #custom-power:hover,
 #custom-reboot:hover,
 #custom-mouse:hover,
-#custom-battery:hover,
-#battery:hover {
+#custom-battery:hover {
   color: #b0b0b0;
 }
 
