@@ -33,12 +33,13 @@
       programs.claude-code = {
         enable = true;
         package = pkgs.claude-code;
-        mcpServers = {
-          nixos = {
-            type = "stdio";
-            command = "mcp-nixos";
-          };
-        };
+        # mcp-nixos is commented out of modules/dev/dev-packages.nix (pulls
+        # cfn-lint whose tests fail upstream); re-add this block once that
+        # package is restored, or the binary won't exist.
+        # mcpServers.nixos = {
+        #   type = "stdio";
+        #   command = "mcp-nixos";
+        # };
         settings = {
           enabledPlugins = {
             "rust-analyzer-lsp@claude-plugins-official" = true;
@@ -63,7 +64,7 @@
 
         The NixOS configuration lives at ~/nix-config. Always look there for system config, home-manager, flake.nix, module definitions, etc.
 
-        You do NOT have sudo permissions. If a diagnostic or fix requires sudo, stop and ask the user to run that specific command. Do not attempt workarounds or retry the same blocked command in different ways; state the issue clearly and ask.
+        On kuraokami and nidhoggr you CAN run sudo: `security.sudo` + `SUDO_ASKPASS` (zenity GUI prompt) are configured in `modules/base/host-base.nix`, shared via `desktop-base` to both hosts. Run privileged commands as `sudo -A <command>`; this pops a graphical password dialog on the user's screen for them to authenticate interactively, it is not passwordless/unattended sudo. Diagnose and fix root-requiring issues directly this way instead of punting back to the user. homeserver is headless with no `desktop-base`/askpass wiring, so sudo there still requires asking the user to run the command themselves.
 
         For all other commands that don't require sudo, just run them directly; the Claude Code interface already prompts the user for approval when needed. Do not ask permission before running non-privileged commands.
 
@@ -102,9 +103,12 @@
           trace_exporter = "none"
           log_user_prompt = false
 
-          [mcp_servers.nixos]
-          command = "mcp-nixos"
-          args = []
+          # mcp-nixos is commented out of modules/dev/dev-packages.nix (pulls
+          # cfn-lint whose tests fail upstream); re-add this block once that
+          # package is restored, or the binary won't exist.
+          # [mcp_servers.nixos]
+          # command = "mcp-nixos"
+          # args = []
 
           [notice.model_migrations]
           "gpt-5.2" = "gpt-5.2-codex"
