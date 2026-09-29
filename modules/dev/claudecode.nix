@@ -79,6 +79,8 @@
         ## git workflow
         Never commit or push without asking first. At the end of a session or a coherent chunk of work, proactively ask whether to commit; "yes" means the whole flow (commit, then push to github), not just a local commit. Never add a Claude/AI co-author trailer to commits.
 
+        Split work into multiple small, progressive commits rather than one big one, each a coherent and independently revertible step (e.g. "fix bug X" separate from "refactor Y" separate from "add feature Z"), even if it all came out of one session. If unrelated pre-existing uncommitted changes are sitting in the tree, commit those as their own step(s) first, don't fold them into a commit describing this session's work.
+
         ### git remotes
         GitHub is the only forge; the account is nuclearcanopy and the remote is typically named "github". URL pattern: git@github.com:nuclearcanopy/<repo>.git. If a repo has no remote set up, flag it before pushing.
 
