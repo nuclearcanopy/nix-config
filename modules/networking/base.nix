@@ -4,7 +4,7 @@
   # (hotel/airport wifi that hijacks DNS to redirect the browser) can complete
   # the login flow; real DNSSEC is still enforced against upstreams that support
   # it. Wired ethernet profile is declared here for kuraokami's default
-  # connection; nidhoggr has its own MAC-randomized base in laptop-network.
+  # connection; nidhoggr has its own MAC-randomized base in network-laptop.
   nixos.modules.networking-base = {
     services.resolved = {
       enable = true;

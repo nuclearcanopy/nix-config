@@ -98,10 +98,13 @@
       environment.systemPackages = [ pkgs.powertop setCpuMode ];
 
       # udev rules:
-      # 1. XHC (USB xHCI, 0000:00:14.0) wakeup disable.
-      # 2. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode
+      # 1. Kindle Scribe (1949:9981) group-writable USB permissions.
+      # 2. XHC (USB xHCI, 0000:00:14.0) wakeup disable.
+      # 3. CPU/RAPL sysfs write permissions for wheel group, so set-cpu-mode
       #    works without root from waybar. Shell logic lives in store scripts;
       #    udev's rule validator rejects $VAR inside RUN strings.
+      # 4. power_supply change (AC/BAT switch): restart cpu-mode-restore.service
+      #    and signal waybar to refresh its power-mode display.
       services.udev.extraRules =
         let
           makeWheelWritable = pkgs.writeShellScript "make-wheel-writable" ''
