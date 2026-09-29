@@ -47,7 +47,7 @@ if 00:1f.4 doesn't appear, the firmware change didn't take effect.
 
 ### 2. kernel: bypass the synaptics smbus passlist
 
-`psmouse.synaptics_intertouch=1` forces the driver to attempt smbus mode regardless of pnp passlist membership. in `modules/laptop/system/trackpad.nix`:
+`psmouse.synaptics_intertouch=1` forces the driver to attempt smbus mode regardless of pnp passlist membership. in `modules/hardware/trackpad-synaptics.nix`:
 
 ```nix
 boot.extraModprobeConfig = ''
@@ -71,7 +71,7 @@ hot-reloading psmouse (`modprobe -r psmouse && modprobe psmouse`) works for test
 
 ### 3. libinput / sway: adaptive accel, dwt off
 
-in `modules/laptop/home/desktop/sway.nix`:
+in `modules/gui/sway-host.nix` (nidhoggr block):
 
 ```nix
 "type:touchpad" = {

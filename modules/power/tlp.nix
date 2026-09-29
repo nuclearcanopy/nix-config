@@ -10,18 +10,10 @@
     # power-profiles-daemon would race with TLP for governor control.
     services.power-profiles-daemon.enable = false;
 
-    # Packaged 85-tlp.rules only reapplies thresholds on ACTION=="change" for
-    # power_supply devices. If tlp.service's boot-time "tlp init start" races
-    # ACPI battery enumeration and loses, nothing retries until a later
-    # charge-state change fires, letting a pack charge past its cap before
-    # the threshold ever takes hold. This mirrors it for ACTION=="add", so
-    # the very first battery uevent after boot gets a threshold-apply attempt
-    # too. Root cause confirmed 2026-09-28: raw EC RAM read via ec_sys
-    # debugfs at offset 0xb0-0xb3 showed the configured 20/50/20/80 correctly
-    # written into the H8 chip, so the ACPI/EC write path itself is not at
-    # fault; ThinkPad EC thresholds only gate the *next* charge cycle and
-    # won't discharge an already-full pack back down to the cap, which is
-    # what let BAT0 sit at 100% once it won the earlier race.
+    # Mirrors the packaged 85-tlp.rules for ACTION=="add" too, so the very
+    # first battery uevent after boot also gets a threshold-apply attempt
+    # (closes a boot-race window that once left BAT0 stuck at a stale 96/100).
+    # Full investigation: docs/power.md#battery-threshold-drift-and-the-udev-boot-race
     services.udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.tlp}/bin/tlp setcharge"
     '';
@@ -57,41 +49,19 @@
         SATA_LINKPWR_ON_BAT = "min_power";
         AHCI_RUNTIME_PM_ON_BAT = "auto";
         RUNTIME_PM_ON_BAT = "auto";
-        # Thunderbolt + downstream xHCI enter D3cold under runtime PM and
-        # fail to resume, killing USB. Exclude their drivers so these devices
-        # stay in D0 at runtime.
-        #
-        # iwlwifi joined the list 2026-08-22 after the same failure mode hit
-        # the AX210: on the first S3 resume without pcie_port_pm=off the card
-        # came back inaccessible (MMIO reads all-0xff, AER Uncorrectable
-        # Fatal / Inaccessible). iwlwifi registers no error_detected AER
-        # callback, so the kernel cannot reset it; NetworkManager then spun
-        # in iwl_poll_bits_mask inside ieee80211_open while holding RTNL,
-        # which is unkillable and wedged shutdown into a force power-off.
+        # Thunderbolt + downstream xHCI + iwlwifi enter D3cold under runtime PM
+        # and fail to resume. iwlwifi joined 2026-08-22 after an AX210 D3cold
+        # failure wedged shutdown (RTNL held, unkillable).
+        # Full incident: docs/power.md#ax210-resume-from-s3-failures
         RUNTIME_PM_DRIVER_DENYLIST = "thunderbolt xhci_hcd iwlwifi";
         WIFI_PWR_ON_BAT = "off";          # keep WiFi responsive; latency spikes tank browser perf
         SOUND_POWER_SAVE_ON_BAT = 60;
         SOUND_POWER_SAVE_CONTROLLER = "Y";
 
-        # Battery health thresholds. Both packs are LGC: BAT0 is the internal
-        # 01AV420 (~24Wh Li-poly), BAT1 the removable Power Bridge 01AV427
-        # (~80Wh Li-ion). The EC only initiates charge below START, so a plug-in
-        # above START leaves the pack idle until it drops below it, then tops up
-        # to STOP.
-        #
-        # BAT0 was previously unmanaged and rode the EC default of 96/100, which
-        # holds the internal Li-poly at ~100% permanently; that is the worst
-        # state for calendar ageing, and it sits next to a CPU that idles in the
-        # 60s C. Capped tighter than BAT1 (50 vs 80) since it's never the pack
-        # meant to be pulled for hot-swap, so there's no reason to hold it
-        # higher than the minimum useful reserve. Charge order is still BAT0
-        # first, then BAT1.
-        #
-        # This drifted at least once independent of the declared value:
-        # tlp.service logged "Setting battery charge thresholds...done" at boot
-        # on 2026-09-25 but BAT0's sysfs threshold still read the stale 96/100
-        # until `tlp start` was re-run manually the next day; boot-race cause
-        # and fix are in the services.udev.extraRules comment above.
+        # Battery health thresholds. BAT0 (internal, ~24Wh) capped tighter than
+        # BAT1 (removable Power Bridge, ~80Wh) since it's never the hot-swap
+        # pack. Charge order is always BAT0 first, then BAT1.
+        # Design rationale + the boot-race drift incident: docs/power.md#battery-threshold-drift-and-the-udev-boot-race
         START_CHARGE_THRESH_BAT0 = 20;
         STOP_CHARGE_THRESH_BAT0 = 50;
         START_CHARGE_THRESH_BAT1 = 20;
