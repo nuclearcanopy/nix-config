@@ -73,28 +73,16 @@
         # path (NetworkManager, `iw`) blocks forever holding RTNL, taking
         # shutdown with it. Recovery path only; no effect when healthy.
         "iwlwifi.remove_when_gone=1"
-        # 2026-08-21: external monitors are out of the picture, so the
-        # multi-display i915 EBUSY workaround parked here ("i915.enable_dc=0")
-        # was removed to reclaim awake-idle battery. It only ever mattered
-        # under external-display + heavy GPU load. Rollback if the "Atomic
-        # commit failed: Device or resource busy" loop ever returns: re-add it.
+        # 2026-08-21: multi-display i915 EBUSY workaround ("i915.enable_dc=0")
+        # removed here once external monitors left the picture. Rollback if
+        # the "Atomic commit failed: Device or resource busy" loop returns.
         #
-        # "pcie_port_pm=off" was dropped in the same pass but is back as of
-        # 2026-09-29: the AX210 modprobe-unload-before-S3 mitigation in
-        # modules/power/power-suspend.nix (which prevents a *stale* DMA replay
-        # on resume) does not cover every case. On 2026-09-29 the card was
-        # confirmed cleanly unloaded pre-suspend (wlan rfkill unblocked, no
-        # stale mapping possible) yet still came back dead after a long
-        # (~17.5h) S3 sleep: DMAR fault reason 0x05 on the reload's first probe,
-        # then AER Uncorrectable (Fatal)/Inaccessible, "Skip fw error dump
-        # since bus is dead". That means the root port itself is the failure,
-        # not just a leftover driver mapping: the PCIe port power-management
-        # transition on this root port (0000:00:1c.0) doesn't reliably restore
-        # the AX210 to an accessible state across S3. This was already the
-        # documented next-fallback for exactly this recurrence. Cost is some
-        # awake-idle battery (measured zero AER events with it on vs. 12
-        # without, in the original test). Do not drop it again without
-        # re-testing several long overnight sleeps first.
+        # pcie_port_pm=off: re-added 2026-09-29 after the AX210 came back dead
+        # from S3 even with a confirmed-clean driver unload, proving the root
+        # port itself sometimes fails to restore the device, not just a stale
+        # driver mapping. Costs some awake-idle battery. Don't drop without
+        # re-testing several overnight sleeps first.
+        # Full incident history: docs/power.md#ax210-resume-from-s3-failures
         "pcie_port_pm=off"
         "intel_idle.max_cstate=7"    # cap at C7s; prevents C8/C9/C10 VR switching noise (coil whine). unrelated to i915/suspend.
         # ThinkPad ACPI

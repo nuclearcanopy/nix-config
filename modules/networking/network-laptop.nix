@@ -8,15 +8,9 @@
 
     systemd.services.mullvad-daemon.serviceConfig.TimeoutStopSec = "5";
 
-    # Lockdown mode: the daemon holds a blocking firewall policy whenever the
-    # tunnel is not up, including before it has ever connected and while the
-    # daemon is stopped. There is no traffic off this box except through
-    # Mullvad (LAN excepted). Set on every boot so the state is declarative
-    # rather than whatever is left in /etc/mullvad-vpn/settings.json.
-    #
-    # Consequence, deliberate: captive portals are unreachable. To use one,
-    # `mullvad lockdown-mode set off`, log in, then `systemctl restart
-    # mullvad-lockdown`. Nothing does that automatically any more.
+    # Lockdown mode is the actual killswitch: blocks all non-Mullvad traffic
+    # any time the tunnel is down. Set every boot so state is declarative.
+    # Deliberate consequence + captive-portal escape hatch: docs/networking.md#lockdown-mode-is-the-actual-killswitch
     systemd.services.mullvad-lockdown = {
       description = "Enforce Mullvad lockdown mode";
       after = [ "mullvad-daemon.service" ];
@@ -42,16 +36,10 @@
       '';
     };
 
-    # Safety net for the one case lockdown mode does not cover: the target
-    # state being left at "disconnected" (manual `mullvad disconnect`, a GUI
-    # click). Lockdown keeps traffic blocked there, so this restores
-    # connectivity rather than protecting it. The dispatcher delegates here
-    # instead of acting inline because nm-dispatcher kills scripts past ~20s.
-    #
-    # Also runs at login behind mullvad-autoconnect: that shared script gates
-    # `connect` on NM reporting connectivity "full", which with the check
-    # disabled reads "unknown" forever, so it burns its 20s loop before
-    # falling through. This connects without asking anyone's permission.
+    # Safety net for the "disconnected" state lockdown mode doesn't recover
+    # from on its own. The dispatcher below delegates here (nm-dispatcher
+    # kills scripts past ~20s) rather than acting inline.
+    # Why this replaced the old inline dispatcher: docs/networking.md#why-the-dispatcher-no-longer-touches-the-tunnel-directly
     systemd.services.mullvad-relink = {
       description = "Re-establish Mullvad after a network change";
       after = [ "mullvad-daemon.service" "mullvad-autoconnect.service" ];
@@ -66,22 +54,16 @@
 
         log() { ${pkgs.util-linux}/bin/logger -t mullvad-relink -- "$*"; }
 
-        # No pipe into `head` here. `mullvad status` prints four lines (state,
-        # relay, features, location); `head -n1` exits after the first and the
-        # daemon takes SIGPIPE writing the rest, which `pipefail` turns into
-        # 141 and the wrapper's `set -e` turns into a dead unit on the first
-        # iteration. It only loses the race while the daemon is mid-reconnect,
-        # i.e. exactly when this service matters. Capture, then cut in-shell.
+        # No pipe into `head` here: that caused a SIGPIPE-into-set-e dead unit.
+        # docs/networking.md#the-head--n1-sigpipe-bug
         state() {
           local out=""
           out="$(timeout 10 ${pkgs.mullvad}/bin/mullvad status 2>/dev/null)" || true
           printf '%s' "''${out%%$'\n'*}"
         }
 
-        # No connectivity gating on purpose. The check is disabled, and even
-        # enabled it would deadlock: under lockdown the probe cannot reach
-        # anything until the tunnel is up. `connect` is idempotent, so
-        # re-issuing it while the daemon retries is harmless.
+        # No connectivity gating on purpose: it deadlocks under lockdown.
+        # docs/networking.md#connectivity-gating-removed-entirely
         i=0
         while [ "$i" -lt 12 ]; do
           s="$(state)"

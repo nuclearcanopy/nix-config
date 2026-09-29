@@ -16,31 +16,10 @@
       IdleActionSec = "15min";
     };
 
-    # AX210 (0000:01:00.0) stale-DMA-on-resume workaround.
-    #
-    # On roughly 1 in 10 S3 resumes the card replays a DMA read against an
-    # address whose IOMMU mapping was not restored. iommu.strict=1 hard-faults
-    # it ("DMAR: [DMA Read NO_PASID] Request device [01:00.0] ... [fault reason
-    # 0x06] PTE Read access is not set"), the device drops off the bus with an
-    # AER Uncorrectable (Fatal) / Inaccessible, every MMIO read returns 0xff,
-    # and because iwlwifi registers no error_detected AER callback the kernel
-    # cannot reset it. wlp1s0 disappears and `nmcli dev wifi list` is empty
-    # until reboot. Seen 2026-09-09 13:51 and 2026-09-11 11:46; in both the
-    # DMAR fault precedes the AER error, so the IOMMU fault is the trigger,
-    # not a consequence of the card already being dead.
-    #
-    # Unloading the driver before S3 makes it release its DMA mappings cleanly,
-    # so there is nothing stale left to replay on resume. iwlwifi.remove_when_gone
-    # and the TLP iwlwifi runtime-PM denylist stay as-is: they limit the damage
-    # (no RTNL wedge) but never fired the removal path, so they do not recover
-    # the card on their own.
-    #
-    # Skipped while the radio is rfkill-blocked: systemd-rfkill is masked on
-    # this host, so a reload would come back soft-unblocked and silently undo
-    # the waybar airgap toggle. A blocked radio is also not moving traffic, so
-    # it is not the DMA source. The flag file is set before the unload is
-    # attempted so a partial unload (iwlmvm gone, iwlwifi stuck) still gets
-    # repaired on resume rather than leaving the card with no opmode driver.
+    # AX210 (0000:01:00.0) stale-DMA-on-resume workaround: unload the driver
+    # before S3 so it has no stale DMA mapping to replay on resume. Skipped
+    # while the radio is rfkill-blocked (a reload would come back unblocked).
+    # Full incident history: docs/power.md#ax210-resume-from-s3-failures
     powerManagement.powerDownCommands = ''
       wlan_blocked=no
       for r in /sys/class/rfkill/rfkill*; do

@@ -247,27 +247,10 @@
 
       # qt6ct/qt5ct color scheme: 21 QPalette roles per state (active, disabled,
       # inactive), #aarrggbb. Pure-black backgrounds, grey text, matching the
-      # oledCss above. inactive mirrors active so unfocused windows stay black.
-      # Highlight/HighlightedText (roles 12/13) are #3a3a3a on white, mirroring
-      # accent_bg_color in the GTK CSS: light enough to read against the black
-      # background, still greyscale. Chromium's Qt path uses QPalette::Highlight
-      # for page + omnibox text selection *and* for the new-tab "+" button, so
-      # those two cannot be coloured separately (verified 2026-08-25 by running
-      # a scratch profile against a palette with Highlight/Window/Link set to
-      # three distinct debug colors). An accent blue was tried and reverted for
-      # that reason. Link (14) stays grey for the same reason.
-      #
-      # Note on Helium tabs: with the Qt theme active (extensions.theme
-      # .system_theme = 2) Chromium paints the frame, tab strip, inactive tabs,
-      # the *active* tab and the toolbar all from QPalette::Button. With
-      # Button = #000000 there is no color left to mark the selected tab, so a
-      # pure-black chrome and a visible active tab are mutually exclusive here.
-      # The two escapes, both declined: the Classic theme in
-      # helium://settings/appearance (frame #1e2020, active tab #3a3c3c), or a
-      # theme extension loaded via `--load-extension`, whose manifest separates
-      # `frame` from `toolbar` (measured black frame + #1a1a1a active tab) at
-      # the cost of dropping Helium off the Qt palette entirely, which turns its
-      # menus and omnibox dropdown chromium-grey. Black was chosen.
+      # oledCss above. Greyscale accent is deliberate: Chromium's Qt path
+      # can't color page/omnibox selection separately from the new-tab button,
+      # and pure-black chrome can't show a visible active Helium tab at all.
+      # Full investigation + declined alternatives: docs/gui.md
       xdg.configFile."qt6ct/colors/oled.conf".text = ''
         [ColorScheme]
         active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
