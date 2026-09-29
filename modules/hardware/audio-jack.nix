@@ -1,69 +1,20 @@
+{ config, ... }:
+
 {
   # Low-latency PipeWire + JACK setup for desktop (kuraokami).
-  # Laptop (audio-basic) has the same rtkit/RT-priority stack; it's slimmer
-  # only in that it lacks JACK and the udev "use audio" power-control rule.
-  nixos.modules.audio-jack = { pkgs, ... }: {
-    # keep rt after suspend
-    security.rtkit.enable = true;
-    systemd.services.rtkit-daemon.serviceConfig.ExecStart = [
-      ""
-      "${pkgs.rtkit}/libexec/rtkit-daemon --no-canary"
-    ];
-
-    security.pam.loginLimits = [
-      { domain = "@audio"; item = "memlock"; type = "-"; value = "unlimited"; }
-      { domain = "@audio"; item = "rtprio"; type = "-"; value = "99"; }
-      { domain = "@audio"; item = "nice"; type = "-"; value = "-19"; }
-    ];
+  # Laptop (audio-basic) shares the rtkit/RT-priority stack via audio-rt-base;
+  # it's slimmer only in that it lacks JACK and the udev "keep usb audio
+  # awake" power-control rule below.
+  nixos.modules.audio-jack = {
+    imports = [ config.nixos.modules.audio-rt-base ];
 
     # keep usb audio awake
     services.udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="01", TEST=="power/control", ATTR{power/control}="on"
     '';
 
-    systemd.user.services.pipewire.serviceConfig = {
-      LimitRTPRIO = 95;
-      LimitNICE = 40;
-      LimitMEMLOCK = "infinity";
-    };
-    systemd.user.services.pipewire-pulse.serviceConfig = {
-      LimitRTPRIO = 95;
-      LimitNICE = 40;
-      LimitMEMLOCK = "infinity";
-    };
-    systemd.user.services.wireplumber.serviceConfig = {
-      LimitRTPRIO = 95;
-      LimitNICE = 40;
-      LimitMEMLOCK = "infinity";
-    };
-
     services.pipewire = {
-      enable = true;
-
-      alsa = {
-        enable = true;
-        support32Bit = true;
-      };
-
       jack.enable = true;
-
-      wireplumber.extraConfig = {
-        "51-disable-suspension" = {
-          "monitor.alsa.rules" = [{
-            matches = [
-              { "node.name" = "~alsa_output.*"; }
-              { "node.name" = "~alsa_input.*"; }
-            ];
-            actions = {
-              update-props = {
-                "session.suspend-timeout-seconds" = 0;
-              };
-            };
-          }];
-        };
-      };
-
-      pulse.enable = true;
 
       extraConfig.pipewire = {
         "92-low-latency" = {
