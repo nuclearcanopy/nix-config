@@ -65,7 +65,7 @@
       config.homeManager.modules.easyeffects
       config.homeManager.modules.firefox
       config.homeManager.modules.neovim
-      config.homeManager.modules.vesktop
+      config.homeManager.modules.discord
 
       # dev
       config.homeManager.modules.claudecode

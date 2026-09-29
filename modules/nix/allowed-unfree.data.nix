@@ -4,6 +4,7 @@
   "steam-run"
   "steam-unwrapped"
   "claude-code"
+  "discord"
   "unrar"
   "burpsuite"
   "stremio-linux-shell"
