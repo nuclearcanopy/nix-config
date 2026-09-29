@@ -86,33 +86,5 @@
         ## writing
         - NEVER use em dashes (—) anywhere. Not in chat, not in code comments, not in commit messages, not in docs. They are ugly. Semicolons are the superior grammar for the same job (joining related clauses, parenthetical asides). Use `;`, `:`, `.`, `,`, or parens instead. En dashes (–) also out; use hyphens or restructure.
       '';
-
-      home.file.".codex/config.toml" = {
-        force = true;
-        text = ''
-          analytics.enabled = false
-          history.persistence = "none"
-          history.max_bytes = 1048576
-          log_dir = "/tmp/codex-log"
-          model = "gpt-5.2"
-          model_reasoning_effort = "medium"
-
-          [otel]
-          exporter = "none"
-          metrics_exporter = "none"
-          trace_exporter = "none"
-          log_user_prompt = false
-
-          # mcp-nixos is commented out of modules/dev/dev-packages.nix (pulls
-          # cfn-lint whose tests fail upstream); re-add this block once that
-          # package is restored, or the binary won't exist.
-          # [mcp_servers.nixos]
-          # command = "mcp-nixos"
-          # args = []
-
-          [notice.model_migrations]
-          "gpt-5.2" = "gpt-5.2-codex"
-        '';
-      };
     };
 }
