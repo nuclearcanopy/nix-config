@@ -1,4 +1,26 @@
 #!/usr/bin/env bash
+# Waybar battery readout.
+#
+# The number itself comes from battery-model.service, which learns the
+# machine's power behaviour over a long history and forecasts remaining
+# runtime rather than extrapolating the instantaneous current (see
+# modules/power/battery-model.nix). All this script does is hand that payload
+# to waybar, plus a self-contained fallback for the window before the daemon
+# has written its first estimate, or if it has died.
+
+STATE="${BATTERY_MODEL_DIR:-/var/lib/battery-model}/waybar.json"
+MAX_AGE=120   # >4 daemon ticks; anything older means it is not running
+
+if [[ -r "$STATE" ]]; then
+  now=$(printf '%(%s)T' -1)
+  mtime=$(stat -c %Y "$STATE" 2>/dev/null || echo 0)
+  if (( now - mtime <= MAX_AGE )); then
+    cat "$STATE"
+    exit 0
+  fi
+fi
+
+# ── fallback: instantaneous estimate, no model ───────────────────────────────
 # T480 has two batteries (BAT0 internal ~24Wh, BAT1 removable ~72Wh).
 # Power Bridge treats them as one pool, so report a single combined %/time.
 # Kernel exposes charge_*/current_now (µAh/µA) when both are present and
@@ -73,18 +95,23 @@ if (( TOTAL_POWER > 0 )); then
   esac
   if [[ "$HOURS" != "--" ]]; then
     (( HOURS > 99 )) && HOURS=99
-    printf -v HOURS '%02d' "$HOURS"
+    printf -v HOURS '%02dh' "$HOURS"
   fi
 fi
 
+TIP="battery-model is not running, showing an instantaneous estimate. Check: systemctl status battery-model"
+
 case "$STATUS" in
   Charging)
-    printf 'CHG %02d%% %sH\n' "$CAPACITY" "$HOURS" ;;
+    TEXT=$(printf "<span color='#71A671'>CHG %02d%% %s</span>" "$CAPACITY" "$HOURS") ;;
   Full)
-    printf 'PWR %02d%% --H\n' "$CAPACITY" ;;
+    TEXT=$(printf 'PWR %02d%% --' "$CAPACITY") ;;
   *)
-    if   (( CAPACITY <= 10 )); then printf "<span color='#B96B6B'>BAT %02d%% %sH</span>\n" "$CAPACITY" "$HOURS"
-    elif (( CAPACITY <= 25 )); then printf "<span color='#e5c07b'>BAT %02d%% %sH</span>\n" "$CAPACITY" "$HOURS"
-    else                            printf 'BAT %02d%% %sH\n' "$CAPACITY" "$HOURS"
+    if   (( CAPACITY <= 10 )); then TEXT=$(printf "<span color='#B96B6B'>BAT %02d%% %s</span>" "$CAPACITY" "$HOURS")
+    elif (( CAPACITY <= 25 )); then TEXT=$(printf "<span color='#e5c07b'>BAT %02d%% %s</span>" "$CAPACITY" "$HOURS")
+    else                            TEXT=$(printf 'BAT %02d%% %s' "$CAPACITY" "$HOURS")
     fi ;;
 esac
+
+printf '{"text":"%s","tooltip":"%s","class":"stale","percentage":%d}\n' \
+  "$TEXT" "$TIP" "$CAPACITY"

@@ -37,6 +37,7 @@
         config.nixos.modules.undervolt
         config.nixos.modules.power-suspend
         config.nixos.modules.brightness-persist
+        config.nixos.modules.battery-model
       ];
 
       # ── host-specific ────────────────────────────────────────────────
