@@ -3,16 +3,16 @@
 let
   allowedUnfree = import ../nix/allowed-unfree.data.nix;
 
+  allowUnfreePredicate = pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) allowedUnfree;
+
   mkUnstable = system: import inputs.unstable {
     inherit system;
-    config.allowUnfreePredicate =
-      pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) allowedUnfree;
+    config.allowUnfreePredicate = allowUnfreePredicate;
   };
 
   mkFirefoxPkgs = system: import inputs.nixpkgs-firefox {
     inherit system;
-    config.allowUnfreePredicate =
-      pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) allowedUnfree;
+    config.allowUnfreePredicate = allowUnfreePredicate;
   };
 in
 {
@@ -47,7 +47,7 @@ in
     inputs.nixpkgs.lib.nixosSystem {
       inherit (hostCfg) system;
       specialArgs = {
-        inherit inputs allowedUnfree;
+        inherit inputs allowedUnfree allowUnfreePredicate;
         inherit (hostCfg) username;
         unstable = mkUnstable hostCfg.system;
         pkgs-firefox = mkFirefoxPkgs hostCfg.system;
