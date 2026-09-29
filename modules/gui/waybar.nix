@@ -120,6 +120,7 @@
             modules-right =
               [ "custom/mouse" "custom/memory" "custom/ssd" "custom/sep" "custom/cpu" ]
               ++ lib.optional isDesktop "custom/gpu"
+              ++ lib.optional isLaptop "custom/sep"
               ++ lib.optional isLaptop "custom/battery"
               ++ [ "custom/sep" ]
               ++ lib.optional isLaptop "custom/dock"
@@ -319,12 +320,19 @@
               tooltip = false;
             };
 
+            # Text and tooltip are built by battery-model.service (see
+            # modules/power/battery-model.nix), which writes waybar.json on
+            # every 5s sampler tick; interval matches that cadence so polling
+            # isn't the bottleneck. The script just relays the payload, so
+            # it's cheap enough to poll this often, and the tooltip carries
+            # the forecast breakdown.
             "custom/battery" = {
               exec = script "battery.sh";
-              interval = 30;
+              return-type = "json";
+              interval = 5;
               signal = 7;
               on-click-middle = "sudo -A tlp fullcharge BAT1 && pkill -RTMIN+7 waybar";
-              tooltip = false;
+              tooltip = true;
             };
 
             "custom/dock" = {
