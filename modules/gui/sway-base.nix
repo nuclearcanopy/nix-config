@@ -145,6 +145,11 @@
           focus = {
             followMouse = true;
             mouseWarping = "container";
+            # "smart" (the default) still honors self-activation requests,
+            # which is how Minecraft/Xwayland yanks you across workspaces
+            # without a click. "none" ignores those entirely; windows only
+            # get focus from an explicit click or keybinding.
+            newWindow = "none";
           };
         };
       };
