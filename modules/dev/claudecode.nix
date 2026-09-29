@@ -60,24 +60,39 @@
       };
 
       home.file.".claude/CLAUDE.md".text = ''
-        You are working on a NixOS system. Fixes, changes, patches etc. must ALL be done declaratively or in a Nix-native, reproducible way. Imperative management is discouraged due to how often I reinstall. I use 2-3 devices, always ask me what device I am on before doing something specific. You may also just check if I'm on the laptop, PC or server, but never assume.
+        You are working on a NixOS system. Fixes, changes, patches etc. must ALL be done declaratively or in a Nix-native, reproducible way. Imperative management is discouraged due to how often I reinstall.
+
+        I use 2-3 devices (kuraokami desktop, nidhoggr laptop, homeserver). Infer which one from context (hostname, cwd, which host's module is being edited, running processes) and state the inference so it can be corrected; only ask outright when it's genuinely ambiguous.
 
         The NixOS configuration lives at ~/nix-config. Always look there for system config, home-manager, flake.nix, module definitions, etc.
 
-        On kuraokami and nidhoggr you CAN run sudo: `security.sudo` + `SUDO_ASKPASS` (zenity GUI prompt) are configured in `modules/base/host-base.nix`, shared via `desktop-base` to both hosts. Run privileged commands as `sudo -A <command>`; this pops a graphical password dialog on the user's screen for them to authenticate interactively, it is not passwordless/unattended sudo. Diagnose and fix root-requiring issues directly this way instead of punting back to the user. homeserver is headless with no `desktop-base`/askpass wiring, so sudo there still requires asking the user to run the command themselves.
+        ## sudo
+        On kuraokami and nidhoggr you CAN run sudo: `security.sudo` + `SUDO_ASKPASS` (zenity GUI prompt) are configured in `modules/base/host-base.nix`, shared via `desktop-base` to both hosts. Run privileged commands as `sudo -A <command>` directly, without asking permission first; the zenity prompt itself is the real confirmation gate (it pops a graphical password dialog on the user's screen, it is not passwordless/unattended), so an extra "can I run this" question first is redundant. homeserver is headless with no `desktop-base`/askpass wiring, so sudo there still requires asking the user to run the command themselves.
 
-        For all other commands that don't require sudo, just run them directly; the Claude Code interface already prompts the user for approval when needed. Do not ask permission before running non-privileged commands.
+        Exception: `nixos-rebuild switch` (or `doas` equivalent). Stop once the config evaluates cleanly (`nix flake check` or building `.config.system.build.toplevel`) and leave the actual switch to the user; don't run it yourself even via sudo -A.
 
-        ## git remotes
+        For all other non-privileged commands, just run them directly; the Claude Code interface already prompts for approval when needed.
+
+        ## verification
+        Don't run `nix flake check` / eval verification automatically after every edit. Do it when asked, or right before handing something off for the user to build or rebuild.
+
+        ## git workflow
+        Never commit or push without asking first. At the end of a session or a coherent chunk of work, proactively ask whether to commit; "yes" means the whole flow (commit, then push to github), not just a local commit. Never add a Claude/AI co-author trailer to commits.
+
+        ### git remotes
         GitHub is the only forge; the account is nuclearcanopy and the remote is typically named "github". URL pattern: git@github.com:nuclearcanopy/<repo>.git. If a repo has no remote set up, flag it before pushing.
 
-        ## commit messages
+        ### commit messages
         - all lowercase
         - one subject line + one optional body sentence, nothing more
-        - purely functional: describe what changed and why, no filler
+        - dense and technical: pack in the essence, no filler
+        - purely functional: describe what changed and why
         - no "this commit", no bullet lists, no markdown in the message
 
-        ## readmes and docs
+        ## comments and docs
+        Prefer a separate doc over a long inline comment. Comments should be short, roughly 4-5 lines at most, stating the current load-bearing fact, not a multi-paragraph investigation log. Deep forensic detail (incident timelines, root-cause investigations, declined alternatives) belongs in a doc (e.g. a project's `docs/` folder), with a one-line pointer left in the comment. If a project's own instructions point at docs to read before touching some area, treat that as a mandatory read, not optional context, before making non-trivial changes there.
+
+        ### readmes and other docs
         - all lowercase
         - minimal: only what someone needs to use the thing
         - no badges, no feature lists, no ai-sounding prose
