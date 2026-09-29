@@ -5,7 +5,11 @@
   # JOP/ROP defense is software-only here; the i5-8350U predates Intel CET
   # (Tiger Lake/11th gen), so hardware Shadow Stack and IBT are unavailable.
   # Compensated with stack randomization, lockdown, reduced attack surface.
-  nixos.modules.hardening-physical = { pkgs, username, ... }: {
+  nixos.modules.hardening-physical =
+    let
+      usbIds = import ../hardware/usb-ids.data.nix;
+    in
+    { pkgs, username, ... }: {
     boot = {
       kernelParams = [
         # DMA protection. VT-d works under Libreboot (ME is neutered, not
@@ -81,7 +85,7 @@
         # Vendor-wide so spare/replacement keys work without a rebuild.
         allow id 1050:*
         # Logitech Unifying / Bolt USB receiver (mouse + keyboard HID).
-        allow id 046d:c547
+        allow id ${usbIds.logitechG502XReceiver.vendor}:${usbIds.logitechG502XReceiver.product}
         # PFU Happy Hacking Keyboard Professional HYBRID Type-S.
         allow id 04fe:0021
         # Apple iPhone (5/SE/6/7/8/X/XR family PID, for USB tethering via usbmuxd).

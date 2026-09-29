@@ -2,9 +2,29 @@
   # TLP: AC = adaptive turbo on demand; battery = aggressive power savings.
   # Battery health thresholds (20/80) work via the thinkpad plugin + natacpi
   # after SMBIOS product_name was fixed to "ThinkPad T480" in Libreboot config.
-  nixos.modules.tlp = {
+  nixos.modules.tlp =
+    let
+      usbIds = import ../hardware/usb-ids.data.nix;
+    in
+    { pkgs, ... }: {
     # power-profiles-daemon would race with TLP for governor control.
     services.power-profiles-daemon.enable = false;
+
+    # Packaged 85-tlp.rules only reapplies thresholds on ACTION=="change" for
+    # power_supply devices. If tlp.service's boot-time "tlp init start" races
+    # ACPI battery enumeration and loses, nothing retries until a later
+    # charge-state change fires, letting a pack charge past its cap before
+    # the threshold ever takes hold. This mirrors it for ACTION=="add", so
+    # the very first battery uevent after boot gets a threshold-apply attempt
+    # too. Root cause confirmed 2026-09-28: raw EC RAM read via ec_sys
+    # debugfs at offset 0xb0-0xb3 showed the configured 20/50/20/80 correctly
+    # written into the H8 chip, so the ACPI/EC write path itself is not at
+    # fault; ThinkPad EC thresholds only gate the *next* charge cycle and
+    # won't discharge an already-full pack back down to the cap, which is
+    # what let BAT0 sit at 100% once it won the earlier race.
+    services.udev.extraRules = ''
+      ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.tlp}/bin/tlp setcharge"
+    '';
 
     services.tlp = {
       enable = true;
@@ -62,18 +82,26 @@
         # BAT0 was previously unmanaged and rode the EC default of 96/100, which
         # holds the internal Li-poly at ~100% permanently; that is the worst
         # state for calendar ageing, and it sits next to a CPU that idles in the
-        # 60s C. 75/80 costs ~5Wh of hot-swap reserve (still minutes of runtime,
-        # far more than a Power Bridge swap needs) and matches BAT1's stop point.
-        # Charge order is BAT0 first, then BAT1.
-        START_CHARGE_THRESH_BAT0 = 75;
-        STOP_CHARGE_THRESH_BAT0 = 80;
+        # 60s C. Capped tighter than BAT1 (50 vs 80) since it's never the pack
+        # meant to be pulled for hot-swap, so there's no reason to hold it
+        # higher than the minimum useful reserve. Charge order is still BAT0
+        # first, then BAT1.
+        #
+        # This drifted at least once independent of the declared value:
+        # tlp.service logged "Setting battery charge thresholds...done" at boot
+        # on 2026-09-25 but BAT0's sysfs threshold still read the stale 96/100
+        # until `tlp start` was re-run manually the next day; boot-race cause
+        # and fix are in the services.udev.extraRules comment above.
+        START_CHARGE_THRESH_BAT0 = 20;
+        STOP_CHARGE_THRESH_BAT0 = 50;
         START_CHARGE_THRESH_BAT1 = 20;
         STOP_CHARGE_THRESH_BAT1 = 80;
 
         # USB autosuspend (internal keyboard is PS/2; unaffected).
         USB_AUTOSUSPEND = 1;
         USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN = 1;
-        USB_DENYLIST = "046d:c547 1949:9981";  # Logitech G502X wireless receiver; Kindle Scribe (MTP breaks under autosuspend)
+        # Logitech G502X wireless receiver; Kindle Scribe (MTP breaks under autosuspend)
+        USB_DENYLIST = "${usbIds.logitechG502XReceiver.vendor}:${usbIds.logitechG502XReceiver.product} ${usbIds.kindleScribe.vendor}:${usbIds.kindleScribe.product}";
         USB_EXCLUDE_BTUSB = 1;
         USB_EXCLUDE_AUDIO = 1;
         USB_EXCLUDE_PHONE = 1;
