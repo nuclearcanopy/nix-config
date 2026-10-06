@@ -142,14 +142,14 @@
       };
     in
     {
-      # PSD leaves a stale symlink at ~/.config/mozilla/firefox/<profile> pointing to
+      # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
       # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
       # linkGeneration can't mkdir through a broken symlink, so restore from
       # PSD's backup first.
       home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
         for profile in default compat google; do
-          link="${config.xdg.configHome}/mozilla/firefox/$profile"
-          backup="${config.xdg.configHome}/mozilla/firefox/''${profile}-backup"
+          link="${config.home.homeDirectory}/.mozilla/firefox/$profile"
+          backup="${config.home.homeDirectory}/.mozilla/firefox/''${profile}-backup"
           if [ -L "$link" ] && [ ! -e "$link" ]; then
             $DRY_RUN_CMD rm "$link"
             if [ -d "$backup" ]; then
@@ -161,14 +161,6 @@
         done
       '';
 
-      # firefox's real profile root is ~/.mozilla/firefox, but our declarative
-      # profiles live at configPath (~/.config/mozilla/firefox). Bridge the two
-      # with an out-of-store symlink so both firefox and PSD read/write the
-      # managed profiles. Without it, firefox falls back to a fresh imperative
-      # profile in a real ~/.mozilla/firefox directory (unconfigured browser).
-      home.file.".mozilla/firefox".source =
-        config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/mozilla/firefox";
-
       home.packages = [
         (mkFirefoxVariant "compat")
         (mkFirefoxVariant "google")
@@ -178,7 +170,6 @@
       xdg.desktopEntries.firefox-google = mkFirefoxDesktopEntry "google" "Firefox (Google)";
 
       programs.firefox = {
-        configPath = "${config.xdg.configHome}/mozilla/firefox";
         enable = true;
         package = pkgs-firefox.firefox;
 
