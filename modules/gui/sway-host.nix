@@ -63,8 +63,6 @@
         config = {
           keybindings = {
             "Mod4+Mod1+4" = "exec ${./waybar/scripts/thermal_toggle.sh}";
-            # helium is the daily browser here; sway-base binds firefox.
-            "Mod4+Tab" = lib.mkForce "exec helium";
             # USBGuard blocks unknown devices on insert; this picks a blocked
             # one from a menu and authorizes it until reboot. nidhoggr only,
             # since hardening-physical (and so usbguard) is laptop-only.
