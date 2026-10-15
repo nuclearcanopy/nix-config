@@ -1,7 +1,7 @@
 {
   # TLP: AC = adaptive turbo on demand; battery = aggressive power savings.
-  # Battery health thresholds (20/80) work via the thinkpad plugin + natacpi
-  # after SMBIOS product_name was fixed to "ThinkPad T480" in Libreboot config.
+  # Battery health thresholds work via the thinkpad plugin + natacpi after
+  # SMBIOS product_name was fixed to "ThinkPad T480" in Libreboot config.
   nixos.modules.tlp =
     let
       usbIds = import ../hardware/usb-ids.data.nix;
@@ -60,11 +60,13 @@
 
         # Battery health thresholds. BAT0 (internal, ~24Wh) capped tighter than
         # BAT1 (removable Power Bridge, ~80Wh) since it's never the hot-swap
-        # pack. Charge order is always BAT0 first, then BAT1.
+        # pack. Charge order is always BAT0 first, then BAT1. Narrow start/stop
+        # bands (40/50, 70/80) keep both batteries cycling near their health
+        # sweet spot instead of sitting pinned at the ceiling.
         # Design rationale + the boot-race drift incident: docs/power.md#battery-threshold-drift-and-the-udev-boot-race
-        START_CHARGE_THRESH_BAT0 = 20;
+        START_CHARGE_THRESH_BAT0 = 40;
         STOP_CHARGE_THRESH_BAT0 = 50;
-        START_CHARGE_THRESH_BAT1 = 20;
+        START_CHARGE_THRESH_BAT1 = 70;
         STOP_CHARGE_THRESH_BAT1 = 80;
 
         # USB autosuspend (internal keyboard is PS/2; unaffected).
