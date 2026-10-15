@@ -24,6 +24,7 @@
         config.nixos.modules.pcmanfm
         config.nixos.modules.network-laptop
         config.nixos.modules.mullvad-graphical-target
+        config.nixos.modules.network-debug
         config.nixos.modules.earlyoom
         config.nixos.modules.displaymanager-ly
         config.nixos.modules.tpm2-off
