@@ -1209,8 +1209,6 @@ def waybar_payload(e):
                 segs.append("BAT%d --%% --h" % i)
                 continue
             eta_short = fmt_h_short(p.get("eta_min", -1))
-            if p.get("projected") and eta_short != "--":
-                eta_short = "~" + eta_short
             seg = "BAT%d %d%% %s" % (i, round(p["pct"]), eta_short)
             if i == 0 and warn:
                 seg = "<span color='#B96B6B'>%s</span>" % seg
@@ -1524,7 +1522,7 @@ def cmd_status():
         if p["eta_hm"] == "--":
             eta_note = ""
         elif p.get("projected"):
-            eta_note = "  ~%s if in use" % p["eta_hm"]
+            eta_note = "  %s if in use" % p["eta_hm"]
         else:
             eta_note = "  " + p["eta_hm"]
         print("  BAT%d     %5.1f%%  %.2f/%.2f Wh  %-12s%s%s"
