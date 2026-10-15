@@ -37,6 +37,7 @@
         config.nixos.modules.thinkfan
         config.nixos.modules.undervolt
         config.nixos.modules.power-suspend
+        config.nixos.modules.caffeine-watchdog
         config.nixos.modules.brightness-persist
         config.nixos.modules.battery-model
       ];
