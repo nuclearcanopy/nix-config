@@ -17,5 +17,4 @@ pkgs: with pkgs; [
   asunder
 
   stremio-linux-shell
-  helium
 ]
