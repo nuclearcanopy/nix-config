@@ -1052,6 +1052,14 @@ class Estimator:
         target = self.target_soc()
         out["target_soc"] = round(target, 1)
 
+        # Computed unconditionally (not just in the "discharging" branch below)
+        # because the per-pack loop needs it too: Power Bridge only drains one
+        # pack at a time, and the idle pack's hypothetical "if this were the
+        # one in use" ETA is this same mean-power forecast applied to its own
+        # charge instead of the live one's.
+        keys = state_keys(rec, recent_w)
+        mid, neff = m.forecast(keys, p_now, 0.5)
+
         if rec["st"] == "C":
             out["state"] = "charging"
             p_chg = max(-rec["p_batt_w"], 0.1)
@@ -1069,8 +1077,6 @@ class Estimator:
             out["conf"] = "n/a"
         else:
             out["state"] = "discharging"
-            keys = state_keys(rec, recent_w)
-            mid, neff = m.forecast(keys, p_now, 0.5)
             hi, _ = m.forecast(keys, p_now, 0.9)
             lo, _ = m.forecast(keys, p_now, 0.1)
             usable = max(0.0, rec["e_wh"] - self.floor_wh(e_full))
@@ -1106,13 +1112,18 @@ class Estimator:
         # a pulled/reinserted BAT1 show up correctly instead of silently
         # dropping (or never regaining) a slot for the rest of the process's
         # life.
+        # Proportional share of the learned "never usable" floor, so the idle
+        # pack's projected ETA (below) reserves the same bottom fraction of
+        # its own charge that the live estimate reserves of the total.
+        floor_frac = (self.floor_wh(e_full) / e_full) if e_full > 0 else FLOOR_FRACTION_DEFAULT
+
         packs = []
         for b in ("/sys/class/power_supply/BAT0", "/sys/class/power_supply/BAT1"):
             if not os.path.isdir(b):
                 packs.append({
                     "name": os.path.basename(b), "present": False,
                     "pct": 0.0, "wh": 0.0, "full_wh": 0.0, "status": "Absent",
-                    "eta_min": -1, "eta_hm": "--",
+                    "eta_min": -1, "eta_hm": "--", "projected": False,
                 })
                 continue
             cn = rdi(os.path.join(b, "charge_now"))
@@ -1131,6 +1142,23 @@ class Estimator:
             pct = round(100.0 * wh / full_wh, 1) if full_wh else 0.0
             active = ((pstatus == "Charging" and out["state"] == "charging") or
                       (pstatus == "Discharging" and out["state"] == "discharging"))
+            if active:
+                eta_min, eta_hm, projected = out["eta_min"], out["eta_hm"], False
+            elif full_wh > 0:
+                # Idle pack (Power Bridge only drains one at a time, or the
+                # whole machine is on AC): project what its own charge would
+                # buy under the *current* conditions (cpu mode, screen,
+                # workload), using the same forecast curve as a live estimate
+                # rather than this pack's own draw, since it isn't drawing any.
+                # Optimistic when AC power masks a heavy live workload, because
+                # the power-band part of the conditioning key falls back to
+                # "idle" with no battery current to read.
+                usable_h = max(0.0, wh - floor_frac * full_wh)
+                eta_min = round(solve_eta(mid, usable_h), 1)
+                eta_hm = fmt_hm(eta_min)
+                projected = True
+            else:
+                eta_min, eta_hm, projected = -1, "--", False
             packs.append({
                 "name": os.path.basename(b),
                 "present": True,
@@ -1138,8 +1166,9 @@ class Estimator:
                 "wh": round(wh, 2),
                 "full_wh": round(full_wh, 2),
                 "status": pstatus,
-                "eta_min": out["eta_min"] if active else -1,
-                "eta_hm": out["eta_hm"] if active else "--",
+                "eta_min": eta_min,
+                "eta_hm": eta_hm,
+                "projected": projected,
             })
         out["packs"] = packs
 
@@ -1180,6 +1209,8 @@ def waybar_payload(e):
                 segs.append("BAT%d --%% --h" % i)
                 continue
             eta_short = fmt_h_short(p.get("eta_min", -1))
+            if p.get("projected") and eta_short != "--":
+                eta_short = "~" + eta_short
             seg = "BAT%d %d%% %s" % (i, round(p["pct"]), eta_short)
             if i == 0 and warn:
                 seg = "<span color='#B96B6B'>%s</span>" % seg
@@ -1225,7 +1256,8 @@ def waybar_payload(e):
             L.append("%-22s %5.1f%%  %.1f/%.1f Wh  %s"
                      % (label, p["pct"], p["wh"], p["full_wh"], p["status"]))
             if p["eta_hm"] != "--":
-                L.append("%-22s %s remaining" % ("", p["eta_hm"]))
+                verb = "would last, if in use now" if p.get("projected") else "remaining"
+                L.append("%-22s %s %s" % ("", p["eta_hm"], verb))
         if warn:
             L.append("")
             L.append("! BAT0 (internal) is outside its 20-80% band -- check")
@@ -1489,9 +1521,14 @@ def cmd_status():
           % (e.get("soc", 0), e.get("e_wh", 0), e.get("e_full_wh", 0), e.get("health", 0)))
     for i, p in enumerate(e.get("packs", [])):
         warn = " [!! outside 20-80% band]" if (i == 0 and e.get("bat0_warn")) else ""
+        if p["eta_hm"] == "--":
+            eta_note = ""
+        elif p.get("projected"):
+            eta_note = "  ~%s if in use" % p["eta_hm"]
+        else:
+            eta_note = "  " + p["eta_hm"]
         print("  BAT%d     %5.1f%%  %.2f/%.2f Wh  %-12s%s%s"
-              % (i, p["pct"], p["wh"], p["full_wh"], p["status"],
-                 ("  " + p["eta_hm"] if p["eta_hm"] != "--" else ""), warn))
+              % (i, p["pct"], p["wh"], p["full_wh"], p["status"], eta_note, warn))
     if e.get("state") == "discharging":
         print("draw       %.2f W now, %.2f W forecast mean, %.2f W next hour"
               % (e.get("p_now_w", 0), e.get("p_fore_w", 0), e.get("p_1h_w", 0)))
