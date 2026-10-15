@@ -172,6 +172,9 @@
       programs.firefox = {
         enable = true;
         package = pkgs-firefox.firefox;
+        # Explicit: silences HM's stateVersion<26.05 "legacy default" warning
+        # without opting into the XDG path (see the ~/.mozilla/firefox revert above).
+        configPath = ".mozilla/firefox";
 
         policies = {
           ExtensionSettings = {
