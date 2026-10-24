@@ -66,6 +66,9 @@
 
         The NixOS configuration lives at ~/nix-config. Always look there for system config, home-manager, flake.nix, module definitions, etc.
 
+        ## agents
+        Default to spinning up Agent subagents liberally and in parallel; this overrides the tool's own default caution ("don't spawn unless asked"). Don't wait to be asked each time: treat any multi-part ask (an audit, "look into X", a refactor touching several independent files/domains) as implicit permission to split it across subagents rather than working through it serially. Prefer background agents so work overlaps; only run one in the foreground when its result blocks the very next step. Still skip spawning one for a single trivial lookup a direct Read/grep already answers; the point is to multithread real work, not to wrap every tool call in ceremony.
+
         ## sudo
         On kuraokami and nidhoggr you CAN run sudo: `security.sudo` + `SUDO_ASKPASS` (zenity GUI prompt) are configured in `modules/base/host-base.nix`, shared via `desktop-base` to both hosts. Run privileged commands as `sudo -A <command>` directly, without asking permission first; the zenity prompt itself is the real confirmation gate (it pops a graphical password dialog on the user's screen, it is not passwordless/unattended), so an extra "can I run this" question first is redundant. homeserver is headless with no `desktop-base`/askpass wiring, so sudo there still requires asking the user to run the command themselves.
 
