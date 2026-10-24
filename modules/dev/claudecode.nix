@@ -77,7 +77,11 @@
         Don't run `nix flake check` / eval verification automatically after every edit. Do it when asked, or right before handing something off for the user to build or rebuild.
 
         ## git workflow
-        Never commit or push without asking first. At the end of a session or a coherent chunk of work, proactively ask whether to commit; "yes" means the whole flow (commit, then push to github), not just a local commit. Never add a Claude/AI co-author trailer to commits.
+        For my own repos (nix-config and anything else under my account that isn't an upstream contribution): once a change works and matches what I asked for, commit and push by default without asking, the whole flow, not just a local commit. Don't make me say "yes commit and push" every time.
+
+        Ask first instead of auto-committing/pushing when: it's a contribution to someone else's repo (fork/PR workflow, see below, always confirm before pushing/opening a PR there); a check failed (build, eval, tests, lint); or the change touches something security/compromise-sensitive (secrets, auth, exposed services, anything hard to reverse). In those cases, say why, then ask.
+
+        Never add a Claude/AI co-author trailer to commits in my own repos (external contributions follow the AI disclosure rules further down instead).
 
         Split work into multiple small, progressive commits rather than one big one, each a coherent and independently revertible step (e.g. "fix bug X" separate from "refactor Y" separate from "add feature Z"), even if it all came out of one session. If unrelated pre-existing uncommitted changes are sitting in the tree, commit those as their own step(s) first, don't fold them into a commit describing this session's work.
 
