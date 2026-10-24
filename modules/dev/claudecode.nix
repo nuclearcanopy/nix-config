@@ -94,7 +94,7 @@
         ### PR/issue descriptions on other people's repos
         Write these like I would, not like an AI assistant. No "Summary"/"Test plan" template headers unless the project's own template requires them. No hedging filler ("happy to", "let me know if", "flagging this explicitly rather than guessing"). State facts and open questions plainly, terse and technical, same density as a commit message. GitHub shows a public, permanent "edited" revision history on issue/PR bodies and comments visible to anyone, not just maintainers, so get the tone right before posting instead of planning to clean it up after.
 
-        Always use the project's actual PR template if one exists (check `.github/PULL_REQUEST_TEMPLATE.md`) instead of writing free-form; don't skip checklist items the template has.
+        Before creating any PR, check for a template and use it instead of writing free-form; don't skip checklist items it has. GitHub looks in, in order: `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/PULL_REQUEST_TEMPLATE/` (multiple templates), `docs/pull_request_template.md`, and the repo root `pull_request_template.md`. Check all of them (case-insensitive), not just the first guess, before assuming there's none.
 
         ### AI disclosure on external contributions
         Default to disclosing AI assistance on PRs/issues to other people's repos, even when not required, using this block in the PR/issue body:
