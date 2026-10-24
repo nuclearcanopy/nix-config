@@ -39,7 +39,6 @@
     '';
 
     # Keep browser profiles in tmpfs (RAM); faster reads, fewer SSD writes.
-    # Pairs with the firefox-preload prelauncher in the firefox bucket.
     services.psd = {
       enable = true;
       resyncTimer = "30min";

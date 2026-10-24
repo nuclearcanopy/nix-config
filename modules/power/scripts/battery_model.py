@@ -117,7 +117,7 @@ CLASS_PREFIXES = (
                "nix", "nix-build", "nix-daemon", "make", "ninja", "cmake",
                "bwrap", "go", "tsc", "webpack", "esbuild")),
     ("browser", ("firefox", "Web Content", "Isolated Web", "WebExtensions",
-                 "RDD Process", "Utility Process", "Privileged Cont", "helium",
+                 "RDD Process", "Utility Process", "Privileged Cont",
                  "chromium", "chrome", "discord", "Discord")),
     ("media", ("mpv", "vlc", "ffmpeg", "obs", "gst", "termsonic", "easyeffects",
                "pipewire", "wireplumber", "spotify")),
@@ -1172,11 +1172,12 @@ class Estimator:
             })
         out["packs"] = packs
 
-        # BAT0 is TLP-managed to a strict 20-80% band (modules/power/tlp.nix).
-        # Sitting at either rail means that threshold write didn't take (seen
-        # once, 2026-09-25/26: tlp.service reported success but the sysfs
-        # value stayed at the EC default) or the pack was cycled outside TLP;
-        # either way it is calendar-ageing in the worst spot and worth a nag.
+        # BAT0 is TLP-managed to a narrow 40/50 band (modules/power/tlp.nix).
+        # Sitting pinned at 0% or 100% means that threshold write didn't take
+        # (seen once, 2026-09-25/26: tlp.service reported success but the
+        # sysfs value stayed at the EC default) or the pack was cycled
+        # outside TLP; either way it is calendar-ageing in the worst spot
+        # and worth a nag.
         bat0 = packs[0]
         bat0_pct = round(bat0["pct"])
         out["bat0_warn"] = bat0["present"] and (bat0_pct >= 100 or bat0_pct <= 0)
@@ -1198,8 +1199,9 @@ def waybar_payload(e):
         # `battery-model status` below, not a 1-indexed slot number).
         # The segment for whichever pack is actively discharging is colored
         # yellow so it's obvious at a glance which one is draining; BAT0
-        # (internal) sitting outside its 20-80% band outranks that and shows
-        # red instead, since that is a health warning, not just status.
+        # (internal) pinned at 0% or 100% (its 40/50 band not taking effect)
+        # outranks that and shows red instead, since that is a health
+        # warning, not just status.
         segs = []
         for i, p in enumerate(packs):
             if not p.get("present", True):
@@ -1258,7 +1260,7 @@ def waybar_payload(e):
                 L.append("%-22s %s %s" % ("", p["eta_hm"], verb))
         if warn:
             L.append("")
-            L.append("! BAT0 (internal) is outside its 20-80% band -- check")
+            L.append("! BAT0 (internal) is pinned at 0% or 100% -- check")
             L.append("  charge_control thresholds, this ages the pack fast")
 
     L.append("health        %.0f%% of design (%.0f Wh)"
@@ -1518,7 +1520,7 @@ def cmd_status():
     print("charge     %.1f%%  %.2f/%.2f Wh   health %.1f%% of design"
           % (e.get("soc", 0), e.get("e_wh", 0), e.get("e_full_wh", 0), e.get("health", 0)))
     for i, p in enumerate(e.get("packs", [])):
-        warn = " [!! outside 20-80% band]" if (i == 0 and e.get("bat0_warn")) else ""
+        warn = " [!! pinned at 0%/100%]" if (i == 0 and e.get("bat0_warn")) else ""
         if p["eta_hm"] == "--":
             eta_note = ""
         elif p.get("projected"):
