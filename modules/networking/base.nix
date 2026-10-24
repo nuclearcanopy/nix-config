@@ -39,9 +39,10 @@
       firewall = {
         enable = true;
 
-        allowedUDPPorts = [
-          51820  # WireGuard
-        ];
+        # No allowedUDPPorts: Mullvad is a client only (outbound-initiated,
+        # the stateful firewall already lets return traffic through), so an
+        # inbound WireGuard hole here would serve no purpose - nothing runs
+        # a WireGuard server on either host.
         allowedTCPPorts = [
           10206  # Local webdev server
         ];
