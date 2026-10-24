@@ -70,8 +70,15 @@
           };
 
           output = {
+            # Fallback for any output name not matched below (a USB-C→DP/HDMI
+            # dongle at a friend's house surfaces as a different name than
+            # this laptop's own HDMI-A-2 port). Mirrors HDMI-A-2's slot so an
+            # unrecognized display still lands above the panel instead of
+            # wherever sway's own auto-layout happens to put it; mode is left
+            # unset so it takes the display's own preferred mode.
             "*" = {
               bg = "#000000 solid_color";
+              position = "0 0";
             };
             # external HDMI sits on top, laptop panel directly below.
             # forced to 1080p@30 to reduce iGPU load (UHD 620 struggles at 1440p60).
