@@ -32,6 +32,7 @@ shopt -s nullglob
 # everything in integer arithmetic.
 TOTAL_NOW=0
 TOTAL_FULL=0
+TOTAL_TARGET=0
 TOTAL_POWER=0
 ANY_CHARGING=0
 ANY_DISCHARGING=0
@@ -41,25 +42,29 @@ for bat in /sys/class/power_supply/BAT*; do
 
   ST=Unknown
   V=0
+  END=100
   read -r ST < "$bat/status"      2>/dev/null
   read -r V  < "$bat/voltage_now" 2>/dev/null
+  read -r END < "$bat/charge_control_end_threshold" 2>/dev/null
 
   if [[ -r "$bat/charge_now" && -r "$bat/charge_full" ]]; then
     read -r CN < "$bat/charge_now"
     read -r CF < "$bat/charge_full"
     CI=0
     read -r CI < "$bat/current_now" 2>/dev/null
-    TOTAL_NOW=$((  TOTAL_NOW  + CN * V ))
-    TOTAL_FULL=$(( TOTAL_FULL + CF * V ))
-    TOTAL_POWER=$((TOTAL_POWER + CI * V ))
+    TOTAL_NOW=$((    TOTAL_NOW    + CN * V ))
+    TOTAL_FULL=$((   TOTAL_FULL   + CF * V ))
+    TOTAL_TARGET=$(( TOTAL_TARGET + CF * V * END / 100 ))
+    TOTAL_POWER=$((  TOTAL_POWER  + CI * V ))
   elif [[ -r "$bat/energy_now" && -r "$bat/energy_full" ]]; then
     read -r EN < "$bat/energy_now"
     read -r EF < "$bat/energy_full"
     PN=0
     read -r PN < "$bat/power_now" 2>/dev/null
-    TOTAL_NOW=$((  TOTAL_NOW  + EN * 1000000 ))
-    TOTAL_FULL=$(( TOTAL_FULL + EF * 1000000 ))
-    TOTAL_POWER=$((TOTAL_POWER + PN * 1000000 ))
+    TOTAL_NOW=$((    TOTAL_NOW    + EN * 1000000 ))
+    TOTAL_FULL=$((   TOTAL_FULL   + EF * 1000000 ))
+    TOTAL_TARGET=$(( TOTAL_TARGET + EF * 1000000 * END / 100 ))
+    TOTAL_POWER=$((  TOTAL_POWER  + PN * 1000000 ))
   else
     continue
   fi
@@ -88,7 +93,7 @@ HOURS="--"
 if (( TOTAL_POWER > 0 )); then
   case "$STATUS" in
     Charging)
-      REMAINING=$(( TOTAL_FULL - TOTAL_NOW ))
+      REMAINING=$(( TOTAL_TARGET - TOTAL_NOW ))
       (( REMAINING > 0 )) && HOURS=$(( REMAINING / TOTAL_POWER )) ;;
     Discharging)
       HOURS=$(( TOTAL_NOW / TOTAL_POWER )) ;;
