@@ -14,7 +14,7 @@ Deep forensic detail (incident timelines, root-cause investigations, declined al
 - `docs/trackpad-tm3471.md` — aftermarket Synaptics trackpad bring-up (coreboot + kernel + libinput). Relevant: `modules/hardware/trackpad-synaptics.nix`, `modules/gui/sway-host.nix`.
 - `docs/battery-model.md` — how the adaptive battery runtime estimator works (conditioning, calibration, storage). Relevant: `modules/power/battery-model.nix`, `modules/power/scripts/battery_model.py`.
 
-Other systems with real design depth but no incident history stay inline or in the sections below: waybar airgap toggle (`modules/gui/waybar/scripts/airgap_{mode,toggle}.sh`), USBGuard block-by-default + Mod+Shift+U allow flow (`modules/security/hardening-physical.nix`), bluetooth toggle (`modules/hardware/bluetooth.nix`).
+Other systems with real design depth but no incident history stay inline or in the sections below: waybar airgap toggle (`modules/gui/waybar/scripts/airgap_{mode,toggle}.sh`), USBGuard block-by-default + Mod+Shift+U manual allow flow plus an automatic `usbguard-auth-popup` zenity/sudo-gated allow popup (both session-only; `modules/security/hardening-physical.nix`, `modules/gui/waybar/scripts/usb_auth_popup.sh`), bluetooth toggle (`modules/hardware/bluetooth.nix`).
 
 Quick entrypoints by task:
 - Homeserver: `modules/computers/homeserver.nix` + `modules/server/*`

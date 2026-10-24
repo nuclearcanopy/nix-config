@@ -110,19 +110,47 @@
     # the daemon over IPC, which works unprivileged because the user is in
     # IPCAllowedUsers above; mako renders the notification.
     #
-    # To then allow the device, use the Mod+Shift+U picker bound in the
-    # nidhoggr block of modules/gui/sway-host.nix.
-    # That allow lasts until reboot: the ruleset is nix-store immutable, so a
-    # device you want permanently must get an `allow id <vid>:<pid>` line in
-    # the rules above followed by a rebuild.
+    # Either wait for the auto-allow popup below, or use the Mod+Shift+U
+    # picker bound in the nidhoggr block of modules/gui/sway-host.nix.
+    # Both allow the device only until reboot: the ruleset is nix-store
+    # immutable, so a device you want permanently must get an
+    # `allow id <vid>:<pid>` line in the rules above followed by a rebuild.
+    #
+    # sway-session.target, not graphical-session.target: NixOS's
+    # nixos-fake-graphical-session.target pulls the latter up at login
+    # before sway runs `systemctl --user import-environment`, so a service
+    # hung on it starts with no WAYLAND_DISPLAY/D-Bus session. Same fix as
+    # easyeffects-service.nix.
     systemd.user.services.usbguard-notifier = {
       description = "USBGuard block notifications";
-      after = [ "usbguard.service" ];
-      wantedBy = [ "graphical-session.target" ];
-      partOf = [ "graphical-session.target" ];
+      after = [ "usbguard.service" "sway-session.target" ];
+      wantedBy = [ "sway-session.target" ];
+      partOf = [ "sway-session.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.usbguard-notifier}/bin/usbguard-notifier";
         Restart = "on-failure";
+        RestartSec = "5s";
+      };
+    };
+
+    # Auto-allow popup: watches USBGuard's IPC event stream (`usbguard watch
+    # -e`, which execs the script once per event with the event's fields as
+    # USBGUARD_* env vars) and, the moment a device's resolved policy becomes
+    # "block", prompts for the login password via the same zenity askpass
+    # sudo already uses (modules/base/host-base.nix), then allow-devices it
+    # on success. Same session-only trust boundary as the manual picker
+    # above; this just removes the need to remember the keybind while
+    # plugging something in at a friend's house. `sudo -k` inside the script
+    # forces a fresh prompt every time, so a sudo timestamp left warm by an
+    # unrelated terminal command can't silently auto-approve a device.
+    systemd.user.services.usbguard-auth-popup = {
+      description = "Password-gated USB auto-allow popup";
+      after = [ "usbguard.service" "sway-session.target" ];
+      wantedBy = [ "sway-session.target" ];
+      partOf = [ "sway-session.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.usbguard}/bin/usbguard watch --wait -e ${../gui/waybar/scripts/usb_auth_popup.sh}";
+        Restart = "always";
         RestartSec = "5s";
       };
     };
