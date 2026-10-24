@@ -145,11 +145,19 @@
       # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
       # /run/user/1000/psd/... (tmpfs) on crash/unclean shutdown. HM's
       # linkGeneration can't mkdir through a broken symlink, so restore from
-      # PSD's backup first.
+      # PSD's backup first. The top-level ~/.mozilla/firefox itself can also
+      # end up as a single dangling symlink (observed 2026-10-25: it pointed
+      # at a home-manager generation that had since been GC'd), which blocks
+      # linkGeneration's own mkdir before it ever gets to the per-profile
+      # entries below; clear that first too.
       home.activation.fixPsdFirefoxLinks = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+        base="${config.home.homeDirectory}/.mozilla/firefox"
+        if [ -L "$base" ] && [ ! -e "$base" ]; then
+          $DRY_RUN_CMD rm "$base"
+        fi
         for profile in default compat google; do
-          link="${config.home.homeDirectory}/.mozilla/firefox/$profile"
-          backup="${config.home.homeDirectory}/.mozilla/firefox/''${profile}-backup"
+          link="$base/$profile"
+          backup="$base/''${profile}-backup"
           if [ -L "$link" ] && [ ! -e "$link" ]; then
             $DRY_RUN_CMD rm "$link"
             if [ -d "$backup" ]; then
