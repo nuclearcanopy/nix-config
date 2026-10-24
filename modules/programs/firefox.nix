@@ -413,10 +413,6 @@
             force = true;
             default = "ddg";
             engines = {
-              "self" = {
-                urls = [{ template = "https://searxng.local/?q={searchTerms}"; }];
-                definedAliases = [ "@a" ];
-              };
               "ddg".metaData.alias = "@d";
               "google".metaData.hidden = true;
               "bing".metaData.hidden = true;

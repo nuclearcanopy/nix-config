@@ -11,7 +11,6 @@
       allowedTCPPorts = [
         1208  # ssh
         4533  # navidrome
-        8080  # searxng
         8081  # filebrowser
         9000  # portainer
         8090  # mscd api
