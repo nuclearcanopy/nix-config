@@ -18,7 +18,6 @@
 
       feishin
       qjackctl
-      helium
     ]);
   };
 }

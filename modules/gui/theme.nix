@@ -215,10 +215,10 @@
         };
       };
 
-      # Qt apps (and Chromium/Helium's "use Qt" appearance path) read the Qt
-      # palette, not the GTK3/4 OLED CSS above. adwaita-qt can't do pure black
-      # (hardcoded grey), so drive Qt with qt6ct + a Fusion custom palette that
-      # mirrors the GTK OLED colors exactly (black #000000, grey text #949494).
+      # Qt apps read the Qt palette, not the GTK3/4 OLED CSS above. adwaita-qt
+      # can't do pure black (hardcoded grey), so drive Qt with qt6ct + a Fusion
+      # custom palette that mirrors the GTK OLED colors exactly (black
+      # #000000, grey text #949494).
       qt = {
         enable = true;
         platformTheme.name = "qtct";
@@ -238,10 +238,10 @@
         };
       };
 
-      # Helium/Chromium is Qt6; the HM "qtct" preset points QT_QPA_PLATFORMTHEME
-      # at qt5ct, which Qt6 apps ignore. Force qt6ct so Helium picks up the OLED
-      # palette. Trade-off: Qt5-only apps (e.g. qjackctl) fall back to Fusion's
-      # default light palette; there is no single env value that themes both.
+      # The HM "qtct" preset points QT_QPA_PLATFORMTHEME at qt5ct, which Qt6
+      # apps ignore. Force qt6ct so any Qt6 app picks up the OLED palette.
+      # Trade-off: Qt5-only apps (e.g. qjackctl) fall back to Fusion's default
+      # light palette; there is no single env value that themes both.
       home.sessionVariables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
       systemd.user.sessionVariables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
 
@@ -249,8 +249,8 @@
       # inactive), #aarrggbb. Pure-black backgrounds, grey text, matching the
       # oledCss above. Greyscale accent is deliberate: Chromium's Qt path
       # can't color page/omnibox selection separately from the new-tab button,
-      # and pure-black chrome can't show a visible active Helium tab at all.
-      # Full investigation + declined alternatives: docs/gui.md
+      # and pure-black chrome can't show a visible active tab at all.
+      # Full investigation + declined alternatives (Helium, now removed): docs/gui.md
       xdg.configFile."qt6ct/colors/oled.conf".text = ''
         [ColorScheme]
         active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d

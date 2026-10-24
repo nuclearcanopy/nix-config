@@ -2,6 +2,8 @@
 
 forensic detail for the oled/qt palette work. see the pointer comment in `modules/gui/theme.nix` for where this applies.
 
+**helium was removed 2026-10-24** (dropped the `helium` flake input to cut external/less-vetted flakes). the investigation below is kept for history since the qt6ct forcing mechanism it motivated is still in place for any future qt6 chromium-based app.
+
 ## helium/chromium can't have both pure-black chrome and a visible active tab
 
 chromium's qt path (which helium runs on via `extensions.theme.system_theme = 2`) paints the frame, tab strip, inactive tabs, the *active* tab, and the toolbar all from `QPalette::Button`. with `Button = #000000` there is nothing left to visually mark the selected tab, so pure-black chrome and a visible active tab are mutually exclusive under the qt theme. verified 2026-08-25 by running a scratch profile against a deliberately garish debug palette with `Highlight`/`Window`/`Link` all set to distinct colors, to see which role painted what.
