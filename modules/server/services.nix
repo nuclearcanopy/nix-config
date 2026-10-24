@@ -30,7 +30,7 @@
 
         containers = {
           navidrome = {
-            image = "deluan/navidrome:latest";
+            image = "deluan/navidrome:latest@sha256:4edc8a1de3e042f30b78a478325839f4395177eb8201c27543dccc0eba674f23";
             ports = [ "4533:4533" ];
             volumes = [
               "/var/lib/navidrome/data:/data"
@@ -104,7 +104,7 @@
           # };
 
           filebrowser = {
-            image = "filebrowser/filebrowser:latest";
+            image = "filebrowser/filebrowser:latest@sha256:2c54423548d030a0613e144151d7783eb43321a3a79a1ba291c24b4198c048b1";
             ports = [ "8081:80" ];
             volumes = [
               "/mnt/nas/filebrowser:/srv"
@@ -114,7 +114,7 @@
           };
 
           portainer = {
-            image = "portainer/portainer-ce:latest";
+            image = "portainer/portainer-ce:latest@sha256:4786931dc7c588ff1c242696fe1eb3f7f9c5dafb136b6c713aff7745dd5bd407";
             ports = [ "9000:9000" ];
             volumes = [
               "/var/run/docker.sock:/var/run/docker.sock"
@@ -124,7 +124,7 @@
           };
 
           cloudflared = {
-            image = "cloudflare/cloudflared:latest";
+            image = "cloudflare/cloudflared:latest@sha256:5bb6a0870686742d00e171f36c892ba91e5994631bc363d808b9ba822262dad6";
             # Publish the metrics port to host loopback so server-watchdog can
             # poll /ready (200 = >=1 tunnel connection up, 503 = tunnel down).
             ports = [ "127.0.0.1:44483:44483" ];
