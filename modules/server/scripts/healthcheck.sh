@@ -71,11 +71,16 @@ check() {
 
   if [ "$n" -ge "$REBOOT_AT" ]; then
     reboot_now "$name unhealthy $n consecutive checks"
-  elif [ "$n" -ge "$RESTART_AT" ]; then
+  elif [ "$n" -eq "$RESTART_AT" ]; then
     bounce_stack
-  else
+  elif [ "$n" -lt "$RESTART_AT" ]; then
     log "$name: restarting $unit"
     systemctl restart "$unit.service" || true
+  else
+    # Already bounced the whole stack once at fail $RESTART_AT; don't
+    # thrash healthy containers again every tick while waiting to see if
+    # it was a fluke or this escalates to a reboot at $REBOOT_AT.
+    log "$name: already bounced the stack, waiting ($n/$REBOOT_AT before reboot)"
   fi
 }
 
