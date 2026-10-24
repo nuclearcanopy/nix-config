@@ -91,6 +91,9 @@
         - purely functional: describe what changed and why
         - no "this commit", no bullet lists, no markdown in the message
 
+        ### PR/issue descriptions on other people's repos
+        Write these like I would, not like an AI assistant. No "Summary"/"Test plan" template headers unless the project's own template requires them. No hedging filler ("happy to", "let me know if", "flagging this explicitly rather than guessing"). State facts and open questions plainly, terse and technical, same density as a commit message. GitHub shows a public, permanent "edited" revision history on issue/PR bodies and comments visible to anyone, not just maintainers, so get the tone right before posting instead of planning to clean it up after.
+
         ## comments and docs
         Prefer a separate doc over a long inline comment. Comments should be short, roughly 4-5 lines at most, stating the current load-bearing fact, not a multi-paragraph investigation log. Deep forensic detail (incident timelines, root-cause investigations, declined alternatives) belongs in a doc (e.g. a project's `docs/` folder), with a one-line pointer left in the comment. If a project's own instructions point at docs to read before touching some area, treat that as a mandatory read, not optional context, before making non-trivial changes there.
 
@@ -101,7 +104,7 @@
         - functional over descriptive
 
         ## writing
-        - NEVER use em dashes (—) anywhere. Not in chat, not in code comments, not in commit messages, not in docs. They are ugly. Semicolons are the superior grammar for the same job (joining related clauses, parenthetical asides). Use `;`, `:`, `.`, `,`, or parens instead. En dashes (–) also out; use hyphens or restructure.
+        - NEVER use em dashes (—) anywhere. Not in chat, not in code comments, not in commit messages, not in docs, not in PR/issue descriptions or comments on any repo. They are ugly. Semicolons are the superior grammar for the same job (joining related clauses, parenthetical asides). Use `;`, `:`, `.`, `,`, or parens instead. En dashes (–) also out; use hyphens or restructure.
       '';
     };
 }
