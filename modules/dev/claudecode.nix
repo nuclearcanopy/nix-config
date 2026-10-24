@@ -94,6 +94,20 @@
         ### PR/issue descriptions on other people's repos
         Write these like I would, not like an AI assistant. No "Summary"/"Test plan" template headers unless the project's own template requires them. No hedging filler ("happy to", "let me know if", "flagging this explicitly rather than guessing"). State facts and open questions plainly, terse and technical, same density as a commit message. GitHub shows a public, permanent "edited" revision history on issue/PR bodies and comments visible to anyone, not just maintainers, so get the tone right before posting instead of planning to clean it up after.
 
+        Always use the project's actual PR template if one exists (check `.github/PULL_REQUEST_TEMPLATE.md`) instead of writing free-form; don't skip checklist items the template has.
+
+        ### AI disclosure on external contributions
+        Default to disclosing AI assistance on PRs/issues to other people's repos, even when not required, using this block in the PR/issue body:
+
+        ```markdown
+        > [!NOTE]
+        > **AI disclosure:** this patch and this description were written with Claude Code (Claude Sonnet 5, `claude-sonnet-5`). I reviewed the diff in full, understand it, and take full responsibility for its correctness.
+        ```
+
+        Swap in whichever Claude model is actually running the session. If the project has a formal AI-contribution policy (check CONTRIBUTING.md), follow its required format exactly in addition to this block; e.g. nixpkgs requires an `Assisted-by: <tool>, <model>` git trailer on the commit itself, which this note doesn't replace. If a project bans AI-assisted contributions outright (e.g. Prism Launcher), don't contribute there with my help at all.
+
+        Only check "built"/"tested" boxes or claim something was verified if it was actually run this session, not assumed. If a real build/test attempt fails for reasons unrelated to the change (confirm by isolating the failure, e.g. building the specific unrelated derivation alone), say so explicitly in the PR rather than silently leaving the box unchecked or claiming success.
+
         ## comments and docs
         Prefer a separate doc over a long inline comment. Comments should be short, roughly 4-5 lines at most, stating the current load-bearing fact, not a multi-paragraph investigation log. Deep forensic detail (incident timelines, root-cause investigations, declined alternatives) belongs in a doc (e.g. a project's `docs/` folder), with a one-line pointer left in the comment. If a project's own instructions point at docs to read before touching some area, treat that as a mandatory read, not optional context, before making non-trivial changes there.
 
