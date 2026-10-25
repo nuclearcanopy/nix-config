@@ -70,6 +70,7 @@
       # dev
       config.homeManager.modules.claudecode
       config.homeManager.modules.git
+      config.homeManager.modules.git-send-email
       config.homeManager.modules.gpg
       config.homeManager.modules.dev-packages
     ];
