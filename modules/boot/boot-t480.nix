@@ -62,6 +62,12 @@
         # T480 has no physical serial ports but the kernel enumerates 4
         # phantom ttyS[0-3] from ISA/PNP and blocks udev ~15s per device.
         "8250.nr_uarts=0"
+        # Libreboot's ACPI _CRS only gives the Thunderbolt root bridge (02:00.0)
+        # a 2M MMIO window, split 1M/1M between the two non-hotplug downstream
+        # ports; the hotplug-capable USB-C port (03:01.0) gets nothing ("bridge
+        # window: failed to assign" every boot). realloc redoes allocation from
+        # the full 1.5G host bridge window instead of trusting that split.
+        "pci=realloc"
         # Power saving
         "nmi_watchdog=0"
         "nowatchdog"
