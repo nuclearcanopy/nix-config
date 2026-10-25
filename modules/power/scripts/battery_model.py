@@ -959,16 +959,18 @@ def fmt_hm(minutes):
 
 
 def fmt_h_short(minutes):
-    """Compact single-unit form for the waybar bar text ('13h', '45m',
-    '--'), as opposed to fmt_hm's 'HHhMM' used in the tooltip."""
+    """Compact single-unit form for the waybar bar text ('13h', '07m',
+    'N/A'), as opposed to fmt_hm's 'HHhMM' used in the tooltip. Always
+    exactly 3 characters so the bar never reflows: zero-padded 2-digit
+    number + unit letter, or N/A when there is no ETA (full and on AC)."""
     if minutes is None or minutes < 0:
-        return "--"
+        return "N/A"
     minutes = int(round(minutes))
     if minutes >= 99 * 60:
-        return "99h+"
+        return "99h"
     if minutes < 60:
-        return "%dm" % minutes
-    return "%dh" % round(minutes / 60.0)
+        return "%02dm" % minutes
+    return "%02dh" % round(minutes / 60.0)
 
 
 class Estimator:
