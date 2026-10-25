@@ -48,6 +48,38 @@
         user-password = {
           file = ../../secrets/user-password.age;
         };
+
+        # git send-email auth token (smtp.protonmail.ch); see
+        # modules/dev/git-send-email.nix.
+        smtp-protonmail = {
+          file = ../../secrets/smtp-protonmail.age;
+          path = "/run/agenix/smtp-protonmail";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
+
+        # bare email (line 1) + "Display Name <email>" (line 2); see
+        # modules/dev/git-send-email.nix. Kept out of the repo deliberately:
+        # this file is public.
+        git-send-email-identity = {
+          file = ../../secrets/git-send-email-identity.age;
+          path = "/run/agenix/git-send-email-identity";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
+
+        # [user] name/email for kernel.org git commits only; see
+        # modules/dev/git.nix's includeIf. Kept out of the repo deliberately:
+        # this identity must never be linked to this GitHub account.
+        kernel-git-identity = {
+          file = ../../secrets/kernel-git-identity.age;
+          path = "/run/agenix/kernel-git-identity";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
       };
     };
   };
