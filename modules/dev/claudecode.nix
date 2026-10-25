@@ -30,6 +30,13 @@
         CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
       };
 
+      # Remote Control needs feature-flag/telemetry network calls, which the
+      # vars above deliberately block. Scoped alias instead of dropping them
+      # globally: only this invocation gets telemetry back, default shell
+      # env stays privacy-hardened.
+      programs.zsh.shellAliases.claude-rc =
+        "env -u CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC -u DISABLE_TELEMETRY -u DISABLE_GROWTHBOOK claude";
+
       programs.claude-code = {
         enable = true;
         package = pkgs.claude-code;
