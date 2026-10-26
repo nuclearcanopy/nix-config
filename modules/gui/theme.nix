@@ -2,8 +2,9 @@
   homeManager.modules.theme = { pkgs, lib, config, ... }:
 
     let
-      # Pitch-black OLED palette, ported from firefox userChrome.
-      oledCss = ''
+      # Pitch-black OLED palette, ported from firefox userChrome. Mapped
+      # 1:1 to lightCss below via the dark->light table in docs/gui.md.
+      darkCss = ''
         @define-color window_bg_color       #000000;
         @define-color window_fg_color       #949494;
         @define-color view_bg_color         #000000;
@@ -183,6 +184,187 @@
           opacity: 1;
         }
       '';
+
+      lightCss = ''
+        @define-color window_bg_color       #f0f0f0;
+        @define-color window_fg_color       #2b2b2b;
+        @define-color view_bg_color         #f0f0f0;
+        @define-color view_fg_color         #2b2b2b;
+        @define-color headerbar_bg_color    #f0f0f0;
+        @define-color headerbar_fg_color    #2b2b2b;
+        @define-color headerbar_border_color #f0f0f0;
+        @define-color headerbar_backdrop_color #f0f0f0;
+        @define-color sidebar_bg_color      #f0f0f0;
+        @define-color sidebar_fg_color      #2b2b2b;
+        @define-color sidebar_backdrop_color #f0f0f0;
+        @define-color secondary_sidebar_bg_color #f0f0f0;
+        @define-color secondary_sidebar_fg_color #2b2b2b;
+        @define-color card_bg_color         #ffffff;
+        @define-color card_fg_color         #2b2b2b;
+        @define-color popover_bg_color      #f0f0f0;
+        @define-color popover_fg_color      #2b2b2b;
+        @define-color dialog_bg_color       #f0f0f0;
+        @define-color dialog_fg_color       #2b2b2b;
+        @define-color thumbnail_bg_color    #ffffff;
+        @define-color thumbnail_fg_color    #2b2b2b;
+        @define-color shade_color           rgba(0, 0, 0, 0.5);
+        @define-color scrollbar_outline_color #f0f0f0;
+        @define-color borders               #f0f0f0;
+
+        @define-color accent_bg_color       #c7c7c7;
+        @define-color accent_fg_color       #000000;
+        @define-color accent_color          #5a5a5a;
+
+        @define-color theme_bg_color        #f0f0f0;
+        @define-color theme_fg_color        #2b2b2b;
+        @define-color theme_base_color      #f0f0f0;
+        @define-color theme_text_color      #2b2b2b;
+        @define-color theme_selected_bg_color #c7c7c7;
+        @define-color theme_selected_fg_color #000000;
+        @define-color insensitive_bg_color  #f0f0f0;
+        @define-color insensitive_fg_color  #a8a8a8;
+
+        window, .background, .view, scrolledwindow, viewport, dialog, popover, popover > contents, menu, .menu, .csd {
+          background-color: #f0f0f0;
+          color: #2b2b2b;
+        }
+
+        headerbar, .titlebar, headerbar.default-decoration {
+          background-color: #f0f0f0;
+          background-image: none;
+          color: #2b2b2b;
+          box-shadow: none;
+          border-color: #f0f0f0;
+        }
+
+        entry, spinbutton, textview, textview text {
+          background-color: #ffffff;
+          color: #2b2b2b;
+          border-color: #f0f0f0;
+          box-shadow: none;
+        }
+        entry:focus, spinbutton:focus, textview:focus {
+          outline: none;
+          border-color: #f0f0f0;
+          box-shadow: none;
+        }
+        entry selection, textview selection, selection, ::selection {
+          background-color: #c7c7c7;
+          color: #000000;
+        }
+
+        button, .button {
+          background-color: #ffffff;
+          background-image: none;
+          color: #2b2b2b;
+          border-color: #f0f0f0;
+          box-shadow: none;
+        }
+        button:hover, .button:hover {
+          background-color: #e2e2e2;
+        }
+        button:active, .button:active, button:checked, .button:checked {
+          background-color: #d4d4d4;
+        }
+        button.flat, .button.flat {
+          background-color: transparent;
+        }
+        button.flat:hover, .button.flat:hover {
+          background-color: #e2e2e2;
+        }
+
+        row:selected, row:selected:focus, .activatable:selected, list row:selected {
+          background-color: #c7c7c7;
+          color: #000000;
+        }
+        row:hover, .activatable:hover {
+          background-color: #e2e2e2;
+        }
+
+        notebook, notebook header, notebook tab, tabbar, tab {
+          background-color: #f0f0f0;
+          color: #868686;
+          border-color: #f0f0f0;
+        }
+        notebook tab:checked, tab:checked, tab:selected {
+          background-color: #e8e8e8;
+          color: #000000;
+          box-shadow: inset 0 -2px #a8a8a8;
+        }
+
+        scrollbar, scrollbar trough {
+          background-color: #f0f0f0;
+          border-color: #f0f0f0;
+        }
+        scrollbar slider {
+          background-color: #e2e2e2;
+          border: none;
+          min-width: 6px;
+          min-height: 6px;
+        }
+        scrollbar slider:hover {
+          background-color: #d4d4d4;
+        }
+
+        separator, .separator {
+          background-color: #f0f0f0;
+          color: #f0f0f0;
+          min-width: 0;
+          min-height: 0;
+        }
+
+        tooltip, tooltip.background {
+          background-color: #ffffff;
+          color: #2b2b2b;
+          border: none;
+        }
+
+        progressbar trough {
+          background-color: #ffffff;
+        }
+        progressbar progress {
+          background-color: #c7c7c7;
+          background-image: none;
+        }
+
+        switch {
+          background-color: #ffffff;
+          color: #2b2b2b;
+        }
+        switch:checked {
+          background-color: #c7c7c7;
+        }
+        switch slider {
+          background-color: #a8a8a8;
+        }
+        switch:checked slider {
+          background-color: #000000;
+        }
+
+        check:checked, radio:checked, check:indeterminate, radio:indeterminate {
+          background-color: #c7c7c7;
+          border-color: #c7c7c7;
+          color: #000000;
+        }
+
+        button.suggested-action, .suggested-action {
+          background-color: #c7c7c7;
+          color: #000000;
+        }
+        button.suggested-action:hover, .suggested-action:hover {
+          background-color: #a8a8a8;
+        }
+
+        *:focus, *:focus-visible {
+          outline: none;
+          box-shadow: none;
+        }
+
+        label.dim-label, .dim-label {
+          color: #868686;
+          opacity: 1;
+        }
+      '';
     in
     {
       home.pointerCursor = {
@@ -203,11 +385,18 @@
         };
 
         gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
-        gtk3.extraCss = oledCss;
         gtk4.theme = null;
         gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
-        gtk4.extraCss = oledCss;
       };
+
+      # gtk3.extraCss/gtk4.extraCss would make HM own ~/.config/gtk-{3,4}.0/gtk.css
+      # as an immutable symlink, which set-theme-mode needs to control at runtime.
+      # Declare both variants under different names instead; set-theme-mode
+      # symlinks gtk.css -> whichever one is active.
+      xdg.configFile."gtk-3.0/gtk-dark.css".text = darkCss;
+      xdg.configFile."gtk-3.0/gtk-light.css".text = lightCss;
+      xdg.configFile."gtk-4.0/gtk-dark.css".text = darkCss;
+      xdg.configFile."gtk-4.0/gtk-light.css".text = lightCss;
 
       dconf.settings = {
         "org/gnome/desktop/interface" = {
@@ -249,7 +438,7 @@
 
       # qt6ct/qt5ct color scheme: 21 QPalette roles per state (active, disabled,
       # inactive), #aarrggbb. Pure-black backgrounds, grey text, matching the
-      # oledCss above. Greyscale accent is deliberate: Chromium's Qt path
+      # darkCss above. Greyscale accent is deliberate: Chromium's Qt path
       # can't color page/omnibox selection separately from the new-tab button,
       # and pure-black chrome can't show a visible active tab at all.
       # Full investigation + declined alternatives (Helium, now removed): docs/gui.md
