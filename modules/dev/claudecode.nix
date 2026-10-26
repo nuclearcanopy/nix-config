@@ -19,75 +19,57 @@
           -not -path './.git/*' -not -path './result*' \
           2>/dev/null | head -10
       '';
-    in
-    {
-      home.sessionVariables = {
-        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
 
-        DISABLE_TELEMETRY = "1";
-        DISABLE_ERROR_REPORTING = "1";
-        DISABLE_BUG_COMMAND = "1";
-        CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
-      };
+      jsonFormat = pkgs.formats.json { };
 
-      # Remote Control needs feature-flag/telemetry network calls, which the
-      # vars above deliberately block. Scoped alias instead of dropping them
-      # globally: only this invocation gets telemetry back, default shell
-      # env stays privacy-hardened.
-      programs.zsh.shellAliases.claude-rc =
-        "env -u CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC -u DISABLE_TELEMETRY -u DISABLE_GROWTHBOOK claude";
+      # Second account's config dir (CLAUDE_CONFIG_DIR), kept at parity with
+      # ~/.claude for settings/hooks/CLAUDE.md. Credentials/session history
+      # stay separate per-dir, which is the point: `claude-alt` logs in as a
+      # different account (e.g. a higher-tier sub for overnight runs) while
+      # `claude` keeps the primary login. First use of `claude-alt` still
+      # needs one interactive `/login`; OAuth can't be seeded declaratively.
+      altConfigDir = ".claude-alt";
 
-      programs.claude-code = {
-        enable = true;
-        package = pkgs.claude-code;
-        # mcp-nixos is commented out of modules/dev/dev-packages.nix (pulls
-        # cfn-lint whose tests fail upstream); re-add this block once that
-        # package is restored, or the binary won't exist.
-        # mcpServers.nixos = {
-        #   type = "stdio";
-        #   command = "mcp-nixos";
-        # };
-        settings = {
-          enabledPlugins = {
-            "rust-analyzer-lsp@claude-plugins-official" = true;
-          };
-          attribution = {
-            commit = "";
-            pr = "";
-          };
-          # Read-only commands beyond Claude Code's own built-in auto-allow
-          # list (plain ls/cat/git status/grep/find/gh pr view etc. never
-          # prompt already; these do without this). Scoped to exact/narrow
-          # forms so mutating subcommands of the same binary (hostnamectl
-          # set-hostname, swaymsg kill/dpms, journalctl --vacuum-*) still
-          # prompt.
-          permissions.allow = [
-            "Bash(nix flake check)"
-            "Bash(nix flake check *)"
-            "Bash(nix-instantiate --parse *)"
-            "Bash(journalctl *)"
-            "Bash(hostnamectl)"
-            "Bash(hostnamectl --static)"
-            "Bash(hostnamectl hostname)"
-            "Bash(swaymsg -t get_tree)"
-            "Bash(swaymsg -t get_outputs)"
-            "Bash(swaymsg -t get_workspaces)"
-            "Bash(swaymsg -t get_version)"
-            "Bash(ping *)"
-            "Bash(dmesg)"
-          ];
-          hooks = {
-            SessionStart = [{
-              hooks = [{
-                type = "command";
-                command = "${sessionStartContext}";
-              }];
+      claudeSettings = {
+        enabledPlugins = {
+          "rust-analyzer-lsp@claude-plugins-official" = true;
+        };
+        attribution = {
+          commit = "";
+          pr = "";
+        };
+        # Read-only commands beyond Claude Code's own built-in auto-allow
+        # list (plain ls/cat/git status/grep/find/gh pr view etc. never
+        # prompt already; these do without this). Scoped to exact/narrow
+        # forms so mutating subcommands of the same binary (hostnamectl
+        # set-hostname, swaymsg kill/dpms, journalctl --vacuum-*) still
+        # prompt.
+        permissions.allow = [
+          "Bash(nix flake check)"
+          "Bash(nix flake check *)"
+          "Bash(nix-instantiate --parse *)"
+          "Bash(journalctl *)"
+          "Bash(hostnamectl)"
+          "Bash(hostnamectl --static)"
+          "Bash(hostnamectl hostname)"
+          "Bash(swaymsg -t get_tree)"
+          "Bash(swaymsg -t get_outputs)"
+          "Bash(swaymsg -t get_workspaces)"
+          "Bash(swaymsg -t get_version)"
+          "Bash(ping *)"
+          "Bash(dmesg)"
+        ];
+        hooks = {
+          SessionStart = [{
+            hooks = [{
+              type = "command";
+              command = "${sessionStartContext}";
             }];
-          };
+          }];
         };
       };
 
-      home.file.".claude/CLAUDE.md".text = ''
+      claudeMd = ''
         You are working on a NixOS system. Fixes, changes, patches etc. must ALL be done declaratively or in a Nix-native, reproducible way. Imperative management is discouraged due to how often I reinstall.
 
         I use 2-3 devices (kuraokami desktop, nidhoggr laptop, homeserver). Infer which one from context (hostname, cwd, which host's module is being edited, running processes) and state the inference so it can be corrected; only ask outright when it's genuinely ambiguous.
@@ -155,5 +137,52 @@
         ## writing
         - NEVER use em dashes (—) anywhere. Not in chat, not in code comments, not in commit messages, not in docs, not in PR/issue descriptions or comments on any repo. They are ugly. Semicolons are the superior grammar for the same job (joining related clauses, parenthetical asides). Use `;`, `:`, `.`, `,`, or parens instead. En dashes (–) also out; use hyphens or restructure.
       '';
+    in
+    {
+      home.sessionVariables = {
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
+
+        DISABLE_TELEMETRY = "1";
+        DISABLE_ERROR_REPORTING = "1";
+        DISABLE_BUG_COMMAND = "1";
+        CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+      };
+
+      # Remote Control needs feature-flag/telemetry network calls, which the
+      # vars above deliberately block. Scoped alias instead of dropping them
+      # globally: only this invocation gets telemetry back, default shell
+      # env stays privacy-hardened.
+      programs.zsh.shellAliases.claude-rc =
+        "env -u CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC -u DISABLE_TELEMETRY -u DISABLE_GROWTHBOOK claude";
+
+      # Second logged-in account (e.g. a higher-tier sub for overnight runs).
+      # `programs.claude-code` is a singleton and can't hold two configDirs,
+      # so the alt account is a plain CLAUDE_CONFIG_DIR override; its
+      # settings.json/CLAUDE.md are mirrored below to stay in sync. First use
+      # still needs one interactive `/login`; OAuth can't be seeded here.
+      programs.zsh.shellAliases.claude-alt = ''CLAUDE_CONFIG_DIR="$HOME/${altConfigDir}" claude'';
+
+      programs.claude-code = {
+        enable = true;
+        package = pkgs.claude-code;
+        # mcp-nixos is commented out of modules/dev/dev-packages.nix (pulls
+        # cfn-lint whose tests fail upstream); re-add this block once that
+        # package is restored, or the binary won't exist.
+        # mcpServers.nixos = {
+        #   type = "stdio";
+        #   command = "mcp-nixos";
+        # };
+        settings = claudeSettings;
+      };
+
+      home.file.".claude/CLAUDE.md".text = claudeMd;
+
+      home.file."${altConfigDir}/settings.json".source = jsonFormat.generate "claude-alt-settings.json" (
+        claudeSettings
+        // {
+          "$schema" = "https://json.schemastore.org/claude-code-settings.json";
+        }
+      );
+      home.file."${altConfigDir}/CLAUDE.md".text = claudeMd;
     };
 }
