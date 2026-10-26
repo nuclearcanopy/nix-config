@@ -55,6 +55,27 @@
             commit = "";
             pr = "";
           };
+          # Read-only commands beyond Claude Code's own built-in auto-allow
+          # list (plain ls/cat/git status/grep/find/gh pr view etc. never
+          # prompt already; these do without this). Scoped to exact/narrow
+          # forms so mutating subcommands of the same binary (hostnamectl
+          # set-hostname, swaymsg kill/dpms, journalctl --vacuum-*) still
+          # prompt.
+          permissions.allow = [
+            "Bash(nix flake check)"
+            "Bash(nix flake check *)"
+            "Bash(nix-instantiate --parse *)"
+            "Bash(journalctl *)"
+            "Bash(hostnamectl)"
+            "Bash(hostnamectl --static)"
+            "Bash(hostnamectl hostname)"
+            "Bash(swaymsg -t get_tree)"
+            "Bash(swaymsg -t get_outputs)"
+            "Bash(swaymsg -t get_workspaces)"
+            "Bash(swaymsg -t get_version)"
+            "Bash(ping *)"
+            "Bash(dmesg)"
+          ];
           hooks = {
             SessionStart = [{
               hooks = [{
