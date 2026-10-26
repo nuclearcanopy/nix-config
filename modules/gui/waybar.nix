@@ -89,10 +89,16 @@
         Install.WantedBy = [ "sway-session.target" ];
       };
 
+      config.xdg.configFile = {
+        "waybar/style-dark.css".source = ./waybar/style-dark.css;
+        "waybar/style-light.css".source = ./waybar/style-light.css;
+      };
+
       config.programs.waybar = {
         enable = true;
         systemd = { enable = true; targets = [ "sway-session.target" ]; };
-        style = builtins.readFile ./waybar/style.css;
+        # current.css is a symlink set-theme-mode flips between style-{dark,light}.css.
+        style = ''@import "current.css";'';
 
         settings = {
           mainBar = {
@@ -109,7 +115,7 @@
             modules-left =
               [ "clock#date" "custom/time" "custom/sep" "custom/volume" "custom/mic" "custom/sep" ]
               ++ lib.optional isLaptop "custom/brightness"
-              ++ [ "custom/caffeine" "custom/sep" "custom/vpn" "custom/airgap" ]
+              ++ [ "custom/caffeine" "custom/sep" "custom/vpn" "custom/airgap" "custom/thememode" ]
               ++ lib.optional isLaptop "custom/bluetooth"
               ++ lib.optional isLaptop "custom/thermalmode"
               ++ [ "group/expand" ]
@@ -186,6 +192,14 @@
               # connectivity and persists across reboot, so require a
               # deliberate press to arm airgap.
               on-click-middle = script "airgap_toggle.sh";
+              tooltip = false;
+            };
+
+            "custom/thememode" = {
+              exec = script "theme_mode.sh";
+              interval = "once";
+              signal = 6;
+              on-click = "set-theme-mode toggle";
               tooltip = false;
             };
 
