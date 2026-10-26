@@ -23,7 +23,7 @@
 
           gaps = { inner = 0; outer = 0; };
           window = {
-            border = 4;
+            border = 2;
             titlebar = false;
             commands = [
               {
@@ -36,25 +36,25 @@
 
           colors = {
             focused = {
-              border = "#3a3a3a";
+              border = "#2a2a2a";
               background = "#000000";
               text = "#f0f0f0";
-              indicator = "#3a3a3a";
-              childBorder = "#3a3a3a";
+              indicator = "#2a2a2a";
+              childBorder = "#2a2a2a";
             };
             unfocused = {
-              border = "#1c1c1c";
+              border = "#141414";
               background = "#000000";
               text = "#000000";
-              indicator = "#1c1c1c";
-              childBorder = "#1c1c1c";
+              indicator = "#141414";
+              childBorder = "#141414";
             };
             focusedInactive = {
-              border = "#272727";
+              border = "#1c1c1c";
               background = "#000000";
               text = "#888888";
-              indicator = "#272727";
-              childBorder = "#272727";
+              indicator = "#1c1c1c";
+              childBorder = "#1c1c1c";
             };
           };
 
