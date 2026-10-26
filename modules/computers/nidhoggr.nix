@@ -43,6 +43,8 @@
       ];
 
       # ── host-specific ────────────────────────────────────────────────
+      time.timeZone = inputs.identity.location.timeZone;
+
       zramSwap = {
         enable = true;
         algorithm = "zstd";

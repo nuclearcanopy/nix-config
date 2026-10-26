@@ -4,6 +4,9 @@
   nixos.configurations.homeserver = {
     username = "homeserver";
     module = {
+      time.timeZone = inputs.identity.location.timeZone;
+      i18n.extraLocaleSettings = inputs.identity.location.extraLocaleSettings;
+
       imports = [
         ../../hosts/homeserver/hardware-configuration.nix
         inputs.agenix.nixosModules.default

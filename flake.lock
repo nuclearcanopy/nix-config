@@ -125,11 +125,11 @@
     },
     "identity": {
       "locked": {
-        "lastModified": 1788476024,
-        "narHash": "sha256-zcGty2lYF4gABohuPYIV8WOS6+OSphluP5gEAopDgpU=",
+        "lastModified": 1793015084,
+        "narHash": "sha256-BJ3rH+4YTLO+FaZrzFVW9//WM4dN/xn3pZkfUgW2hkg=",
         "ref": "refs/heads/main",
-        "rev": "d1b78236bc3980bf3b6d1bdafbce2f35b67299d6",
-        "revCount": 1,
+        "rev": "47bce8670a789c0419e588217a47b96335c043ed",
+        "revCount": 2,
         "type": "git",
         "url": "ssh://git@github.com/nuclearcanopy/identity.git"
       },

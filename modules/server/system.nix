@@ -3,8 +3,9 @@
   # systemd-boot, MCE/panic kernel params, console palette, TLP powersave with
   # boost on, thermald + irqbalance, docker priority, network buffer tuning for
   # streaming, zramSwap, hardware watchdog, suspend/hibernate disabled, autologin,
-  # lid switch ignored, Romanian locale, CIFS NAS mount, system packages, sudo
-  # passwordless for wheel, polkit rule for user-triggered navidrome sync.
+  # lid switch ignored, CIFS NAS mount, system packages, sudo passwordless for
+  # wheel, polkit rule for user-triggered navidrome sync. Timezone/locale come
+  # from the private identity flake (see modules/computers/homeserver.nix).
   nixos.modules.server-system = { config, pkgs, lib, unstable, username, ... }: {
     nix = {
       settings = {
@@ -117,20 +118,7 @@
       };
     };
 
-    time.timeZone = "Europe/Bucharest";
-
     i18n.defaultLocale = "en_US.UTF-8";
-    i18n.extraLocaleSettings = {
-      LC_ADDRESS = "ro_RO.UTF-8";
-      LC_IDENTIFICATION = "ro_RO.UTF-8";
-      LC_MEASUREMENT = "ro_RO.UTF-8";
-      LC_MONETARY = "ro_RO.UTF-8";
-      LC_NAME = "ro_RO.UTF-8";
-      LC_NUMERIC = "ro_RO.UTF-8";
-      LC_PAPER = "ro_RO.UTF-8";
-      LC_TELEPHONE = "ro_RO.UTF-8";
-      LC_TIME = "ro_RO.UTF-8";
-    };
 
     fileSystems."/mnt/nas" = {
       device = "//192.168.0.123/loki";
