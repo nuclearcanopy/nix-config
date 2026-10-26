@@ -41,6 +41,24 @@
           fi
         done
       '';
+
+      # Middle-click on caffeine blanks the display and swallows the next 3
+      # physical keydowns (so an accidental wake doesn't type into whatever's
+      # focused), then re-opens it. screenLockWait reads raw evdev nodes
+      # directly, which still see keydowns even once sway is told to ignore
+      # the keyboard for its clients. See screen_lock.sh for the safety
+      # timeout rationale.
+      screenLockWait = pkgs.writers.writePython3Bin "screen-lock-wait"
+        {
+          libraries = [ pkgs.python3Packages.evdev ];
+          # E265 fires on the shebang the writer itself prepends.
+          flakeIgnore = [ "E265" ];
+        }
+        (builtins.readFile ./waybar/scripts/screen_lock_wait.py);
+
+      screenLock = pkgs.writeShellScript "screen-lock"
+        (lib.replaceStrings [ "@screenLockWait@" ] [ "${screenLockWait}/bin/screen-lock-wait" ]
+          (builtins.readFile ./waybar/scripts/screen_lock.sh));
     in
     {
       options.waybar.profile = lib.mkOption {
@@ -171,6 +189,7 @@
               interval = "once";
               signal = 8;
               on-click = "${script "caffeine.sh"} toggle";
+              on-click-middle = "${screenLock}";
               tooltip = true;
             };
 
