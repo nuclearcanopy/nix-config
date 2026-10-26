@@ -140,6 +140,346 @@
         terminal = false;
         categories = [ "Network" "WebBrowser" ];
       };
+
+      # userChrome.css is startup-only (no live reload), so unlike every
+      # other themed app here, set-theme-mode just symlink-swaps these files
+      # in the profile's chrome/ dir and asks for a manual restart. Mapped
+      # 1:1 to the dark variant via the table in docs/gui.md.
+      userChromeDark = ''
+        .tabbrowser-tab[label="New Tab"] .tab-icon-image,
+        .tabbrowser-tab[label="New Tab"] .tab-icon-stack {
+          display: none !important;
+        }
+
+        :root {
+          --lwt-accent-color: #000000 !important;
+          --toolbar-bgcolor: #000000 !important;
+          --lwt-toolbar-bgcolor: #000000 !important;
+          --toolbar-bottom-separator: #000000 !important;
+          --lwt-tabs-border-color: #000000 !important;
+          --arrowpanel-background: #000000 !important;
+          --panel-background: #000000 !important;
+          --sidebar-background-color: #000000 !important;
+          --toolbar-field-background-color: #0a0a0a !important;
+          --toolbar-field-focus-background-color: #0a0a0a !important;
+          --urlbar-box-bgcolor: #0a0a0a !important;
+          --urlbar-box-focus-bgcolor: #0a0a0a !important;
+
+          --toolbarbutton-icon-fill-attention: #666666 !important;
+
+          --toolbar-color: rgb(80, 80, 80) !important;
+          --lwt-text-color: rgb(80, 80, 80) !important;
+          --toolbar-field-color: rgb(148, 148, 148) !important;
+          --toolbar-field-focus-color: rgb(148, 148, 148) !important;
+          --urlbar-popup-url-color: rgb(148, 148, 148) !important;
+          --urlbar-popup-action-color: rgb(80, 80, 80) !important;
+          --tab-text-color: rgb(80, 80, 80) !important;
+          --lwt-tab-text: rgb(80, 80, 80) !important;
+          --arrowpanel-color: rgb(129, 129, 129) !important;
+          --panel-color: rgb(129, 129, 129) !important;
+
+          --toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
+          --lwt-toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
+          --lwt-toolbarbutton-icon-fill-attention: rgb(67, 67, 67) !important;
+          --toolbar-field-icon-fill-attention: rgb(148, 148, 148) !important;
+          --urlbar-icon-fill-attention: rgb(148, 148, 148) !important;
+          --urlbar-searchbar-icon-fill: rgb(148, 148, 148) !important;
+          --urlbar-focused-icon-fill: rgb(148, 148, 148) !important;
+          --identity-box-icon-fill-attention: rgb(148, 148, 148) !important;
+          --link-color: rgb(148, 148, 148) !important;
+
+          --tab-selected-bgcolor: #171717 !important;
+          --lwt-selected-tab-background-color: #171717 !important;
+
+          --toolbar-field-focus-border-color: #000000 !important;
+          --lwt-toolbar-field-highlight: #272727 !important;
+          --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
+          --arrowpanel-dimmed: #1c1c1c !important;
+          --tab-line-color: #000000 !important;
+          --lwt-tab-line-color: #000000 !important;
+          --tab-loading-fill: #000000 !important;
+          --chrome-content-separator-color: #000000 !important;
+          --toolbox-border-bottom-color: #000000 !important;
+          --sidebar-border-color: #000000 !important;
+          --focus-outline-color: transparent !important;
+        }
+
+        #navigator-toolbox {
+          border-bottom: none !important;
+        }
+        #sidebar-box,
+        #sidebar-splitter {
+          border-color: #000000 !important;
+        }
+        #tabbrowser-tabbox {
+          border: none !important;
+        }
+
+        .titlebar-buttonbox-container,
+        .titlebar-close,
+        .titlebar-min,
+        .titlebar-max,
+        .titlebar-restore {
+          display: none !important;
+        }
+
+        *:focus,
+        *:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+        }
+
+        .tabbrowser-tab[selected] .tab-background {
+          background-color: #171717 !important;
+        }
+
+        #star-button[starred] {
+          fill: #666666 !important;
+        }
+        #star-button[starred] .toolbarbutton-icon {
+          fill: #666666 !important;
+        }
+
+        #urlbar .urlbar-background,
+        #urlbar[focused] .urlbar-background,
+        #urlbar[open] .urlbar-background,
+        #searchbar:focus-within {
+          background-color: #0a0a0a !important;
+        }
+
+        #urlbar *,
+        #urlbar-container *,
+        #urlbar[focused] *,
+        #urlbar[open] *,
+        .urlbar-icon,
+        .searchbar-icon,
+        #identity-icon,
+        #tracking-protection-icon,
+        .urlbar-search-mode-indicator,
+        #urlbar .search-one-offs image,
+        .search-panel-header,
+        .searchbar-engine-one-off-item,
+        #urlbar-label-box,
+        #urlbar-search-mode-indicator-title,
+        .urlbar-input::placeholder {
+          fill: rgb(148, 148, 148) !important;
+          color: rgb(148, 148, 148) !important;
+          -moz-context-properties: fill, fill-opacity !important;
+        }
+
+        #urlbar-input {
+          color: rgb(148, 148, 148) !important;
+          -moz-appearance: none !important;
+          caret-color: rgb(148, 148, 148) !important;
+        }
+        #urlbar[focused] > #urlbar-input-container > #urlbar-input {
+          color: rgb(148, 148, 148) !important;
+        }
+        :root #urlbar-input {
+          color: rgb(148, 148, 148) !important;
+        }
+        input#urlbar-input.urlbar-input {
+          color: rgb(148, 148, 148) !important;
+        }
+
+        #navigator-toolbox,
+        #TabsToolbar,
+        #nav-bar,
+        #PersonalToolbar,
+        #titlebar {
+          background-color: #000000 !important;
+        }
+
+        #tabbrowser-tabpanels,
+        #appcontent,
+        browser[type="content"],
+        browser[type="content-primary"],
+        #browser,
+        .browserStack,
+        .browserContainer {
+          background-color: #000000 !important;
+        }
+      '';
+
+      userChromeLight = ''
+        .tabbrowser-tab[label="New Tab"] .tab-icon-image,
+        .tabbrowser-tab[label="New Tab"] .tab-icon-stack {
+          display: none !important;
+        }
+
+        :root {
+          --lwt-accent-color: #f0f0f0 !important;
+          --toolbar-bgcolor: #f0f0f0 !important;
+          --lwt-toolbar-bgcolor: #f0f0f0 !important;
+          --toolbar-bottom-separator: #f0f0f0 !important;
+          --lwt-tabs-border-color: #f0f0f0 !important;
+          --arrowpanel-background: #f0f0f0 !important;
+          --panel-background: #f0f0f0 !important;
+          --sidebar-background-color: #f0f0f0 !important;
+          --toolbar-field-background-color: #ffffff !important;
+          --toolbar-field-focus-background-color: #ffffff !important;
+          --urlbar-box-bgcolor: #ffffff !important;
+          --urlbar-box-focus-bgcolor: #ffffff !important;
+
+          --toolbarbutton-icon-fill-attention: #666666 !important;
+
+          --toolbar-color: rgb(100, 100, 100) !important;
+          --lwt-text-color: rgb(100, 100, 100) !important;
+          --toolbar-field-color: rgb(43, 43, 43) !important;
+          --toolbar-field-focus-color: rgb(43, 43, 43) !important;
+          --urlbar-popup-url-color: rgb(43, 43, 43) !important;
+          --urlbar-popup-action-color: rgb(100, 100, 100) !important;
+          --tab-text-color: rgb(100, 100, 100) !important;
+          --lwt-tab-text: rgb(100, 100, 100) !important;
+          --arrowpanel-color: rgb(80, 80, 80) !important;
+          --panel-color: rgb(80, 80, 80) !important;
+
+          --toolbarbutton-icon-fill: rgb(90, 90, 90) !important;
+          --lwt-toolbarbutton-icon-fill: rgb(90, 90, 90) !important;
+          --lwt-toolbarbutton-icon-fill-attention: rgb(100, 100, 100) !important;
+          --toolbar-field-icon-fill-attention: rgb(43, 43, 43) !important;
+          --urlbar-icon-fill-attention: rgb(43, 43, 43) !important;
+          --urlbar-searchbar-icon-fill: rgb(43, 43, 43) !important;
+          --urlbar-focused-icon-fill: rgb(43, 43, 43) !important;
+          --identity-box-icon-fill-attention: rgb(43, 43, 43) !important;
+          --link-color: rgb(43, 43, 43) !important;
+
+          --tab-selected-bgcolor: #e8e8e8 !important;
+          --lwt-selected-tab-background-color: #e8e8e8 !important;
+
+          --toolbar-field-focus-border-color: #f0f0f0 !important;
+          --lwt-toolbar-field-highlight: #d4d4d4 !important;
+          --lwt-toolbar-field-highlight-text: rgb(43, 43, 43) !important;
+          --arrowpanel-dimmed: #e2e2e2 !important;
+          --tab-line-color: #f0f0f0 !important;
+          --lwt-tab-line-color: #f0f0f0 !important;
+          --tab-loading-fill: #f0f0f0 !important;
+          --chrome-content-separator-color: #f0f0f0 !important;
+          --toolbox-border-bottom-color: #f0f0f0 !important;
+          --sidebar-border-color: #f0f0f0 !important;
+          --focus-outline-color: transparent !important;
+        }
+
+        #navigator-toolbox {
+          border-bottom: none !important;
+        }
+        #sidebar-box,
+        #sidebar-splitter {
+          border-color: #f0f0f0 !important;
+        }
+        #tabbrowser-tabbox {
+          border: none !important;
+        }
+
+        .titlebar-buttonbox-container,
+        .titlebar-close,
+        .titlebar-min,
+        .titlebar-max,
+        .titlebar-restore {
+          display: none !important;
+        }
+
+        *:focus,
+        *:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+        }
+
+        .tabbrowser-tab[selected] .tab-background {
+          background-color: #e8e8e8 !important;
+        }
+
+        #star-button[starred] {
+          fill: #666666 !important;
+        }
+        #star-button[starred] .toolbarbutton-icon {
+          fill: #666666 !important;
+        }
+
+        #urlbar .urlbar-background,
+        #urlbar[focused] .urlbar-background,
+        #urlbar[open] .urlbar-background,
+        #searchbar:focus-within {
+          background-color: #ffffff !important;
+        }
+
+        #urlbar *,
+        #urlbar-container *,
+        #urlbar[focused] *,
+        #urlbar[open] *,
+        .urlbar-icon,
+        .searchbar-icon,
+        #identity-icon,
+        #tracking-protection-icon,
+        .urlbar-search-mode-indicator,
+        #urlbar .search-one-offs image,
+        .search-panel-header,
+        .searchbar-engine-one-off-item,
+        #urlbar-label-box,
+        #urlbar-search-mode-indicator-title,
+        .urlbar-input::placeholder {
+          fill: rgb(43, 43, 43) !important;
+          color: rgb(43, 43, 43) !important;
+          -moz-context-properties: fill, fill-opacity !important;
+        }
+
+        #urlbar-input {
+          color: rgb(43, 43, 43) !important;
+          -moz-appearance: none !important;
+          caret-color: rgb(43, 43, 43) !important;
+        }
+        #urlbar[focused] > #urlbar-input-container > #urlbar-input {
+          color: rgb(43, 43, 43) !important;
+        }
+        :root #urlbar-input {
+          color: rgb(43, 43, 43) !important;
+        }
+        input#urlbar-input.urlbar-input {
+          color: rgb(43, 43, 43) !important;
+        }
+
+        #navigator-toolbox,
+        #TabsToolbar,
+        #nav-bar,
+        #PersonalToolbar,
+        #titlebar {
+          background-color: #f0f0f0 !important;
+        }
+
+        #tabbrowser-tabpanels,
+        #appcontent,
+        browser[type="content"],
+        browser[type="content-primary"],
+        #browser,
+        .browserStack,
+        .browserContainer {
+          background-color: #f0f0f0 !important;
+        }
+      '';
+
+      userContentDark = ''
+        @-moz-document url("about:home"),url("about:newtab"),url("about:blank"){
+          body * {
+            display: none !important;
+            visibility: hidden !important;
+          }
+          body, html {
+            background-color: #000000 !important;
+          }
+        }
+      '';
+
+      userContentLight = ''
+        @-moz-document url("about:home"),url("about:newtab"),url("about:blank"){
+          body * {
+            display: none !important;
+            visibility: hidden !important;
+          }
+          body, html {
+            background-color: #f0f0f0 !important;
+          }
+        }
+      '';
     in
     {
       # PSD leaves a stale symlink at ~/.mozilla/firefox/<profile> pointing to
@@ -176,6 +516,18 @@
 
       xdg.desktopEntries.firefox-compat = mkFirefoxDesktopEntry "compat" "Firefox (Compat)";
       xdg.desktopEntries.firefox-google = mkFirefoxDesktopEntry "google" "Firefox (Google)";
+
+      # userChrome/userContent live here directly (not via programs.firefox's
+      # option) because that option drives an HM-owned immutable symlink at
+      # this exact path, and set-theme-mode needs to control the live
+      # userChrome.css/userContent.css names itself (plain symlink swap, no
+      # live reload possible for Firefox chrome, see docs/gui.md).
+      home.file = {
+        ".mozilla/firefox/default/chrome/userChrome-dark.css".text = userChromeDark;
+        ".mozilla/firefox/default/chrome/userChrome-light.css".text = userChromeLight;
+        ".mozilla/firefox/default/chrome/userContent-dark.css".text = userContentDark;
+        ".mozilla/firefox/default/chrome/userContent-light.css".text = userContentLight;
+      };
 
       programs.firefox = {
         enable = true;
@@ -225,175 +577,6 @@
               '';
             };
           };
-
-          # match oled
-          userChrome = ''
-            .tabbrowser-tab[label="New Tab"] .tab-icon-image,
-            .tabbrowser-tab[label="New Tab"] .tab-icon-stack {
-              display: none !important;
-            }
-
-            :root {
-              --lwt-accent-color: #000000 !important;
-              --toolbar-bgcolor: #000000 !important;
-              --lwt-toolbar-bgcolor: #000000 !important;
-              --toolbar-bottom-separator: #000000 !important;
-              --lwt-tabs-border-color: #000000 !important;
-              --arrowpanel-background: #000000 !important;
-              --panel-background: #000000 !important;
-              --sidebar-background-color: #000000 !important;
-              --toolbar-field-background-color: #0a0a0a !important;
-              --toolbar-field-focus-background-color: #0a0a0a !important;
-              --urlbar-box-bgcolor: #0a0a0a !important;
-              --urlbar-box-focus-bgcolor: #0a0a0a !important;
-
-              --toolbarbutton-icon-fill-attention: #666666 !important;
-
-              --toolbar-color: rgb(80, 80, 80) !important;
-              --lwt-text-color: rgb(80, 80, 80) !important;
-              --toolbar-field-color: rgb(148, 148, 148) !important;
-              --toolbar-field-focus-color: rgb(148, 148, 148) !important;
-              --urlbar-popup-url-color: rgb(148, 148, 148) !important;
-              --urlbar-popup-action-color: rgb(80, 80, 80) !important;
-              --tab-text-color: rgb(80, 80, 80) !important;
-              --lwt-tab-text: rgb(80, 80, 80) !important;
-              --arrowpanel-color: rgb(129, 129, 129) !important;
-              --panel-color: rgb(129, 129, 129) !important;
-
-              --toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
-              --lwt-toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
-              --lwt-toolbarbutton-icon-fill-attention: rgb(67, 67, 67) !important;
-              --toolbar-field-icon-fill-attention: rgb(148, 148, 148) !important;
-              --urlbar-icon-fill-attention: rgb(148, 148, 148) !important;
-              --urlbar-searchbar-icon-fill: rgb(148, 148, 148) !important;
-              --urlbar-focused-icon-fill: rgb(148, 148, 148) !important;
-              --identity-box-icon-fill-attention: rgb(148, 148, 148) !important;
-              --link-color: rgb(148, 148, 148) !important;
-
-              --tab-selected-bgcolor: #171717 !important;
-              --lwt-selected-tab-background-color: #171717 !important;
-
-              --toolbar-field-focus-border-color: #000000 !important;
-              --lwt-toolbar-field-highlight: #272727 !important;
-              --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
-              --arrowpanel-dimmed: #1c1c1c !important;
-              --tab-line-color: #000000 !important;
-              --lwt-tab-line-color: #000000 !important;
-              --tab-loading-fill: #000000 !important;
-              --chrome-content-separator-color: #000000 !important;
-              --toolbox-border-bottom-color: #000000 !important;
-              --sidebar-border-color: #000000 !important;
-              --focus-outline-color: transparent !important;
-            }
-
-            #navigator-toolbox {
-              border-bottom: none !important;
-            }
-            #sidebar-box,
-            #sidebar-splitter {
-              border-color: #000000 !important;
-            }
-            #tabbrowser-tabbox {
-              border: none !important;
-            }
-
-            .titlebar-buttonbox-container,
-            .titlebar-close,
-            .titlebar-min,
-            .titlebar-max,
-            .titlebar-restore {
-              display: none !important;
-            }
-
-            *:focus,
-            *:focus-visible {
-              outline: none !important;
-              box-shadow: none !important;
-            }
-
-            .tabbrowser-tab[selected] .tab-background {
-              background-color: #171717 !important;
-            }
-
-            #star-button[starred] {
-              fill: #666666 !important;
-            }
-            #star-button[starred] .toolbarbutton-icon {
-              fill: #666666 !important;
-            }
-
-            #urlbar .urlbar-background,
-            #urlbar[focused] .urlbar-background,
-            #urlbar[open] .urlbar-background,
-            #searchbar:focus-within {
-              background-color: #0a0a0a !important;
-            }
-
-            #urlbar *,
-            #urlbar-container *,
-            #urlbar[focused] *,
-            #urlbar[open] *,
-            .urlbar-icon,
-            .searchbar-icon,
-            #identity-icon,
-            #tracking-protection-icon,
-            .urlbar-search-mode-indicator,
-            #urlbar .search-one-offs image,
-            .search-panel-header,
-            .searchbar-engine-one-off-item,
-            #urlbar-label-box,
-            #urlbar-search-mode-indicator-title,
-            .urlbar-input::placeholder {
-              fill: rgb(148, 148, 148) !important;
-              color: rgb(148, 148, 148) !important;
-              -moz-context-properties: fill, fill-opacity !important;
-            }
-
-            #urlbar-input {
-              color: rgb(148, 148, 148) !important;
-              -moz-appearance: none !important;
-              caret-color: rgb(148, 148, 148) !important;
-            }
-            #urlbar[focused] > #urlbar-input-container > #urlbar-input {
-              color: rgb(148, 148, 148) !important;
-            }
-            :root #urlbar-input {
-              color: rgb(148, 148, 148) !important;
-            }
-            input#urlbar-input.urlbar-input {
-              color: rgb(148, 148, 148) !important;
-            }
-
-            #navigator-toolbox,
-            #TabsToolbar,
-            #nav-bar,
-            #PersonalToolbar,
-            #titlebar {
-              background-color: #000000 !important;
-            }
-
-            #tabbrowser-tabpanels,
-            #appcontent,
-            browser[type="content"],
-            browser[type="content-primary"],
-            #browser,
-            .browserStack,
-            .browserContainer {
-              background-color: #000000 !important;
-            }
-          '';
-
-          userContent = ''
-            @-moz-document url("about:home"),url("about:newtab"),url("about:blank"){
-              body * {
-                display: none !important;
-                visibility: hidden !important;
-              }
-              body, html {
-                background-color: #000000 !important;
-              }
-            }
-          '';
 
           search = {
             force = true;
