@@ -126,9 +126,9 @@
       };
 
       xdg.configFile."sway/colors-dark.conf".text = ''
-        client.focused          #242424 #000000 #f0f0f0 #242424 #242424
-        client.unfocused        #0a0a0a #000000 #000000 #0a0a0a #0a0a0a
-        client.focused_inactive #161616 #000000 #888888 #161616 #161616
+        client.focused          #121212 #000000 #f0f0f0 #121212 #121212
+        client.unfocused        #050505 #000000 #000000 #050505 #050505
+        client.focused_inactive #0b0b0b #000000 #888888 #0b0b0b #0b0b0b
         output * background #000000 solid_color
       '';
       xdg.configFile."sway/colors-light.conf".text = ''
