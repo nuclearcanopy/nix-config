@@ -23,6 +23,7 @@
         config.nixos.modules.server-secrets
         config.nixos.modules.server-git
         config.nixos.modules.server-screen-brightness
+        config.nixos.modules.nix-gc
       ];
     };
   };

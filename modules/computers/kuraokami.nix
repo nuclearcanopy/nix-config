@@ -17,6 +17,7 @@
         config.nixos.modules.audio-jack
         config.nixos.modules.openrazer
         config.nixos.modules.thunar
+        config.nixos.modules.nix-gc
       ];
 
       # ── host-specific ────────────────────────────────────────────────

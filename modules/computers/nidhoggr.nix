@@ -26,6 +26,7 @@
         config.nixos.modules.mullvad-graphical-target
         config.nixos.modules.network-debug
         config.nixos.modules.earlyoom
+        config.nixos.modules.nix-gc
         config.nixos.modules.displaymanager-ly
         config.nixos.modules.tpm2-off
         config.nixos.modules.luks-initrd
