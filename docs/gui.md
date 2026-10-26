@@ -57,7 +57,7 @@ redesigned:
 | accent fg (on accent bg) | `#ffffff` | `#000000` |
 | accent secondary (link) | `#b0b0b0` | `#5a5a5a` |
 | accent mid (visited link) | `#6e6e6e` | `#8a8a8a` |
-| border, focused | `#1a1a1a` | `#a0a0a0` |
+| border, focused | `#141414` | `#a0a0a0` |
 | border, unfocused | `#0a0a0a` | `#e2e2e2` |
 | border, focused-inactive | `#121212` | `#cfcfcf` |
 
