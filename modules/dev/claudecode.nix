@@ -142,6 +142,12 @@
       home.sessionVariables = {
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
 
+        # Generic opt-out respected by Node and a bunch of other CLIs
+        # (console.dev/DNT draft), not Claude-specific. Left set even under
+        # claude-rc (which only unsets the three Claude-specific vars below)
+        # since nothing about Remote Control needs this one gone.
+        DO_NOT_TRACK = "1";
+
         DISABLE_TELEMETRY = "1";
         DISABLE_ERROR_REPORTING = "1";
         DISABLE_BUG_COMMAND = "1";
