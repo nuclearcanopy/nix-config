@@ -9,6 +9,8 @@
 # prints the id so it can be copied straight in.
 set -uo pipefail
 
+source "$HOME/.config/theme-mode/bemenu.sh"
+
 BLOCKED=$(usbguard list-devices --blocked 2>/dev/null)
 
 if [[ -z "$BLOCKED" ]]; then
@@ -19,7 +21,7 @@ fi
 # "17: block id 0951:1666 ... name \"DataTraveler\" ..." -> "17<TAB>0951:1666 DataTraveler"
 CHOICE=$(
   echo "$BLOCKED" | sed -n 's/^\([0-9]\+\): *block *id *\([^ ]*\).*name "\([^"]*\)".*/\1\t\2  \3/p' \
-    | bemenu "$@" -p "allow usb:"
+    | bemenu "${BEMENU_FLAGS[@]}" -p "allow usb:"
 ) || exit 0
 
 [[ -z "$CHOICE" ]] && exit 0

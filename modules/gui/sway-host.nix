@@ -4,9 +4,6 @@
   # so computers/<host>.nix contains zero sway content.
   homeManager.modules.sway-host = { osConfig, lib, ... }:
 
-    let
-      bemenuStyle = import ./bemenu-style.data.nix;
-    in
     {
     wayland.windowManager.sway = lib.mkMerge [
       (lib.mkIf (osConfig.networking.hostName == "kuraokami") {
@@ -16,19 +13,16 @@
               mode = "2560x1440@120Hz";
               position = "0,0";
               scale = "1";
-              bg = "#000000 solid_color";
             };
             "DP-2" = {
               mode = "2560x1440@120Hz";
               position = "2560,0";
               scale = "1";
-              bg = "#000000 solid_color";
             };
             "HDMI-A-2" = {
               mode = "1920x1080@60Hz";
               position = "0,1440";
               scale = "1";
-              bg = "#000000 solid_color";
             };
           };
 
@@ -66,7 +60,7 @@
             # USBGuard blocks unknown devices on insert; this picks a blocked
             # one from a menu and authorizes it until reboot. nidhoggr only,
             # since hardening-physical (and so usbguard) is laptop-only.
-            "Mod4+Shift+u" = "exec ${./waybar/scripts/usb_allow.sh} ${bemenuStyle}";
+            "Mod4+Shift+u" = "exec ${./waybar/scripts/usb_allow.sh}";
           };
 
           output = {
@@ -77,7 +71,6 @@
             # wherever sway's own auto-layout happens to put it; mode is left
             # unset so it takes the display's own preferred mode.
             "*" = {
-              bg = "#000000 solid_color";
               position = "0 0";
             };
             # external HDMI sits on top, laptop panel directly below.
