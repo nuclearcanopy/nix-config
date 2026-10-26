@@ -395,28 +395,6 @@
             }
           '';
 
-          bookmarks = {
-            force = true;
-            settings = [
-              { name = "Proton Mail"; url = "https://mail.proton.me/u/0/inbox"; keyword = "pmail"; }
-              { name = "Proton Drive"; url = "https://drive.proton.me/"; keyword = "pdrive"; }
-              { name = "Reddit"; url = "https://www.reddit.com/"; keyword = "reddit"; }
-              { name = "NixOS Packages"; url = "https://search.nixos.org/packages"; keyword = "nixpkgs"; }
-              { name = "Google Classroom"; url = "https://classroom.google.com/u/1/"; keyword = "class"; }
-              { name = "Piracy Megathread"; url = "https://www.reddit.com/r/Piracy/wiki/megathread/"; keyword = "megathread"; }
-              { name = "YouTube Music"; url = "https://music.youtube.com/"; keyword = "ytm"; }
-              { name = "Warframe Market"; url = "https://warframe.market/"; keyword = "wfm"; }
-              { name = "Dexonline"; url = "https://dexonline.ro/"; keyword = "dex"; }
-              { name = "WhatsApp"; url = "https://web.whatsapp.com/"; keyword = "wa"; }
-              { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
-              { name = "GitHub"; url = "https://github.com/"; keyword = "gh"; }
-              { name = "NYT Crossword"; url = "https://www.nytimes.com/crosswords"; keyword = "nyt"; }
-              { name = "TryHackMe"; url = "https://tryhackme.com/dashboard"; keyword = "thm"; }
-              { name = "Teams"; url = "https://teams.microsoft.cloud/"; keyword = "teams"; }
-              { name = "Outlook"; url = "https://outlook.office365.com/"; keyword = "outlook"; }
-            ];
-          };
-
           search = {
             force = true;
             default = "ddg";
@@ -573,19 +551,6 @@
             "uBlock0@raymondhill.net".settings = {
               selectedFilterLists = ublockFilterLists;
             };
-          };
-
-          bookmarks = {
-            force = true;
-            settings = [
-              { name = "Gmail"; url = "https://mail.google.com/"; keyword = "gmail"; }
-              { name = "Drive"; url = "https://drive.google.com/"; keyword = "gdrive"; }
-              { name = "Docs"; url = "https://docs.google.com/"; keyword = "gdocs"; }
-              { name = "Calendar"; url = "https://calendar.google.com/"; keyword = "gcal"; }
-              { name = "Classroom"; url = "https://classroom.google.com/u/1/"; keyword = "class"; }
-              { name = "YouTube"; url = "https://www.youtube.com/"; keyword = "yt"; }
-              { name = "YouTube Music"; url = "https://music.youtube.com/"; keyword = "ytm"; }
-            ];
           };
 
           search = {
