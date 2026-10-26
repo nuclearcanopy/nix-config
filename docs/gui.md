@@ -16,3 +16,53 @@ two escapes exist, both declined:
 - a theme extension: a bare `manifest.json` with a `theme.colors` table, loaded via `--load-extension=<dir>` (helium accepts this without developer mode), whose `frame` and `toolbar` keys are independent. measured at black frame/inactive tabs with a `#1a1a1a` active tab. but installing any theme extension takes helium off the qt palette entirely, and its menus and omnibox dropdown revert to chromium's default dark grey.
 
 black was chosen deliberately; the tab-boundary ambiguity is an accepted cost.
+
+## light/dark theme toggle (`set-theme-mode`, `modules/gui/theme-mode.nix`)
+
+Every themed surface (gtk, qt6ct/qt5ct, waybar, mako, bemenu, sway borders/
+wallpaper, alacritty, firefox chrome) is declared twice by nix, dark and
+light, at stable paths. `set-theme-mode {light|dark|toggle}` flips which
+variant is live by re-pointing a plain symlink per app (never editing file
+contents at runtime) and firing whatever reload each app needs (`makoctl
+reload`, `swaymsg reload`, a waybar signal, nothing for apps that inotify-
+watch their own config). This exists because home-manager owns these files as
+immutable store-path symlinks regenerated only on `home-manager switch`, so a
+fast runtime toggle needs the nix layer to stop picking a single value and
+instead publish both, with a script choosing between them. `theme-mode-restore`
+(a `sway-session.target` user service, same convention as every other HM user
+service in this repo) re-applies the persisted choice from
+`~/.local/state/theme-mode/current` on every login, since a rebuild resets
+the symlinks back to the nix-level dark default.
+
+Firefox is the one exception with no live reload: `userChrome.css` is
+startup-only, so the toggle swaps the file and fires a mako notification
+asking for a manual restart rather than killing the browser process.
+
+Canonical dark->light hex mapping, reused mechanically everywhere so the two
+variants of any given file are a 1:1 substitution, not independently
+redesigned:
+
+| role | dark | light |
+|---|---|---|
+| base background | `#000000` | `#f0f0f0` |
+| raised surface (card/entry/tooltip) | `#0a0a0a` | `#ffffff` |
+| hover | `#1c1c1c` | `#e2e2e2` |
+| active/pressed | `#272727` | `#d4d4d4` |
+| selected tab | `#171717` | `#e8e8e8` |
+| primary text | `#949494` | `#2b2b2b` |
+| secondary/dim text | `#757575` | `#868686` |
+| disabled text | `#4d4d4d` | `#a8a8a8` |
+| disabled text (dim) | `#333333` | `#cccccc` |
+| accent bg (selection/switch) | `#3a3a3a` | `#c7c7c7` |
+| accent fg (on accent bg) | `#ffffff` | `#000000` |
+| accent secondary (link) | `#b0b0b0` | `#5a5a5a` |
+| accent mid (visited link) | `#6e6e6e` | `#8a8a8a` |
+| border, focused | `#3a3a3a` | `#a0a0a0` |
+| border, unfocused | `#1c1c1c` | `#e2e2e2` |
+| border, focused-inactive | `#272727` | `#cfcfcf` |
+
+Status/alert colors (waybar's muted-mic/caffeine/dock red `#b96b6b`, airgap's
+yellow `#C6A857`/red `#B96B6B`, thermal-mode's red/yellow) stay identical in
+both modes; they're semantic signals, not theme surface colors. Alacritty's
+ANSI red/green/yellow/blue/magenta are the same exception (git-diff colors
+etc.) — only black/white/bg/fg/cursor/selection flip there.

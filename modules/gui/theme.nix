@@ -225,14 +225,16 @@
         qt6ctSettings.Appearance = {
           style = "Fusion";
           custom_palette = true;
-          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/oled.conf";
+          # current.conf is a symlink the toggle script (set-theme-mode)
+          # flips between dark.conf/light.conf; never edited in place.
+          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/current.conf";
           icon_theme = "Adwaita";
           standard_dialogs = "default";
         };
         qt5ctSettings.Appearance = {
           style = "Fusion";
           custom_palette = true;
-          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/oled.conf";
+          color_scheme_path = "${config.xdg.configHome}/qt6ct/colors/current.conf";
           icon_theme = "Adwaita";
           standard_dialogs = "default";
         };
@@ -251,11 +253,22 @@
       # can't color page/omnibox selection separately from the new-tab button,
       # and pure-black chrome can't show a visible active tab at all.
       # Full investigation + declined alternatives (Helium, now removed): docs/gui.md
-      xdg.configFile."qt6ct/colors/oled.conf".text = ''
+      xdg.configFile."qt6ct/colors/dark.conf".text = ''
         [ColorScheme]
         active_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
         disabled_colors=#ff4d4d4d, #ff000000, #ff1c1c1c, #ff141414, #ff000000, #ff000000, #ff4d4d4d, #ffffffff, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff171717, #ff4d4d4d, #ff4d4d4d, #ff4d4d4d, #ff000000, #ff000000, #ff000000, #ff4d4d4d, #ff333333
         inactive_colors=#ff949494, #ff000000, #ff272727, #ff1c1c1c, #ff000000, #ff171717, #ff949494, #ffffffff, #ff949494, #ff000000, #ff000000, #ff000000, #ff3a3a3a, #ffffffff, #ffb0b0b0, #ff6e6e6e, #ff000000, #ff000000, #ff000000, #ff949494, #ff4d4d4d
+      '';
+
+      # Light counterpart, same 21-role structure, every hex mapped through
+      # the dark->light table in docs/gui.md. Toggled by set-theme-mode via
+      # a symlink swap of qt6ct/colors/current.conf; this file is never
+      # referenced directly by qt6ct's own config.
+      xdg.configFile."qt6ct/colors/light.conf".text = ''
+        [ColorScheme]
+        active_colors=#ff2b2b2b, #fff0f0f0, #ffd4d4d4, #ffe2e2e2, #fff0f0f0, #ffe8e8e8, #ff2b2b2b, #ff000000, #ff2b2b2b, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ffc7c7c7, #ff000000, #ff5a5a5a, #ff8a8a8a, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ff2b2b2b, #ffa8a8a8
+        disabled_colors=#ffa8a8a8, #fff0f0f0, #ffe2e2e2, #ffeeeeee, #fff0f0f0, #fff0f0f0, #ffa8a8a8, #ff000000, #ffa8a8a8, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ffe8e8e8, #ffa8a8a8, #ffa8a8a8, #ffa8a8a8, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ffa8a8a8, #ffcccccc
+        inactive_colors=#ff2b2b2b, #fff0f0f0, #ffd4d4d4, #ffe2e2e2, #fff0f0f0, #ffe8e8e8, #ff2b2b2b, #ff000000, #ff2b2b2b, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ffc7c7c7, #ff000000, #ff5a5a5a, #ff8a8a8a, #fff0f0f0, #fff0f0f0, #fff0f0f0, #ff2b2b2b, #ffa8a8a8
       '';
     };
 }
