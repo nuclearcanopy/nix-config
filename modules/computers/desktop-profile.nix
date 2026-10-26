@@ -50,6 +50,7 @@
       config.homeManager.modules.sway-startup
       config.homeManager.modules.mako
       config.homeManager.modules.theme
+      config.homeManager.modules.theme-mode
       config.homeManager.modules.gui-packages
       config.homeManager.modules.waybar
 
