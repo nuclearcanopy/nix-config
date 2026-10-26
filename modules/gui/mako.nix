@@ -15,7 +15,7 @@
 
     xdg.configFile."mako/colors-dark.ini".text = ''
       background-color=#000000
-      border-color=#2a2a2a
+      border-color=#1a1a1a
     '';
     xdg.configFile."mako/colors-light.ini".text = ''
       background-color=#f0f0f0

@@ -57,9 +57,9 @@ redesigned:
 | accent fg (on accent bg) | `#ffffff` | `#000000` |
 | accent secondary (link) | `#b0b0b0` | `#5a5a5a` |
 | accent mid (visited link) | `#6e6e6e` | `#8a8a8a` |
-| border, focused | `#2a2a2a` | `#a0a0a0` |
-| border, unfocused | `#141414` | `#e2e2e2` |
-| border, focused-inactive | `#1c1c1c` | `#cfcfcf` |
+| border, focused | `#1a1a1a` | `#a0a0a0` |
+| border, unfocused | `#0a0a0a` | `#e2e2e2` |
+| border, focused-inactive | `#121212` | `#cfcfcf` |
 
 Status/alert colors (waybar's muted-mic/caffeine/dock red `#b96b6b`, airgap's
 yellow `#C6A857`/red `#B96B6B`, thermal-mode's red/yellow) stay identical in

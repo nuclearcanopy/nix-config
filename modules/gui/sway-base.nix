@@ -22,7 +22,7 @@
 
           gaps = { inner = 0; outer = 0; };
           window = {
-            border = 2;
+            border = 1;
             titlebar = false;
             commands = [
               {
@@ -126,9 +126,9 @@
       };
 
       xdg.configFile."sway/colors-dark.conf".text = ''
-        client.focused          #2a2a2a #000000 #f0f0f0 #2a2a2a #2a2a2a
-        client.unfocused        #141414 #000000 #000000 #141414 #141414
-        client.focused_inactive #1c1c1c #000000 #888888 #1c1c1c #1c1c1c
+        client.focused          #1a1a1a #000000 #f0f0f0 #1a1a1a #1a1a1a
+        client.unfocused        #0a0a0a #000000 #000000 #0a0a0a #0a0a0a
+        client.focused_inactive #121212 #000000 #888888 #121212 #121212
         output * background #000000 solid_color
       '';
       xdg.configFile."sway/colors-light.conf".text = ''
