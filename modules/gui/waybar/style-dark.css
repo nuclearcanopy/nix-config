@@ -1,5 +1,5 @@
 * {
-  font-size: 15px;
+  font-size: 14px;
   font-family: monospace;
   border: none;
   margin: 0;
@@ -24,7 +24,7 @@ window#waybar {
 
 /* ============================================
    EVERY TOP-LEVEL MODULE: IDENTICAL SPACING
-   margin: 2px 8px = 16px between modules
+   margin: 2px 10px = 20px between modules
    ============================================ */
 
 #clock,
@@ -52,7 +52,7 @@ window#waybar {
 #custom-sleep,
 #custom-sep,
 #custom-airgap {
-  margin: 2px 11px;
+  margin: 2px 10px;
   padding: 2px 0px;
   background: transparent;
 }
@@ -79,7 +79,7 @@ window#waybar {
 #workspaces {
   font-weight: bold;
   padding: 0px;
-  margin: 2px 11px;
+  margin: 2px 10px;
   background: transparent;
   border: none;
 }
@@ -135,7 +135,7 @@ window#waybar {
 
 #custom-mpris {
   color: #666666;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 

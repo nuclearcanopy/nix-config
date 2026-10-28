@@ -320,7 +320,8 @@
             };
 
             tray = {
-              icon-size = 17;
+              # Tracks the 14px text; a 17px icon looked oversized next to it.
+              icon-size = 16;
               spacing = 6;
             };
           } // lib.optionalAttrs isDesktop {
