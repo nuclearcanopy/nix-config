@@ -93,7 +93,7 @@ modules/                → NixOS + home-manager modules, grouped by domain
                           (IOMMU, USBGuard, TB blacklist, AppArmor)
   shell/                → zsh, environment, alacritty, ssh, shell-packages
   dev/                  → git, gpg, claudecode, dev-packages
-  services/             → core, privacy, keyd-internal-kbd
+  services/             → core, privacy, keyd-internal-kbd, uptimed (+ scripts/playtime.py)
   nix/                  → nix-settings, overlays, allow-unfree, allowed-unfree.data.nix
   server/               → homeserver modules (services, watchdog, networking, users, secrets…)
 secrets/                → Encrypted secrets (*.age) and secrets.nix key mapping
@@ -157,6 +157,14 @@ Every home-manager user service on `nidhoggr` (`waybar`, `waybar-output-watcher`
 `services.journald.extraConfig` sets `SystemMaxUse=512M`, `SystemMaxFileSize=64M`, `MaxRetentionSec=1month`. Journald's default cap is 10% of the filesystem, i.e. ~23G on the 234G root; it had reached 2.1G by 2026-09-15 (vacuumed to 235M on the first rebuild after the cap). The bulk of the volume is the NVMe's correctable PCIe AER chatter: the WD PC SN720 at `0000:07:00.0`, behind root port `0000:00:1d.2`, logs ~1000 `Correctable ... Physical Layer, (Receiver ID) ... RxErr` retries per boot, bursty under I/O load. Those are link-layer retries with no data risk. **Do not silence them with `pci=noaer` or `pcie_ports=compat`**: AER reporting is deliberately left on because the AX210 resume failure (see `docs/power.md`) is detected as a *fatal* AER event, and blanket-disabling AER would hide it. Cap the journal, not the source.
 
 `sleep-actions.service` is the single unit behind both sleep hooks: its `ExecStart` runs `powerManagement.powerDownCommands` (`Before=sleep.target`) and its `ExecStop` runs `powerManagement.resumeCommands` (via `RemainAfterExit` + `StopWhenUnneeded`). It used to fail on **every resume** (fixed in 8514037): `set -e` aborted the script when `v=$(cat "$devdir/idVendor")` hit a USB interface directory that has no `idVendor`, so the backlight redraw and the waybar resume signal never ran. Two constraints follow for anything added to either hook. The generated script runs under `set -e`, so every command that can fail needs `|| true` or a guard. The unit's `PATH` holds only coreutils, findutils, gnugrep, gnused, and systemd; anything else (`pkill`, `modprobe`) must be referenced by absolute store path, e.g. `${pkgs.kmod}/bin/modprobe`.
+
+## Uptime accounting (`modules/services/uptimed.nix`, nidhoggr, 2026-10-28)
+
+Two separate things, deliberately not merged. `services.uptimed.enable` gives the highest-uptime leaderboard (`uprecords`) and nothing else. `playtime` is the lifetime "how long has this machine been running" total: `playtime-tick.timer` folds elapsed `CLOCK_MONOTONIC` into `/var/lib/playtime/state.json` every 2 min (`playtime` / `playtime seconds` / `playtime tick`).
+
+uptimed cannot do the second job. Its clock is `CLOCK_BOOTTIME`, which keeps counting through S3; over the month of journal retention measured on 2026-10-28, 199.5h of 321h of session time was suspend, so its totals run ~2.6x high here. It also prunes the log to `LOG_MAXIMUM_ENTRIES=50` and drops sessions under `LOG_MINIMUM_UPTIME=1h`, and its config path is compiled in as `$out/etc/uptimed.conf` (`-DFILE_CONFIG` in the upstream `Makefile.am`), so changing either default means overriding the package.
+
+The pre-existing total is `seedHours = 4383` in the module, written to `/etc/playtime-seed` and added at display time, not baked into the state file; edit the constant to correct it. It came from the NVMe's SMART `Power On Hours` on 2026-10-28 (WDC PC SN720, 4383h / 6178 power cycles / 607 unsafe shutdowns), which is drive lifetime and therefore predates both the install and the purchase, which is the intent. For reference, the install itself (wtmp begins 2026-05-18 21:55, never rotated) is ~2555h of boot-to-shutdown session time across 203 boots: 2184.8h from the 143 clean sessions, plus ~370h for the 59 that ended uncleanly. `last` cannot date those 59, since with no shutdown record it fills the end with the *next* boot time (one reads `7+12:04`); the 0.24 correction factor comes from comparing wtmp against journald over the window journald still covers.
 
 ## Battery runtime estimation (`modules/power/battery-model.nix`, nidhoggr)
 
