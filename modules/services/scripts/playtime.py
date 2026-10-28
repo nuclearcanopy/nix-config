@@ -101,12 +101,16 @@ def fmt(seconds):
     return "%3dd %2dh %2dm" % (days, hours, rem // 60)
 
 
+def hours(seconds):
+    return "{:,} h".format(int(seconds) // 3600)
+
+
 def show(state, seed, counted):
     total = seed + counted
     since = time.strftime("%Y-%m-%d", time.localtime(state["started"]))
-    print("playtime  %s   (%d h)" % (fmt(total), total // 3600))
-    print("  seeded  %s   (before this counter existed)" % fmt(seed))
-    print("  counted %s   (since %s)" % (fmt(counted), since))
+    print("playtime  %s = %8s" % (fmt(total), hours(total)))
+    print("  seeded  %s = %8s   (before this counter existed)" % (fmt(seed), hours(seed)))
+    print("  counted %s = %8s   (since %s)" % (fmt(counted), hours(counted), since))
     print("session   %s awake, %s since boot" % (fmt(mono()), fmt(boottime())))
 
 
@@ -115,13 +119,12 @@ def waybar(state, seed, counted):
     print(json.dumps({
         "text": "%dd %dh" % (total // 86400, total % 86400 // 3600),
         "tooltip": "\n".join([
-            "playtime %s" % fmt(total).strip(),
-            "  seeded  %s" % fmt(seed).strip(),
-            "  counted %s since %s" % (
-                fmt(counted).strip(),
+            "playtime  %s = %8s" % (fmt(total), hours(total)),
+            "  seeded  %s = %8s" % (fmt(seed), hours(seed)),
+            "  counted %s = %8s   since %s" % (
+                fmt(counted), hours(counted),
                 time.strftime("%Y-%m-%d", time.localtime(state["started"]))),
-            "session   %s awake, %s since boot" % (
-                fmt(mono()).strip(), fmt(boottime()).strip()),
+            "session   %s awake, %s since boot" % (fmt(mono()), fmt(boottime())),
         ]),
     }))
 
