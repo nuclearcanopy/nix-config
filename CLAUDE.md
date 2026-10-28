@@ -160,7 +160,7 @@ Every home-manager user service on `nidhoggr` (`waybar`, `waybar-output-watcher`
 
 ## Uptime accounting (`modules/services/uptimed.nix`, nidhoggr, 2026-10-28)
 
-Two separate things, deliberately not merged. `services.uptimed.enable` gives the highest-uptime leaderboard (`uprecords`) and nothing else. `playtime` is the lifetime "how long has this machine been running" total: `playtime-tick.timer` folds elapsed `CLOCK_MONOTONIC` into `/var/lib/playtime/state.json` every 2 min (`playtime` / `playtime seconds` / `playtime tick`).
+Two separate things, deliberately not merged. `services.uptimed.enable` gives the highest-uptime leaderboard (`uprecords`) and nothing else. `playtime` is the lifetime "how long has this machine been running" total: `playtime-tick.timer` folds elapsed `CLOCK_MONOTONIC` into `/var/lib/playtime/state.json` every 2 min (`playtime` / `playtime seconds` / `playtime tick` / `playtime waybar`). The waybar `custom/playtime` module (laptop profile only, since kuraokami doesn't import this bucket) polls `playtime waybar` every 60s through `/run/current-system/sw/bin/`, because waybar's own PATH is the home-manager session one.
 
 uptimed cannot do the second job. Its clock is `CLOCK_BOOTTIME`, which keeps counting through S3; over the month of journal retention measured on 2026-10-28, 199.5h of 321h of session time was suspend, so its totals run ~2.6x high here. It also prunes the log to `LOG_MAXIMUM_ENTRIES=50` and drops sessions under `LOG_MINIMUM_UPTIME=1h`, and its config path is compiled in as `$out/etc/uptimed.conf` (`-DFILE_CONFIG` in the upstream `Makefile.am`), so changing either default means overriding the package.
 
