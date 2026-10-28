@@ -1,5 +1,5 @@
 {
-  # Server baseline: nix settings tuned for 128GB SSD (daily GC, 7-day retention),
+  # Server baseline: nix settings tuned for 128GB SSD (daily GC),
   # systemd-boot, MCE/panic kernel params, console palette, TLP powersave with
   # boost on, thermald + irqbalance, docker priority, network buffer tuning for
   # streaming, zramSwap, hardware watchdog, suspend/hibernate disabled, autologin,
@@ -13,11 +13,10 @@
         auto-optimise-store = true;
       };
 
-      gc = {
-        automatic = true;
-        dates = "daily";
-        options = "--delete-older-than 7d";
-      };
+      # Cadence only; automatic + the 5-generation floor come from
+      # nixos.modules.nix-gc, whose prune replaces the old
+      # `--delete-older-than 7d` (age deletion would eat that floor).
+      gc.dates = lib.mkForce "daily";
     };
 
     boot = {
