@@ -29,6 +29,7 @@ window#waybar {
 
 #clock,
 #custom-time,
+#custom-playtime,
 #custom-volume,
 #custom-mic,
 #expand,
@@ -116,6 +117,10 @@ window#waybar {
   color: #888888;
 }
 
+#custom-playtime {
+  color: #666666;
+}
+
 #custom-mic.muted {
   color: #b96b6b;
 }
@@ -140,6 +145,7 @@ window#waybar {
 
 #clock:hover,
 #custom-time:hover,
+#custom-playtime:hover,
 #custom-memory:hover,
 #custom-ssd:hover,
 #custom-mic:hover,

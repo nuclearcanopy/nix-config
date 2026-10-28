@@ -9,10 +9,11 @@ State: /var/lib/playtime/state.json   {total, boot_id, mono, started}
 Seed:  /etc/playtime-seed             seconds accrued before this counter
                                       existed, declared in Nix
 
-Usage: playtime [show|tick|seconds]
+Usage: playtime [show|tick|seconds|waybar]
   show     human-readable summary (default)
   tick     fold elapsed awake time into the total (run by playtime-tick.timer)
   seconds  total as a bare integer, for scripting
+  waybar   one-line JSON for a waybar custom module
 """
 
 import json
@@ -109,6 +110,22 @@ def show(state, seed, counted):
     print("session   %s awake, %s since boot" % (fmt(mono()), fmt(boottime())))
 
 
+def waybar(state, seed, counted):
+    total = seed + counted
+    print(json.dumps({
+        "text": "%dd %dh" % (total // 86400, total % 86400 // 3600),
+        "tooltip": "\n".join([
+            "playtime %s" % fmt(total).strip(),
+            "  seeded  %s" % fmt(seed).strip(),
+            "  counted %s since %s" % (
+                fmt(counted).strip(),
+                time.strftime("%Y-%m-%d", time.localtime(state["started"]))),
+            "session   %s awake, %s since boot" % (
+                fmt(mono()).strip(), fmt(boottime()).strip()),
+        ]),
+    }))
+
+
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "show"
     if cmd == "tick":
@@ -121,10 +138,12 @@ def main():
 
     if cmd == "seconds":
         print(int(seed + counted))
+    elif cmd == "waybar":
+        waybar(state, seed, counted)
     elif cmd == "show":
         show(state, seed, counted)
     else:
-        print("usage: playtime [show|tick|seconds]", file=sys.stderr)
+        print("usage: playtime [show|tick|seconds|waybar]", file=sys.stderr)
         return 2
     return 0
 

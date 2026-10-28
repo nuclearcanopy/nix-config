@@ -131,7 +131,9 @@
             output = [ "DP-1" "HDMI-A-1" ];
           } // {
             modules-left =
-              [ "clock#date" "custom/time" "custom/sep" "custom/volume" "custom/mic" "custom/sep" ]
+              [ "clock#date" "custom/time" ]
+              ++ lib.optional isLaptop "custom/playtime"
+              ++ [ "custom/sep" "custom/volume" "custom/mic" "custom/sep" ]
               ++ lib.optional isLaptop "custom/brightness"
               ++ [ "custom/caffeine" "custom/sep" "custom/vpn" "custom/airgap" "custom/thememode" ]
               ++ lib.optional isLaptop "custom/bluetooth"
@@ -342,6 +344,18 @@
               signal = 12;
               on-click = script "bt_toggle.sh";
               tooltip = false;
+            };
+
+            # Lifetime powered-on total (modules/services/uptimed.nix). Laptop
+            # only: the `playtime` binary comes from the uptimed bucket, which
+            # kuraokami does not import, and the seed is this machine's drive.
+            # Referenced through /run/current-system/sw/bin because waybar's
+            # own PATH is the home-manager session one.
+            "custom/playtime" = {
+              exec = "/run/current-system/sw/bin/playtime waybar";
+              return-type = "json";
+              interval = 60;
+              tooltip = true;
             };
 
             "custom/brightness" = {
