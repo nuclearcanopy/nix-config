@@ -400,7 +400,7 @@
               interval = 5;
               on-click = "${script "thermal_toggle.sh"} next";
               on-click-right = "${script "thermal_toggle.sh"} prev";
-              on-click-middle = "set-cpu-mode god && pkill -RTMIN+3 waybar";
+              on-click-middle = "${script "thermal_toggle.sh"} mid";
               signal = 3;
               tooltip = false;
             };

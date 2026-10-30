@@ -15,7 +15,13 @@ case "$gov" in
     fi ;;
   powersave)
     if [[ "$no_turbo" == "1" ]]; then
-      echo "<span color='#B8A86A'>LAP</span>"
+      # /run/fan-silence is fan-silence.service's RuntimeDirectory: present
+      # only while the fan is pinned to level 0, i.e. the `sil` mode.
+      if [[ -d /run/fan-silence ]]; then
+        echo "<span color='#B96B6B'>LAP</span>"
+      else
+        echo "<span color='#B8A86A'>LAP</span>"
+      fi
     else
       echo "BAL"
     fi ;;
