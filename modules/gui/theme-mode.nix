@@ -50,8 +50,15 @@
         ln -sfn "${configHome}/theme-mode/bemenu-$mode.sh" "${configHome}/theme-mode/bemenu.sh"
         ln -sfn "${configHome}/alacritty/colors-$mode.toml" "${configHome}/alacritty/current-colors.toml"
         ln -sfn "${configHome}/sway/colors-$mode.conf" "${configHome}/sway/colors.conf"
-        ln -sfn "${firefoxChrome}/userChrome-$mode.css" "${firefoxChrome}/userChrome.css"
-        ln -sfn "${firefoxChrome}/userContent-$mode.css" "${firefoxChrome}/userContent.css"
+        # Guarded, unlike the pairs above: firefoxChrome sits under
+        # ~/.mozilla/firefox/default, which is a psd symlink into tmpfs. If psd
+        # has not populated it yet the ln fails, and under `set -euo pipefail`
+        # that used to abort the whole script, so the state-file write and
+        # every reload below silently never ran. theme-mode-restore failed on
+        # literally every boot this way; see the After=psd.service ordering on
+        # the unit, which fixes the common case but not a slow psd sync.
+        ln -sfn "${firefoxChrome}/userChrome-$mode.css" "${firefoxChrome}/userChrome.css" 2>/dev/null || true
+        ln -sfn "${firefoxChrome}/userContent-$mode.css" "${firefoxChrome}/userContent.css" 2>/dev/null || true
 
         mkdir -p "$(dirname "$state_file")"
         printf '%s\n' "$mode" > "$state_file"
@@ -99,7 +106,11 @@
         Unit = {
           Description = "Reapply persisted light/dark theme mode";
           PartOf = [ "sway-session.target" ];
-          After = [ "sway-session.target" ];
+          # psd.service too: the firefox userChrome symlinks live under a psd
+          # tmpfs profile, and ordering on sway-session alone raced it (psd up
+          # at 20:14:44, this ran at :46, psd finished syncing at :48).
+          After = [ "sway-session.target" "psd.service" ];
+          Wants = [ "psd.service" ];
         };
         Service = {
           Type = "oneshot";
