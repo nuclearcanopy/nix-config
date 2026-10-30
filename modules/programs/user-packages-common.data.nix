@@ -8,7 +8,6 @@ pkgs: with pkgs; [
   xournalpp
 
   libreoffice
-  lyx
 
   signal-desktop
   qbittorrent

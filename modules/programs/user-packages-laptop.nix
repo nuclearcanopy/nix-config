@@ -5,10 +5,10 @@
   #
   # Deliberately absent, trimmed 2026-09-06 for closure size: kdenlive,
   # texliveFull, teams-for-linux, rustdesk-flutter, feishin, mangohud.
-  # Consequences: termsonic is the only Subsonic client here, and lyx has no
-  # TeX distribution behind it, so it will not typeset. Do not set
+  # Consequence: termsonic is the only Subsonic client here. Do not set
   # EnableMangoHud=true in a Prism instance.cfg on this host; the binary the
-  # option shells out to is gone.
+  # option shells out to is gone. lyx went with texlive on both hosts
+  # (2026-10-30); no LaTeX toolchain is installed anywhere now.
   homeManager.modules.user-packages-laptop = { pkgs, ... }: {
     home.packages = (import ./user-packages-common.data.nix pkgs) ++ (with pkgs; [
       calibre

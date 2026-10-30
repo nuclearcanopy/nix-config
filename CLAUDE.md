@@ -138,7 +138,7 @@ Consequences of the swap:
 
 | Removed | Was | Why |
 |---|---|---|
-| `texliveFull` | 6.3 GB | full TeX distribution. `lyx` is still installed but **has no TeX backend and will not typeset**; either add a `texliveSmall`-class scheme or drop lyx |
+| `texliveFull` | 6.3 GB | full TeX distribution, laptop-only removal in this pass. `lyx` outlived it here and could not typeset; both are now gone from **every** host (2026-10-30, the user no longer writes LaTeX at all), so don't re-add either as a dependency of the other |
 | `kdenlive` / `teams-for-linux` / `rustdesk-flutter` / `feishin` / `mangohud` | ~10 GB | unused, or duplicated by something lighter. `termsonic` is now the only Subsonic client |
 | `thunar` + `tumbler` + `xfconf` + `thunar-volman` | ~2.4 GB | replaced by `pcmanfm` (~310 MB), `modules/programs/pcmanfm.nix`. `gvfs` stays: GTK file managers mount removable media through it, and dropping it costs USB automount and the GUI trash backend |
 | `openrazer` + `polychromatic` | | kuraokami only. No Razer hardware is ever used on nidhoggr, so its USBGuard `allow id 1532:00bf` rule and the `Razer_DeathAdder_V4_Pro` input block in `sway-host.nix` were removed too. The waybar `custom/mouse` module stays but needed a third battery source to work at all here (see "Mouse battery" below); the openrazer branch of `mouse_battery.sh` is dead on nidhoggr and must stay for kuraokami |

@@ -14,7 +14,6 @@
       prismlauncher
 
       # calibre     # temporarily out: pulls onnxruntime which fails to build
-      texliveFull
 
       feishin
       qjackctl
