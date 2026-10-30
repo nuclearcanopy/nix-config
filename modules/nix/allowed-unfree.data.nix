@@ -1,6 +1,5 @@
 [
   "steam"
-  "steam-original"
   "steam-run"
   "steam-unwrapped"
   "claude-code"
