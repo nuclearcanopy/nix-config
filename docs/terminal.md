@@ -25,14 +25,23 @@ ghostty has no signal-free reload beyond this, for reference: there is no `SIGUS
 
 the complaint was waiting to type. measured on nidhoggr under a normal working load, so treat the absolute numbers as an upper bound and the gaps as the real signal.
 
-**shell init**, `zsh -i -c exit`, interleaved a/b, 15 reps each:
+**shell init**, `zsh -i -c exit`:
 
 | | |
 |---|---|
-| before | 140ms |
-| after | 100ms |
+| before | 140ms (measured) |
+| after the completionInit fix alone | 100ms (measured) |
+| after also dropping the global compinit | ~50ms (projected, confirm after a rebuild) |
 
-`zmodload zsh/zprof` put `compinit` at 57.8ms of which `compaudit` was 47.8ms, 74% of everything the rc did. the rc already had the standard "full `compinit` once a day, `compinit -C` otherwise" guard, but **it never once took the fast branch**: `compinit` only rewrites the dump when it judges it stale, so a dump that stays valid keeps its old mtime, `~/.zcompdump` sat at its september date, `(#qN.mh+24)` was therefore always true, and the expensive fpath security scan ran on every single interactive shell. `touch`ing the dump after the full run resets the window. the remaining 100ms is ~25ms `compinit -C`, ~25ms sourcing zsh-syntax-highlighting, ~20ms zsh-autosuggestions, ~15ms `scripts/nix-commit.zsh` and ~15ms zsh itself; those are all features worth their cost, measured individually by ablation.
+the guess was "could be a zsh issue". it was, but not in the way the rc suggested, and there were **two** independent causes, both of which made `compinit` run its expensive `compaudit` fpath security scan on every single interactive shell.
+
+**cause 1, the completionInit guard never worked.** the rc had the widely copied "full `compinit` once a day, `compinit -C` otherwise" idiom, written as `[[ -n ~/.zcompdump(#qN.mh+24) ]]`. **zsh does not perform filename generation inside `[[ ]]`**, so that operand is never a glob; it is the literal string `/home/loki/.zcompdump(#qN.mh+24)`, which is never empty, so `-n` is a constant true and the slow branch ran unconditionally. the dump's age was irrelevant the whole time. two further traps behind it: `compinit` leaves a still-valid dump's mtime alone, so even a working staleness test needs an explicit `touch` to reset the window; and the original `else` branch would have run `compinit -C` against a *missing* dump, which silently yields no completions. the version in `zsh.nix` evaluates the glob in an array, tests fresh rather than stale so a missing dump stays on the full path, and touches after a full run. verified by forcing all three dump states (missing, 3-day-stale, fresh): the branch taken is correct in each and `$#_comps` is 1942 either way.
+
+**cause 2, completions were initialised twice per shell.** `programs.zsh.enableCompletion` also writes a bare, unguarded `autoload -U compinit && compinit` into `/etc/zshrc` (nixpkgs `programs/zsh/zsh.nix`, gated on the separate `enableGlobalCompInit`), which runs *before* home-manager's rc. so every shell paid a full `compinit` there and then a second one in `.zshrc`. this is invisible to the obvious profiling run, because `zmodload zsh/zprof` at the top of `.zshrc` loads too late to see it; putting it in `.zshenv` instead, which zsh reads before `/etc/zshrc`, shows `compinit` with **2 calls** and `compaudit` with 2 calls at 47.8ms. with the guard above fixed, the home-manager call is `compinit -C` and contributes no `compaudit`, so that entire 47.8ms belongs to the global one. `enableGlobalCompInit = false` (desktop hosts only; the homeserver has no home-manager zsh module and the global call is the only compinit it gets) removes it while leaving the fpath setup in `/etc/zshenv` alone.
+
+a caution for anyone re-measuring this: several intuitive harnesses give badly wrong answers. `zsh -d` skips `/etc/zshenv`, and hand-replicating its fpath loop alongside the one `.zshrc` already does inflated fpath from 25 entries to 34, which invalidated the dump and made `compdump` regenerate on *every* run, turning a 140ms shell into 2.3s. and pointing two variants at one shared `~/.zcompdump` lets each invalidate the other's. only numbers taken against the real environment, with `ZDOTDIR` overridden but global rcs still read, matched reality.
+
+the rest of the 100ms, by ablation: ~25ms `compinit -C`, ~25ms sourcing zsh-syntax-highlighting, ~20ms zsh-autosuggestions, ~15ms `scripts/nix-commit.zsh`, ~15ms zsh itself. those are all features worth their cost and none were touched.
 
 **window spawn**, launch to the window appearing in sway's tree, interleaved against alacritty:
 

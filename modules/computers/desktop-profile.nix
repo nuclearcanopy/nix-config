@@ -12,6 +12,7 @@
     imports = [
       # base
       config.nixos.modules.host-base
+      config.nixos.modules.zsh-system
       config.nixos.modules.hardening-base
       config.nixos.modules.nix-settings
       config.nixos.modules.overlays
