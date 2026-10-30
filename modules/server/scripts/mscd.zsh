@@ -27,13 +27,42 @@ if [[ -n "$MSCD_LOCAL_ROOT" ]]; then
   MSCD_ARCHIVE="$MSCD_LOCAL_ROOT/.archive.txt"
 fi
 
-mkdir -p ~/.local/bin
-curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
-chmod +x ~/.local/bin/yt-dlp
-export PATH="$HOME/.local/bin:$PATH"
+# yt-dlp has to track youtube's changes faster than the nixpkgs pin, so it
+# self-updates from github; `unstable.yt-dlp` (modules/server/system.nix) is
+# the fallback whenever that fails.
+#
+# -f is load-bearing: without it curl writes the HTTP error body to the output
+# file and still exits 0, so a 404 left a 9-byte "Not Found" chmod +x'd ahead
+# of the pinned binary on PATH, breaking every download until cleared by hand
+# (reproduced 2026-10-30). Stage to a temp file and only install it if the
+# thing actually runs. Age-gated because this file is sourced from
+# interactiveShellInit, i.e. it was a ~35MB fetch on every ssh login.
+_mscd_update_ytdlp() {
+  local dest="$HOME/.local/bin/yt-dlp" tmp
+  mkdir -p "$HOME/.local/bin" || return 1
+  tmp=$(mktemp "$dest.XXXXXX") || return 1
+  if curl -fsSL --retry 3 --retry-delay 2 --max-time 180 \
+       https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+       -o "$tmp" \
+     && chmod +x "$tmp" \
+     && "$tmp" --version >/dev/null 2>&1; then
+    mv -f "$tmp" "$dest"
+  else
+    rm -f "$tmp"
+    return 1
+  fi
+}
 
-which yt-dlp
-yt-dlp --version
+if [[ ! -x "$HOME/.local/bin/yt-dlp" ]] \
+   || [[ -n $(find "$HOME/.local/bin/yt-dlp" -mtime +1 2>/dev/null) ]]; then
+  _mscd_update_ytdlp || true
+fi
+
+# Only shadow the pinned yt-dlp with a copy that has been shown to run.
+if [[ -x "$HOME/.local/bin/yt-dlp" ]] \
+   && "$HOME/.local/bin/yt-dlp" --version >/dev/null 2>&1; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 export LC_ALL="${LC_ALL:-C.UTF-8}"
 
