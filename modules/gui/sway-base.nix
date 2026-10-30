@@ -49,7 +49,7 @@
             "${mod}+j" = "layout toggle split";
             "${mod}+m" = "exit";
 
-            "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
+            "${mod}+${alt}+1" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
             "${mod}+${alt}+2" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
             "${mod}+${alt}+3" = "exec ${./waybar/scripts/caffeine.sh} toggle";
             "${mod}+${alt}+t" = "exec set-theme-mode toggle";
@@ -92,9 +92,9 @@
 
             # No `-l`: like the waybar volume module's scroll-up, this boosts past
             # 100%. volume.sh paints the overshoot red and saturates at +99%.
-            "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && pkill -SIGRTMIN+5 waybar";
-            "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -SIGRTMIN+5 waybar";
-            "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -SIGRTMIN+5 waybar";
+            "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+";
+            "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+            "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
             "XF86AudioMicMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
             "XF86MonBrightnessUp" = "exec set-brightness 5%+ && pkill -SIGRTMIN+4 waybar";
             "XF86MonBrightnessDown" = "exec set-brightness 5%- && pkill -SIGRTMIN+4 waybar";

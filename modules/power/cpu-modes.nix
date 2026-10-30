@@ -105,7 +105,10 @@
       #    works without root from waybar. Shell logic lives in store scripts;
       #    udev's rule validator rejects $VAR inside RUN strings.
       # 4. power_supply change (AC/BAT switch): restart cpu-mode-restore.service
-      #    and signal waybar to refresh its power-mode display.
+      #    and signal waybar's custom/battery (`signal = 7`, so SIGRTMIN+7 =
+      #    41) so the charge readout picks up the new state immediately. Not
+      #    the power-mode module, as this comment used to claim; that is
+      #    custom/thermalmode on `signal = 3`, i.e. 37.
       services.udev.extraRules =
         let
           makeWheelWritable = pkgs.writeShellScript "make-wheel-writable" ''

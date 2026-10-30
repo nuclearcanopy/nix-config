@@ -14,6 +14,13 @@
           util-linux # rfkill
           systemd # journalctl, resolvectl, systemctl
           wireguard-tools
+          # writeShellApplication prepends to PATH rather than replacing it,
+          # so these were inherited from the interactive session and the
+          # script only worked when run by hand. mkdir/date/tail from
+          # coreutils, grep, and the bash the script re-invokes itself with.
+          coreutils
+          gnugrep
+          bash
         ];
         text = ''
           outdir="''${1:-$HOME/network-debug}"

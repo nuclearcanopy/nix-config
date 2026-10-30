@@ -14,7 +14,10 @@ set -euo pipefail
 NAME=$(grep -oP 'name "\K[^"]*' <<< "${USBGUARD_DEVICE_RULE:-}" || true)
 NAME=${NAME:-unknown device}
 
-notify-send "USB device blocked" "$NAME: enter your password to allow it"
+# `|| true`: under `set -euo pipefail` a notify-send failure (dbus hiccup,
+# mako not up yet) would abort before the sudo prompt below, leaving the
+# device blocked with no dialog at all.
+notify-send "USB device blocked" "$NAME: enter your password to allow it" || true
 
 # -k first: a warm sudo timestamp from an unrelated terminal command must
 # not silently auto-approve a device with no prompt at all.
