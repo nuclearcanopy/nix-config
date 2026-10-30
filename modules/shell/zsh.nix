@@ -5,19 +5,25 @@
       dotDir = config.home.homeDirectory;
 
       enableCompletion = true;
-      # compinit only rewrites the dump when it judges it stale, so a dump
-      # that stays valid keeps its old mtime, the mh+24 test stays true
-      # forever and the full compaudit scan runs on every single start
-      # (48ms of a 160ms interactive start, measured). touch resets the
-      # window so the cheap -C path actually holds for a day.
+      # Run the full compinit (which means compaudit, 48ms of a 140ms
+      # interactive start) at most once a day, and compinit -C otherwise.
+      # Two traps, both of which this hits: zsh does not glob inside
+      # [[ ]], so the widespread `[[ -n ~/.zcompdump(#qN.mh+24) ]]` form
+      # tests a non-empty literal string and is a constant true; and
+      # compinit leaves a still-valid dump's mtime alone, so the window
+      # needs an explicit touch to reset. Testing fresh rather than stale
+      # also keeps a missing dump on the full path, where it has to be.
+      # See docs/terminal.md.
       completionInit = ''
         autoload -Uz compinit
-        if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+        _zcompdump_fresh=( ~/.zcompdump(N.mh-24) )
+        if (( $#_zcompdump_fresh )); then
+          compinit -C
+        else
           compinit
           touch ~/.zcompdump
-        else
-          compinit -C
         fi
+        unset _zcompdump_fresh
       '';
       syntaxHighlighting.enable = true;
       autosuggestion.enable = true;
