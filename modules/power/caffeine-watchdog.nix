@@ -35,7 +35,10 @@
           # cocooned.
           mode=$(${pkgs.coreutils}/bin/cat /var/lib/cpu-mode/state 2>/dev/null || true)
           case "$mode" in
-            spd|god|"") /run/current-system/sw/bin/set-cpu-mode bal ;;
+            # `|| true` matters: this runs under `set -eu`, so a nonzero exit
+            # here would abort the tick before the poweroff check below and
+            # the 30-minute drain timer would never advance.
+            spd|god|"") /run/current-system/sw/bin/set-cpu-mode bal || true ;;
           esac
 
           [ -f ${sinceFile} ] || ${pkgs.coreutils}/bin/date +%s > ${sinceFile}
