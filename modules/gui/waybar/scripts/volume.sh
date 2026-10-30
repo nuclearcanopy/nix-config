@@ -37,7 +37,9 @@ done
 echo "$out"
 
 # `sink` covers volume + mute changes; `server` covers default-sink swaps.
-# pactl is from pipewire-pulse so this works against pipewire natively.
+# pactl comes from pkgs.pulseaudio (gui-packages.nix), not pipewire; it talks
+# to pipewire-pulse as a client. the 2>/dev/null plus the outer retry loop
+# hides a missing pactl completely, so the dependency has to stay explicit.
 while true; do
   pactl subscribe 2>/dev/null | while read -r ev; do
     case "$ev" in
