@@ -276,7 +276,19 @@ clean_artist() {
 
   setopt local_options extendedglob
   artist="${artist//[[:space:]][[:space:]]#/ }"
-  artist="${artist%%, *}"
+
+  # `${artist%%, *}` keeps only the primary artist of a "Drake, Future" style
+  # list, which is the intent, but it also truncates artists whose own name
+  # contains a comma: "Tyler, The Creator" filed and scrobbled as "Tyler",
+  # "Earth, Wind & Fire" as "Earth". There is no way to tell the two cases
+  # apart from the string, so exempt the known ones; add to this list as they
+  # come up.
+  case "${artist:l}" in
+    "tyler, the creator"|"earth, wind & fire"|"crosby, stills & nash"|\
+    "crosby, stills, nash & young"|"blood, sweat & tears"|\
+    "emerson, lake & palmer") ;;
+    *) artist="${artist%%, *}" ;;
+  esac
 
   # Canonicalize artists whose metadata comes in with inconsistent casing so
   # ListenBrainz scrobbles collapse to one entity. Match case-insensitively,
@@ -1103,7 +1115,11 @@ batch_mscd() {
   local total=0 success=0 failed=0
   local line url
 
-  total=$(grep -cve '^\s*$' -e '^\s*#' "$file" 2>/dev/null || echo 0)
+  # No `|| echo 0`: grep -c already prints 0 when nothing matches, and it also
+  # exits 1, so the fallback appended a second line and the banner read
+  # "0 0 URLs". Default the empty/unset case instead.
+  total=$(grep -cve '^\s*$' -e '^\s*#' "$file" 2>/dev/null)
+  total=${total:-0}
   echo "[BATCH] Starting batch download: $total URLs from $file"
   echo "========================================================="
 
