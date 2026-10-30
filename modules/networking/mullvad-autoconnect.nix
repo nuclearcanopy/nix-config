@@ -40,8 +40,16 @@
         # Wait for NM to report full internet reachability before bringing the
         # tunnel up. On a captive portal ("portal"/"limited") the tunnel can't
         # establish and would just wedge DNS/HTTP behind Mullvad, blocking the
-        # portal login page. The nm-dispatcher-mullvad hook (laptop) will
-        # connect once the portal is cleared.
+        # portal login page. The mullvad-relink-dispatcher hook (laptop,
+        # modules/networking/network-laptop.nix) connects once it is cleared.
+        #
+        # Currently inert: modules/services/privacy.nix sets
+        # networkmanager connectivity.enabled = false, and NM then reports
+        # FULL unconditionally rather than probing. So this exits on the first
+        # iteration (no 20s stall) but can never actually detect a portal.
+        # Kept because it self-activates if connectivity checking is ever
+        # turned back on; re-enabling it costs an NM probe request per link,
+        # which is exactly what privacy.nix set out to remove.
         i=0
         while [ "$i" -lt 20 ]; do
           conn="$(${pkgs.networkmanager}/bin/nmcli -t networking connectivity check 2>/dev/null || echo unknown)"
