@@ -279,6 +279,33 @@
           ExecStart = "${pkgs.python3.withPackages (ps: [ ps.mutagen ps.flask ])}/bin/python3 ${mscdApi}";
           Restart = "on-failure";
           RestartSec = "10s";
+
+          # This is the one host service with a public API surface, and it
+          # shells out to yt-dlp/ffmpeg on attacker-supplied URLs, so a
+          # sandbox escape is the whole difference between a bad download and
+          # a compromised box. Deliberately *not* ProtectSystem=strict or
+          # ProcSubset=pid: mscd.zsh writes /mnt/nas, /home/homeserver and
+          # /var/lib/navidrome and calls systemctl, so "full" is the level
+          # that leaves those writable. PrivateTmp is safe because
+          # /tmp/mscd-local is only ever written and read by this unit.
+          NoNewPrivileges = true;
+          PrivateTmp = true;
+          PrivateDevices = true;
+          ProtectSystem = "full";
+          ProtectKernelTunables = true;
+          ProtectKernelModules = true;
+          ProtectKernelLogs = true;
+          ProtectControlGroups = true;
+          ProtectClock = true;
+          ProtectHostname = true;
+          RestrictSUIDSGID = true;
+          RestrictRealtime = true;
+          RestrictNamespaces = true;
+          LockPersonality = true;
+          CapabilityBoundingSet = "";
+          RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" "AF_NETLINK" ];
+          SystemCallFilter = [ "@system-service" ];
+          SystemCallErrorNumber = "EPERM";
         };
         environment = {
           PYTHONUNBUFFERED = "1";

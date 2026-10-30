@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, Response, send_file
 import subprocess
 import hashlib
 import hmac
+import logging
 import os
 import io
 import json
@@ -14,6 +15,31 @@ import threading
 import uuid
 import time
 import zipfile
+
+
+class RedactToken(logging.Filter):
+    """Keep the API password out of the journal.
+
+    /local/<job_id>/download authenticates from ?token= because it is a plain
+    browser navigation and cannot set a header. Werkzeug's access log writes
+    the full request line, so every local download used to log the password
+    in cleartext.
+    """
+
+    _pat = re.compile(r'(token=)[^&\s"]+')
+
+    def filter(self, record):
+        if isinstance(record.args, tuple):
+            record.args = tuple(
+                self._pat.sub(r'\1[redacted]', a) if isinstance(a, str) else a
+                for a in record.args
+            )
+        if isinstance(record.msg, str):
+            record.msg = self._pat.sub(r'\1[redacted]', record.msg)
+        return True
+
+
+logging.getLogger('werkzeug').addFilter(RedactToken())
 
 app = Flask(__name__)
 
@@ -175,21 +201,22 @@ def download_music():
         return jsonify({'error': 'Invalid command'}), 400
 
     zsh_path = '/run/current-system/sw/bin/zsh'
-    if command == 'mscd':
-        if force:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && FORCE_DOWNLOAD=1 mscd "{url}"']
-        else:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd "{url}"']
-    elif command == 'mscd_add':
-        if force:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add --force "{url}"']
-        else:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add "{url}"']
-    elif command == 'mscd_add_a':
-        if force:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add -a --force "{url}"']
-        else:
-            cmd = [zsh_path, '-c', f'source /etc/nixos/mscd.zsh && mscd_add -a "{url}"']
+
+    # The URL goes in as $1 and is never interpolated into the script body.
+    # zsh performs command substitution inside double quotes, so an
+    # interpolated "https://youtube.com/$(...)" executed as the homeserver
+    # user in an unsandboxed unit. Tightening is_valid_url is not the fix:
+    # it only requires the host as a substring, and quote-breaking works too.
+    inner = {
+        ('mscd', True): 'FORCE_DOWNLOAD=1 mscd',
+        ('mscd', False): 'mscd',
+        ('mscd_add', True): 'mscd_add --force',
+        ('mscd_add', False): 'mscd_add',
+        ('mscd_add_a', True): 'mscd_add -a --force',
+        ('mscd_add_a', False): 'mscd_add -a',
+    }[(command, bool(force))]
+    cmd = [zsh_path, '-c',
+           f'source /etc/nixos/mscd.zsh && {inner} "$1"', zsh_path, url]
 
     job_id = str(uuid.uuid4())
 
