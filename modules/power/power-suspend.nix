@@ -50,11 +50,18 @@
         ${pkgs.kmod}/bin/modprobe iwlwifi 2>/dev/null || true
         ${pkgs.kmod}/bin/modprobe iwlmvm 2>/dev/null || true
       fi
-      ( sleep 30
-        if grep -q "closed" /proc/acpi/button/lid/LID/state 2>/dev/null; then
-          systemctl suspend
-        fi
-      ) &
+      # Transient unit, not a backgrounded subshell. resumeCommands is
+      # sleep-actions.service's ExecStop, and the unit is KillMode=control-group,
+      # so systemd SIGKILLs anything still in the cgroup the moment ExecStop
+      # returns: all 24 resumes in the retained journal show Stopping ->
+      # Stopped 1-2s apart, meaning this watchdog has never once fired.
+      # Absolute paths inside the transient unit: it gets systemd's own
+      # minimal PATH, not this hook's, so bare `grep`/`systemctl` would die
+      # with status 127 and the recheck would silently never happen.
+      ${pkgs.systemd}/bin/systemd-run --no-block --collect --on-active=30 \
+        ${pkgs.bash}/bin/bash -c \
+        '${pkgs.gnugrep}/bin/grep -q closed /proc/acpi/button/lid/LID/state 2>/dev/null && ${pkgs.systemd}/bin/systemctl suspend || true' \
+        >/dev/null 2>&1 || true
       systemctl start --no-block cpu-mode-restore.service || true
       ${pkgs.procps}/bin/pkill -u ${username} --signal 43 waybar || true
       for b in /sys/class/backlight/*/brightness; do
@@ -73,10 +80,12 @@
           # Re-authorizing is a USB remove+add, so waybar's mouse battery is
           # unreadable for a moment and its own poll is 5 minutes away. Give
           # the receiver time to re-enumerate and re-acquire its uaccess ACL,
-          # then poke custom/mouse (signal 13 = SIGRTMIN+13).
-          ( sleep 5
-            ${pkgs.procps}/bin/pkill -u ${username} --signal 47 waybar
-          ) >/dev/null 2>&1 &
+          # then poke custom/mouse (signal 13 = SIGRTMIN+13). Transient unit
+          # for the same cgroup-kill reason as the lid recheck above.
+          ${pkgs.systemd}/bin/systemd-run --no-block --collect --on-active=5 \
+            ${pkgs.bash}/bin/bash -c \
+            '${pkgs.procps}/bin/pkill -u ${username} --signal 47 waybar || true' \
+            >/dev/null 2>&1 || true
           break
         fi
       done
