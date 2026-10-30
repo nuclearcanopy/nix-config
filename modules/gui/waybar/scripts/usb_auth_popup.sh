@@ -4,7 +4,7 @@
 # event; only acts when a device's resolved policy just became "block"
 # (same signal usbguard-notifier already keys its "blocked" notification
 # off of). Prompts for the login password via the same SUDO_ASKPASS zenity
-# dialog sudo uses, then allows the device for this boot only — identical
+# dialog sudo uses, then allows the device for this boot only; identical
 # scope to the manual Mod+Shift+u flow in usb_allow.sh.
 set -euo pipefail
 
@@ -14,7 +14,7 @@ set -euo pipefail
 NAME=$(grep -oP 'name "\K[^"]*' <<< "${USBGUARD_DEVICE_RULE:-}" || true)
 NAME=${NAME:-unknown device}
 
-notify-send "USB device blocked" "$NAME — enter your password to allow it"
+notify-send "USB device blocked" "$NAME: enter your password to allow it"
 
 # -k first: a warm sudo timestamp from an unrelated terminal command must
 # not silently auto-approve a device with no prompt at all.
