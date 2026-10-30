@@ -4,9 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # pinned to firefox 152.0.3 nixpkgs rev, which is fully cached
-    # (current channel wants 152.0.4 which isn't on hydra yet)
-    nixpkgs-firefox.url = "github:NixOS/nixpkgs/3d46470bb3030020f7e1361f33514854f5bfa86d";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";

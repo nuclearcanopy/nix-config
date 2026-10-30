@@ -4,7 +4,7 @@
   # savers, tab unloading on low memory, 4 content procs, devPixelsPerPx 1.35.
   # The behavior matches what nidhoggr needs; kuraokami inherits the same defaults.
   # Plus a "compat" profile for sites with fragile auth flows.
-  homeManager.modules.firefox = { config, lib, pkgs, pkgs-firefox, ... }:
+  homeManager.modules.firefox = { config, lib, pkgs, ... }:
 
     let
       # uBlock filter lists shared verbatim by the default and google profiles.
@@ -125,7 +125,7 @@
 
       mkFirefoxVariant = name: pkgs.symlinkJoin {
         name = "firefox-${name}";
-        paths = [ pkgs-firefox.firefox ];
+        paths = [ pkgs.firefox ];
         nativeBuildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           mv $out/bin/firefox $out/bin/firefox-${name}
@@ -531,7 +531,7 @@
 
       programs.firefox = {
         enable = true;
-        package = pkgs-firefox.firefox;
+        package = pkgs.firefox;
         # Explicit: silences HM's stateVersion<26.05 "legacy default" warning
         # without opting into the XDG path (see the ~/.mozilla/firefox revert above).
         configPath = ".mozilla/firefox";

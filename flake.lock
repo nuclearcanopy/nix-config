@@ -154,22 +154,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-firefox": {
-      "locked": {
-        "lastModified": 1782545840,
-        "narHash": "sha256-PkBPmP5ofNtunCU7/tfn6wi9OLlzFGcHAqqmY+/mwUI=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "3d46470bb3030020f7e1361f33514854f5bfa86d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "3d46470bb3030020f7e1361f33514854f5bfa86d",
-        "type": "github"
-      }
-    },
     "nixvim": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -222,7 +206,6 @@
         "home-manager": "home-manager",
         "identity": "identity",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-firefox": "nixpkgs-firefox",
         "nixvim": "nixvim",
         "nur": "nur",
         "unstable": "unstable"

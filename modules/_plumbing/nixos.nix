@@ -10,10 +10,6 @@ let
     config.allowUnfreePredicate = allowUnfreePredicate;
   };
 
-  mkFirefoxPkgs = system: import inputs.nixpkgs-firefox {
-    inherit system;
-    config.allowUnfreePredicate = allowUnfreePredicate;
-  };
 in
 {
   options.nixos = {
@@ -50,7 +46,6 @@ in
         inherit inputs allowedUnfree allowUnfreePredicate;
         inherit (hostCfg) username;
         unstable = mkUnstable hostCfg.system;
-        pkgs-firefox = mkFirefoxPkgs hostCfg.system;
       };
       modules = [
         hostCfg.module
