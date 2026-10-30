@@ -27,3 +27,17 @@ battery health thresholds (bat0 40/50, bat1 70/80 as of 2026-10-15; they were 20
 **observed drift, 2026-09-25**: `tlp.service` logged `"setting battery charge thresholds...done"` at boot but bat0's sysfs threshold still read the stale 96/100 until `tlp start` was re-run manually the next day. root cause confirmed 2026-09-28 via a raw ec ram read (`ec_sys` debugfs, offset `0xb0-0xb3`): the then-configured 20/50/20/80 was correctly written into the h8 chip, so the acpi/ec write path itself was not at fault. thinkpad ec thresholds only gate the *next* charge cycle and won't discharge an already-full pack back down to the cap, which is what let bat0 sit at 100% once it won the race against the udev rule fix landing.
 
 bat0 (internal, ~24wh li-poly) is capped tighter than bat1 (removable power bridge, ~80wh li-ion) — 50 vs 80 — since bat0 is never the pack meant to be pulled for hot-swap, so there's no reason to hold it higher than the minimum useful reserve. it was previously unmanaged and rode the ec default of 96/100, holding it at ~100% permanently next to a cpu that idles in the 60s c, the worst case for calendar ageing. charge order is always bat0 first, then bat1.
+
+## sil mode: fan pinned off
+
+`sil` ("red LAP" in waybar) is the `lap` power profile plus the thinkpad fan held at level 0, for sleeping next to the laptop while agents run. `modules/power/fan-silence.nix`.
+
+why a loop and not a single write: `printf 'level 0' > /proc/acpi/ibm/fan` does not stick. the EC takes the fan back over on resume from s3, and thinkpad_acpi's own fan watchdog expires and reverts to auto. `fan-silence.service` re-pins every 2s instead.
+
+why thinkfan has to go: thinkfan owns the same tpacpi fan node and rewrites the level on every tick from its `levels` table, so the two fight and the fan audibly pulses. `fan-silence.service` carries `Conflicts=thinkfan.service`, so starting it stops thinkfan; the reconciler explicitly starts thinkfan again on the way out, and `ExecStopPost` writes `level auto` first so a thinkfan start failure can't strand the fan at 0.
+
+why a `.path` unit rather than polkit: `set-cpu-mode` runs unprivileged from waybar (cpu/rapl sysfs is chgrp'd to wheel by the udev rules in `cpu-modes.nix`), but moving fan ownership means starting and stopping system units, which it cannot do. so `set-cpu-mode` only writes `sil` to `/var/lib/cpu-mode/state` as it does for any other mode, and `fan-silence-reconcile.path` watches that file and runs the root-side reconciler. no polkit rule, no setuid, and cycling out of `sil` with a left/right click needs no special handling: any other mode written to the state file releases the fan. `PathChanged` does not fire for a file that already exists unchanged, so the reconcile service is also `wantedBy=graphical.target`, `After=cpu-mode-restore.service`, to pick up the sticky mode at boot.
+
+the 90C emergency vent (level 7 for 15s, then back to 0) is a hardware backstop, not a thermal policy. `sil` inherits lap's PL1=15W / 2GHz / no-turbo cap and settles near 60C under full load, so it should never fire; it exists so a blocked vent or a pathological workload can't cook the board while the machine is unattended with no fan. the mode is sticky across reboot like `god` is, which is worth knowing before closing the lid on it.
+
+for a one-off quiet session without a rebuild, the same thing transiently: `systemctl stop thinkfan`, then a `systemd-run` loop writing `level 0`. nothing on disk, gone at reboot.
