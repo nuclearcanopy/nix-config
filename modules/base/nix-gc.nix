@@ -4,6 +4,11 @@
   # reclaims store space for whatever this prune already dropped below
   # that floor; it never deletes generations by age itself, so the
   # floor can't be eaten by `--delete-older-than`-style age checks.
+  #
+  # This is the single owner of nix.gc on all three hosts. nix-settings.nix
+  # used to set it too, with an added `--delete-older-than 10d` that quietly
+  # defeated the floor above (only ~20 generations survived, none older than
+  # three days). Don't reintroduce `options` here or there.
   nixos.modules.nix-gc = { pkgs, ... }: {
     nix.gc = {
       automatic = true;

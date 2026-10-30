@@ -1,7 +1,8 @@
 {
   # Container stack + supporting services: navidrome (music streaming),
-  # vaultwarden (password manager), searxng (privacy search), filebrowser,
-  # portainer, cloudflared (tunnel). mscd-api (custom Flask download API).
+  # filebrowser, portainer, cloudflared (tunnel), mscd-api (custom Flask
+  # download API). vaultwarden and searxng were retired 2026-07-07; their
+  # definitions are kept commented out below for a possible revive.
   # Daily NAS backup with 7-day snapshot retention, 15-min NAS→SSD sync for
   # navidrome music cache, daily 05:00 system reboot.
   nixos.modules.server-services = { config, pkgs, lib, username, ... }:

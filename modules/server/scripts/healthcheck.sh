@@ -6,9 +6,11 @@
 # permanently-broken service can never turn into a boot loop.
 #
 # escalation ladder per service (checks are ~2 min apart):
-#   1 fail   -> restart just that container unit
-#   >=2 fail -> the light restart didn't stick: bounce the whole docker stack
-#   >=6 fail -> give up and reboot the box
+#   1 fail    -> restart just that container unit
+#   exactly 2 -> the light restart didn't stick: bounce the whole docker stack
+#   3,4,5     -> log only, deliberately: don't thrash healthy containers every
+#                tick while waiting to see if it recovers or escalates
+#   >=6 fail  -> give up and reboot the box
 set -u
 
 STATE=/run/server-watchdog
