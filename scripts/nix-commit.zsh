@@ -1,7 +1,15 @@
 NIX_FLAKE_DIR="$HOME/nix-config"
 : ${NIX_FLAKE_HOST:="$(hostname)"}
 
+# pipefail is load-bearing in all three functions below: the rebuild is piped
+# into `tee`, and without it the `if` tests tee's status, which is ~always 0.
+# A failed rebuild therefore took the success branch, printed the *previous*
+# generation number as if it were new, and committed and pushed the broken
+# config; the `git reset` rollback was unreachable. localoptions scopes the
+# setopt to the function so it never leaks into the interactive shell.
 nix-commit() {
+  setopt localoptions pipefail
+
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
 
@@ -30,7 +38,10 @@ nix-commit() {
     git -C "$NIX_FLAKE_DIR" commit -m "$COMMIT_MSG (Gen $GEN_NUM)" --quiet
 
     echo "󰊢 Syncing..."
-      git -C "$NIX_FLAKE_DIR" push github main --quiet > /dev/null 2>&1
+    if ! git -C "$NIX_FLAKE_DIR" push github main --quiet; then
+      echo "󰚌 Push failed; commit is local only"
+      return 1
+    fi
 
     echo " Done. (Gen $GEN_NUM)"
   else
@@ -40,6 +51,8 @@ nix-commit() {
 }
 
 nix-clone() {
+  setopt localoptions pipefail
+
   echo "󰊢 Pulling latest from GitHub..."
   git -C "$NIX_FLAKE_DIR" pull github main || { echo "󰚌 Pull failed"; return 1; }
 
@@ -53,6 +66,8 @@ nix-clone() {
 }
 
 nix-upd() {
+  setopt localoptions pipefail
+
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
 
