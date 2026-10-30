@@ -11,12 +11,24 @@ if [ -f "$LOCKFILE" ] && kill -0 "$(cat "$LOCKFILE")" 2>/dev/null; then
   exit 0
 fi
 echo $$ > "$LOCKFILE"
-trap 'rm -f "$LOCKFILE"' EXIT
+
+# Restore on every exit path, not just the happy one. This runs in waybar's
+# cgroup, so a waybar-output-watcher restart (any real output change during
+# the 30-minute window) SIGTERMs it mid-wait; the trap used to remove only
+# the pidfile, leaving "input type:keyboard events disabled" in place and the
+# keyboard dead in sway until the user middle-clicked caffeine again.
+restore() {
+  swaymsg 'input type:keyboard events enabled' >/dev/null 2>&1 || true
+  swaymsg 'output * power on' >/dev/null 2>&1 || true
+  rm -f "$LOCKFILE"
+}
+trap restore EXIT
+# Explicit, so bash runs the EXIT trap instead of dying on the signal.
+trap 'exit 143' TERM
+trap 'exit 130' INT
+trap 'exit 129' HUP
 
 swaymsg 'output * power off' >/dev/null
 swaymsg 'input type:keyboard events disabled' >/dev/null
 
 @screenLockWait@ 3 1800
-
-swaymsg 'input type:keyboard events enabled' >/dev/null
-swaymsg 'output * power on' >/dev/null
