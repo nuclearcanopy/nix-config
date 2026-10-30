@@ -1,5 +1,7 @@
 {
-  # set-cpu-mode {spd|bal|lap|god|auto} + cpu-mode-restore service.
+  # set-cpu-mode {spd|bal|lap|sil|god|auto} + cpu-mode-restore service.
+  # `sil` is `lap` plus the fan pinned off; the fan half lives in
+  # modules/power/fan-silence.nix, which watches the state file written here.
   # State file at /var/lib/cpu-mode/state records the last explicit mode;
   # cpu-mode-restore re-applies it after any event TLP also reacts to
   # (boot, AC/BAT change, resume), so god mode survives plug/unplug.
@@ -55,7 +57,7 @@
                rapl_write constraint_0_power_limit_uw 25000000
                rapl_write constraint_1_power_limit_uw 35000000
                cstates_deep_on ;;
-          lap) cpu_write scaling_governor powersave ignore
+          lap|sil) cpu_write scaling_governor powersave ignore
                cpu_write energy_performance_preference power ignore
                cpu_write scaling_max_freq 2000000 ignore
                no_turbo 1
@@ -74,7 +76,7 @@
                 : >${cpuModeStateFile}
                 printf 'CPU mode: auto (TLP-managed)\n'
                 exit 0 ;;
-          *)   printf 'Usage: set-cpu-mode {spd|bal|lap|god|auto}\n' >&2; exit 1 ;;
+          *)   printf 'Usage: set-cpu-mode {spd|bal|lap|sil|god|auto}\n' >&2; exit 1 ;;
         esac
 
         printf '%s\n' "$mode" > ${cpuModeStateFile}

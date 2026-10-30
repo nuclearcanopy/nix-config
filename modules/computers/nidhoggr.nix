@@ -37,6 +37,7 @@
         config.nixos.modules.tlp
         config.nixos.modules.cpu-modes
         config.nixos.modules.thinkfan
+        config.nixos.modules.fan-silence
         config.nixos.modules.undervolt
         config.nixos.modules.power-suspend
         config.nixos.modules.caffeine-watchdog
