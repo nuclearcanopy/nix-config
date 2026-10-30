@@ -57,6 +57,15 @@
 
       # Kill the fattest process before the kernel OOM-killer hard-locks the box.
       # Notifications off: this host is headless.
+      #
+      # oomd off for the same reason modules/base/earlyoom.nix turns it off on
+      # nidhoggr: nixpkgs default-enables it, and two OOM killers with
+      # different trigger models (oomd kills cgroups on PSI pressure, earlyoom
+      # kills the fattest process on a free-memory threshold) make which one
+      # acts first unpredictable. This host imports server-watchdog rather
+      # than that module, so it needs its own copy.
+      systemd.oomd.enable = false;
+
       services.earlyoom = {
         enable = true;
         freeMemThreshold = 5;
