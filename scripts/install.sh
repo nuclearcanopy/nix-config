@@ -103,9 +103,12 @@ discover_config() {
   # instead; this resolves correctly regardless of how the host sets it.
   for host in "${HOSTS[@]}"; do
     local user
+    # `|| true`: under `set -e` a failed eval (offline, or no read access to
+    # the private identity flake) aborted the script here, so the fallback
+    # just below could never actually run.
     user=$(nix eval --raw "$SCRIPT_DIR#nixosConfigurations.${host}.config.users.users" \
       --apply 'u: builtins.head (builtins.filter (n: u.${n}.isNormalUser or false) (builtins.attrNames u))' \
-      --extra-experimental-features "nix-command flakes" 2>/dev/null)
+      --extra-experimental-features "nix-command flakes" 2>/dev/null) || true
     if [ -z "$user" ]; then
       # Offline/no-identity-access fallback; only correct for hosts with a
       # literal `username = "...";`.
@@ -562,7 +565,16 @@ step_confirm() {
     | cut -d' ' -f1)
 
   case "$choice" in
-    "Install") return 0 ;;
+    "Install")
+      # gum choose pre-highlights its first entry, so a stray Enter on this
+      # review screen was one keypress from an irreversible disk wipe. Gate it
+      # behind a gum confirm, which defaults to No, the way every other
+      # destructive prompt in this script already does.
+      if gum confirm --default=false "Wipe $DISK and install $HOST? This cannot be undone."; then
+        return 0
+      fi
+      return 2
+      ;;
     "←") return 2 ;;
     *) return 1 ;;
   esac
@@ -612,7 +624,12 @@ do_install() {
   success "User password encrypted to secrets/user-password.age"
 
   # Write LUKS key file for disko (only used during partitioning, deleted after)
+  # The trap is the point: this file holds the LUKS *and* login passphrase in
+  # plaintext, and it used to be removed only on the success path. Any failure
+  # in between (run_task_windowed exits 1) left it readable in the live ISO's
+  # /tmp for the rest of the session.
   if [ "$HOST_HAS_LUKS" -eq 1 ]; then
+    trap 'rm -f /tmp/luks-key' EXIT INT TERM
     printf '%s' "$LUKS_KEY" > /tmp/luks-key
     chmod 600 /tmp/luks-key
   fi
@@ -775,33 +792,39 @@ while true; do
         exit 0
       fi
       ;;
+    # `rc=0; step_x || rc=$?` rather than a bare call: this script runs under
+    # `set -e`, which aborts on any non-zero return *before* `case $?` is
+    # reached. Every "<- Back" (rc 2), every rejected age key and every
+    # non-block-device disk therefore quit the installer silently, with no
+    # message and nothing logged. Only step 1 escaped it, by being inside an
+    # `if`. Back-navigation was effectively dead code.
     2)
-      step_age_key
-      case $? in
+      rc=0; step_age_key || rc=$?
+      case $rc in
         0) STEP=3 ;;
         2) STEP=1 ;;
         *) echo "Aborted."; exit 0 ;;
       esac
       ;;
     3)
-      step_passphrase
-      case $? in
+      rc=0; step_passphrase || rc=$?
+      case $rc in
         0) STEP=4 ;;
         2) STEP=2 ;;
         *) echo "Aborted."; exit 0 ;;
       esac
       ;;
     4)
-      step_disk
-      case $? in
+      rc=0; step_disk || rc=$?
+      case $rc in
         0) STEP=5 ;;
         2) STEP=3 ;;
         *) echo "Aborted."; exit 0 ;;
       esac
       ;;
     5)
-      step_confirm
-      case $? in
+      rc=0; step_confirm || rc=$?
+      case $rc in
         0) do_install; exit 0 ;;
         2) STEP=4 ;;
         *) echo "Aborted."; exit 0 ;;
