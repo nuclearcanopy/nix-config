@@ -20,8 +20,8 @@ black was chosen deliberately; the tab-boundary ambiguity is an accepted cost.
 ## light/dark theme toggle (`set-theme-mode`, `modules/gui/theme-mode.nix`)
 
 Every themed surface (gtk, qt6ct/qt5ct, waybar, mako, bemenu, sway borders/
-wallpaper, alacritty, firefox chrome) is declared twice by nix, dark and
-light, at stable paths. `set-theme-mode {light|dark|toggle}` flips which
+wallpaper, alacritty, ghostty, firefox chrome) is declared twice by nix, dark
+and light, at stable paths. `set-theme-mode {light|dark|toggle}` flips which
 variant is live by re-pointing a plain symlink per app (never editing file
 contents at runtime) and firing whatever reload each app needs (`makoctl
 reload`, `swaymsg reload`, a waybar signal, nothing for apps that inotify-
@@ -37,6 +37,18 @@ the symlinks back to the nix-level dark default.
 Firefox is the one exception with no live reload: `userChrome.css` is
 startup-only, so the toggle swaps the file and fires a mako notification
 asking for a manual restart rather than killing the browser process.
+
+Ghostty is the exception in the other direction: it is the one app with no
+symlink and no reload at all. `theme = dark:mono-dark,light:mono-light` makes
+it choose between two theme files from the gtk portal's
+`org.freedesktop.appearance` `color-scheme`, which it subscribes to, so the
+switch is live. The script therefore only has to move that one setting, which
+it does with `dconf write /org/gnome/desktop/interface/color-scheme`.
+It called `gsettings` until 2026-10-30, and glib is not installed anywhere in
+this config, so all three of those writes failed silently behind
+`2>/dev/null || true` and the runtime color-scheme never moved at all; the
+declarative `dconf.settings` value in `theme.nix` was the only thing ever
+setting it, once per activation. Details: `docs/terminal.md`.
 
 Canonical dark->light hex mapping, reused mechanically everywhere so the two
 variants of any given file are a 1:1 substitution, not independently
@@ -63,6 +75,14 @@ redesigned:
 
 Status/alert colors (waybar's muted-mic/caffeine/dock red `#b96b6b`, airgap's
 yellow `#C6A857`/red `#B96B6B`, thermal-mode's red/yellow) stay identical in
-both modes; they're semantic signals, not theme surface colors. Alacritty's
-ANSI red/green/yellow/blue/magenta are the same exception (git-diff colors
-etc.) — only black/white/bg/fg/cursor/selection flip there.
+both modes; they're semantic signals, not theme surface colors.
+
+The terminal palettes (alacritty's `colors-{dark,light}.toml`, ghostty's
+`mono-{dark,light}` themes, which are a 1:1 port of them) do not follow the
+table above and are not a straight 1:1 substitution either. Background is
+`#000000`/`#f5f5f0`, a warmer off-white than the `#f0f0f0` every other light
+surface uses, and foreground is `#d0d0d0` rather than `#949494`. Of the ANSI
+hues only `red` (`#a04a4a`) is genuinely mode-invariant; green, yellow, blue,
+magenta and cyan are each darkened for light mode rather than held. Normal
+cyan in dark mode is grey `#d0d0d0`, the same value as the foreground, while
+bright cyan is the teal `#c0dfdd` that doubles as the selection background.
