@@ -5,10 +5,16 @@
       dotDir = config.home.homeDirectory;
 
       enableCompletion = true;
+      # compinit only rewrites the dump when it judges it stale, so a dump
+      # that stays valid keeps its old mtime, the mh+24 test stays true
+      # forever and the full compaudit scan runs on every single start
+      # (48ms of a 160ms interactive start, measured). touch resets the
+      # window so the cheap -C path actually holds for a day.
       completionInit = ''
         autoload -Uz compinit
         if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
           compinit
+          touch ~/.zcompdump
         else
           compinit -C
         fi
