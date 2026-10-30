@@ -3,7 +3,7 @@
 Guidance for working on this NixOS configuration repository. This file is a high‑signal, low‑ambiguity map for AI agents; keep it current.
 
 ## Overview
-This is a personal NixOS flake for the host `kuraokami` (desktop) and `nidhoggr` (ThinkPad T480 laptop) with home‑manager, agenix, NUR, and nixvim, plus a headless `homeserver` host in `hosts/homeserver`. It uses Sway (Wayland), low‑latency PipeWire + JACK, LACT for AMD GPU control (desktop), `scx_lavd` + ananicy for CPU scheduling, a `performance` CPU governor (desktop), Mullvad VPN (sole VPN provider, lockdown mode on nidhoggr), and a privacy‑tuned desktop. Both hosts run the stock nixpkgs kernel (`pkgs.linuxPackages`, set explicitly in `modules/boot/boot-t480.nix` and implicit via default in `modules/boot/boot-amd.nix`); no CachyOS kernel is wired up despite earlier docs claiming otherwise. Laptop power uses aggressive TLP battery profiles, AC‑aware swayidle, profile‑sync‑daemon for Firefox in RAM, 40ms keyboard debounce, and a waybar power-mode indicator (`set-cpu-mode {spd|bal|lap|god|auto}`, sticky via `/var/lib/cpu-mode/state`). Laptop NetworkManager randomizes the MAC on every wifi/ethernet connection. Desktop theming (`modules/gui/theme.nix`) is a pitch-black OLED palette mirrored into a Qt6 palette for Qt6/Chromium-based apps. `allowedUnfree` is defined once in `flake.nix` and passed via `specialArgs`; homeserver's `username = "homeserver"` is in `specialArgs` too. Primary entrypoints: `flake.nix` and `hosts/<host>/hardware-configuration.nix`.
+This is a personal NixOS flake for the host `kuraokami` (desktop) and `nidhoggr` (ThinkPad T480 laptop) with home‑manager, agenix, NUR, and nixvim, plus a headless `homeserver` host in `hosts/homeserver`. It uses Sway (Wayland), low‑latency PipeWire (+ JACK on kuraokami only), LACT for AMD GPU control (desktop), ananicy + irqbalance for CPU scheduling on both hosts (`scx_lavd` is desktop‑only; `nidhoggr.nix` does `services.scx.enable = lib.mkForce false`), a `performance` CPU governor (desktop), Mullvad VPN (sole VPN provider, lockdown mode on nidhoggr), and a privacy‑tuned desktop. Both hosts run the stock nixpkgs kernel (`pkgs.linuxPackages`, set explicitly in `modules/boot/boot-t480.nix` and implicit via default in `modules/boot/boot-amd.nix`); no CachyOS kernel is wired up despite earlier docs claiming otherwise. Laptop power uses aggressive TLP battery profiles, AC‑aware swayidle, and a waybar power-mode indicator (`set-cpu-mode {spd|bal|lap|god|auto}`, sticky via `/var/lib/cpu-mode/state`). Laptop NetworkManager randomizes the MAC on every wifi/ethernet connection. Desktop theming (`modules/gui/theme.nix`) is a pitch-black OLED palette mirrored into a Qt6 palette for Qt6/Chromium-based apps, with a runtime light mode on top (`set-theme-mode`, `modules/gui/theme-mode.nix`, waybar `custom/thememode`; see `docs/gui.md`). `profile-sync-daemon` is in `services-core`, i.e. `desktop-base`, so it runs on both desktop hosts, not just the laptop. `allowedUnfree`, `allowUnfreePredicate`, `specialArgs` and `nixosConfigurations` are all defined in `modules/_plumbing/nixos.nix`, not in `flake.nix`, which holds only the flake inputs and the module auto-discovery. Primary entrypoints: `flake.nix` and `hosts/<host>/hardware-configuration.nix`.
 
 ### `docs/` — read before touching these domains
 Deep forensic detail (incident timelines, root-cause investigations, declined alternatives) lives in `docs/<domain>.md`, not inline in module comments. Inline comments carry a short load-bearing fact plus a pointer to the relevant doc section. **Before making a non-trivial change to a domain listed below, read its doc first** — the doc is the actual history, the module comment is only a breadcrumb.
@@ -32,7 +32,7 @@ sudo nixos-rebuild switch --flake ~/nix-config/#kuraokami --show-trace (or doas 
 nix flake update ~/nix-config
 nix flake show ~/nix-config
 ```
-- `nix-commit` (Zsh function in `modules/home/shell/zsh/nix-commit.zsh`) stages changes, rebuilds, commits with the new generation, and pushes on success.
+- `nix-commit` (Zsh function; body in `scripts/nix-commit.zsh`, loaded via the 3-line shim `modules/shell/zsh/nix-commit.zsh` that `modules/shell/zsh.nix` inlines) stages changes, rebuilds, commits with the new generation, and pushes on success. Both consumers `source` it by runtime `$HOME` path rather than store path, so `nix-commit` and `nix-upd` silently vanish if the checkout isn't at `~/nix-config`.
 
 ## Secrets (Agenix)
 - Mapping file: `secrets/secrets.nix` (which keys can decrypt which secrets).
@@ -50,7 +50,9 @@ Agenix decrypts at **activation** time, which is far too late for anything the N
 
 It holds two attrs: `usernames.<host>` (just `kuraokami`, since `nidhoggr`/`loki` and `homeserver`/`homeserver` are already public) and `location` (`timeZone` + `extraLocaleSettings`, read in `modules/computers/kuraokami.nix`, `nidhoggr.nix`, and `homeserver.nix`; previously hardcoded as plain strings directly in `host-base.nix`/`server/system.nix`, which leaked country/region in the public repo).
 
-Homeserver secrets are wired in `modules/server/secrets.nix` and include `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-searxng-env.age`, `homeserver-cloudflared-credentials.age`, and `homeserver-mscd-api-hash.age`.
+Homeserver secrets are wired in `modules/server/secrets.nix`: `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-cloudflared-credentials.age`, `homeserver-cloudflared-config.age` (the tunnel's `config.yml` mount; the tunnel cannot start without it), `homeserver-mscd-api-hash.age`, and `homeserver-searxng-env.age`. The searxng one is dead weight: its only consumer is the commented-out searxng container, so it is decrypted every activation for nothing.
+
+Note homeserver also imports `config.nixos.modules.secrets` (the desktop module, `modules/base/secrets.nix`), which declares 8 more. Only `ssh-github` and `nas-credentials` have consumers there; the other six land in `/run/agenix` unused.
 
 ## Homeserver streaming reliability (`modules/server/services.nix`)
 Navidrome is configured for resilient Subsonic streaming: 5GB transcoding cache, 500MB image cache, opus default downsampling, 6h scan schedule, 168h sessions, downloads enabled, scan log lines remain at `info` level (the boost sidecar trigger needs them). The container's `environmentFiles` list reads `homeserver-navidrome-env.age` AND a local mode-600 file at `/var/lib/navidrome/lastfm.env` (the latter wins per docker env-file "last duplicate key wins"; it lets us rotate the Last.fm API key on-host without re-encrypting the agenix secret, which is only decryptable from `kuraokami`). `docker-navidrome.service` has `Restart=always` with 5s backoff.
@@ -65,11 +67,12 @@ The homeserver runs on aging laptop hardware and cuts out often, so `server-watc
 - Enables `services.earlyoom` (freeMem 5%, freeSwap 10%, notifications off since headless) to kill the fattest process before the kernel OOM-killer hard-locks the box.
 - Runs `server-watchdog.timer` every 2 min (`OnBootSec=3min`, `OnUnitActiveSec=2min`) executing `modules/server/scripts/healthcheck.sh`.
 
-The health-check script curls `docker ps` plus navidrome `:4533/`, filebrowser `:8081/health`, portainer `:9000/api/status`, and cloudflared `:44483/ready`. Escalation ladder per target (checks ~2 min apart): **1 fail** → restart just that container unit; **≥2 fails** → bounce the whole docker stack (`docker.service` + `init-docker-network.service` + all container units); **≥6 fails** → `systemctl reboot`. The docker-daemon check is first and hardest: if `docker ps` times out (20s), it restarts `docker.service` immediately and reboots after 6 consecutive wedges. Failure counters live in `/run/server-watchdog` (tmpfs) on purpose so a reboot always starts from a clean slate and a permanently-broken service can never turn into a boot loop. To add a monitored service, append a `check <name> <url> <container-unit>` line and add the unit to `CONTAINERS`.
+The health-check script runs `timeout 20 docker ps` plus curls navidrome `:4533/`, filebrowser `:8081/health`, portainer `:9000/api/status`, and cloudflared `:44483/ready`. Escalation ladder per target (checks ~2 min apart): **1 fail** → restart just that container unit; **exactly 2 fails** → bounce the whole docker stack (`docker.service` + `init-docker-network.service` + all container units); **3-5 fails** → log only, deliberately, so a flapping service can't thrash the healthy containers every tick; **≥6 fails** → `systemctl reboot`. The docker-daemon check is first and hardest: if `docker ps` times out (20s), it restarts `docker.service` immediately and reboots after 6 consecutive wedges. Failure counters live in `/run/server-watchdog` (tmpfs) on purpose so a reboot always starts from a clean slate and a permanently-broken service can never turn into a boot loop. To add a monitored service, append a `check <name> <url> <container-unit>` line and add the unit to `CONTAINERS`.
 
 ## Architecture
 ```
-flake.nix               → Flake inputs, nixosConfigurations, allowedUnfree, module auto-discovery
+flake.nix               → Flake inputs + module auto-discovery only
+  _plumbing/nixos.nix   → nixosConfigurations, specialArgs, allowedUnfree, allowUnfreePredicate
 hosts/<host>/           → Per-host hardware-configuration + disko (kuraokami, nidhoggr, homeserver)
 modules/                → NixOS + home-manager modules, grouped by domain
   _plumbing/            → nixos.nix / home-manager.nix: the option scaffolding modules register into
@@ -80,7 +83,7 @@ modules/                → NixOS + home-manager modules, grouped by domain
   boot/                 → boot-amd, boot-t480, boot-optimizations, luks-initrd, tpm2-off,
                           displaymanager-ly
   gui/                  → sway-{base,host,startup,system}, waybar (+ scripts/), mako, theme,
-                          fonts, xdg-portal, swayidle, bemenu-style.data.nix
+                          fonts, xdg-portal, swayidle, theme-mode (set-theme-mode)
   hardware/             → audio, graphics (amd/intel), gpu-amd (LACT), cpu scheduler/governor,
                           bluetooth, openrazer, logitech, trackpoint, trackpad-synaptics,
                           v4l2loopback
@@ -99,7 +102,7 @@ modules/                → NixOS + home-manager modules, grouped by domain
 secrets/                → Encrypted secrets (*.age) and secrets.nix key mapping
 scripts/                → install.sh (disko), nix-commit.zsh, libreboot-build-shell.nix
 ```
-Modules are auto-discovered: `flake.nix` imports every `*.nix` under `modules/` **except** `*.data.nix`, which is the escape hatch for plain expressions that are not modules (see `modules/gui/bemenu-style.data.nix`, `modules/nix/allowed-unfree.data.nix`).
+Modules are auto-discovered: `flake.nix` imports every `*.nix` under `modules/` **except** `*.data.nix`, which is the escape hatch for plain expressions that are not modules. There are exactly three: `modules/nix/allowed-unfree.data.nix`, `modules/hardware/usb-ids.data.nix`, and `modules/programs/user-packages-common.data.nix`.
 
 ## Conventions
 - Nix files use 2‑space indentation.
@@ -115,7 +118,8 @@ Modules are auto-discovered: `flake.nix` imports every `*.nix` under `modules/` 
 - User programs: `modules/programs/user-packages.nix` (kuraokami) / `user-packages-laptop.nix` (nidhoggr)
 - Shell tools: `modules/shell/shell-packages.nix`
 - Dev + security tools: `modules/dev/dev-packages.nix`
-- Unfree allowlist: `modules/nix/allowed-unfree.data.nix` (consumed by `modules/nix/allow-unfree.nix`)
+- Unfree allowlist: `modules/nix/allowed-unfree.data.nix` (imported by `modules/_plumbing/nixos.nix`, which builds the predicate and threads it through `specialArgs`; `modules/nix/allow-unfree.nix` only re-exports what it is handed)
+- Packages for **both** desktop hosts: `modules/programs/user-packages-common.data.nix`, imported by both `user-packages.nix` and `user-packages-laptop.nix`. Adding a shared package to the two host files separately is the wrong move.
 
 ## Discord (2026-09-16)
 
