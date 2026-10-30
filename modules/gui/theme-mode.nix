@@ -63,14 +63,16 @@
         mkdir -p "$(dirname "$state_file")"
         printf '%s\n' "$mode" > "$state_file"
 
-        # best-effort reloads; a missing daemon (e.g. gsettings before the
-        # session bus is up during restore) must not abort the symlink work above.
-        gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" 2>/dev/null || true
-        if [ "$mode" = "dark" ]; then
-          gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark" 2>/dev/null || true
-        else
-          gsettings set org.gnome.desktop.interface gtk-theme "Adwaita" 2>/dev/null || true
-        fi
+        # best-effort reloads; a missing daemon (e.g. no session bus yet
+        # during restore) must not abort the symlink work above.
+        # dconf, not gsettings: glib is not installed anywhere in this config,
+        # so the three `gsettings set` calls these replace were silently
+        # no-ops and the runtime color-scheme never actually moved. this is
+        # also what xdg-desktop-portal-gtk serves as org.freedesktop.appearance,
+        # which is how ghostty follows the toggle; see docs/gui.md.
+        if [ "$mode" = "dark" ]; then gtk_theme="Adwaita-dark"; else gtk_theme="Adwaita"; fi
+        ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" 2>/dev/null || true
+        ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/gtk-theme "'$gtk_theme'" 2>/dev/null || true
         makoctl reload >/dev/null 2>&1 || true
         swaymsg reload >/dev/null 2>&1 || true
         pkill -RTMIN+6 waybar 2>/dev/null || true
