@@ -18,6 +18,7 @@ Usage: playtime [show|tick|seconds|waybar]
 
 import json
 import os
+import shutil
 import sys
 import time
 
@@ -46,24 +47,64 @@ def seed_seconds():
         with open(SEED_FILE) as f:
             return float(f.read().strip())
     except (OSError, ValueError):
+        # Nix can only ever write a valid integer here, so reaching this means
+        # the file was hand-edited. Say so: silently returning 0 drops the
+        # readout by the whole seed (182d on nidhoggr) with no other symptom.
+        sys.stderr.write("playtime: ignoring unreadable %s\n" % SEED_FILE)
         return 0.0
 
 
-def load():
+def parse_state(path):
+    """Load a state dict from `path`, or None if missing or unusable.
+
+    Valid JSON of the wrong shape (`null`, `[]`, a bare number, or a string
+    "total") is the dangerous case: it used to survive the OSError/ValueError
+    guard and then raise out of setdefault or the `+=`, failing every tick
+    forever. save() was never reached, so nothing repaired the file and the
+    only symptom was a frozen number on the bar.
+    """
     try:
-        with open(STATE_FILE) as f:
-            state = json.load(f)
+        with open(path) as f:
+            obj = json.load(f)
     except (OSError, ValueError):
-        state = {}
-    state.setdefault("total", 0.0)
-    state.setdefault("boot_id", "")
-    state.setdefault("mono", 0.0)
-    state.setdefault("started", time.time())
+        return None
+    if not isinstance(obj, dict):
+        return None
+    state = {}
+    try:
+        state["total"] = float(obj.get("total", 0.0))
+        state["mono"] = float(obj.get("mono", 0.0))
+        state["started"] = float(obj.get("started", time.time()))
+    except (TypeError, ValueError):
+        return None
+    bid = obj.get("boot_id", "")
+    state["boot_id"] = bid if isinstance(bid, str) else ""
     return state
+
+
+def load():
+    """Current state, falling back to the backup copy save() keeps.
+
+    The lifetime total cannot be recomputed from anything on disk, so a lost
+    or corrupt primary must not quietly reset it to "seconds since this boot".
+    """
+    for path in (STATE_FILE, STATE_FILE + ".bak"):
+        state = parse_state(path)
+        if state is not None:
+            return state
+    sys.stderr.write("playtime: no usable state, starting from the seed\n")
+    return {"total": 0.0, "boot_id": "", "mono": 0.0, "started": time.time()}
 
 
 def save(state):
     os.makedirs(STATE_DIR, exist_ok=True)
+    # Retain the last parseable state so load() has something to fall back on.
+    # Guarded by parse_state so a corrupt primary can't overwrite a good copy.
+    if parse_state(STATE_FILE) is not None:
+        try:
+            shutil.copy2(STATE_FILE, STATE_FILE + ".bak")
+        except OSError:
+            pass
     tmp = STATE_FILE + ".tmp"
     with open(tmp, "w") as f:
         json.dump(state, f)
