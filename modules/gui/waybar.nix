@@ -226,7 +226,7 @@
 
             "custom/mpris" = {
               exec = script "mpris.sh";
-              interval = if isLaptop then 5 else 5;
+              interval = 5;
               tooltip = false;
             };
 
@@ -237,13 +237,16 @@
               window-rewrite = {
                 "title<.*youtube.*>" = "";
                 "class<firefox>" = "";
-                "class<librewolf>" = "";
                 "class<Alacritty>" = "";
-                "class<thunar>" = "";
-                "class<[Pp]cmanfm>" = "";
                 "class<discord>" = "";
-              } // lib.optionalAttrs isDesktop {
+                # steam comes from the `gaming` bucket in desktop-profile, so
+                # it is on both hosts; the file manager is the host-specific
+                # one (kuraokami thunar, nidhoggr pcmanfm).
                 "class<steam>" = "";
+              } // lib.optionalAttrs isDesktop {
+                "class<thunar>" = "";
+              } // lib.optionalAttrs isLaptop {
+                "class<[Pp]cmanfm>" = "";
               };
               persistent-workspaces = {
                 "*" = [ 1 2 3 4 5 ];
