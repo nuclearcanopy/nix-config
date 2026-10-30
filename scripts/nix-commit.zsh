@@ -1,14 +1,6 @@
 NIX_FLAKE_DIR="$HOME/nix-config"
 : ${NIX_FLAKE_HOST:="$(hostname)"}
 
-_tpm_reenroll() {
-  [[ "$NIX_FLAKE_HOST" != "nidhoggr" ]] && return 0
-  echo "󰌋 Re-enrolling TPM2 LUKS key..."
-  elevate systemd-cryptenroll --wipe-slot=tpm2 --tpm2-device=auto \
-    --tpm2-pcrs=0+7 \
-    /dev/disk/by-uuid/5fa02f65-e4a4-4e4c-b277-f5395f566d78
-}
-
 nix-commit() {
   echo " Changes"
   git -C "$NIX_FLAKE_DIR" diff --stat --color=always
