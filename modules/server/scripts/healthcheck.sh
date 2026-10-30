@@ -33,7 +33,19 @@ reboot_now() {
   exit 0
 }
 
+# Latched: when docker is sick all four services fail the same tick, each
+# reaching $RESTART_AT together. Without this, navidrome bounced the stack,
+# then filebrowser's curl failed against a *restarting* docker and bounced it
+# again, and so on: four serial full-stack restarts inside one 2-minute tick
+# on hardware that is already flaky.
+BOUNCED=0
+
 bounce_stack() {
+  if [ "$BOUNCED" = 1 ]; then
+    log "stack already bounced this run; skipping"
+    return
+  fi
+  BOUNCED=1
   log "escalating: restarting docker daemon + network + all containers"
   systemctl restart docker.service || true
   systemctl restart init-docker-network.service || true

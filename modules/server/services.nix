@@ -347,9 +347,12 @@
           #   --backup --backup-dir="$SNAPSHOT_DIR/vaultwarden" \
           #   /var/lib/vaultwarden /mnt/nas/homeserver/var/lib/
 
-          # prune snapshots older than 7 days
+          # prune snapshots older than 7 days. -mindepth 1 is load-bearing:
+          # -maxdepth 1 alone also matches the snapshot root at depth 0, so if
+          # no new dated dir had been created for over a week (NAS offline,
+          # timer stopped) the next run would rm -rf every snapshot there is.
           ${pkgs.findutils}/bin/find /mnt/nas/homeserver/snapshots \
-            -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
+            -mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
 
           echo "Backup completed successfully at $(date)"
         '';
