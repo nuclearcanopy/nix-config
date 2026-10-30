@@ -42,7 +42,6 @@
       zsteg
       scalpel
       hexedit
-      gnupg
       burpsuite
       exploitdb
     ];
