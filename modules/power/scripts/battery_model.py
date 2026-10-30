@@ -709,15 +709,28 @@ class Model:
         """Mean power over each horizon, blending measured-now into learned."""
         out = {}
         conf = 0.0
-        for h in HORIZONS:
+        learned = None
+        for h in HORIZONS:      # ascending, so `learned` trails the long end
             d, n = self.dist_for(keys, h)
             beta = math.exp(-h / max(self.tau, 1.0))
             if d is None:
-                out[h] = p_now * (1.0 + (0.30 if quantile_q > 0.5 else
-                                         (-0.30 if quantile_q < 0.5 else 0.0)))
+                # Carry the longest learned horizon forward rather than
+                # reverting to raw p_now. Crediting horizon h needs h+1
+                # consecutive clean on-battery minutes, which the top of the
+                # grid never reaches here (h=480 was credited in 0 of 287
+                # keys), and solve_eta anchors its tail on the last horizon:
+                # falling back to p_now there meant any charge above the
+                # learned range was extrapolated at the raw EMA, which is
+                # exactly the "blanked screen reads 20+ hours" failure this
+                # model replaced. On AC the EMA is 0, which clamped the tail
+                # to 0.05 W and projected 1257h for the larger pack.
+                out[h] = learned if learned is not None else p_now * (
+                    1.0 + (0.30 if quantile_q > 0.5 else
+                           (-0.30 if quantile_q < 0.5 else 0.0)))
             else:
                 out[h] = beta * p_now + (1 - beta) * quantile(d, quantile_q)
                 conf = max(conf, n)
+                learned = out[h]
         return out, conf
 
     # -- persistence ---------------------------------------------------------
@@ -1018,7 +1031,10 @@ class Estimator:
 
     def build(self, rec, recent_w):
         m = self.m
-        p_now = max(self.ema or rec["p_batt_w"], 0.0) * m.calib
+        # Explicit None check: a genuine EMA of exactly 0.0 is a real reading
+        # (idle on AC), not a missing one, and `or` would discard it.
+        ema = self.ema if self.ema is not None else rec["p_batt_w"]
+        p_now = max(ema, 0.0) * m.calib
         e_full = rec["e_full_wh"]
         e_design = sum(self.s.design.values())
         out = {
@@ -1296,7 +1312,11 @@ class Daemon:
         self.logs = Logs()
         self.sampler = Sampler()
         self.model = self.load_model()
-        self.trainer = Trainer(self.model)
+        # evaluate=True, or m.acc never moves off zero and the "N% better than
+        # naive" line silently vanishes from the tooltip and `status`: the
+        # daemon is the only thing that ever feeds the live model, and
+        # build()'s `if n > 50` gate can never open on a zeroed acc.
+        self.trainer = Trainer(self.model, evaluate=True)
         self.est = Estimator(self.model, self.sampler)
         self.minute_bucket = []
         self.minute_id = None
@@ -1323,7 +1343,14 @@ class Daemon:
                     m = Model.from_json(json.load(f))
                 if m:
                     return m
-            except (OSError, ValueError):
+            # Not just OSError/ValueError: a file that is valid JSON but the
+            # wrong shape (`null`, `[]`, a bare int, a malformed fwd entry)
+            # raises AttributeError/KeyError/TypeError/IndexError out of
+            # from_json instead. That used to propagate out of __init__, and
+            # with Restart=always/RestartSec=10s nothing rewrote the file, so
+            # the unit sat in a permanent 10s crash loop. Rebuild instead.
+            except (OSError, ValueError, AttributeError, KeyError,
+                    TypeError, IndexError):
                 pass
         sys.stderr.write("battery-model: rebuilding model from minutes.tsv\n")
         return rebuild_model()
