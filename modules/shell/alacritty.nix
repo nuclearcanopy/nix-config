@@ -99,7 +99,12 @@
 
         window.opacity = 1.0;
 
-        cursor.style.shape = "Beam";
+        cursor = {
+          style.shape = "Beam";
+          # vi mode (Ctrl+Shift+Space) inherits the normal cursor when this is
+          # unset, leaving no cue that it's active; block distinguishes it.
+          vi_mode_style.shape = "Block";
+        };
       };
     };
   };
