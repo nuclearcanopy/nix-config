@@ -16,7 +16,7 @@
         };
 
         config = {
-          terminal = "alacritty";
+          terminal = "ghostty";
           menu = "j4-dmenu-desktop --dmenu='themed-bemenu'";
           modifier = mod;
 
@@ -40,7 +40,15 @@
             "Print" = "exec grim -g \"$(slurp -b 000000a0)\" - | wl-copy";
             "${mod}+p" = "exec hyprpicker";
 
-            "${mod}+q" = "exec alacritty";
+            # +new-window asks the resident instance for a window instead of
+            # starting a second gtk app to hand off, which is the difference
+            # between 100ms and 200ms; it exits 1 and opens nothing when
+            # there is no instance to reach, hence the fallback. numbers and
+            # the residency setup: docs/terminal.md.
+            "${mod}+q" = "exec ghostty +new-window || ghostty";
+            # escape hatch: alacritty stays one binding away so a broken
+            # ghostty config never leaves the session without a terminal.
+            "${mod}+Shift+q" = "exec alacritty";
             "${mod}+Tab" = "exec firefox";
 
             "${alt}+c" = "kill";
