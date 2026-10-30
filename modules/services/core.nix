@@ -44,6 +44,40 @@
       resyncTimer = "30min";
     };
 
+    # psd snapshots the on-disk profile to <profile>-backup-crashrecovery-<ts>
+    # and <profile>-old-profile-<ts> on an unclean exit, and never prunes them.
+    # 94 had accumulated (8.7G, oldest 2026-08-02) by 2026-10-30, growing ~1.8G
+    # a week across the three firefox profiles. Keep a week's worth; the live
+    # profile symlink and the current <profile>-backup are never matched.
+    systemd.user.services.psd-prune = {
+      description = "Prune stale profile-sync-daemon profile snapshots";
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.writeShellApplication {
+          name = "psd-prune";
+          runtimeInputs = [ pkgs.findutils ];
+          text = ''
+            dir="$HOME/.mozilla/firefox"
+            [ -d "$dir" ] || exit 0
+            find "$dir" -mindepth 1 -maxdepth 1 -type d \
+              \( -name '*-backup-crashrecovery-[0-9]*_[0-9]*' \
+              -o -name '*-old-profile-[0-9]*_[0-9]*' \) \
+              -mtime +7 -exec rm -rf -- {} + || true
+          '';
+        }}/bin/psd-prune";
+      };
+    };
+
+    systemd.user.timers.psd-prune = {
+      description = "Daily prune of stale profile-sync-daemon snapshots";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar = "daily";
+        Persistent = true;
+        RandomizedDelaySec = "1h";
+      };
+    };
+
     services = {
       logind.settings.Login.HandlePowerKey = "suspend";
 
