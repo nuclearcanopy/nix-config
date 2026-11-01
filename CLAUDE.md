@@ -10,6 +10,7 @@ Deep forensic detail (incident timelines, root-cause investigations, declined al
 
 - `docs/power.md` — AX210 resume-from-S3 failures and mitigations, battery threshold drift/boot-race, why the `sil` fan pin needs a re-pin loop plus a `.path` unit. Relevant: `modules/power/power-suspend.nix`, `modules/power/tlp.nix`, `modules/boot/boot-t480.nix`, `modules/power/fan-silence.nix`.
 - `docs/networking.md` — Mullvad dispatcher/relink rewrite history (SIGPIPE bug, stale-cache disconnect incident, lockdown mode). Relevant: `modules/networking/network-laptop.nix`.
+- `docs/i915.md` — the two distinct display failures that share the sway `Atomic commit failed: Device or resource busy` signature: the 2026-11-01 GuC crash (GPU reset → `GL_CONTEXT_LOST` → desktop never repaints) and the 2026-07 S3 resume degradation. Relevant: `modules/boot/boot-t480.nix`.
 - `docs/gui.md` — Qt palette investigation (why chrome can't be both pure-black and show a visible active tab), done against Helium before it was removed (2026-10-24, flake-input reduction). Relevant: `modules/gui/theme.nix`.
 - `docs/trackpad-tm3471.md` — aftermarket Synaptics trackpad bring-up (coreboot + kernel + libinput). Relevant: `modules/hardware/trackpad-synaptics.nix`, `modules/gui/sway-host.nix`.
 - `docs/battery-model.md` — how the adaptive battery runtime estimator works (conditioning, calibration, storage). Relevant: `modules/power/battery-model.nix`, `modules/power/scripts/battery_model.py`.
