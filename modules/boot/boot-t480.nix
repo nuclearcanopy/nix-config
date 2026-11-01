@@ -53,7 +53,16 @@
         # scroll stutter or panel flicker returns: set either/both back to 0.
         "i915.enable_fbc=1"
         "i915.enable_psr=1"
-        "i915.enable_guc=2"           # HuC-only; Kaby Lake has no GuC submission (kernel warns at boot with =3)
+        # i915.enable_guc deliberately unset (driver default -1=auto, i.e. no
+        # GuC/HuC on this gen9 part). "=2" was HuC-load-only, and the kernel
+        # logs "Setting dangerous option enable_guc - tainting kernel" for it.
+        # Removed 2026-11-01: that GuC died mid-session ("GUC: Crash dump
+        # notification", "Resetting rcs0 for dead GuC"), the GPU reset killed
+        # sway's GLES2 context, and wlroots cannot recover from
+        # GL_CONTEXT_LOST, so the desktop never repainted again.
+        # Cost: no HuC-accelerated low-power H.264/HEVC *encode* (VA-API
+        # encode in OBS/recording). Video decode is unaffected.
+        # Full incident: docs/i915.md#2026-11-01-guc-crash-froze-the-desktop
         # Perf-for-security tradeoff: i5-8350U (Coffee Lake) mitigates Retbleed
         # via software IBRS; branch-predictor flush on every kernel entry costs
         # ~10-25% on JS/branch-heavy code. Meltdown (pti), Spectre v1, MDS,
