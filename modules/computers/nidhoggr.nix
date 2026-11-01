@@ -85,6 +85,7 @@
           config.homeManager.modules.swayidle
           config.homeManager.modules.easyeffects-service
           config.homeManager.modules.user-packages-laptop
+          config.homeManager.modules.rust
         ];
 
         waybar.profile = "laptop";
