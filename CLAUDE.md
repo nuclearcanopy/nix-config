@@ -15,7 +15,7 @@ Deep forensic detail (incident timelines, root-cause investigations, declined al
 - `docs/trackpad-tm3471.md` — aftermarket Synaptics trackpad bring-up (coreboot + kernel + libinput). Relevant: `modules/hardware/trackpad-synaptics.nix`, `modules/gui/sway-host.nix`.
 - `docs/battery-model.md` — how the adaptive battery runtime estimator works (conditioning, calibration, storage). Relevant: `modules/power/battery-model.nix`, `modules/power/scripts/battery_model.py`.
 - `docs/rust-cache.md` — why `CARGO_INCREMENTAL=0` is set, the measured 0.00% sccache Rust hit rate that caused it, and why `target/` dirs cannot be capped the way sccache can. Relevant: `modules/dev/rust.nix`.
-- `docs/terminal.md`: why ghostty over foot (kitty graphics protocol, for drawing mpv `--vo=kitty` into a sub-rect), which settings inline graphics depend on, and the measured startup numbers behind the single-instance/`+new-window` setup. Relevant: `modules/shell/ghostty.nix`, `modules/gui/sway-base.nix`, `modules/shell/zsh.nix`.
+- `docs/terminal.md`: why Kitty over Foot (Kitty graphics protocol for drawing mpv `--vo=kitty` into a sub-rect) and the minimal UI configuration. Relevant: `modules/shell/kitty.nix`, `modules/gui/sway-base.nix`.
 
 Other systems with real design depth but no incident history stay inline or in the sections below: waybar airgap toggle (`modules/gui/waybar/scripts/airgap_{mode,toggle}.sh`), USBGuard block-by-default + Mod+Shift+U manual allow flow plus an automatic `usbguard-auth-popup` zenity/sudo-gated allow popup (both session-only; `modules/security/hardening-physical.nix`, `modules/gui/waybar/scripts/usb_auth_popup.sh`), bluetooth toggle (`modules/hardware/bluetooth.nix`).
 
@@ -97,8 +97,8 @@ modules/                → NixOS + home-manager modules, grouped by domain
                           easyeffects, btop, user-packages{,-laptop}
   security/             → hardening-base (kernel params + sysctl), hardening-physical
                           (IOMMU, USBGuard, TB blacklist, AppArmor)
-  shell/                → zsh, environment, ghostty (primary terminal), alacritty
-                          (fallback terminal), ssh, shell-packages
+  shell/                → zsh, environment, kitty (primary terminal), ssh,
+                           shell-packages
   dev/                  → git, gpg, claudecode, dev-packages
   services/             → core, privacy, keyd-internal-kbd, uptimed (+ scripts/playtime.py)
   nix/                  → nix-settings, overlays, allow-unfree, allowed-unfree.data.nix
