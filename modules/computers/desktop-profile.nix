@@ -74,6 +74,7 @@
 
       # dev
       config.homeManager.modules.claudecode
+      config.homeManager.modules.opencode
       config.homeManager.modules.git
       config.homeManager.modules.git-send-email
       config.homeManager.modules.gpg
