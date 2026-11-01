@@ -237,7 +237,6 @@
               window-rewrite = {
                 "title<.*youtube.*>" = "";
                 "class<firefox>" = "";
-                "class<Alacritty>" = "";
                 "class<discord>" = "";
                 # steam comes from the `gaming` bucket in desktop-profile, so
                 # it is on both hosts; the file manager is the host-specific

@@ -48,7 +48,7 @@
         ln -sfn "${configHome}/waybar/style-$mode.css" "${configHome}/waybar/current.css"
         ln -sfn "${configHome}/mako/colors-$mode.ini" "${configHome}/mako/colors.ini"
         ln -sfn "${configHome}/theme-mode/bemenu-$mode.sh" "${configHome}/theme-mode/bemenu.sh"
-        ln -sfn "${configHome}/alacritty/colors-$mode.toml" "${configHome}/alacritty/current-colors.toml"
+        ln -sfn "${configHome}/kitty/colors-$mode.conf" "${configHome}/kitty/current-colors.conf"
         ln -sfn "${configHome}/sway/colors-$mode.conf" "${configHome}/sway/colors.conf"
         # Guarded, unlike the pairs above: firefoxChrome sits under
         # ~/.mozilla/firefox/default, which is a psd symlink into tmpfs. If psd
@@ -69,7 +69,7 @@
         # so the three `gsettings set` calls these replace were silently
         # no-ops and the runtime color-scheme never actually moved. this is
         # also what xdg-desktop-portal-gtk serves as org.freedesktop.appearance,
-        # which is how ghostty follows the toggle; see docs/gui.md.
+        # which is how GTK applications follow the toggle; see docs/gui.md.
         if [ "$mode" = "dark" ]; then gtk_theme="Adwaita-dark"; else gtk_theme="Adwaita"; fi
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" 2>/dev/null || true
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/gtk-theme "'$gtk_theme'" 2>/dev/null || true

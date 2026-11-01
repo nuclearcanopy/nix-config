@@ -59,10 +59,7 @@
       config.homeManager.modules.zsh
       config.homeManager.modules.shell-packages
       config.homeManager.modules.environment
-      config.homeManager.modules.ghostty
-      # kept installed alongside ghostty as the fallback terminal, so a
-      # broken ghostty config is still recoverable; see docs/terminal.md.
-      config.homeManager.modules.alacritty
+      config.homeManager.modules.kitty
       config.homeManager.modules.ssh
 
       # apps
