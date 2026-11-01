@@ -2,6 +2,7 @@
   homeManager.modules.dev-packages = { pkgs, ... }: {
     home.packages = with pkgs; [
       # programming
+      opencode
       lazygit
       gh
       age
