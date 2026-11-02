@@ -19,6 +19,16 @@
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
         model = "openai/gpt-6-luna";
+        agent = {
+          plan = {
+            model = "openai/gpt-6.1-terra";
+            reasoningEffort = "high";
+          };
+          build = {
+            model = "openai/gpt-6-luna";
+            reasoningEffort = "medium";
+          };
+        };
         experimental.todo = true;
         permissions = [
           { action = "*"; resource = "*"; effect = "ask"; }
