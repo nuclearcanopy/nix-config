@@ -6,10 +6,15 @@
 } 2>/dev/null
 gov=${gov:-?}; no_turbo=${no_turbo:-0}; pl1=${pl1:-0}
 
+if [[ "$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)" == 1 ]]; then
+  echo "PWR"
+  exit 0
+fi
+
 case "$gov" in
   performance)
     if (( pl1 >= 45000000 )); then
-      echo "<span color='#B96B6B'>GOD</span>"
+      echo "GOD"
     else
       echo "SPD"
     fi ;;

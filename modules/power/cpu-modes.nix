@@ -3,8 +3,7 @@
   # `sil` is `lap` plus the fan pinned off; the fan half lives in
   # modules/power/fan-silence.nix, which watches the state file written here.
   # State file at /var/lib/cpu-mode/state records the last explicit mode;
-  # cpu-mode-restore re-applies it after any event TLP also reacts to
-  # (boot, AC/BAT change, resume), so god mode survives plug/unplug.
+  # cpu-mode-restore applies PWR on AC and restores the selected mode on battery.
   # `auto` empties the state file and lets TLP drive again.
   nixos.modules.cpu-modes = { pkgs, username, ... }:
 
@@ -84,9 +83,13 @@
 
       cpuModeRestore = pkgs.writeShellScript "cpu-mode-restore" ''
         set -eu
-        [ -s ${cpuModeStateFile} ] || exit 0
-        mode="$(cat ${cpuModeStateFile})"
-        [ -n "$mode" ] || exit 0
+        if [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null || echo 0)" = 1 ]; then
+          mode=god
+        else
+          [ -s ${cpuModeStateFile} ] || exit 0
+          mode="$(cat ${cpuModeStateFile})"
+          [ -n "$mode" ] || exit 0
+        fi
         # TLP reacts to the same udev event in parallel; let it settle before
         # we overwrite governor/EPP. 0.5s is comfortable; TLP writes complete in ms.
         sleep 0.5
@@ -135,9 +138,8 @@
         "f ${cpuModeStateFile} 0664 root wheel - -"
       ];
 
-      # Re-asserts the last explicit CPU mode after events TLP also reacts to:
-      # boot (After=tlp.service), AC/BAT change (udev rule above), resume from
-      # suspend. No-op if state is empty.
+      # Apply PWR on AC; on battery re-apply the last explicitly selected mode.
+      # Runs after boot, AC/BAT changes, and resume.
       # wantedBy=graphical.target (not multi-user.target) to escape a systemd
       # ordering cycle: tlp.service is After=multi-user.target, so pulling
       # cpu-mode-restore into multi-user while also After=tlp created a cycle
