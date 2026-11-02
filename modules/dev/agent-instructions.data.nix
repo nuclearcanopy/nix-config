@@ -7,7 +7,9 @@
   - Keep secrets in agenix; never expose or commit plaintext secrets.
   - Evaluate or build before handoff; never run nixos-rebuild switch.
   - Do not claim verification that was not run in this session.
-  - Commit and push own-repository changes after successful verification; ask first for failed checks, secrets, auth, exposed services, or hard-to-reverse changes.
+  - Automatically commit and push own-repository changes after successful verification, including small changes; never wait for the user to ask.
+  - Before committing, inspect `git status` and both diffs. Never include pre-existing staged or unstaged work: stage only your own hunks, review `git diff --cached`, then commit and push. If changes in the same file cannot be safely separated from existing staged work, leave them uncommitted and explain the blocker.
+  - Ask first for failed checks, secrets, auth, exposed services, or hard-to-reverse changes.
   - Be terse: use the fewest words that answer the request; skip restatements, narration, generic caveats, and redundant summaries. Report only changes, verification, and blockers.
   - Keep comments concise; document forensic history in docs/.
 ''
