@@ -18,7 +18,7 @@
       home.file.".config/opencode/AGENTS.md".source = instructionsFile;
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
-        model = "openai/gpt-5.6-luna";
+        model = "openai/gpt-6-luna";
         experimental.todo = true;
         permissions = [
           { action = "*"; resource = "*"; effect = "ask"; }
@@ -36,6 +36,16 @@
           { action = "shell"; resource = "pwd"; effect = "allow"; }
           { action = "shell"; resource = "ls"; effect = "allow"; }
           { action = "shell"; resource = "ls *"; effect = "allow"; }
+          { action = "shell"; resource = "ps"; effect = "allow"; }
+          { action = "shell"; resource = "ps *"; effect = "allow"; }
+          { action = "shell"; resource = "head"; effect = "allow"; }
+          { action = "shell"; resource = "head *"; effect = "allow"; }
+          { action = "shell"; resource = "cat"; effect = "allow"; }
+          { action = "shell"; resource = "cat *"; effect = "allow"; }
+          { action = "shell"; resource = "pgrep"; effect = "allow"; }
+          { action = "shell"; resource = "pgrep *"; effect = "allow"; }
+          { action = "shell"; resource = "uptime"; effect = "allow"; }
+          { action = "shell"; resource = "uptime *"; effect = "allow"; }
           { action = "shell"; resource = "git status"; effect = "allow"; }
           { action = "shell"; resource = "git status *"; effect = "allow"; }
           { action = "shell"; resource = "git diff"; effect = "allow"; }
