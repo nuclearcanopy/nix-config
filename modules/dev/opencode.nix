@@ -1,54 +1,65 @@
 {
-  homeManager.modules.opencode = { config, pkgs, ... }:
+  homeManager.modules.opencode = { config, lib, pkgs, ... }:
     let
       jsonFormat = pkgs.formats.json { };
-      instructions = ''
-        You are working on a NixOS system. Make all fixes declaratively and reproducibly; do not use imperative system management when a Nix configuration change is possible.
-
-        The active host is inferred from the cwd, hostname, edited host module, or running processes. This setup targets nidhoggr, a ThinkPad T480, unless the repository context says otherwise. State the inference when it matters and ask only when genuinely ambiguous. The configuration lives at ~/nix-config.
-
-        ## workflow
-        - Inspect the relevant files and project instructions before editing.
-        - Use parallel subagents for independent multi-part work; skip them for trivial lookups.
-        - Make the smallest correct change. Do not add compatibility code without a concrete need.
-        - Preserve unrelated user changes. Never reset, checkout, or otherwise discard them.
-        - Use `apply_patch` for manual edits.
-        - Read the relevant `docs/*.md` before changing a domain with documented history.
-        - Do not run `nixos-rebuild switch`; stop after evaluation or a build and leave switching to the user.
-        - Do not run full flake verification after every edit; run it before handoff or when requested.
-
-        ## Nix conventions
-        - Put system changes in the relevant `modules/<domain>/` bucket and wire host-specific modules from `modules/computers/<host>.nix`.
-        - Put user changes in the relevant Home Manager module.
-        - Use two-space Nix indentation and ASCII by default.
-        - Never commit plaintext secrets. Keep secrets in agenix and do not expose identity values.
-        - Prefer existing packages, helpers, and module patterns over new abstractions.
-
-        ## git
-        This is the user's own repository. Once the requested change works and verification passes, commit and push to the `github` remote by default. Use small, coherent commits with lowercase, dense technical subjects; no AI co-author trailer.
-
-        Ask before committing or pushing if verification failed, the change affects secrets/auth/exposed services or is hard to reverse, or the repository is an external contribution. Before a PR, inspect all common pull request templates and follow the target project's AI disclosure policy. Never claim a test or build passed unless it ran in this session.
-
-        ## writing
-        Keep responses direct and concise. Findings come first in reviews. Comments should explain only load-bearing behavior; put forensic history in docs. Keep README and documentation prose lowercase, minimal, and functional. Never use em dashes or en dashes.
-      '';
+      instructions = import ./agent-instructions.data.nix;
+      instructionsFile = pkgs.writeText "agent-instructions.md" instructions;
     in
     {
-      home.file.".config/opencode/AGENTS.md".text = instructions;
+      # opencode still loads the obsolete config.json before the managed
+      # opencode.json; remove stale pre-migration settings after HM links the
+      # generation so the legacy filename remains absent.
+      home.activation.removeLegacyOpencodeConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        legacy="${config.home.homeDirectory}/.config/opencode/config.json"
+        if [ -e "$legacy" ] || [ -L "$legacy" ]; then
+          $DRY_RUN_CMD rm "$legacy"
+        fi
+      '';
+      home.file.".config/opencode/AGENTS.md".source = instructionsFile;
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
-        shell = "${pkgs.zsh}/bin/zsh";
-        share = "disabled";
-        snapshots = true;
+        model = "openai/gpt-5.6-luna";
+        experimental.todo = true;
+        permissions = [
+          { action = "*"; resource = "*"; effect = "ask"; }
+          { action = "external_directory"; resource = "*"; effect = "ask"; }
+          { action = "read"; resource = "*"; effect = "allow"; }
+          { action = "edit"; resource = "*"; effect = "allow"; }
+          { action = "glob"; resource = "*"; effect = "allow"; }
+          { action = "grep"; resource = "*"; effect = "allow"; }
+          { action = "skill"; resource = "*"; effect = "allow"; }
+          { action = "question"; resource = "*"; effect = "allow"; }
+          { action = "webfetch"; resource = "*"; effect = "allow"; }
+          { action = "websearch"; resource = "*"; effect = "allow"; }
+          { action = "subagent"; resource = "*"; effect = "allow"; }
+          { action = "shell"; resource = "*"; effect = "ask"; }
+          { action = "shell"; resource = "pwd"; effect = "allow"; }
+          { action = "shell"; resource = "ls"; effect = "allow"; }
+          { action = "shell"; resource = "ls *"; effect = "allow"; }
+          { action = "shell"; resource = "git status"; effect = "allow"; }
+          { action = "shell"; resource = "git status *"; effect = "allow"; }
+          { action = "shell"; resource = "git diff"; effect = "allow"; }
+          { action = "shell"; resource = "git diff *"; effect = "allow"; }
+          { action = "shell"; resource = "git log"; effect = "allow"; }
+          { action = "shell"; resource = "git log *"; effect = "allow"; }
+          { action = "shell"; resource = "git show"; effect = "allow"; }
+          { action = "shell"; resource = "git show *"; effect = "allow"; }
+          { action = "shell"; resource = "git add"; effect = "allow"; }
+          { action = "shell"; resource = "git add *"; effect = "allow"; }
+          { action = "shell"; resource = "git commit"; effect = "allow"; }
+          { action = "shell"; resource = "git commit *"; effect = "allow"; }
+          { action = "shell"; resource = "git push"; effect = "allow"; }
+          { action = "shell"; resource = "git push *"; effect = "allow"; }
+          { action = "shell"; resource = "nix eval"; effect = "allow"; }
+          { action = "shell"; resource = "nix eval *"; effect = "allow"; }
+          { action = "shell"; resource = "nix build"; effect = "allow"; }
+          { action = "shell"; resource = "nix build *"; effect = "allow"; }
+          { action = "shell"; resource = "nix path-info"; effect = "allow"; }
+          { action = "shell"; resource = "nix path-info *"; effect = "allow"; }
+          { action = "shell"; resource = "rm"; effect = "allow"; }
+          { action = "shell"; resource = "rm *"; effect = "allow"; }
+        ];
         instructions = [ "${config.home.homeDirectory}/.config/opencode/AGENTS.md" ];
-        tool_output = {
-          max_lines = 120;
-          max_bytes = 16384;
-        };
-        compaction = {
-          auto = true;
-          keep.tokens = 12000;
-        };
       };
     };
 }

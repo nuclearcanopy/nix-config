@@ -167,33 +167,33 @@
 
           --toolbarbutton-icon-fill-attention: #666666 !important;
 
-          --toolbar-color: rgb(80, 80, 80) !important;
-          --lwt-text-color: rgb(80, 80, 80) !important;
-          --toolbar-field-color: rgb(148, 148, 148) !important;
-          --toolbar-field-focus-color: rgb(148, 148, 148) !important;
-          --urlbar-popup-url-color: rgb(148, 148, 148) !important;
-          --urlbar-popup-action-color: rgb(80, 80, 80) !important;
-          --tab-text-color: rgb(80, 80, 80) !important;
-          --lwt-tab-text: rgb(80, 80, 80) !important;
-          --arrowpanel-color: rgb(129, 129, 129) !important;
-          --panel-color: rgb(129, 129, 129) !important;
+          --toolbar-color: rgb(55, 55, 58) !important;
+          --lwt-text-color: rgb(55, 55, 58) !important;
+          --toolbar-field-color: rgb(105, 103, 108) !important;
+          --toolbar-field-focus-color: rgb(105, 103, 108) !important;
+          --urlbar-popup-url-color: rgb(105, 103, 108) !important;
+          --urlbar-popup-action-color: rgb(55, 55, 58) !important;
+          --tab-text-color: rgb(55, 55, 58) !important;
+          --lwt-tab-text: rgb(55, 55, 58) !important;
+          --arrowpanel-color: rgb(88, 88, 92) !important;
+          --panel-color: rgb(88, 88, 92) !important;
 
-          --toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
-          --lwt-toolbarbutton-icon-fill: rgb(77, 77, 77) !important;
-          --lwt-toolbarbutton-icon-fill-attention: rgb(67, 67, 67) !important;
-          --toolbar-field-icon-fill-attention: rgb(148, 148, 148) !important;
-          --urlbar-icon-fill-attention: rgb(148, 148, 148) !important;
-          --urlbar-searchbar-icon-fill: rgb(148, 148, 148) !important;
-          --urlbar-focused-icon-fill: rgb(148, 148, 148) !important;
-          --identity-box-icon-fill-attention: rgb(148, 148, 148) !important;
-          --link-color: rgb(148, 148, 148) !important;
+          --toolbarbutton-icon-fill: rgb(48, 48, 52) !important;
+          --lwt-toolbarbutton-icon-fill: rgb(48, 48, 52) !important;
+          --lwt-toolbarbutton-icon-fill-attention: rgb(42, 42, 46) !important;
+          --toolbar-field-icon-fill-attention: rgb(105, 103, 108) !important;
+          --urlbar-icon-fill-attention: rgb(105, 103, 108) !important;
+          --urlbar-searchbar-icon-fill: rgb(105, 103, 108) !important;
+          --urlbar-focused-icon-fill: rgb(105, 103, 108) !important;
+          --identity-box-icon-fill-attention: rgb(105, 103, 108) !important;
+          --link-color: rgb(105, 103, 108) !important;
 
           --tab-selected-bgcolor: #171717 !important;
           --lwt-selected-tab-background-color: #171717 !important;
 
           --toolbar-field-focus-border-color: #000000 !important;
           --lwt-toolbar-field-highlight: #272727 !important;
-          --lwt-toolbar-field-highlight-text: rgb(148, 148, 148) !important;
+          --lwt-toolbar-field-highlight-text: rgb(105, 103, 108) !important;
           --arrowpanel-dimmed: #1c1c1c !important;
           --tab-line-color: #000000 !important;
           --lwt-tab-line-color: #000000 !important;
@@ -247,6 +247,25 @@
           background-color: #0a0a0a !important;
         }
 
+        #urlbar-results,
+        .urlbarView,
+        .urlbarView-body-outer,
+        .urlbarView-results,
+        .urlbarView-row,
+        .search-panel {
+          background-color: #0a0a0a !important;
+          color: rgb(105, 103, 108) !important;
+        }
+        .urlbarView-row:hover,
+        .urlbarView-row[selected],
+        .urlbarView-row[aria-selected="true"] {
+          background-color: #1c1c1c !important;
+        }
+        .urlbarView-row * {
+          color: rgb(105, 103, 108) !important;
+          fill: rgb(105, 103, 108) !important;
+        }
+
         #urlbar *,
         #urlbar-container *,
         #urlbar[focused] *,
@@ -262,24 +281,24 @@
         #urlbar-label-box,
         #urlbar-search-mode-indicator-title,
         .urlbar-input::placeholder {
-          fill: rgb(148, 148, 148) !important;
-          color: rgb(148, 148, 148) !important;
+          fill: rgb(105, 103, 108) !important;
+          color: rgb(105, 103, 108) !important;
           -moz-context-properties: fill, fill-opacity !important;
         }
 
         #urlbar-input {
-          color: rgb(148, 148, 148) !important;
+          color: rgb(105, 103, 108) !important;
           -moz-appearance: none !important;
-          caret-color: rgb(148, 148, 148) !important;
+          caret-color: rgb(105, 103, 108) !important;
         }
         #urlbar[focused] > #urlbar-input-container > #urlbar-input {
-          color: rgb(148, 148, 148) !important;
+          color: rgb(105, 103, 108) !important;
         }
         :root #urlbar-input {
-          color: rgb(148, 148, 148) !important;
+          color: rgb(105, 103, 108) !important;
         }
         input#urlbar-input.urlbar-input {
-          color: rgb(148, 148, 148) !important;
+          color: rgb(105, 103, 108) !important;
         }
 
         #navigator-toolbox,
@@ -331,8 +350,8 @@
           --urlbar-popup-action-color: rgb(100, 100, 100) !important;
           --tab-text-color: rgb(100, 100, 100) !important;
           --lwt-tab-text: rgb(100, 100, 100) !important;
-          --arrowpanel-color: rgb(80, 80, 80) !important;
-          --panel-color: rgb(80, 80, 80) !important;
+          --arrowpanel-color: rgb(55, 55, 58) !important;
+          --panel-color: rgb(55, 55, 58) !important;
 
           --toolbarbutton-icon-fill: rgb(90, 90, 90) !important;
           --lwt-toolbarbutton-icon-fill: rgb(90, 90, 90) !important;

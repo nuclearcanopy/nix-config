@@ -1,8 +1,8 @@
 {
-  homeManager.modules.dev-packages = { pkgs, ... }: {
+  homeManager.modules.dev-packages = { pkgs, unstable, ... }: {
     home.packages = with pkgs; [
       # programming
-      opencode
+      unstable.opencode
       lazygit
       gh
       age
