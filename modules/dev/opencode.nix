@@ -42,42 +42,16 @@
           { action = "webfetch"; resource = "*"; effect = "allow"; }
           { action = "websearch"; resource = "*"; effect = "allow"; }
           { action = "subagent"; resource = "*"; effect = "allow"; }
-          { action = "shell"; resource = "*"; effect = "ask"; }
-          { action = "shell"; resource = "pwd"; effect = "allow"; }
-          { action = "shell"; resource = "ls"; effect = "allow"; }
-          { action = "shell"; resource = "ls *"; effect = "allow"; }
-          { action = "shell"; resource = "ps"; effect = "allow"; }
-          { action = "shell"; resource = "ps *"; effect = "allow"; }
-          { action = "shell"; resource = "head"; effect = "allow"; }
-          { action = "shell"; resource = "head *"; effect = "allow"; }
-          { action = "shell"; resource = "cat"; effect = "allow"; }
-          { action = "shell"; resource = "cat *"; effect = "allow"; }
-          { action = "shell"; resource = "pgrep"; effect = "allow"; }
-          { action = "shell"; resource = "pgrep *"; effect = "allow"; }
-          { action = "shell"; resource = "uptime"; effect = "allow"; }
-          { action = "shell"; resource = "uptime *"; effect = "allow"; }
-          { action = "shell"; resource = "git status"; effect = "allow"; }
-          { action = "shell"; resource = "git status *"; effect = "allow"; }
-          { action = "shell"; resource = "git diff"; effect = "allow"; }
-          { action = "shell"; resource = "git diff *"; effect = "allow"; }
-          { action = "shell"; resource = "git log"; effect = "allow"; }
-          { action = "shell"; resource = "git log *"; effect = "allow"; }
-          { action = "shell"; resource = "git show"; effect = "allow"; }
-          { action = "shell"; resource = "git show *"; effect = "allow"; }
-          { action = "shell"; resource = "git add"; effect = "allow"; }
-          { action = "shell"; resource = "git add *"; effect = "allow"; }
-          { action = "shell"; resource = "git commit"; effect = "allow"; }
-          { action = "shell"; resource = "git commit *"; effect = "allow"; }
-          { action = "shell"; resource = "git push"; effect = "allow"; }
-          { action = "shell"; resource = "git push *"; effect = "allow"; }
-          { action = "shell"; resource = "nix eval"; effect = "allow"; }
-          { action = "shell"; resource = "nix eval *"; effect = "allow"; }
-          { action = "shell"; resource = "nix build"; effect = "allow"; }
-          { action = "shell"; resource = "nix build *"; effect = "allow"; }
-          { action = "shell"; resource = "nix path-info"; effect = "allow"; }
-          { action = "shell"; resource = "nix path-info *"; effect = "allow"; }
-          { action = "shell"; resource = "rm"; effect = "allow"; }
-          { action = "shell"; resource = "rm *"; effect = "allow"; }
+          { action = "shell"; resource = "*"; effect = "allow"; }
+          { action = "shell"; resource = "sudo *"; effect = "deny"; }
+          { action = "shell"; resource = "doas *"; effect = "deny"; }
+          { action = "shell"; resource = "rm -r *"; effect = "deny"; }
+          { action = "shell"; resource = "rm -fr *"; effect = "deny"; }
+          { action = "shell"; resource = "rm --recursive *"; effect = "deny"; }
+          { action = "shell"; resource = "mkfs *"; effect = "deny"; }
+          { action = "shell"; resource = "wipefs *"; effect = "deny"; }
+          { action = "shell"; resource = "dd *"; effect = "deny"; }
+          { action = "shell"; resource = "shred *"; effect = "deny"; }
         ];
         instructions = [ "${config.home.homeDirectory}/.config/opencode/AGENTS.md" ];
       };
