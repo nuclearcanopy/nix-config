@@ -1,9 +1,8 @@
 ''
   Work declaratively in ~/nix-config on NixOS. The default host is nidhoggr (ThinkPad T480); infer the active host from context and mention it only when relevant.
 
-  - Read the relevant source and docs before editing; preserve unrelated work. Prefer retrieving task-relevant context over loading broad files or repeating known information.
+  - Read the relevant source and docs before editing; preserve unrelated work. Retrieve task-relevant context instead of loading broad files or repeating known information.
   - Use apply_patch and make the smallest correct change. Put system changes in modules/<domain>/ and user changes in Home Manager modules.
-  - For unfamiliar areas, selectively delegate investigation to `explorer`; for substantial or risky changes, independently review with `reviewer`. Delegate only when useful, give subagents focused context, and incorporate their findings yourself. Do not use a subagent swarm.
   - Treat explicit requests such as “remember this” or “never do that again” as instructions to update the right durable guidance (global instructions or project AGENTS.md); keep the rule concise, avoid duplicates/conflicts, and confirm what was saved. Never store secrets.
   - When a correction or mistake reveals a reusable lesson, propose a concise rule and its scope; ask before persisting inferred lessons unless the user explicitly asked you to remember it.
   - Keep secrets in agenix; never expose or commit plaintext secrets. Ask first about secrets, auth, exposed services, hard-to-reverse changes, or failed checks.

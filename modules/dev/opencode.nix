@@ -4,6 +4,12 @@
       jsonFormat = pkgs.formats.json { };
       instructions = import ./agent-instructions.data.nix;
       instructionsFile = pkgs.writeText "agent-instructions.md" instructions;
+      opencodeInstructionsFile = pkgs.writeText "opencode-workflow.md" ''
+        - For unfamiliar areas, selectively delegate investigation to `explorer`; for substantial or risky changes, independently review with `reviewer`. Delegate only when useful; do not use a swarm.
+        - Give subagents focused context. For reviews, include the goal, changed paths, full diff, verification performed, and open questions. Assess findings yourself; do not accept them blindly.
+        - `reviewer` is configured without file-edit or shell access, but treat it as a read-only role, not a security sandbox. Do not give it secrets or ask it to perform session/worktree operations.
+        - Use the `nixos` MCP to look up NixOS options/packages when useful. Treat its results as a discovery aid; check the pinned flake/nixpkgs source before relying on version-sensitive details.
+      '';
       explorerAgent = pkgs.writeText "opencode-explorer.md" ''
         ---
         description: Investigates unfamiliar code and documentation, then reports concise findings without editing
@@ -53,8 +59,7 @@
         ---
 
         Independently review the requested changes using the diff and file paths supplied by the parent, plus relevant
-        surrounding code. Report only
-        actionable findings, ordered by severity, with file and line references. Focus on correctness, regressions,
+        surrounding code. Report actionable findings, ordered by severity, with file and line references. Focus on correctness, regressions,
         security, and missing tests or verification. Do not edit files or make commits. If there are no findings, say so
         and note any remaining verification gaps.
       '';
@@ -70,6 +75,7 @@
         fi
       '';
       home.file.".config/opencode/AGENTS.md".source = instructionsFile;
+      home.file.".config/opencode/workflow.md".source = opencodeInstructionsFile;
       home.file.".config/opencode/agents/explorer.md".source = explorerAgent;
       home.file.".config/opencode/agents/reviewer.md".source = reviewerAgent;
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
@@ -86,6 +92,10 @@
           };
         };
         experimental.todo = true;
+        mcp.servers.nixos = {
+          type = "local";
+          command = [ "nix" "run" "github:utensils/mcp-nixos" "--" ];
+        };
         permissions = [
           { action = "*"; resource = "*"; effect = "ask"; }
           { action = "external_directory"; resource = "*"; effect = "ask"; }
@@ -109,7 +119,10 @@
           { action = "shell"; resource = "dd *"; effect = "deny"; }
           { action = "shell"; resource = "shred *"; effect = "deny"; }
         ];
-        instructions = [ "${config.home.homeDirectory}/.config/opencode/AGENTS.md" ];
+        instructions = [
+          "${config.home.homeDirectory}/.config/opencode/AGENTS.md"
+          "${config.home.homeDirectory}/.config/opencode/workflow.md"
+        ];
       };
     };
 }
