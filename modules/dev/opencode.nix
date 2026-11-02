@@ -4,6 +4,60 @@
       jsonFormat = pkgs.formats.json { };
       instructions = import ./agent-instructions.data.nix;
       instructionsFile = pkgs.writeText "agent-instructions.md" instructions;
+      explorerAgent = pkgs.writeText "opencode-explorer.md" ''
+        ---
+        description: Investigates unfamiliar code and documentation, then reports concise findings without editing
+        mode: subagent
+        permissions:
+          - action: "*"
+            resource: "*"
+            effect: deny
+          - action: read
+            resource: "*"
+            effect: allow
+          - action: glob
+            resource: "*"
+            effect: allow
+          - action: grep
+            resource: "*"
+            effect: allow
+          - action: webfetch
+            resource: "*"
+            effect: allow
+          - action: websearch
+            resource: "*"
+            effect: allow
+        ---
+
+        Investigate the requested area by reading relevant files and documentation. Report the key paths, how the
+        relevant pieces fit together, important constraints, and unanswered questions. Do not edit files or run
+        commands that change state. Keep the report focused so the parent agent can act on it.
+      '';
+      reviewerAgent = pkgs.writeText "opencode-reviewer.md" ''
+        ---
+        description: Independently reviews substantial changes for bugs, regressions, and missing verification
+        mode: subagent
+        permissions:
+          - action: "*"
+            resource: "*"
+            effect: deny
+          - action: read
+            resource: "*"
+            effect: allow
+          - action: glob
+            resource: "*"
+            effect: allow
+          - action: grep
+            resource: "*"
+            effect: allow
+        ---
+
+        Independently review the requested changes using the diff and file paths supplied by the parent, plus relevant
+        surrounding code. Report only
+        actionable findings, ordered by severity, with file and line references. Focus on correctness, regressions,
+        security, and missing tests or verification. Do not edit files or make commits. If there are no findings, say so
+        and note any remaining verification gaps.
+      '';
     in
     {
       # opencode still loads the obsolete config.json before the managed
@@ -16,6 +70,8 @@
         fi
       '';
       home.file.".config/opencode/AGENTS.md".source = instructionsFile;
+      home.file.".config/opencode/agents/explorer.md".source = explorerAgent;
+      home.file.".config/opencode/agents/reviewer.md".source = reviewerAgent;
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
         model = "openai/gpt-6-luna";
