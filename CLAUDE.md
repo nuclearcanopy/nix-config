@@ -2,6 +2,8 @@
 
 Guidance for working on this NixOS configuration repository. This file is a high‑signal, low‑ambiguity map for AI agents; keep it current.
 
+This is a map of the current configuration, not a permanent feature specification. Historical rationale records what was chosen at the time; it is context, not a veto. When asked to review or simplify, verify what is active and needed now instead of treating prior additions, removals, or comments as proof of current intent.
+
 ## Overview
 This is a personal NixOS flake for the host `kuraokami` (desktop) and `nidhoggr` (ThinkPad T480 laptop) with home‑manager, agenix, NUR, and nixvim, plus a headless `homeserver` host in `hosts/homeserver`. It uses Sway (Wayland), low‑latency PipeWire (+ JACK on kuraokami only), LACT for AMD GPU control (desktop), ananicy + irqbalance for CPU scheduling on both hosts (`scx_lavd` is desktop‑only; `nidhoggr.nix` does `services.scx.enable = lib.mkForce false`), a `performance` CPU governor (desktop), Mullvad VPN (sole VPN provider, lockdown mode on nidhoggr), and a privacy‑tuned desktop. Both hosts run the stock nixpkgs kernel (`pkgs.linuxPackages`, set explicitly in `modules/boot/boot-t480.nix` and implicit via default in `modules/boot/boot-amd.nix`); no CachyOS kernel is wired up despite earlier docs claiming otherwise. Laptop power uses aggressive TLP battery profiles, AC‑aware swayidle, and a waybar power-mode indicator (`set-cpu-mode {spd|bal|lap|sil|god|auto}`, sticky via `/var/lib/cpu-mode/state`). Laptop NetworkManager randomizes the MAC on every wifi/ethernet connection. Desktop theming (`modules/gui/theme.nix`) is a pitch-black OLED palette mirrored into a Qt6 palette for Qt6/Chromium-based apps, with a runtime light mode on top (`set-theme-mode`, `modules/gui/theme-mode.nix`, waybar `custom/thememode`; see `docs/gui.md`). `profile-sync-daemon` is in `services-core`, i.e. `desktop-base`, so it runs on both desktop hosts, not just the laptop. `allowedUnfree`, `allowUnfreePredicate`, `specialArgs` and `nixosConfigurations` are all defined in `modules/_plumbing/nixos.nix`, not in `flake.nix`, which holds only the flake inputs and the module auto-discovery. Primary entrypoints: `flake.nix` and `hosts/<host>/hardware-configuration.nix`.
 
@@ -53,9 +55,9 @@ Agenix decrypts at **activation** time, which is far too late for anything the N
 
 It holds two attrs: `usernames.<host>` (just `kuraokami`, since `nidhoggr`/`loki` and `homeserver`/`homeserver` are already public) and `location` (`timeZone` + `extraLocaleSettings`, read in `modules/computers/kuraokami.nix`, `nidhoggr.nix`, and `homeserver.nix`; previously hardcoded as plain strings directly in `host-base.nix`/`server/system.nix`, which leaked country/region in the public repo).
 
-Homeserver secrets are wired in `modules/server/secrets.nix`: `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-cloudflared-credentials.age`, `homeserver-cloudflared-config.age` (the tunnel's `config.yml` mount; the tunnel cannot start without it), `homeserver-mscd-api-hash.age`, and `homeserver-searxng-env.age`. The searxng one is dead weight: its only consumer is the commented-out searxng container, so it is decrypted every activation for nothing.
+Homeserver secrets are wired in `modules/server/secrets.nix`: `homeserver-user-password.age`, `homeserver-navidrome-env.age`, `homeserver-cloudflared-credentials.age`, `homeserver-cloudflared-config.age` (the tunnel's `config.yml` mount; the tunnel cannot start without it), and `homeserver-mscd-api-hash.age`. The retired SearXNG secret is no longer declared; its encrypted file and recipient mapping are retained but inactive.
 
-Note homeserver also imports `config.nixos.modules.secrets` (the desktop module, `modules/base/secrets.nix`), which declares 8 more. Only `ssh-github` and `nas-credentials` have consumers there; the other six land in `/run/agenix` unused.
+The homeserver declares only its own secrets plus the two it consumes from the shared desktop set (`ssh-github` and `nas-credentials`); it does not import `modules/base/secrets.nix`.
 
 ## Homeserver streaming reliability (`modules/server/services.nix`)
 Navidrome is configured for resilient Subsonic streaming: 5GB transcoding cache, 500MB image cache, opus default downsampling, 6h scan schedule, 168h sessions, downloads enabled, scan log lines remain at `info` level (the boost sidecar trigger needs them). The container's `environmentFiles` list reads `homeserver-navidrome-env.age` AND a local mode-600 file at `/var/lib/navidrome/lastfm.env` (the latter wins per docker env-file "last duplicate key wins"; it lets us rotate the Last.fm API key on-host without re-encrypting the agenix secret, which is only decryptable from `kuraokami`). `docker-navidrome.service` has `Restart=always` with 5s backoff.
@@ -127,7 +129,7 @@ Modules are auto-discovered: `flake.nix` imports every `*.nix` under `modules/` 
 
 ## Discord (2026-09-16)
 
-`modules/programs/discord.nix` installs the **official** `pkgs.discord`, imported by `modules/computers/desktop-profile.nix` so it lands on both `kuraokami` and `nidhoggr`. This replaced Vesktop at the user's explicit instruction; `modules/programs/vesktop.nix` was deleted. **Do not propose switching back.** The tradeoffs were raised and rejected, so re-litigating them is noise: Vesktop's advantages were PipeWire screenshare-with-audio, immunity to Discord's server-side "Update Required" wall, and a declarative `programs.vesktop` home-manager module carrying a Vencord plugin set. None of that applies now.
+`modules/programs/discord.nix` currently installs the official `pkgs.discord` on both desktop hosts. This replaced Vesktop after the tradeoffs were reviewed at the time; the earlier decision is historical context, not a permanent restriction on future user requests.
 
 Consequences of the swap:
 - `discord` is unfree and is in `allowed-unfree.data.nix`. Its `pname` is exactly `discord`, which is what `lib.getName` feeds the `allowUnfreePredicate`.
@@ -150,7 +152,7 @@ Consequences of the swap:
 | `systemd-oomd` | | `systemd.oomd.enable = false` lives in `modules/base/earlyoom.nix`. Both OOM killers were running with different trigger models (oomd kills cgroups on PSI pressure, earlyoom kills the fattest process on a free-memory threshold), making the outcome unpredictable |
 | `speech-dispatcher` | 1.24 GB | `services.speechd.enable = false` in the host file. nixpkgs default-enables it; nothing here asks for it. Output-only, so the mic path is unaffected; the loss is Firefox "Read Aloud" and screen readers |
 
-Deliberately kept after review: `easyeffects` (125 MB resident, the largest user service), `xembedsniproxy` (2.85 GB of plasma-workspace for the Java AWT tray shim), `obs-studio`, Steam, the security toolkit, and `gvfs`.
+Previously kept after review: `easyeffects` (125 MB resident, the largest user service), `xembedsniproxy` (2.85 GB of plasma-workspace for the Java AWT tray shim), `obs-studio`, Steam, the security toolkit, and `gvfs`. Reassess these if reviewing current needs; this list is not a keep directive.
 
 pcmanfm automount is **off by default** and is not managed declaratively; enable it under Edit > Preferences > Volume Management. The setting lands in `~/.config/pcmanfm/default/pcmanfm.conf`.
 

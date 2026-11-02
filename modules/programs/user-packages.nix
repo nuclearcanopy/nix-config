@@ -13,8 +13,6 @@
       xivlauncher
       prismlauncher
 
-      # calibre     # temporarily out: pulls onnxruntime which fails to build
-
       feishin
       qjackctl
     ]);

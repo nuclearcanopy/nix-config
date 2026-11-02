@@ -18,9 +18,6 @@
       # api testing
       bruno
 
-      # ai slop tools
-      # mcp-nixos  # temporarily out: pulls cfn-lint whose tests fail upstream
-
       # cybersec stuff
       # NOTE: wireshark is enabled at the system level via programs.wireshark
       # for dumpcap capabilities; not listed here.

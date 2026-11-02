@@ -1,9 +1,26 @@
 {
-  # Homeserver-specific agenix secrets. nas-credentials and ssh-git are
-  # declared once in modules/base/secrets.nix and shared via that module;
-  # the server imports both to avoid duplicating those declarations.
+  # Homeserver-specific agenix secrets, including the shared GitHub and NAS keys.
   nixos.modules.server-secrets = { username, ... }: {
-    age.secrets = {
+    age = {
+      identityPaths = [ "/etc/age/key.txt" ];
+
+      secrets = {
+        # Shared services: the NAS mount and GitHub pull access.
+        ssh-github = {
+          file = ../../secrets/ssh-github.age;
+          path = "/run/agenix/ssh-github";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
+
+        nas-credentials = {
+          file = ../../secrets/nas-credentials.age;
+          owner = username;
+          group = "users";
+          mode = "640";
+        };
+
         homeserver-user-password = {
           file = ../../secrets/homeserver-user-password.age;
         };
@@ -11,12 +28,6 @@
         homeserver-navidrome-env = {
           file = ../../secrets/homeserver-navidrome-env.age;
           path = "/run/agenix/homeserver-navidrome-env";
-          mode = "600";
-        };
-
-        homeserver-searxng-env = {
-          file = ../../secrets/homeserver-searxng-env.age;
-          path = "/run/agenix/homeserver-searxng-env";
           mode = "600";
         };
 
@@ -35,6 +46,7 @@
           path = "/run/agenix/homeserver-mscd-api-hash";
           mode = "600";
         };
+      };
     };
   };
 }

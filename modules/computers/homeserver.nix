@@ -19,7 +19,6 @@
         config.nixos.modules.server-watchdog
         config.nixos.modules.server-users
         config.nixos.modules.server-zsh
-        config.nixos.modules.secrets
         config.nixos.modules.server-secrets
         config.nixos.modules.server-git
         config.nixos.modules.server-screen-brightness
