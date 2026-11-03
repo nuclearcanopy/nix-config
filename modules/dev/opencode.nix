@@ -94,7 +94,7 @@
         experimental.todo = true;
         mcp.servers.nixos = {
           type = "local";
-          command = [ "nix" "run" "github:utensils/mcp-nixos" "--" ];
+          command = [ "${pkgs.mcp-nixos}/bin/mcp-nixos" ];
         };
         permissions = [
           { action = "*"; resource = "*"; effect = "ask"; }
