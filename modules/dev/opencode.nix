@@ -109,7 +109,7 @@
           { action = "websearch"; resource = "*"; effect = "allow"; }
           { action = "subagent"; resource = "*"; effect = "allow"; }
           { action = "shell"; resource = "*"; effect = "allow"; }
-          { action = "shell"; resource = "sudo *"; effect = "deny"; }
+          { action = "shell"; resource = "sudo *"; effect = "ask"; }
           { action = "shell"; resource = "doas *"; effect = "deny"; }
           { action = "shell"; resource = "rm -r *"; effect = "deny"; }
           { action = "shell"; resource = "rm -fr *"; effect = "deny"; }
