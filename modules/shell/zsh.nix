@@ -56,6 +56,7 @@
         ${builtins.readFile ./zsh/prompt.zsh}
         ${builtins.readFile ./zsh/privilege.zsh}
         ${builtins.readFile ./zsh/nix-commit.zsh}
+        ${builtins.readFile ./zsh/docx2pdf.zsh}
       '';
     };
   };

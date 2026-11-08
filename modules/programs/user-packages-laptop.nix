@@ -15,12 +15,15 @@
       termsonic
       vlc
 
-      # Minecraft. Prism ships wayland GLFW + gamemode.lib in its wrapper by
-      # default; the actual perf switches (EnableFeralGamemode /
-      # UseNativeGLFW) live per-instance. jdks order puts 21 (LTS) ahead of
-      # 25 so Prism's AutomaticJava picks the LTS on any MC version that
-      # accepts both.
-      (prismlauncher.override { jdks = [ jdk21 jdk25 jdk17 jdk8 ]; })
+      # Minecraft: prismlauncher is NOT listed here. It comes from the shared
+      # prism-mullvad module, which wraps the same
+      # `prismlauncher.override { jdks = [ jdk21 jdk25 jdk17 jdk8 ]; }` in
+      # mullvad-exclude so servers that ban shared VPN exit IPs see the real
+      # ISP address. Adding it here too would collide on the binary name.
+      # Prism still ships wayland GLFW + gamemode.lib in its wrapper by
+      # default; the perf switches (EnableFeralGamemode / UseNativeGLFW) live
+      # per-instance. Note mangohud is still absent on this host, so do not
+      # set EnableMangoHud=true in an instance.cfg here.
     ]);
   };
 }

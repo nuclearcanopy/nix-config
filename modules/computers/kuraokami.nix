@@ -85,6 +85,10 @@
 
         # runs generic-linux binaries (boomi atom's bundled corretto jre)
         config.nixos.modules.nix-ld
+
+        # LVFS firmware updates. Desktop-only: see the module for why nidhoggr
+        # (Libreboot, no capsule path) deliberately goes without.
+        config.nixos.modules.fwupd
       ];
 
       # ── host-specific ────────────────────────────────────────────────
@@ -137,6 +141,7 @@
           config.homeManager.modules.steam-home
           config.homeManager.modules.vkbasalt
           config.homeManager.modules.user-packages
+          config.homeManager.modules.prism-mullvad
         ];
 
         waybar.profile = "kuraokami";

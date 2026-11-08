@@ -11,7 +11,9 @@
       bottles
       protonup-qt
       xivlauncher
-      prismlauncher
+      # prismlauncher is NOT listed here: it comes from the shared
+      # prism-mullvad module (wrapped in mullvad-exclude, jdks pinned).
+      # Listing it here too would collide on the binary name.
 
       feishin
       qjackctl

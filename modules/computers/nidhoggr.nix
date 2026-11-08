@@ -86,6 +86,11 @@
           config.homeManager.modules.easyeffects-service
           config.homeManager.modules.user-packages-laptop
           config.homeManager.modules.rust
+
+          # Minecraft off the mullvad tunnel. Replaces the plain prismlauncher
+          # that used to sit in user-packages-laptop; same jdks override,
+          # wrapped in mullvad-exclude.
+          config.homeManager.modules.prism-mullvad
         ];
 
         waybar.profile = "laptop";

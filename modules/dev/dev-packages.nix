@@ -24,6 +24,9 @@
       # api testing
       bruno
 
+      # esoteric-language toy compiler, local package
+      (pkgs.callPackage ../../pkgs/malbolge { })
+
       # cybersec stuff
       # NOTE: wireshark is enabled at the system level via programs.wireshark
       # for dumpcap capabilities; not listed here.
