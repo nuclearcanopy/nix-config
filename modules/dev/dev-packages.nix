@@ -7,8 +7,14 @@
       gh
       age
       gnumake
+      bc
+      elfutils.dev
+      pkg-config
+      openssl.dev
+      openssl
+      sphinx
       gcc
-      (python313.withPackages (ps: [ ps.pip ps.scapy ]))
+      (python313.withPackages (ps: [ ps.pip ps.scapy ps.pyyaml ]))
       rustc
       cargo
       rust-analyzer
