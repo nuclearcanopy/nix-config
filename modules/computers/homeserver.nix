@@ -17,6 +17,7 @@
         config.nixos.modules.server-networking
         config.nixos.modules.server-services
         config.nixos.modules.server-watchdog
+        config.nixos.modules.server-observability
         config.nixos.modules.server-users
         config.nixos.modules.server-zsh
         config.nixos.modules.server-secrets

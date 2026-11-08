@@ -728,8 +728,166 @@ for k in ('artist', 'uploader', 'creator', 'channel', 'album', 'track', 'title',
   )
   [[ -n "$cropped_thumb" && -f "$cropped_thumb" ]] && meta_args+=("_thumbnail=$cropped_thumb")
 
-  write_metadata "${meta_args[@]}"
+  # write_metadata exits 0 even when a per-file save raised, so its status is
+  # checked but cannot be trusted alone; mscd_verify_imported is the real gate
+  # and makes this function's exit status meaningful to the archive commit.
+  if ! write_metadata "${meta_args[@]}"; then
+    echo "[ERROR] Tagging failed: $final_path"
+    return 1
+  fi
+  mscd_verify_imported "$final_path" || return 1
   echo "[DEBUG] Written: $final_path"
+}
+
+
+# --- Download-archive commit gate -------------------------------------------
+# yt-dlp's --download-archive records a video ID the moment extraction finishes,
+# which is BEFORE mscd tags the file and copies it into the library. Pointing it
+# straight at the real archive meant any failure in between (a crashed
+# write_metadata, a full disk, a dropped NAS mount) left every track marked
+# "already downloaded" with nothing on disk -- and since the archive is consulted
+# on the next run, the retry became a silent no-op that still reported success.
+# Recovering needed --force, and nothing surfaced the inconsistency.
+#
+# So the archive is now two-phase: yt-dlp writes into a scratch copy
+# (mscd_archive_stage), and the new IDs are folded into the real archive only
+# once the imported files are verified on disk (mscd_archive_commit). A failed
+# import discards the scratch copy, leaving the real archive untouched so a plain
+# retry re-downloads.
+MSCD_ARCHIVE_STAGED=""
+
+mscd_archive_stage() {
+  MSCD_ARCHIVE_STAGED=""
+  [[ -z "$MSCD_ARCHIVE" || -n "$FORCE_DOWNLOAD" ]] && return 0
+
+  local staged
+  # Named prefix so a staged copy orphaned by a killed job is identifiable and
+  # sweepable, rather than an anonymous /tmp/tmp.XXXX that accumulates forever.
+  staged=$(mktemp -t mscd-archive.XXXXXX) || {
+    echo "[WARN] Could not stage download archive; running without it"
+    return 0
+  }
+  if [[ -f "$MSCD_ARCHIVE" ]] && ! cp "$MSCD_ARCHIVE" "$staged"; then
+    echo "[WARN] Could not copy $MSCD_ARCHIVE; running without the archive"
+    rm -f "$staged"
+    return 0
+  fi
+
+  MSCD_ARCHIVE_STAGED="$staged"
+  echo "[DEBUG] Archive staged (commit deferred until the import verifies)"
+}
+
+# IDs recorded by yt-dlp during this run that the real archive does not have yet.
+mscd_archive_new_ids() {
+  local staged="$1"
+  [[ -f "$staged" ]] || return 0
+  if [[ -f "$MSCD_ARCHIVE" ]]; then
+    comm -13 <(sort -u "$MSCD_ARCHIVE") <(sort -u "$staged")
+  else
+    grep . "$staged" 2>/dev/null
+  fi
+  return 0
+}
+
+mscd_archive_commit() {
+  local staged="$MSCD_ARCHIVE_STAGED"
+  MSCD_ARCHIVE_STAGED=""
+  [[ -z "$staged" ]] && return 0
+
+  local new_ids
+  new_ids=$(mscd_archive_new_ids "$staged")
+  rm -f "$staged"
+
+  if [[ -z "$new_ids" ]]; then
+    echo "[DEBUG] Archive: nothing new to commit"
+    return 0
+  fi
+
+  mkdir -p "${MSCD_ARCHIVE:h}"
+  if ! print -r -- "$new_ids" >> "$MSCD_ARCHIVE"; then
+    echo "[WARN] Archive: append to $MSCD_ARCHIVE failed; those IDs stay un-recorded"
+    return 1
+  fi
+  echo "[DEBUG] Archive: committed $(print -r -- "$new_ids" | grep -c .) new ID(s)"
+}
+
+mscd_archive_discard() {
+  local staged="$MSCD_ARCHIVE_STAGED"
+  MSCD_ARCHIVE_STAGED=""
+  [[ -z "$staged" ]] && return 0
+
+  local -i pending=0
+  pending=$(mscd_archive_new_ids "$staged" | grep -c .)
+  rm -f "$staged"
+
+  (( pending > 0 )) && echo "[WARN] Archive: dropped $pending un-imported ID(s). Re-run this URL to retry -- no --force needed."
+  return 0
+}
+
+# Returns 0 only if every path given is a non-empty file carrying the artist and
+# album tags write_metadata was meant to stamp. This is the gate for committing
+# the archive, so "cannot prove it landed" has to count as failure.
+mscd_verify_imported() {
+  (( $# == 0 )) && return 0
+
+  "$MSCD_PYTHON" - "$@" 2>&1 << 'VERIFYEOF'
+import os, sys
+
+ARTIST_KEYS = ('artist', '\xa9ART')
+ALBUM_KEYS = ('album', '\xa9alb')
+
+
+# mutagen's VComment.__getitem__ raises a bare ValueError (not KeyError) for a
+# missing key, and DictProxy.get() routes straight through it -- so f.get(k) on an
+# untagged file raises instead of returning None. Read every key defensively.
+def tag_value(f, keys):
+    for k in keys:
+        try:
+            v = f[k]
+        except Exception:
+            continue
+        if v:
+            return v
+    return None
+
+
+def tags_of(path):
+    ext = path.rsplit('.', 1)[-1].lower()
+    if ext == 'opus':
+        from mutagen.oggopus import OggOpus
+        return OggOpus(path)
+    if ext in ('m4a', 'mp4'):
+        from mutagen.mp4 import MP4
+        return MP4(path)
+    if ext == 'ogg':
+        from mutagen.oggvorbis import OggVorbis
+        return OggVorbis(path)
+    return None
+
+
+bad = 0
+for path in sys.argv[1:]:
+    name = os.path.basename(path)
+    if not os.path.isfile(path):
+        print(f'[VERIFY] MISSING    {name}'); bad += 1; continue
+    if os.path.getsize(path) == 0:
+        print(f'[VERIFY] EMPTY      {name}'); bad += 1; continue
+    try:
+        f = tags_of(path)
+    except Exception as e:
+        print(f'[VERIFY] UNREADABLE {name}: {e}'); bad += 1; continue
+    if f is None:
+        print(f'[VERIFY] ok         {name} (no tag support for this format)'); continue
+    if not tag_value(f, ARTIST_KEYS):
+        print(f'[VERIFY] NO ARTIST  {name}'); bad += 1; continue
+    if not tag_value(f, ALBUM_KEYS):
+        print(f'[VERIFY] NO ALBUM   {name}'); bad += 1; continue
+    print(f'[VERIFY] ok         {name}')
+
+if bad:
+    print(f'[VERIFY] {bad} file(s) failed verification')
+sys.exit(1 if bad else 0)
+VERIFYEOF
 }
 
 mscd_album() {
@@ -745,7 +903,10 @@ mscd_album() {
   echo "[DEBUG] Temporary directory: $tmpdir"
 
   local -a archive_flag=() cookies_flag=() quality_flag=()
-  [[ -n "$MSCD_ARCHIVE" && -z "$FORCE_DOWNLOAD" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE")
+  # Stage the archive rather than letting yt-dlp write the real one: IDs must
+  # not land until the import is verified. See the commit-gate block above.
+  mscd_archive_stage
+  [[ -n "$MSCD_ARCHIVE_STAGED" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE_STAGED")
   [[ -n "$MSCD_COOKIES" && -f "$MSCD_COOKIES" ]] && cookies_flag=(--cookies "$MSCD_COOKIES")
   [[ -n "$MSCD_AUDIO_QUALITY" ]] && quality_flag=(--audio-quality "$MSCD_AUDIO_QUALITY")
 
@@ -771,9 +932,14 @@ mscd_album() {
   if (( ${#all_files[@]} <= 1 )); then
     echo "[DEBUG] Only ${#all_files[@]} track(s) found, treating as single"
     if (( ${#all_files[@]} == 1 )); then
-      mscd_single_from_tmp "${all_files[1]}"
+      if mscd_single_from_tmp "${all_files[1]}"; then
+        mscd_archive_commit
+      else
+        mscd_archive_discard
+      fi
     else
       echo "[DEBUG] No audio files found!"
+      mscd_archive_discard
     fi
     rm -rf "$tmpdir"
     echo "[DEBUG] Done!"
@@ -970,6 +1136,21 @@ except Exception as e:
 " "$final_path" 2>&1
   done
 
+  # Commit gate. The loop above is informational only (it prints tags and
+  # swallows its own errors), and write_metadata exits 0 even when a per-file
+  # save raised, so neither can decide this. mscd_verify_imported re-checks the
+  # library copies independently -- exists, non-empty, carries artist+album --
+  # and nothing enters the real archive until it passes. Tracks skipped by
+  # song_exists are absent from final_paths and need no verification; they are
+  # already in the library, so recording their IDs is correct.
+  echo "[DEBUG] Verifying ${#final_paths[@]} imported file(s) for archive commit..."
+  if mscd_verify_imported "${final_paths[@]}"; then
+    mscd_archive_commit
+  else
+    echo "[ERROR] Album import incomplete; archive not advanced"
+    mscd_archive_discard
+  fi
+
   rm -rf "$tmpdir"
   echo "[DEBUG] Done!"
   mscd_sync
@@ -988,7 +1169,10 @@ mscd_single() {
   echo "[DEBUG] Temporary directory: $tmpdir"
 
   local -a archive_flag=() cookies_flag=() quality_flag=()
-  [[ -n "$MSCD_ARCHIVE" && -z "$FORCE_DOWNLOAD" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE")
+  # Stage the archive rather than letting yt-dlp write the real one: IDs must
+  # not land until the import is verified. See the commit-gate block above.
+  mscd_archive_stage
+  [[ -n "$MSCD_ARCHIVE_STAGED" ]] && archive_flag=(--download-archive "$MSCD_ARCHIVE_STAGED")
   [[ -n "$MSCD_COOKIES" && -f "$MSCD_COOKIES" ]] && cookies_flag=(--cookies "$MSCD_COOKIES")
   [[ -n "$MSCD_AUDIO_QUALITY" ]] && quality_flag=(--audio-quality "$MSCD_AUDIO_QUALITY")
 
@@ -1013,9 +1197,22 @@ mscd_single() {
   ls -la "$tmpdir"/ 2>&1
 
   local file
+  local -i import_rc=0 seen=0
   for file in "$tmpdir"/*.opus "$tmpdir"/*.m4a "$tmpdir"/*.webm "$tmpdir"/*.ogg; do
-    mscd_single_from_tmp "$file"
+    (( seen++ ))
+    mscd_single_from_tmp "$file" || import_rc=1
   done
+
+  # Commit gate, same invariant as mscd_album: nothing enters the real archive
+  # until the file it refers to is verified in the library. A run that matched
+  # no files at all must also discard -- yt-dlp may still have recorded the ID.
+  if (( seen > 0 && import_rc == 0 )); then
+    mscd_archive_commit
+  else
+    (( seen == 0 )) && echo "[DEBUG] No audio files found!"
+    (( import_rc != 0 )) && echo "[ERROR] Import failed; archive not advanced"
+    mscd_archive_discard
+  fi
 
   rm -rf "$tmpdir"
   echo "[DEBUG] Done!"
