@@ -15,5 +15,8 @@ pkgs: with pkgs; [
   picard
   asunder
 
-  stremio-linux-shell
+  # stremio-linux-shell is NOT listed here: modules/base/home-base.nix ships a
+  # `stremio` wrapper (mullvad-exclude + FFMPEG_BIN/FFPROBE_BIN) plus its own
+  # com.stremio.Stremio desktop entry, and listing the raw package here too
+  # would collide on the binary name.
 ]

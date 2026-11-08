@@ -6,6 +6,19 @@
       (pkgs.writeShellScriptBin "bolt-launcher" ''
         exec gamemoderun mullvad-exclude ${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
       '')
+      # stremio wrapped to run outside the mullvad tunnel; the raw
+      # stremio-linux-shell package is dropped from
+      # user-packages-common.data.nix so this wrapper owns the `stremio`
+      # binary and desktop entry on both hosts.
+      # FFMPEG_BIN/FFPROBE_BIN are required: upstream's server.js only ships
+      # data/server.js (no bundled ffmpeg-ffprobe-static binary, no /usr/bin
+      # fallback on NixOS), so without these it spawns undefined and crashes
+      # on stream/playlist probing.
+      (pkgs.writeShellScriptBin "stremio" ''
+        export FFMPEG_BIN="${pkgs.ffmpeg}/bin/ffmpeg"
+        export FFPROBE_BIN="${pkgs.ffmpeg}/bin/ffprobe"
+        exec mullvad-exclude ${pkgs.stremio-linux-shell}/bin/stremio "$@"
+      '')
     ];
 
     xdg = {
@@ -17,6 +30,18 @@
         icon = "bolt-launcher";
         comment = "RuneScape launcher (Mullvad excluded)";
         categories = [ "Game" ];
+      };
+      desktopEntries."com.stremio.Stremio" = {
+        name = "Stremio";
+        exec = "stremio %u";
+        icon = "${pkgs.stremio-linux-shell}/share/icons/hicolor/scalable/apps/com.stremio.Stremio.svg";
+        comment = "Freedom To Stream (Mullvad excluded)";
+        categories = [ "AudioVideo" "Video" "Player" ];
+        mimeType = [ "x-scheme-handler/stremio" ];
+        settings = {
+          Keywords = "Stremio;Media;Play;";
+          StartupNotify = "true";
+        };
       };
     };
 

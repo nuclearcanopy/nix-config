@@ -8,6 +8,8 @@
 
         jetbrains-mono
         nerd-fonts.jetbrains-mono
+
+        corefonts # microsoft core fonts incl. times new roman, for libreoffice
       ];
 
       fontconfig = {

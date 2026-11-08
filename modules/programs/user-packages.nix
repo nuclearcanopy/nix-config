@@ -17,6 +17,10 @@
 
       feishin
       qjackctl
+
+      # desktop only: video calls happen at the desk, and it is a large
+      # unfree closure not worth carrying on the laptop.
+      zoom-us
     ]);
   };
 }

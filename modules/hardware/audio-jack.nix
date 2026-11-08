@@ -16,6 +16,33 @@
     services.pipewire = {
       jack.enable = true;
 
+      # Kingston HyperX Virtual Surround Sound (0951:16a4) crashes the Steam
+      # client. It registers an alsa card that carries no sink and no source,
+      # and the 32-bit libpulse inside steam-runtime segfaults in libaudio.so
+      # while dispatching that card's info reply (backtrace: libaudio.so <-
+      # libpulse.so.0 <- pa_pdispatch_run), killing the whole client ~15s into
+      # startup with no error, only a core dump in $HOME. Proven by
+      # elimination: `PULSE_SERVER=/nonexistent steam` survives, and so does a
+      # normal launch once this card is gone. The dongle is unused, so drop it
+      # at the monitor instead of leaving a landmine for whenever it gets
+      # plugged back in. Remove this block if the device is ever actually
+      # needed. (The suspend-timeout rule that used to sit alongside this now
+      # lives in audio-rt-base, shared with the laptop.)
+      wireplumber.extraConfig = {
+        "52-disable-hyperx-surround" = {
+          "monitor.alsa.rules" = [{
+            matches = [
+              { "device.name" = "~alsa_card.usb-Kingston_HyperX_Virtual_Surround_Sound.*"; }
+            ];
+            actions = {
+              update-props = {
+                "device.disabled" = true;
+              };
+            };
+          }];
+        };
+      };
+
       extraConfig.pipewire = {
         "92-low-latency" = {
           "context.properties" = {

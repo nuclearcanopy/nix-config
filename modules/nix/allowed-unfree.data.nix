@@ -7,4 +7,6 @@
   "unrar"
   "burpsuite"
   "stremio-linux-shell"
+  "corefonts"
+  "zoom"
 ]
