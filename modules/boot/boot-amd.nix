@@ -15,6 +15,13 @@
         systemd-boot.enable = true;
         timeout = 1;
         efi.canTouchEfiVariables = true;
+
+        # Bounded because the 512M ESP is about to be shared with Windows
+        # (EFI/Microsoft). Each distinct kernel build costs ~41M (13.5M bzImage
+        # + 27.8M initrd); generations on the same kernel dedupe. Unbounded
+        # generations would eventually fill the ESP and break both rebuilds and
+        # the Windows install. 7 matches nidhoggr and leaves ~150M headroom.
+        systemd-boot.configurationLimit = 7;
       };
 
       tmp = {
