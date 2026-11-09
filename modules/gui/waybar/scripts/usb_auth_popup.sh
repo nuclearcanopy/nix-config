@@ -20,14 +20,10 @@ NAME=${NAME:-unknown device}
 notify-send "USB device blocked" "$NAME: enter your password to allow it" || true
 
 # -k first: a warm sudo timestamp from an unrelated terminal command must
-# not silently auto-approve a device with no prompt at all.
+# not silently approve a device. The user's USBGuard IPC ACL is read-only.
 sudo -k
-if sudo -A true 2>/dev/null; then
-  if usbguard allow-device "${USBGUARD_DEVICE_ID:-}" 2>/dev/null; then
-    notify-send "USB allowed" "$NAME"
-  else
-    notify-send "USB allow failed" "$NAME"
-  fi
+if sudo -A usbguard allow-device "${USBGUARD_DEVICE_ID:-}" 2>/dev/null; then
+  notify-send "USB allowed" "$NAME"
 else
   notify-send "USB still blocked" "$NAME (cancelled or wrong password)"
 fi

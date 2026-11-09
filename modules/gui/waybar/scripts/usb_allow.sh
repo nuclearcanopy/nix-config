@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # Pick a USBGuard-blocked device from a bemenu list and authorize it.
 #
-# Runs unprivileged: the user is in services.usbguard.IPCAllowedUsers
-# (modules/security/hardening-physical.nix), so the IPC calls below need no
-# sudo. The authorization lasts until reboot, because the ruleset is generated
-# into the nix store and is immutable at runtime. To make a device permanent,
-# add `allow id <vid>:<pid>` to that module and rebuild; the notification below
-# prints the id so it can be copied straight in.
+# Device listing is allowed by a read-only USBGuard IPC ACL. Authorizing a
+# blocked device requires a fresh sudo password. The authorization lasts until
+# reboot; for permanent trust, add `allow id <vid>:<pid>` to
+# hardening-physical.nix and rebuild.
 set -uo pipefail
 
 source "$HOME/.config/theme-mode/bemenu.sh"
@@ -29,7 +27,9 @@ CHOICE=$(
 RULE_ID=${CHOICE%%$'\t'*}
 LABEL=${CHOICE#*$'\t'}
 
-if usbguard allow-device "$RULE_ID" 2>/dev/null; then
+# Never rely on a warm sudo timestamp for a physical-device approval.
+sudo -k
+if sudo -A usbguard allow-device "$RULE_ID" 2>/dev/null; then
   notify-send "USB allowed (until reboot)" "$LABEL"
 else
   notify-send -u critical "USBGuard" "Failed to allow device $RULE_ID"

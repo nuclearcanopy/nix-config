@@ -5,11 +5,11 @@
   # JOP/ROP defense is software-only here; the i5-8350U predates Intel CET
   # (Tiger Lake/11th gen), so hardware Shadow Stack and IBT are unavailable.
   # Compensated with stack randomization, lockdown, reduced attack surface.
-  nixos.modules.hardening-physical =
+  nixos.modules.hardening-physical = { lib, pkgs, username, ... }:
     let
       usbIds = import ../hardware/usb-ids.data.nix;
-    in
-    { pkgs, username, ... }: {
+      ipcAcl = pkgs.writeText "usbguard-ipc-${username}" "Devices=list listen";
+    in {
     boot = {
       kernelParams = [
         # DMA protection. VT-d works under Libreboot (ME is neutered, not
@@ -73,13 +73,13 @@
     # the internal webcam, card reader, fingerprint reader, and any mouse
     # plugged in at boot all work without listing.
     # The allowlist for new inserts is declared here in services.usbguard.rules;
-    # nix-store-managed (immutable, reinstall-safe) and disables the IPC-driven
-    # `usbguard allow-device -p` workflow. To trust a new device:
+    # user IPC is read/listen-only; changing device authorization requires sudo.
+    # To trust a new device permanently:
     #   sudo usbguard list-devices  # find vid:pid
     #   add `allow id <vid>:<pid>` here and rebuild.
     services.usbguard = {
       enable = true;
-      IPCAllowedUsers = [ username "root" ];
+      IPCAllowedUsers = [ "root" ];
       rules = ''
         # Yubico security keys: all models (FIDO, OTP, CCID, 5-series).
         # Vendor-wide so spare/replacement keys work without a rebuild.
@@ -102,13 +102,23 @@
       presentDevicePolicy = "allow";        # devices at daemon start: trust
       presentControllerPolicy = "allow";    # internal xHCI controllers: trust
       insertedDevicePolicy = "apply-policy"; # new inserts: consult rules above
-      dbus.enable = true;
+      # Desktop tools use the narrow native IPC ACL, not the D-Bus API.
+      dbus.enable = false;
     };
 
-    # Desktop notification whenever USBGuard blocks a newly inserted device,
-    # so a rejected stick is visible instead of silently doing nothing. Reaches
-    # the daemon over IPC, which works unprivileged because the user is in
-    # IPCAllowedUsers above; mako renders the notification.
+    # NixOS fixes IPCAccessControlFiles to this StateDirectory. Give the desktop
+    # user only device listing/event access; authorization and policy changes
+    # remain root-only. Reinstall on daemon start so the ACL stays declarative.
+    systemd.services.usbguard = {
+      preStart = lib.mkAfter ''
+        ${pkgs.coreutils}/bin/install -o root -g root -m 0600 ${ipcAcl} \
+          ${lib.escapeShellArg "/var/lib/usbguard/IPCAccessControl.d/${username}"}
+      '';
+      serviceConfig.StateDirectoryMode = "0700";
+    };
+
+    # Desktop notification whenever USBGuard blocks a newly inserted device.
+    # The user's narrow IPC ACL permits listing and event listening only.
     #
     # Either wait for the auto-allow popup below, or use the Mod+Shift+U
     # picker bound in the nidhoggr block of modules/gui/sway-host.nix.
@@ -133,16 +143,8 @@
       };
     };
 
-    # Auto-allow popup: watches USBGuard's IPC event stream (`usbguard watch
-    # -e`, which execs the script once per event with the event's fields as
-    # USBGUARD_* env vars) and, the moment a device's resolved policy becomes
-    # "block", prompts for the login password via the same zenity askpass
-    # sudo already uses (modules/base/host-base.nix), then allow-devices it
-    # on success. Same session-only trust boundary as the manual picker
-    # above; this just removes the need to remember the keybind while
-    # plugging something in at a friend's house. `sudo -k` inside the script
-    # forces a fresh prompt every time, so a sudo timestamp left warm by an
-    # unrelated terminal command can't silently auto-approve a device.
+    # Auto-allow popup watches events via read-only IPC. Its callback requires
+    # a fresh sudo password for each device before changing authorization.
     systemd.user.services.usbguard-auth-popup = {
       description = "Password-gated USB auto-allow popup";
       after = [ "usbguard.service" "sway-session.target" ];
