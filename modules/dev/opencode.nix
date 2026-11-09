@@ -5,7 +5,11 @@
       instructions = import ./agent-instructions.data.nix;
       instructionsFile = pkgs.writeText "agent-instructions.md" instructions;
       opencodeInstructionsFile = pkgs.writeText "opencode-workflow.md" ''
-        - For unfamiliar areas, selectively delegate investigation to `explorer`; for substantial or risky changes, independently review with `reviewer`. Delegate only when useful; do not use a swarm.
+        - On every actionable implementation request, begin the work in this turn. Do not stop after acknowledging, promising, planning, or asking whether to proceed when the requested next step is clear. Keep narration minimal; actions and verified outcomes are the deliverable.
+        - Match effort to the requested outcome, not the smallest plausible patch. For broad requests, inspect the end-to-end behavior and relevant architecture, identify root causes and affected paths, then make a coherent solution across the necessary code, configuration, tests, and docs. Preserve unrelated work; do not mistake narrow diffs for good judgment.
+        - Use bounded initiative: make routine choices from repository conventions, pursue clearly necessary adjacent fixes, and verify the whole requested outcome. Do not ask permission for ordinary reversible implementation decisions. Ask only for genuine ambiguity that blocks safe progress or a required approval (secrets, auth, destructive/irreversible actions, or other consequential changes). If blocked, first investigate viable alternatives and report the precise blocker and remaining work.
+        - Before handing off, inspect the complete diff and status, run the relevant checks, fix failures where possible, and distinguish verified results from unchecked work. A plan, partial patch, or unverified claim is not completion.
+        - For unfamiliar areas, selectively delegate investigation to `explorer`; for substantial or risky changes, independently review with `reviewer`. Use delegation to improve coverage, not to defer work or replace the parent agent's responsibility to integrate, verify, and finish. Do not use a swarm.
         - Give subagents focused context. For reviews, include the goal, changed paths, full diff, verification performed, and open questions. Assess findings yourself; do not accept them blindly.
         - `reviewer` is configured without file-edit or shell access, but treat it as a read-only role, not a security sandbox. Do not give it secrets or ask it to perform session/worktree operations.
         - Use the `nixos` MCP to look up NixOS options/packages when useful. Treat its results as a discovery aid; check the pinned flake/nixpkgs source before relying on version-sensitive details.
@@ -81,16 +85,7 @@
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
         model = "openai/gpt-6-luna";
-        agent = {
-          plan = {
-            model = "openai/gpt-6.1-terra";
-            reasoningEffort = "high";
-          };
-          build = {
-            model = "openai/gpt-6-luna";
-            reasoningEffort = "medium";
-          };
-        };
+        default_agent = "build";
         experimental.todo = true;
         mcp.servers.nixos = {
           type = "local";
