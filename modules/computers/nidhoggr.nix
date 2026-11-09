@@ -31,7 +31,6 @@
         config.nixos.modules.displaymanager-ly
         config.nixos.modules.tpm2-off
         config.nixos.modules.luks-initrd
-        config.nixos.modules.virtualisation
 
         # ── power buckets ─────────────────────────────────────────────
         config.nixos.modules.tlp
@@ -62,11 +61,13 @@
       # virtualisation.docker.enable; explicitly prevent socket activation too.
       systemd.sockets.docker.enable = lib.mkForce false;
       # Override host-base's shared desktop groups without the root-equivalent
-      # docker group; retain virtualization and device groups used on this host.
+      # docker group; retain only the groups needed for this host.
       users.users.${username}.extraGroups = lib.mkForce [
-        "wheel" "networkmanager" "video" "audio" "input" "wireshark"
-        "libvirtd" "kvm"
+        "wheel" "networkmanager" "video" "audio" "input"
       ];
+      # No VM or packet-capture use on this laptop: don't expose those control
+      # groups, daemons, tools, or dumpcap capabilities here.
+      programs.wireshark.enable = lib.mkForce false;
 
       # fwupd was dropped 2026-09-06. On this machine it could see exactly one
       # updatable device (the WD SN720 NVMe): Libreboot has no UEFI capsule
