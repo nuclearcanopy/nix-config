@@ -55,6 +55,18 @@
       };
 
       virtualisation.docker.enableOnBoot = false; # socket-activated; starts on demand
+      # Docker's rootful daemon API is effectively root access. This host does
+      # not need Docker, so disable the daemon/socket rather than only its boot start.
+      virtualisation.docker.enable = lib.mkForce false;
+      # boot-optimizations assigns docker.socket a WantedBy independently of
+      # virtualisation.docker.enable; explicitly prevent socket activation too.
+      systemd.sockets.docker.enable = lib.mkForce false;
+      # Override host-base's shared desktop groups without the root-equivalent
+      # docker group; retain virtualization and device groups used on this host.
+      users.users.${username}.extraGroups = lib.mkForce [
+        "wheel" "networkmanager" "video" "audio" "input" "wireshark"
+        "libvirtd" "kvm"
+      ];
 
       # fwupd was dropped 2026-09-06. On this machine it could see exactly one
       # updatable device (the WD SN720 NVMe): Libreboot has no UEFI capsule
