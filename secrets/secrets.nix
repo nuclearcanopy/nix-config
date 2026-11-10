@@ -19,6 +19,8 @@ in
   "smtp-protonmail.age".publicKeys = desktop_systems;
   "git-send-email-identity.age".publicKeys = desktop_systems;
   "kernel-git-identity.age".publicKeys = desktop_systems;
+  # TorBox API token: decryptable only on the laptop where Wim is configured.
+  "torbox-token.age".publicKeys = [ nidhoggr ];
 
   # homeserver (encrypted with kuraokami key; kuraokami manages homeserver secrets)
   "homeserver-user-password.age".publicKeys = kurai_only;

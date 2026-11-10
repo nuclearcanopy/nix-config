@@ -80,6 +80,15 @@
           group = "users";
           mode = "600";
         };
+
+        # TorBox API token, consumed by Wim from its runtime-only agenix path.
+        torbox-token = {
+          file = ../../secrets/torbox-token.age;
+          path = "/run/agenix/torbox-token";
+          owner = username;
+          group = "users";
+          mode = "600";
+        };
       };
     };
   };

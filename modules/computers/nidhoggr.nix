@@ -95,6 +95,7 @@
 
       # ── home-manager users ───────────────────────────────────────────
       home-manager.users.${username} = {
+        home.sessionVariables.WIM_TORBOX_TOKEN_FILE = "/run/agenix/torbox-token";
         imports = [
           config.homeManager.modules.desktop-home-base
 
