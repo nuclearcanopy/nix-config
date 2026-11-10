@@ -1,6 +1,20 @@
-# networking (nidhoggr)
+# Networking VPN architecture
 
-forensic detail for the mullvad relink/dispatcher rewrite. see the pointer comments in `modules/networking/network-laptop.nix` for where each section applies.
+Nidhoggr now uses the Proton VPN CLI; the Mullvad relink/dispatcher notes below record the previous laptop implementation and remain useful for kuraokami and the homeserver.
+
+## Proton VPN on Nidhoggr
+
+`modules/networking/protonvpn-laptop.nix` installs the official `proton-vpn-cli` into the user profile and starts `protonvpn connect` with the Sway session. On first use, sign in interactively in a terminal with `protonvpn signin <username>`; credentials stay in Proton's user configuration, never in Nix. The session unit sets `protonvpn config set kill-switch standard` before connecting. Waybar's laptop VPN item reports `protonvpn status`; left/right click cycle through CH, DE, SE, PL, US, and RO, while middle click toggles the connection. `vpnissue` and `netdebug` use the Proton CLI.
+
+**Security behavior differs from the old Mullvad lockdown.** Proton CLI 1.0.1 only provides kill-switch `off` or `standard`; standard blocks leaks while a VPN connection is active but restores normal networking on intentional disconnect. It is not an always-on boot/login firewall. The user accepted this behavior when replacing Mullvad. Proton CLI also has no split tunneling, so laptop game/stream launchers use the normal Proton route; the Mullvad exclusion wrappers remain only on kuraokami.
+
+To connect manually: `protonvpn config set kill-switch standard && protonvpn connect`. To disconnect: `protonvpn disconnect`. Disconnecting permits ordinary internet access; remember this when using captive portals or troubleshooting.
+
+The official Proton CLI documentation states that headless systems are unsupported and that the GUI and CLI cannot run together. Nidhoggr is a graphical Sway session, uses the CLI only, and does not install Proton's GUI app.
+
+## Historical Mullvad laptop behavior
+
+The following sections describe the former Nidhoggr Mullvad implementation. Its autoconnect, relink dispatcher, and permanent lockdown services have been removed from that host.
 
 ## why the dispatcher no longer touches the tunnel directly
 

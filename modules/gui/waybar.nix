@@ -196,12 +196,12 @@
             };
 
             "custom/vpn" = {
-              exec = script "vpn_status.sh";
+              exec = script (if isLaptop then "protonvpn_status.sh" else "vpn_status.sh");
               interval = 10;
               signal = 9;
-              on-click = "${script "vpn_cycle.sh"} next";
-              on-click-right = "${script "vpn_cycle.sh"} prev";
-              on-click-middle = "${script "vpn_cycle.sh"} last";
+              on-click = if isLaptop then "${script "protonvpn_control.sh"} next" else "${script "vpn_cycle.sh"} next";
+              on-click-right = if isLaptop then "${script "protonvpn_control.sh"} prev" else "${script "vpn_cycle.sh"} prev";
+              on-click-middle = if isLaptop then "${script "protonvpn_control.sh"} toggle" else "${script "vpn_cycle.sh"} last";
               tooltip = false;
             };
 

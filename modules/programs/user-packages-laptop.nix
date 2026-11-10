@@ -15,11 +15,9 @@
       termsonic
       vlc
 
-      # Minecraft: prismlauncher is NOT listed here. It comes from the shared
-      # prism-mullvad module, which wraps the same
-      # `prismlauncher.override { jdks = [ jdk21 jdk25 jdk17 jdk8 ]; }` in
-      # mullvad-exclude so servers that ban shared VPN exit IPs see the real
-      # ISP address. Adding it here too would collide on the binary name.
+      # Proton VPN's CLI has no split tunneling, so Minecraft uses the normal
+      # Proton route. Keep Prism's Java selection aligned with kuraokami.
+      (prismlauncher.override { jdks = [ jdk21 jdk25 jdk17 jdk8 ]; })
       # Prism still ships wayland GLFW + gamemode.lib in its wrapper by
       # default; the perf switches (EnableFeralGamemode / UseNativeGLFW) live
       # per-instance. Note mangohud is still absent on this host, so do not

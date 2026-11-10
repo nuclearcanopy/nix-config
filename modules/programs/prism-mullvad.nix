@@ -4,8 +4,8 @@
   # address. symlinkJoin keeps prism's icons/desktop entry/mime data and swaps
   # only the binary, so the desktop entry's `Exec=prismlauncher` resolves to the
   # wrapper. jdks is overridden so Prism's AutomaticJava picks the LTS (21)
-  # ahead of 25 on any MC version that accepts both. imported by both hosts
-  # (kuraokami and nidhoggr), which both run mullvad as the sole vpn.
+  # ahead of 25 on any MC version that accepts both. Imported on kuraokami,
+  # whose Mullvad split-tunnel wrapper keeps Minecraft outside the VPN.
   homeManager.modules.prism-mullvad = { pkgs, ... }:
     let
       prism = pkgs.prismlauncher.override { jdks = with pkgs; [ jdk21 jdk25 jdk17 jdk8 ]; };

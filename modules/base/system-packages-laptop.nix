@@ -1,9 +1,9 @@
 {
-  # Laptop-specific system packages: mullvad CLI, brightness control,
+  # Laptop-specific system packages: Proton VPN CLI, brightness control,
   # NM applet, battery info, password generator, internal firmware flasher.
   nixos.modules.system-packages-laptop = { pkgs, ... }: {
     environment.systemPackages = with pkgs; [
-      mullvad-vpn
+      proton-vpn-cli
 
       brightnessctl
       networkmanagerapplet

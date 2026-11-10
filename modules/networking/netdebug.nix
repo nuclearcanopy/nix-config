@@ -1,7 +1,6 @@
 {
-  # Snapshot tool for diagnosing networking crashes (Mullvad lockdown mode
-  # means a broken tunnel can look like "no internet at all" with little
-  # clue why; see docs/networking.md). Captures NM/mullvad/kernel state to a
+  # Snapshot tool for diagnosing networking crashes (see docs/networking.md).
+  # Captures NM/Proton VPN/kernel state to a
   # timestamped file so the evidence survives a reconnect or reboot.
   nixos.modules.network-debug = { pkgs, ... }: {
     environment.systemPackages = [
@@ -9,7 +8,7 @@
         name = "netdebug";
         runtimeInputs = with pkgs; [
           networkmanager
-          mullvad
+          proton-vpn-cli
           iproute2
           util-linux # rfkill
           systemd # journalctl, resolvectl, systemctl
@@ -42,19 +41,15 @@
           run "ip -6 route"               ip -6 route
           run "rfkill"                    rfkill list
           run "resolvectl status"         resolvectl status
-          run "mullvad status"            mullvad status -v
-          run "mullvad lockdown-mode"     mullvad lockdown-mode get
-          run "mullvad version"           mullvad version
+          run "Proton VPN status"         protonvpn status
+          run "Proton VPN config"         protonvpn config list
           run "wg show"                   wg show all
 
-          for svc in NetworkManager mullvad-daemon mullvad-lockdown mullvad-relink mullvad-autoconnect; do
-            run "systemctl status $svc" systemctl status --no-pager -l "$svc"
-          done
+          run "systemctl status NetworkManager" systemctl status --no-pager -l NetworkManager
 
-          run "journal: NM + mullvad units (last 15min)" \
+          run "journal: NetworkManager (last 15min)" \
             journalctl --no-pager --since "-15 min" \
-              -u NetworkManager -u mullvad-daemon -u mullvad-lockdown \
-              -u mullvad-relink -u mullvad-autoconnect
+              -u NetworkManager
 
           run "journal: kernel wifi/firmware (this boot)" \
             bash -c "journalctl -k --no-pager -b | grep -iE 'iwlwifi|ax210|firmware|ucode|microcode' | tail -n 200"

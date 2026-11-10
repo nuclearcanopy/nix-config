@@ -23,7 +23,6 @@
         config.nixos.modules.logitech
         config.nixos.modules.pcmanfm
         config.nixos.modules.network-laptop
-        config.nixos.modules.mullvad-graphical-target
         config.nixos.modules.network-debug
         config.nixos.modules.earlyoom
         config.nixos.modules.uptimed
@@ -43,6 +42,11 @@
         config.nixos.modules.brightness-persist
         config.nixos.modules.battery-model
       ];
+
+      # The shared desktop profile enables Mullvad for kuraokami. Nidhoggr
+      # uses Proton VPN instead; disable both the daemon and shared autoconnect.
+      services.mullvad-vpn.enable = lib.mkForce false;
+      systemd.services.mullvad-autoconnect.enable = lib.mkForce false;
 
       # ── host-specific ────────────────────────────────────────────────
       time.timeZone = inputs.identity.location.timeZone;
@@ -73,8 +77,8 @@
       # updatable device (the WD SN720 NVMe): Libreboot has no UEFI capsule
       # path so the BIOS/EC are not updatable through it, and the Thunderbolt
       # controller is behind blacklisted modules. That left a resident daemon
-      # plus an fwupd-refresh timer making a periodic outbound LVFS request on
-      # a lockdown-mode Mullvad host. For the occasional SSD firmware check:
+      # plus an fwupd-refresh timer making a periodic outbound LVFS request
+      # without a VPN. For the occasional SSD firmware check:
       #   nix shell nixpkgs#fwupd -c fwupdmgr get-updates
 
       # Text-to-speech daemon. nixpkgs enables it by default; nothing here
@@ -100,10 +104,7 @@
           config.homeManager.modules.user-packages-laptop
           config.homeManager.modules.rust
 
-          # Minecraft off the mullvad tunnel. Replaces the plain prismlauncher
-          # that used to sit in user-packages-laptop; same jdks override,
-          # wrapped in mullvad-exclude.
-          config.homeManager.modules.prism-mullvad
+          config.homeManager.modules.protonvpn-laptop
         ];
 
         waybar.profile = "laptop";

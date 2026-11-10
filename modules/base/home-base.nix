@@ -4,9 +4,10 @@
 
     home.packages = [
       (pkgs.writeShellScriptBin "bolt-launcher" ''
-        exec gamemoderun mullvad-exclude ${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
+        exec gamemoderun ${if config.waybar.profile == "kuraokami" then "mullvad-exclude " else ""}${pkgs.bolt-launcher}/bin/bolt-launcher "$@"
       '')
-      # stremio wrapped to run outside the mullvad tunnel; the raw
+      # Stremio bypasses Mullvad on kuraokami and uses the normal Proton route
+      # on nidhoggr; the raw
       # stremio-linux-shell package is dropped from
       # user-packages-common.data.nix so this wrapper owns the `stremio`
       # binary and desktop entry on both hosts.
@@ -17,7 +18,7 @@
       (pkgs.writeShellScriptBin "stremio" ''
         export FFMPEG_BIN="${pkgs.ffmpeg}/bin/ffmpeg"
         export FFPROBE_BIN="${pkgs.ffmpeg}/bin/ffprobe"
-        exec mullvad-exclude ${pkgs.stremio-linux-shell}/bin/stremio "$@"
+        exec ${if config.waybar.profile == "kuraokami" then "mullvad-exclude " else ""}${pkgs.stremio-linux-shell}/bin/stremio "$@"
       '')
     ];
 
@@ -28,14 +29,14 @@
         name = "Bolt Launcher";
         exec = "bolt-launcher";
         icon = "bolt-launcher";
-        comment = "RuneScape launcher (Mullvad excluded)";
+        comment = if config.waybar.profile == "kuraokami" then "RuneScape launcher (Mullvad excluded)" else "RuneScape launcher";
         categories = [ "Game" ];
       };
       desktopEntries."com.stremio.Stremio" = {
         name = "Stremio";
         exec = "stremio %u";
         icon = "${pkgs.stremio-linux-shell}/share/icons/hicolor/scalable/apps/com.stremio.Stremio.svg";
-        comment = "Freedom To Stream (Mullvad excluded)";
+        comment = if config.waybar.profile == "kuraokami" then "Freedom To Stream (Mullvad excluded)" else "Freedom To Stream";
         categories = [ "AudioVideo" "Video" "Player" ];
         mimeType = [ "x-scheme-handler/stremio" ];
         settings = {
