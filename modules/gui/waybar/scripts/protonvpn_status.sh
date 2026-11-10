@@ -21,10 +21,10 @@ if [[ -e /sys/class/net/proton0 ]] || wg show proton0 >/dev/null 2>&1 || [[ -n "
     declare -A country_map=(
       [CH]=CHE [DE]=DEU [SE]=SWE [PL]=POL [US]=USA [RO]=ROU
     )
-    country="${country_map[$country_code]:-$country_code}"
-    echo "VPN [PROTON · $country]"
+    country="${country_map[$country_code]:-???}"
+    echo "$country"
   else
-    echo "VPN [PROTON]"
+    echo "???"
   fi
 else
   echo "<span color='#B96B6B'>VPN [OFF]</span>"
