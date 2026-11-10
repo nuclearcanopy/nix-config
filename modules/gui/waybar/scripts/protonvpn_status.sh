@@ -19,12 +19,12 @@ country_code="$(awk -F: '
 if [[ -e /sys/class/net/proton0 ]] || wg show proton0 >/dev/null 2>&1 || [[ -n "$country_code" ]]; then
   if [[ -n "$country_code" ]]; then
     declare -A country_map=(
-      [CH]=CHE [DE]=DEU [SE]=SWE [PL]=POL [US]=USA [RO]=ROU
+      [CH]=CHE [DE]=GER [SE]=SWE [PL]=POL [US]=USA [RO]=ROU
     )
     country="${country_map[$country_code]:-???}"
-    echo "$country"
+    echo "VPN [$country]"
   else
-    echo "???"
+    echo "VPN [???]"
   fi
 else
   echo "<span color='#B96B6B'>VPN [OFF]</span>"
