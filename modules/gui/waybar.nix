@@ -197,12 +197,13 @@
 
             "custom/vpn" = {
               exec = script (if isLaptop then "protonvpn_status.sh" else "vpn_status.sh");
-              interval = 10;
+              interval = if isLaptop then 5 else 10;
               signal = 9;
-              on-click = if isLaptop then "${script "protonvpn_control.sh"} next" else "${script "vpn_cycle.sh"} next";
-              on-click-right = if isLaptop then "${script "protonvpn_control.sh"} prev" else "${script "vpn_cycle.sh"} prev";
-              on-click-middle = if isLaptop then "${script "protonvpn_control.sh"} toggle" else "${script "vpn_cycle.sh"} last";
+              on-click = if isLaptop then script "protonvpn_control.sh" else "${script "vpn_cycle.sh"} next";
               tooltip = false;
+            } // lib.optionalAttrs isDesktop {
+              on-click-right = "${script "vpn_cycle.sh"} prev";
+              on-click-middle = "${script "vpn_cycle.sh"} last";
             };
 
             "custom/airgap" = {

@@ -48,7 +48,7 @@
       shellAliases = {
         nvfx = "nvim .";
         sysd-ui = "systemd-manager-tui";
-        vpnissue = if config.waybar.profile == "laptop" then "protonvpn status" else "mullvad status && mullvad relay list";
+        vpnissue = if config.waybar.profile == "laptop" then "nmcli connection show --active && wg show proton0" else "mullvad status && mullvad relay list";
         fix-nvim = "rm -f ~/.config/nvim/lazy-lock.json && rm -rf ~/.local/share/nvim/lazy 2>/dev/null || true";
       };
 

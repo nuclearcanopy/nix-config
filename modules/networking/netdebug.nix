@@ -8,7 +8,6 @@
         name = "netdebug";
         runtimeInputs = with pkgs; [
           networkmanager
-          proton-vpn-cli
           iproute2
           util-linux # rfkill
           systemd # journalctl, resolvectl, systemctl
@@ -41,9 +40,9 @@
           run "ip -6 route"               ip -6 route
           run "rfkill"                    rfkill list
           run "resolvectl status"         resolvectl status
-          run "Proton VPN status"         protonvpn status
-          run "Proton VPN config"         protonvpn config list
-          run "wg show"                   wg show all
+          run "Proton WireGuard interface" wg show proton0
+          run "wg show all"               wg show all
+          run "Proton VPN GUI service"    systemctl --user status --no-pager -l protonvpn-gui
 
           run "systemctl status NetworkManager" systemctl status --no-pager -l NetworkManager
 

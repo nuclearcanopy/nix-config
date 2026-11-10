@@ -1,16 +1,14 @@
 # Networking VPN architecture
 
-Nidhoggr now uses the Proton VPN CLI; the Mullvad relink/dispatcher notes below record the previous laptop implementation and remain useful for kuraokami and the homeserver.
+Nidhoggr uses Proton VPN's official GUI; the Mullvad relink/dispatcher notes below record the previous laptop implementation and remain useful for kuraokami and the homeserver.
 
 ## Proton VPN on Nidhoggr
 
-`modules/networking/protonvpn-laptop.nix` installs the official `proton-vpn-cli` into the user profile and starts `protonvpn connect` with the Sway session. On first use, sign in interactively in a terminal with `protonvpn signin <username>`; credentials stay in Proton's user configuration, never in Nix. The session unit sets `protonvpn config set kill-switch standard` before connecting. Waybar's laptop VPN item reports `protonvpn status`; left/right click cycle through CH, DE, SE, PL, US, and RO, while middle click toggles the connection. `vpnissue` and `netdebug` use the Proton CLI.
+`modules/networking/protonvpn-laptop.nix` installs the official `proton-vpn` GUI and starts `protonvpn-app` with the Sway session. The pinned 4.15.3 GUI supports FIDO2 security-key sign-in. Sign in from the app, then configure Advanced kill switch and auto-connect in its settings; those preferences and credentials remain in the user's home directory, never in Nix. Waybar's laptop VPN item checks the `proton0` WireGuard interface or an active NetworkManager VPN profile, and clicking it opens the GUI. The Proton tray icon is available in Waybar's existing expand/tray group and provides the app's supported connect/disconnect menu. `vpnissue` and `netdebug` inspect NetworkManager and `wg show proton0`; they do not invoke the CLI, which must not run alongside the GUI.
 
-**Security behavior differs from the old Mullvad lockdown.** Proton CLI 1.0.1 only provides kill-switch `off` or `standard`; standard blocks leaks while a VPN connection is active but restores normal networking on intentional disconnect. It is not an always-on boot/login firewall. The user accepted this behavior when replacing Mullvad. Proton CLI also has no split tunneling, so laptop game/stream launchers use the normal Proton route; the Mullvad exclusion wrappers remain only on kuraokami.
+Advanced kill switch preserves the former always-on lockdown behavior: normal internet remains blocked until Proton connects, and a deliberate disconnect does not unblock traffic. Disable Advanced kill switch in Proton's GUI when intentionally needing ordinary networking (for example, a captive portal). Split tunneling is not enabled on this NixOS setup, so laptop game/stream launchers use the Proton route; Mullvad exclusion wrappers remain only on kuraokami.
 
-To connect manually: `protonvpn config set kill-switch standard && protonvpn connect`. To disconnect: `protonvpn disconnect`. Disconnecting permits ordinary internet access; remember this when using captive portals or troubleshooting.
-
-The official Proton CLI documentation states that headless systems are unsupported and that the GUI and CLI cannot run together. Nidhoggr is a graphical Sway session, uses the CLI only, and does not install Proton's GUI app.
+The GUI's auto-connect preference runs when its session app starts. The user service launches the app at each Sway session; select “start minimized to tray” if you prefer not to open its full window at login. The official app's tray menu can connect to fastest/pinned servers and disconnect. Do not launch the separate Proton CLI while the GUI is running.
 
 ## Historical Mullvad laptop behavior
 

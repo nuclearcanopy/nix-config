@@ -1,25 +1,21 @@
 {
-  # Proton VPN user-session integration for Nidhoggr. The official CLI keeps
-  # credentials in the user's session and only supports its standard kill switch
-  # (active-tunnel leak protection, not Mullvad-style permanent lockdown).
+  # Proton VPN GUI integration for Nidhoggr. The GUI supports FIDO2 sign-in and
+  # its Advanced kill switch; login, kill switch, and auto-connect preferences
+  # are configured in the app and persist in the user's home directory.
   homeManager.modules.protonvpn-laptop = { pkgs, ... }: {
-    home.packages = [ pkgs.proton-vpn-cli ];
+    home.packages = [ pkgs.proton-vpn ];
 
-    systemd.user.services.protonvpn-autoconnect = {
+    systemd.user.services.protonvpn-gui = {
       Unit = {
-        Description = "Connect Proton VPN for the Sway session";
+        Description = "Start Proton VPN GUI for the Sway session";
         PartOf = [ "sway-session.target" ];
         After = [ "sway-session.target" ];
       };
       Service = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "protonvpn-autoconnect" ''
-          set -eu
-          ${pkgs.networkmanager}/bin/nm-online -s -q -t 30 || true
-          ${pkgs.proton-vpn-cli}/bin/protonvpn config set kill-switch standard
-          exec ${pkgs.proton-vpn-cli}/bin/protonvpn connect
-        '';
-        TimeoutStartSec = 180;
+        Type = "simple";
+        ExecStart = "${pkgs.proton-vpn}/bin/protonvpn-app";
+        Restart = "on-failure";
+        RestartSec = 3;
       };
       Install.WantedBy = [ "sway-session.target" ];
     };
