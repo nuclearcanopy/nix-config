@@ -10,7 +10,8 @@
       wifi.powersave = true;
       wifi.scanRandMacAddress = true;
       wifi.macAddress = "random";
-      ethernet.macAddress = "random";
+      # TEMP: clone old router's WAN MAC to test ISP MAC binding
+      ethernet.macAddress = "0C:0E:76:DB:5C:E0";
 
       # Proton VPN manages its own NetworkManager tunnel profiles and kill
       # switch. No Mullvad dispatcher is installed on this host.
