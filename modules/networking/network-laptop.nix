@@ -15,6 +15,14 @@
 
       # Proton VPN manages its own NetworkManager tunnel profiles and kill
       # switch. No Mullvad dispatcher is installed on this host.
+
+      # Don't leak the system hostname ("nidhoggr") to DHCP servers; it would
+      # defeat the MAC randomization above by giving networks a stable
+      # identifier to re-link sessions by.
+      settings.connection = {
+        "ipv4.dhcp-send-hostname" = false;
+        "ipv6.dhcp-send-hostname" = false;
+      };
     };
 
     # iPhone USB tethering: usbmuxd negotiates pairing and brings up the
