@@ -247,13 +247,20 @@
           background-color: #0a0a0a !important;
         }
 
+        /* Firefox paints the open urlbar as joined input/view backgrounds. */
+        #urlbar > .urlbarView > .urlbarView-background {
+          background-color: #0a0a0a !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+        }
+
         #urlbar-results,
         .urlbarView,
         .urlbarView-body-outer,
         .urlbarView-results,
         .urlbarView-row,
         .search-panel {
-          background-color: #0a0a0a !important;
+          background-color: transparent !important;
           color: rgb(105, 103, 108) !important;
         }
         .urlbarView-row:hover,
