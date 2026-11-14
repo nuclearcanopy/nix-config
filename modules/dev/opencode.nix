@@ -84,8 +84,10 @@
       home.file.".config/opencode/agents/reviewer.md".source = reviewerAgent;
       home.file.".config/opencode/opencode.json".source = jsonFormat.generate "opencode.json" {
         "$schema" = "https://opencode.ai/config.json";
-        model = "openai/gpt-6-luna";
+        model = "anthropic/claude-sonnet-5-5";
         default_agent = "build";
+        agents.build.model = "anthropic/claude-sonnet-5-5#medium";
+        agents.plan.model = "anthropic/claude-opus-5-5#medium";
         experimental.todo = true;
         mcp.servers.nixos = {
           type = "local";
